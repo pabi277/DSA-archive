@@ -21,7 +21,6 @@ export function useFriends(account: AccountState, entries: CloudProgressByTopic,
   const summaries = summariesState?.uid === uid ? summariesState.values : {}
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const [retry, setRetry] = useState(0)
   const ids = idsState?.uid === uid ? idsState.ids : []
   const profileCurrent = profile?.uid === uid ? profile : null
   const idsKey = ids.join('\u0000')
@@ -41,29 +40,35 @@ export function useFriends(account: AccountState, entries: CloudProgressByTopic,
   }, [uid])
 
   useEffect(() => {
-    if (!uid || !idsKey) return
-    const timer = window.setInterval(() => setRetry((n) => n + 1), 60_000)
-    return () => window.clearInterval(timer)
-  }, [uid, idsKey])
-
-  useEffect(() => {
     setSummariesState(null)
     if (!uid || !db || !idsKey) return
     let active = true
-    const unsubscribers = idsKey.split('\u0000').map((friendUid) => onSnapshot(doc(db!, 'users', friendUid, 'public', 'summary'), { includeMetadataChanges: true }, (snap) => {
-      if (!active) return
-      const parsed = !snap.metadata.fromCache && snap.exists() ? parseFriendSummary(snap.data()) : null
-      setSummariesState((old) => {
-        const next = { ...(old?.uid === uid ? old.values : {}) }; delete next[friendUid]
-        if (parsed) next[friendUid] = { uid: friendUid, summary: parsed }
-        return { uid, values: next }
-      })
-    }, () => {
-      if (!active) return
-      setSummariesState((old) => { const next = { ...(old?.uid === uid ? old.values : {}) }; delete next[friendUid]; return { uid, values: next } })
-    }))
-    return () => { active = false; unsubscribers.forEach((unsubscribe) => unsubscribe()) }
-  }, [uid, idsKey, retry])
+    const cleanups = idsKey.split('\u0000').map((friendUid) => {
+      let unsubscribe: (() => void) | undefined
+      let timer: number | undefined
+      const listen = () => {
+        unsubscribe = onSnapshot(doc(db!, 'users', friendUid, 'public', 'summary'), { includeMetadataChanges: true }, (snap) => {
+          if (!active) return
+          const parsed = !snap.metadata.fromCache && snap.exists() ? parseFriendSummary(snap.data()) : null
+          setSummariesState((old) => {
+            const next = { ...(old?.uid === uid ? old.values : {}) }; delete next[friendUid]
+            if (parsed) next[friendUid] = { uid: friendUid, summary: parsed }
+            return { uid, values: next }
+          })
+        }, () => {
+          if (!active) return
+          setSummariesState((old) => { const next = { ...(old?.uid === uid ? old.values : {}) }; delete next[friendUid]; return { uid, values: next } })
+          // Permission errors terminate a Firestore listener. Retry only failed
+          // listeners so newly enabled sharing becomes visible without polling
+          // every successfully subscribed friend.
+          timer = window.setTimeout(listen, 60_000)
+        })
+      }
+      listen()
+      return () => { unsubscribe?.(); window.clearTimeout(timer) }
+    })
+    return () => { active = false; cleanups.forEach((cleanup) => cleanup()) }
+  }, [uid, idsKey])
 
   useEffect(() => {
     if (!uid || !db || !ready || !profileCurrent?.sharing) return

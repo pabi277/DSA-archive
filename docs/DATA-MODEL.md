@@ -89,14 +89,30 @@ users/{uid}/plans/{yyyy-mm-dd}               // phase 4 — today's plan (1 doc 
   updatedAt                                  // serverTimestamp, enforced by rules
 
 users/{uid}/friends/{friendUid}              // phase 5
-  addedAt                                    // existence = friendship (both sides written client-side per rules)
+  code, addedAt                              // reciprocal pair created atomically using invite
 
 users/{uid}/public/summary                   // phase 5, ONLY if shareSummary = true
   displayName, solvedCount, solvedByTopic: {…},
-  currentStreak, lastActiveDate, weeklySolved
+  currentStreak, lastActiveDate, weeklySolved, asOf
   // written by the owner's client whenever progress changes;
   // readable by friends only (rules); NEVER contains notes/snippets
 ```
+
+### Phase 5 implementation detail (rules v4)
+
+`invites/{code}` maps a 128-bit random bearer code to its owner; direct get is
+allowed to signed-in code holders, listing is denied. A recipient atomically
+creates both friend documents; rules verify the invite owner, requester and
+reciprocal `getAfter` state. Either party can remove the link. Summary reads
+require both friend documents and the target profile's opt-in flag; profile,
+notes and progress remain private. The optional profile `friendCode` tracks the
+current code for rotation. Backups exclude invites, friend documents and
+summaries and do not restore sharing. Summary `asOf` is the author's local day;
+weekly counts are rolling seven days, and stale summaries are excluded from
+ranking and the viewer-local session goal. Active listeners cost one initial
+summary read per visible friend plus reads for updates; denied listeners retry
+at most once a minute while the app is open. Cache cannot retract previously
+observed data.
 
 ### Security-rules principles (the actual protection — `rule.md` §5)
 

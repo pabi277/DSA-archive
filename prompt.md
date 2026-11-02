@@ -109,7 +109,18 @@
   spot-check** is pending; create the **Spark** project personally before the
   gated live check.
 
-## Next: Phase 5 — Friends (opt-in)
+## Phase 5 in progress on `arena/49d9fa08-dsa-archive`
+
+Implementation and two-account emulator acceptance passed CI run
+[41528159501](https://github.com/pabi277/DSA-archive/actions/runs/41528159501)
+at `3218933`; later retry/a11y changes require another green run. See
+`docs/phases/05-friends.md` for design, verification, preview and limitations.
+The target for the rolling-seven-day group total is viewer-local and
+session-only, not synchronized. No PR or deploy was made. Owner visual review
+of the phone screenshot against the mock remains outstanding; sandbox cannot
+download Actions artifacts. Continue phase 5 only until all phase gates pass.
+
+## Phase 5 original handoff — Friends (opt-in)
 
 Read `rule.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`,
 `docs/DATA-MODEL.md` (§3 profile/friends/summary shape, §4 quota, §6 backup),

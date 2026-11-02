@@ -17,7 +17,7 @@ export function FriendsView({ friends, today }: { friends: FriendsState; today: 
     <div className="notice"><div><strong>Summary sharing: {friends.profile?.sharing ? 'on' : 'off'}</strong><p>Friends can see your solved totals by topic, streak and rolling seven-day solves. Turn off to revoke access.</p></div>
       <button className="button button-secondary" type="button" disabled={friends.busy || !friends.profile} onClick={() => friends.setSharing(!friends.profile?.sharing)}>{friends.profile?.sharing ? 'Stop sharing' : 'Share summary'}</button>
     </div>
-    <h3>Invite a friend</h3><p>Anyone with this code can join your friends list. Share privately; rotating prevents new uses of the old code.</p>
+    <h3>Invite a friend</h3><p>Anyone with this code can join your friends list. Share privately; rotating prevents new uses of the old code. Rotate after removing someone who still knows it.</p>
     {friends.profile?.code && <p data-testid="invite-code"><code>{friends.profile.code}</code></p>}
     <button className="button button-secondary" type="button" disabled={friends.busy || !friends.profile} onClick={friends.createInvite}>{friends.profile?.code ? 'Rotate invite code' : 'Create invite code'}</button>
     <form onSubmit={(e) => { e.preventDefault(); friends.addFriend(code) }}>
@@ -33,7 +33,7 @@ export function FriendsView({ friends, today }: { friends: FriendsState; today: 
     })}
     <h3>Friends leaderboard</h3><p>Rolling seven-day solves; only summaries updated today are ranked. Others are excluded, not counted as zero.</p>
     {ranked.length ? <ol data-testid="friends-leaderboard">{ranked.map((item) => <li key={item.uid}>{item.summary.displayName}: {item.summary.weeklySolved} solved</li>)}</ol> : <p>No current shared summaries.</p>}
-    <h3>Weekly group goal</h3><label htmlFor="group-goal">Your goal for this group</label>{' '}
+    <h3>Weekly group goal</h3><label htmlFor="group-goal">Your goal for this group (this session only)</label>{' '}
     <input id="group-goal" type="number" min="1" max="10000" value={goal} onChange={(e) => setGoal(Math.max(1, Math.min(10000, Number(e.target.value) || 1)))} />
     <p data-testid="friends-goal">{group.total}/{group.goal} solves · {group.included} current summaries · {group.stale} out of date · {friends.ids.length - visible.length} unavailable</p>
     <h3>Compare by topic</h3><p>Counts from available shared summaries only.</p>

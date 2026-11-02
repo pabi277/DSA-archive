@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import AxeBuilder from '@axe-core/playwright'
 
 test.skip(!process.env.PLAYWRIGHT_EMULATOR, 'Requires Firebase Emulator Suite')
 const project = 'demo-dsa-archive'
@@ -36,6 +37,8 @@ test('two accounts share only opted-in summaries and leaderboard follows progres
     await owner.locator('[data-testid^="today-done-"]').first().click()
     await expect(friend.getByTestId('friends-leaderboard')).toContainText('CI Owner: 1 solved')
     await expect(friend.getByTestId('friends-goal')).toContainText('1/20')
+    expect((await new AxeBuilder({ page: friend }).analyze()).violations).toEqual([])
+    await friend.screenshot({ path: 'test-results/friends-phone.png', fullPage: true })
     await owner.getByTestId('view-tab-friends').click()
     await owner.getByRole('button', { name: 'Stop sharing' }).click()
     await expect(friend.getByText('Summary unavailable')).toBeVisible()
