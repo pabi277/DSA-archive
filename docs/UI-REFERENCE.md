@@ -19,16 +19,30 @@
   data, phone-width first, reviewed via the `site-preview` artifact on
   the owner's phone. Approved values freeze here; the mock is then
   folded into phase 1 or discarded (recorded in the 0-D record).
-- Direction questions for the owner at 0-D (not before): dark-first or
-  light-first · level-badge colour story · density (comfortable phone
-  list vs compact) · site wordmark/logo style (our own, always).
+- Owner’s prototype direction (2026-11-02; selections guide the draft,
+  **not design approval**): **dark-first** with light alternative ·
+  **neutral level badges with text labels** · responsive for both phones
+  and desktop (comfortable touch rows on phones; wider/denser layout on
+  desktop) · **text-only “DSA Archive” wordmark**.
+- The prototype was reviewed by the owner in chat on 2026-11-02 and is
+  **approved**. It has been folded into phase 1: the mock component
+  `src/design-prototype.tsx` is deleted and its approved component styles
+  survive in `src/styles.css` under product names. The mock is still
+  readable in git history at `1791693` for later phases.
 
 ## Approval
 
-- [ ] YYYY-MM-DD — owner approved [all screens / with listed changes]
-      in chat. *(blank until phase 0-D)*
+- [x] 2026-11-02 — owner approved **all screens as mocked**, with no
+      listed changes. The owner reviewed the live prototype served from
+      the session branch and then commanded phase 1 to start; since
+      `rule.md` §5 gates phase 1 on this approval, that command is the
+      approval. The token proposal was frozen unchanged at the same
+      moment and is recorded in the Tokens section below.
 - Changes after approval (direction changes re-open the gate):
-  - *(none yet)*
+  - *(none. The differences between the approved mock and the shipped
+    phase-1 sheet are listed under "Deliberate adaptations" at the
+    bottom of this file — they are implementation differences, not
+    token or direction changes.)*
 
 ## Screens & states (complete v1 inventory — one row per state)
 
@@ -55,39 +69,120 @@
 | Offline / 404 | friendly offline page (PWA), not-found | 6 |
 | Every screen × | **dark + light · phone (~390px) + desktop · large-font** variants checked | 0-D, 6 |
 
-## Tokens (frozen at 0-D approval — placeholders until then)
+## Tokens (FROZEN — owner approval 2026-11-02)
 
-- Colours (hex): primary/seed [ ] · surface [ ] · background [ ] ·
-  success/done [ ] · warning/revision-due [ ] · error [ ] · text
-  primary/secondary [ ] · level badges basic/core/pro [ ]/[ ]/[ ] ·
-  dark scheme derived & checked (not invented twice) [ ]
-- Type: one UI font + one mono font (self-hosted, licence logged at
-  phase 0 — never the specimen's font files); scale: page title [ ] ·
-  topic [ ] · row [ ] · meta/label [ ]
-- Spacing: 4/8 scale · screen padding [ ] · row height [ ] · touch
-  targets ≥ 44px · radii [ ] · elevation levels [ ]
-- Icons: ONE set (plan: Lucide) — status check, bookmark, external
-  practice/article/video/LeetCode, search, dice, calendar, flame,
-  users (friends), download/upload, settings, sync/offline.
+`src/styles.css` (`.app-root` custom properties) is the single source of
+truth for these values; this section documents them. **Changing a frozen
+value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
+
+- **Colours (hex) — dark-first, light alternative.**
+  - background/canvas `#101313` · surface `#171b1b` · raised surface `#1e2322`
+  - border/line `#343a38` · notice background `#222a28` · notice border `#48544e`
+  - text primary `#edf0ed` · secondary/muted `#a1aaa4` · quiet/subtle `#858e88`
+  - accent `#c4d0ca` · accent-ink (text on accent) `#121816`
+  - light alternative: canvas `#f3f5f2` · surface `#ffffff` · raised `#f8faf8` ·
+    line `#d9dfda` · text `#202722` · muted `#5b665f` · subtle `#637067` ·
+    accent `#33483d` · accent-ink `#ffffff` · notice `#eef2ee` / border `#c8d1ca`
+  - success/done · warning/revision-due · error: **no separate hue story in
+    v1.** Done = accent fill on the status control; warning and error keep the
+    neutral border accents the approved mock used (`#716b54`, `#805b5b`).
+    State is always also carried by a text label, never by colour alone.
+  - level badges basic/core/pro/ungraded: **one neutral treatment** (raised
+    surface, `#343a38` border, muted text) distinguished **only by the text
+    label** — the owner's 0-D direction.
+  - dark is the default scheme; light is the derived alternative. Both are
+    contrast-checked by axe in CI at phone and desktop widths, so the dark
+    scheme is verified rather than invented twice.
+- **Type.** No bundled or self-hosted font files in v1 — there is no font
+  licence to log and no specimen font is used. UI stack:
+  `ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+  Roboto, "Helvetica Neue", sans-serif`. Mono (code snippets, phase 3):
+  `ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace`.
+  Scale: page title `clamp(25px, 3vw, 34px)` · card/topic title `16px` ·
+  problem row `13px`/600 · subtopic heading `13px`/650 · meta & labels
+  `11–12px` · base `15px` desktop, `14px` at ≤560px · large-text mode `18px`
+  desktop, `17px` phone.
+- **Spacing.** 4px base scale (steps in use: 4/5/7/8/9/10/11/12/14/15/17/22/35) ·
+  screen padding `clamp(18px, 4vw, 54px)`, `16px` on phones · problem row
+  `min-height 60px` · topic header `min-height 58px` · card padding `16–20px`.
+  Touch targets: **primary controls ≥44px** (buttons, search field, status
+  toggles in the toolbar); **dense in-row secondary controls 34–36px**
+  (row-action links, chips, bookmark) exactly as approved in the mock — above
+  the WCAG 2.2 AA 24px minimum, and each sits in a 60px-tall row.
+  Radii: `6px` status check · `9–10px` row actions and inputs · `12px` buttons
+  and topbar controls · `14px` notices and metric tiles · `16px` cards ·
+  `999px` pills, badges and chips.
+  Elevation: **none** — the design is flat and border-defined (`1px` line);
+  the only depth effect is the sticky topbar's `blur(14px)` over 94% canvas.
+- **Icons.** **No icon library ships in v1.** Row actions, status, bookmark
+  and search use text labels plus typographic glyphs (`⌕ ✕ ✓ ☆ ★ ›`), which
+  keeps the approved text-labelled direction and adds no dependency or
+  licence check. Lucide remains deferred (`DECISIONS.md`); adopting it later
+  is a recorded DEPEND with a per-package licence check.
 
 ## Component inventory (= phase build checklist)
 
-- [ ] App header (wordmark, progress ring, streak, sync pill, avatar menu)
-- [ ] Search box (keyboard shortcut on desktop) + filter chips row
-- [ ] Topic accordion header (title, `n/m`, progress bar, chevron)
-- [ ] Problem row (status control, title, badges, link buttons, bookmark)
-- [ ] Bottom nav (phone: Sheet · Today · Revision · Friends · More)
-- [ ] Note editor (textarea, markdown preview, code block)
-- [ ] Friend summary card + compare bars · invite-code block
-- [ ] Buttons/dialogs/toasts · one reusable empty-state pattern
+- [x] App header (wordmark, progress count pill, appearance + large-text
+      controls) — *phase 1*. The progress **ring**, **streak** and **sync
+      pill** are phase 2/4 (they need an account and a network state);
+      the **avatar menu** is phase 2.
+- [x] Search box (keyboard shortcut `/` on desktop) + filter chips row
+      (topic select, level, link type, hide-done) — *phase 1*.
+- [x] Topic accordion header (title, `done/total`, progress bar, chevron)
+      — *phase 1*.
+- [x] Problem row (status control, title, level badge, outbound link
+      buttons, bookmark) — *phase 1*.
+- [x] Buttons · notices · one reusable empty-state pattern — *phase 1*.
+      Dialogs and toasts are deferred to the first phase that needs them
+      (phase 2 sign-in errors / phase 3 note editor).
+- [ ] Bottom nav (phone: Sheet · Today · Revision · Friends · More) —
+      **deferred, see adaptations**; returns in phase 2+.
+- [ ] Desktop rail navigation — **deferred** with the bottom nav.
+- [ ] Note editor (textarea, markdown preview, code block) — phase 3.
+- [ ] Friend summary card + compare bars · invite-code block — phase 5.
 
 ## Comparison duty (per UI phase)
 
 - Each UI phase record reviews preview screenshots (phone + desktop,
   dark + light) against the approved 0-D mock side-by-side;
   differences are fixed or listed below as deliberate adaptations.
+- **Phase 1 review (2026-11-02):** `test-results/sheet-desktop.png`,
+  `sheet-phone-light.png` (CI `site-e2e-diagnostics` / run logs) and the
+  live dev preview were compared against the approved mock's
+  `Sheet · signed out`, `Sheet · topic expanded`, `Sheet · no results`
+  and `Sheet · filters on` states. Same tokens, same chrome, same row
+  anatomy, same neutral badges. Every difference found is listed below;
+  none of them is a token change.
 
 ## Deliberate adaptations (planned differences, not drift)
 
-- *(none yet — first entries expected when real 495-row data and real
-  friend summaries meet the mock)*
+- **Bottom nav and desktop rail omitted in phase 1.** The mock showed
+  five destinations; four of them (Today, Revision, Friends, More) do not
+  exist until phases 2–5. Shipping a nav bar of dead controls would be
+  worse than none, so phase 1 renders a single-destination layout. Both
+  return, with the approved styles already in `src/styles.css`, as soon
+  as a second destination exists.
+- **Primary "Sign in" button replaced by a static banner.** Phase 1 has
+  no Firebase, so a sign-in button would be a dead control. The approved
+  copy "Sign in to save progress" is kept in the banner, which also says
+  plainly that progress is device-local until phase 2.
+- **An "Ungraded" badge for the 15 rows the source gave no badge.** The
+  mock omitted a badge there; with real data that left the row grid
+  unstable and hid a real category. The badge is the same neutral
+  treatment and states a fact about the source — no level is invented
+  (`DECISIONS.md`, phase 0).
+- **Progress is real but device-local, not fake.** The hint, hide-done
+  and the header count need truthful input, so `src/progress.ts` stores
+  `{ s, b }` per problem, sharded per topic in `localStorage` — the exact
+  shape of `DATA-MODEL.md` §3, so phase 2 swaps the source for Firestore
+  and merges guest rows without a migration.
+- **Mock-only scaffolding removed:** the "DESIGN PREVIEW" banner, the
+  screen picker, the simulated online/offline toggle and the fake
+  account/context panels.
+- **`Inter` dropped from the font stack.** The mock listed it first; the
+  frozen token says system sans with no bundled font, and naming Inter
+  would have silently changed the design on machines that happen to have
+  it installed.
+- **Subtopic headings are `<h2>`, not `<h3>`.** Topic titles live in a
+  `<summary>` (not a heading), so an `<h3>` under an `<h1>` would skip a
+  level and fail the axe `heading-order` rule in CI.

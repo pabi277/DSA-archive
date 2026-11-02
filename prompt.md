@@ -1,104 +1,146 @@
-<!-- Adapted for a WEBSITE from AppFlow templates/prompt-app.md (MIT template). -->
+<!-- This file is the continuation prompt: paste it into the next chat. -->
 
 # DSA Archive (website) — continuation prompt
 
-> **Self-contained handoff.** Repo authority is `rule.md`; owner answers
-> are in `docs/DECISIONS.md`; roadmap in `docs/ROADMAP.md`; live status
-> is here. AppFlow @ `57597b3332ad578614a0d9d5609f9cf8a278ee8a` is
-> provenance only. Update this file at every phase end in the same commit
-> as the phase record.
+> **Self-contained handoff.** Repo authority: `rule.md`; owner answers:
+> `docs/DECISIONS.md`; roadmap: `docs/ROADMAP.md`; design inventory and
+> **frozen** tokens: `docs/UI-REFERENCE.md`; data/Firestore shape:
+> `docs/DATA-MODEL.md`; living state: this file. AppFlow @
+> `57597b3332ad578614a0d9d5609f9cf8a278ee8a` is provenance only. Update
+> this file at each phase end in the same commit as that phase record.
 
 ## Identity (fixed — exit gate complete 2026-11-02)
 
 - Site: `DSA Archive` · repo: `pabi277/DSA-archive` · MIT applies to
-  original code/data only. `LICENSE` was added in Phase 0.1; it does not
-  cover `copy-web/`, third-party content or libraries.
-- Audience: owner + a few invited friends. Backend: **Firebase Spark
-  only** — Google Auth + Firestore + Hosting (gated); no Functions,
-  Storage or Blaze.
-- Website first; any Android app is a separate project. Keep data,
-  tokens and Firestore shape portable.
-- Git author (owner-designated): `pabi277
-  <chakraborttypabi2772006@gmail.com>`. Before each commit verify
-  `git var GIT_AUTHOR_IDENT` and `git var GIT_COMMITTER_IDENT`; repo-local
-  config is already set. Work only on the session branch assigned to your
-  chat. The current session branch is `arena/07bfcf1a-dsa-archive`;
-  planning branch `arena/6dcaf48f-dsa-archive` was merged and must not be
-  reused. Never push `main`.
+  original code/data only; `LICENSE` is present.
+- Audience: owner + a few invited friends. Backend: **Firebase Spark only**
+  — Google Auth + Firestore + Hosting (gated); no Functions, Storage or
+  Blaze. Website first; any Android app is a separate project.
+- Git author: `pabi277 <chakraborttypabi2772006@gmail.com>`. Before every
+  commit verify `git var GIT_AUTHOR_IDENT` / `GIT_COMMITTER_IDENT`; a fresh
+  clone may default to a `noreply` address, so set the repo-local identity
+  first. The phase-1 chat worked on `arena/df11f576-dsa-archive`; the next
+  chat must use **its own** Arena-assigned branch and must not rename,
+  switch or reuse another chat's branch. Never push `main`.
 
 ## Rules digest (full rules: `./rule.md`)
 
-- One phase per chat, strictly within `docs/ROADMAP.md` "Done means".
-- Never create/switch branches, push `main`, force-push, reset hard,
-  open a PR, merge, tag, release, deploy (including Hosting preview
-  channels), deploy live rules, create/upgrade a Firebase project, change
-  repo visibility or bulk-delete/move files without the owner's explicit
-  command.
-- Read `docs/DECISIONS.md` before asking; recorded decisions are never
-  re-asked. Ask less; gate always.
-- Clean-room law: `copy-web/index.html` is STUDY-only. Never ship its
-  code/assets/content. Only factual hierarchy, problem titles/order/levels
-  and outbound links may cross over in our own code/data. Link out to
-  learning content.
-- No secrets in git/chat. Owner personally handles Firebase console
-  work. Security rules are the protection and must be Emulator-tested
-  before a gated live deploy.
-- CI green + downloadable `site-preview` each phase. Firebase phases
-  also need emulator rule tests. Docs ride with code; report CI run, tip
-  SHA, artifact and what preview shows; print next-chat prompt in chat;
-  stop at the merge gate.
-- No real product UI until phase 0-D design approval and tokens freeze in
-  `docs/UI-REFERENCE.md`.
+- One phase per chat, exactly within `docs/ROADMAP.md` "Done means".
+- No PR, merge, release, deployment (including GitHub Pages or Hosting
+  preview channels), live Firebase change, project creation/upgrade,
+  visibility change, or bulk move/delete without explicit owner command.
+- Never re-ask recorded choices. Read `docs/DECISIONS.md` first.
+- Clean-room: `copy-web/` is STUDY-only. Do not ship its code/assets/text.
+  Factual topic/problem labels/order/levels/links live in our own data
+  file; learning content is reached by linking out.
+- No secrets in git/chat. The owner handles Firebase console steps and
+  creates the Spark project personally. Security rules are the protection
+  and must be Emulator-tested before any gated live deploy.
+- CI green + downloadable `site-preview` per phase. Any Firebase phase
+  additionally needs Firestore **rules tests against the Emulator Suite in
+  CI**. Docs ride with the code commit. Report CI run/tip/artifact and what
+  the preview shows; print the next-chat prompt in chat; stop at the gate.
+- **The design gate is now cleared:** 0-D was approved 2026-11-02 and the
+  tokens are frozen in `docs/UI-REFERENCE.md`. Build UI to those tokens;
+  changing a frozen value or the design direction re-opens the GATE.
 
-## State (update at every phase end)
+## Current state (2026-11-02)
 
-- **Phase 0 — Bootstrap + data extraction: ✅ complete** (2026-11-02)
-  on this session branch. Record: `docs/phases/00-bootstrap-data-extraction.md`.
-  Commit sequence starts with `4fd4b91`; branch tip before the final docs
-  update was `58d5e3e`.
-- Delivered: MIT licence/hygiene; one-time clean-room extraction to
-  `data/problems.json`; pinned Vite + React + TypeScript + Tailwind/daisyUI
-  hello-sheet; unit/data/build/link/dist checks; responsive/accessibility
-  CI and emulator-only `firebase.json` (no Firebase SDK/project/Hosting
-  config or live changes). `copy-web/` remains unchanged and excluded from
-  every build.
-- Catalogue: **495 rows · 20 topics**. Reconciled levels: Basic 84, Core
-  287, Pro 109, plus 15 rows with no source badge (`level: null`). Link
-  unique counts: practice 453, articles 286, LeetCode 273, `youtu.be` 256;
-  extraction also retains 65 additional unique `youtube.com` links. The
-  older 85/288/110 badge tally was not reproducible from the snapshot.
-- CI first green run: #1
-  `https://github.com/pabi277/DSA-archive/actions/runs/41473226909`
-  (tip `58d5e3eafabd03d07d59ab8d9f1e9ac4d1f55f3d`); `site-preview`
-  artifact uploaded (122,163 bytes, 14-day retention). The workflow Action
-  dependencies were updated after GitHub emitted a Node 20 deprecation
-  annotation; verify the latest run again at chat start/end.
-- **Owner content-accuracy task still pending:** spot-check 10 random
-  catalogue rows against the live sheet. The data file does not claim that
-  review happened. This task does not license copying explanations.
-- No design is approved. The page is only a minimal count/topic preview;
-  no sign-in, progress, notes or planner behavior exists.
-- Open owner items remain in `docs/DECISIONS.md`: repository is PUBLIC
-  while holding third-party copied material (owner should make it private
-  or explicitly command a visibility change); create a Spark Firebase
-  project personally before Phase 2 (not now).
-- No PR, merge, deploy, Hosting preview channel, live Firebase project,
-  or live rules change has been authorized/performed.
+- **Phase 0 — Bootstrap + data extraction: ✅ complete and merged.**
+  PR #2 merged to `main` at `8638a91`. Record:
+  `docs/phases/00-bootstrap-data-extraction.md`. Data: **495 rows · 20
+  topics** (Basic 84 · Core 287 · Pro 109 · 15 unbadged stored as `null`;
+  link rows practice 453, video 369, article 289, LeetCode 289).
+- **Phase 0-D — Design prototype + tokens freeze: ✅ approved 2026-11-02.**
+  The owner reviewed the live prototype and commanded phase 1, which is the
+  approval (`rule.md` §5 gates UI on it). Tokens frozen **unchanged** in
+  `docs/UI-REFERENCE.md`; the mock `src/design-prototype.tsx` was folded
+  into phase 1 and deleted (readable at `1791693`). Records:
+  `docs/phases/00d-design-prototype.md` → "Approval outcome".
+- **Phase 1 — Sheet core: ✅ complete and merged to `main`.** Record:
+  `docs/phases/01-sheet-core.md`. The work stopped at the merge gate as
+  `rule.md` §2 requires; the owner then commanded **"Merge it to main"**
+  (2026-11-02), so **PR #3** (`arena/df11f576-dsa-archive` → `main`) was
+  opened and merged with a merge commit, matching PRs #1 and #2. Phases
+  0-D and 1 landed together. `main` was never pushed directly by the
+  agent. **No deploy, Hosting channel, tag, release, Firebase project or
+  visibility change** was authorized or made — there is still no public
+  URL. Next chat: confirm the merge commit SHA from `main`'s history.
+  - CI **Site CI run #13 green on the first attempt** (1m11s) at tip
+    `baac7acdb17301d5991116e962245ccdb492d3f4`:
+    https://github.com/pabi277/DSA-archive/actions/runs/41490242266 —
+    catalogue, 50 unit/jsdom tests, build, dist/link checks and the
+    real-Chromium phone+desktop browser spec with two axe audits. The
+    failure-only diagnostics step was skipped. **`site-preview` artifact:
+    129,574 bytes** (14-day retention). Run #12 was the earlier push of
+    the ported 0-D state, also green.
+  - Shipped: all 495 rows in 20 topic accordions (84 subtopics), browsable
+    signed out · instant cross-topic search (row/subtopic/topic titles, `/`
+    shortcut, auto-expanding matches) · filters: topic select, level chips
+    (incl. **Ungraded**), link-type chips, hide-done · live result count ·
+    empty state with clear action · random pick over the visible rows ·
+    weakest-topic hint · outbound row links (`target=_blank`,
+    `rel=noopener noreferrer`; 14 rows legitimately have none) · status +
+    bookmark toggles · dark/light and large-text variants, both persisted.
+  - Code: `src/App.tsx`, `src/SheetList.tsx`, `src/sheet.ts`,
+    `src/progress.ts`, `src/settings.ts`, `src/catalogue.ts`,
+    `src/styles.css`; tests `src/sheet.test.ts`, `src/progress.test.ts`,
+    `src/app.test.tsx`; browser spec `e2e/sheet.spec.ts`.
+  - **No dependency was added.** No Firebase SDK, no network call, no
+    account. Progress/settings are device-local (`localStorage` keys
+    `dsa-archive.progress.v1`, `dsa-archive.settings.v1`) in exactly the
+    `DATA-MODEL.md` §3 shape minus timestamps.
+  - Local checks green: `test:data`, `npm test` (**50 tests**), `build`
+    (`tsc -b` clean), `check:dist`, `check:links`, `git diff --check`.
+    `test:e2e` cannot run in the agent sandbox (Playwright Chromium
+    download host is outside the network allowlist), so `src/app.test.tsx`
+    mirrors `e2e/sheet.spec.ts` in jsdom and **CI is the authority**.
+- Deliberate deviations from the approved mock (nav deferred, static
+  sign-in banner, `Ungraded` badge, real device-local progress, mock
+  scaffolding removed, `Inter` dropped, `<h2>` subtopics) are listed in
+  `docs/UI-REFERENCE.md` → Deliberate adaptations. None is a token change.
+- Open owner items (`docs/DECISIONS.md`): the repo is still **PUBLIC**
+  while `copy-web/` holds the third-party snapshot — make it private or
+  command the change; the **10-row live-sheet spot-check** is still
+  pending; create the **Spark** Firebase project personally before phase 2.
+- Known debt, deliberately deferred: the CSS/JS bundle is dominated by
+  Tailwind + daisyUI (193 kB CSS / 401 kB JS, 32 kB / 99 kB gzipped) and
+  daisyUI renders no component yet — a **phase 6 perf-budget** item.
 
-## Next: Phase 0-D — Design prototype + tokens freeze
+## Next: Phase 2 — Firebase Auth + cloud progress
 
 Read `rule.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`,
-`docs/RESEARCH.md`, `docs/DATA-MODEL.md`, `docs/UI-REFERENCE.md`, and the
-Phase 0 record. Verify `git status`, `git log`, PRs, CI and author identity.
-Confirm the starting branch is the chat's assigned session branch; do not
-reuse the previous branch. Do not re-ask any recorded answer.
+`docs/DATA-MODEL.md` (§3 schema, §4 Spark budget, the signed-out/merge
+note), `docs/UI-REFERENCE.md` (frozen tokens + adaptations) and
+`docs/phases/01-sheet-core.md`. Verify branch, `git status`, PRs, CI runs
+and Git author identity first; work only on this chat's assigned branch.
+Do not re-ask any recorded answer. Do not start phase 3.
 
-Build only the phase 0-D prototype specified in `docs/UI-REFERENCE.md`:
-phone-first mockups for every listed screen/state (including sign-in,
-sync/offline and friends), using fake but real-shaped data; owner review
-via the `site-preview` artifact; ask the four recorded design choices
-(dark/light, badge colors, density, original wordmark); freeze tokens only
-after explicit owner approval in chat. Keep real UI code blocked until
-approval. Invite owner to complete the pending 10-row data spot-check.
-Do not start Phase 1 before the 0-D approval is recorded. End at the
-merge gate; no PR/merge/deploy without a new explicit command.
+Phase 2 parts, exactly as the roadmap states them:
+
+1. **Owner pre-step (never the agent's):** create the **Spark** Firebase
+   project personally from the checklist the phase-2 record must contain.
+   The agent never handles credentials, never creates/links a project,
+   never deploys live rules or Hosting. Web config values are public
+   identifiers; **rules are the protection**.
+2. **2.1** Google sign-in + profile (the phase-1 banner becomes the real
+   sign-in flow; avatar menu returns to the header).
+3. **2.2** Progress sync using the topic-sharded docs of `DATA-MODEL.md`
+   §3 + Firestore offline cache + the **signed-out→signed-in merge** of
+   the guest rows phase 1 already writes to `dsa-archive.progress.v1`
+   (merge shown to the user, never silent; if it proves fiddly, cut guest
+   mode rather than ship it buggy and record that).
+4. **2.3** Firestore rules v1 (own-data-only, default deny, field/size
+   validation) **proved by Emulator-Suite tests in CI** — including
+   stranger-read and oversized-write cases. Weakening a rule to make a
+   test pass is a failed phase.
+5. **2.4** Export/import backup (JSON), with success and invalid-file
+   error states.
+
+"Done means": solve on the phone preview → the same progress after a
+"relogin" in a fresh browser profile **against the emulator in CI**, plus
+the owner's own live check once a project is linked (gated); offline
+marking syncs on reconnect; rules tests prove user A cannot read user B.
+Keep the sheet browsable signed-out, keep the frozen tokens, add no
+dependency outside the Firebase whitelist, and end at the merge gate — no
+PR/merge/deploy without a fresh explicit command.

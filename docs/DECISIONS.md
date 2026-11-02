@@ -72,6 +72,43 @@
   `copy-web/index.html`. No deployment or live Firebase is authorized
   by this answer, and future merges remain gated.
 
+## Owner decisions — phase 0-D prototype direction + approval (2026-11-02)
+
+- 2026-11-02 — Prototype preference choices: **dark-first**; **neutral,
+  text-labelled level badges**; responsive for **both phone and desktop**
+  (comfortable phone touch spacing, wider desktop layout); **text-only
+  “DSA Archive” wordmark**. At the time these guided the disposable
+  prototype only; they are now part of the approved design.
+- 2026-11-02 — **Phase 0-D prototype and design tokens: APPROVED.** The
+  owner reviewed the prototype running live from the session branch
+  (all 25 mocked screens via the picker, dark and light, phone and
+  desktop) and then commanded phase 1 to start. Because `rule.md` §5
+  gates all real UI on this approval, that command is the approval; no
+  changes were requested. Recorded effects: the approval checkbox in
+  `docs/UI-REFERENCE.md` is dated 2026-11-02, the candidate palette/type/
+  spacing values are **frozen there unchanged**, phase 0-D is ✅, and
+  phase 1 UI work is unblocked. This approval covers the **design**; it
+  does not authorize a PR, merge, deploy, or any Firebase work — those
+  remain separately gated.
+- 2026-11-02 — **Phase 1 authorized** by the same command ("start phase
+  1"): roadmap phase 1 only (1.1 accordions + all 495 rows, 1.2 search/
+  filters/random/weakest-topic, 1.3 outbound row actions). Phase 2 was
+  **not** authorized: no Firebase project, no Auth, no Firestore, no
+  Hosting, no deploy.
+- 2026-11-02 — **Merge to `main`: AUTHORIZED**, owner's explicit command
+  in chat, verbatim: **"Merge it to main."** Recorded as explicit merge
+  authorization for **PR #3** (`arena/df11f576-dsa-archive` → `main`),
+  covering the phase 0-D approval/token-freeze commit and the phase 1
+  sheet-core commits — i.e. phases 0-D and 1 land on `main` together.
+  This is the second merge the owner has commanded (the first was the
+  plan-docs + `copy-web/` move, above). It authorizes **the merge only**:
+  no deploy, no Hosting channel, no Firebase project, no rules deploy, no
+  repo-visibility change, and every future merge stays separately gated.
+  Note on ordering: the commit recording this command rides inside PR #3
+  itself, so the merge commit on `main` lands immediately after it; the
+  merge-commit SHA is visible in `main`'s history and is confirmed by the
+  next phase chat (this repo never pushes `main` directly).
+
 ## Agent decisions (reversible — object if wrong)
 
 - 2026-11-02 — Stack after the Firebase pivot: **Vite + React +
@@ -103,6 +140,36 @@
   source has no badge; do not guess a difficulty. The data is a factual
   extraction only; the owner's 10-row live-sheet spot-check remains
   pending. Reversible at Phase 0 / content remains owner-verified.
+- 2026-11-02 — **Phase 1: the 0-D mock is discarded, not kept behind a
+  flag.** `src/design-prototype.tsx` is deleted (readable at `1791693`)
+  and its approved component styles stay in `src/styles.css`, renamed
+  from `.prototype-*` to product names. Rationale: `UI-REFERENCE.md`
+  says the mock is "folded into phase 1 or discarded"; keeping a second,
+  fake-data screen tree would invite drift from the real sheet.
+- 2026-11-02 — **Phase 1: guest progress lives in `localStorage` now**
+  (`src/progress.ts`), sharded per topic as `{ problemId: { s, b } }` —
+  byte-for-byte the `DATA-MODEL.md` §3 Firestore shape minus the
+  timestamps phase 2 adds. Phase 1 needs truthful input for hide-done,
+  the header count and the weakest-topic hint; phase 2 swaps the source
+  for Firestore and merges these guest rows (merge design already
+  sketched in `DATA-MODEL.md`). No Firebase SDK is imported anywhere.
+- 2026-11-02 — **Phase 1: weakest-topic rule** = among topics the user
+  has *touched* (≥1 row done or bookmarked), the lowest done ratio wins;
+  ties break by most rows remaining, then sheet order. With nothing
+  touched the hint says so instead of guessing. Attempts and revision
+  dates (phase 2/4) can refine this without changing the call site.
+- 2026-11-02 — **Phase 1: no new dependency, and no icon library.** Row
+  actions, status and bookmark use text labels plus typographic glyphs;
+  Lucide stays deferred. Adding a package would need a licence check and
+  is not needed for this phase. daisyUI/Tailwind stay in the stack
+  (owner-approved) even though phase 1 renders no daisyUI component —
+  trimming the CSS bundle is a phase 6 perf-budget item, not a phase 1
+  stack change.
+- 2026-11-02 — **Phase 1: browser checks are mirrored in jsdom.**
+  Playwright's Chromium cannot be downloaded in this sandbox (host
+  outside the network allowlist), so `src/app.test.tsx` asserts the same
+  behaviour `e2e/sheet.spec.ts` asserts in CI. Local green is therefore
+  evidence about CI, not a substitute for it; CI remains the authority.
 
 ## Law waivers
 
@@ -115,14 +182,19 @@
 
 ## Third-party licences
 
-- **Nothing shipped yet.** Repo currently holds a third-party site
-  copy (their build output/fonts/logos) as STUDY reference only — not
-  licensed for redistribution, never in a deployable build.
-- Verified at planning (2026-11-02, LICENSE files / API; to be logged
-  again with pinned versions when they actually ship): Firebase JS SDK
-  Apache-2.0 (+BSD-3 protobuf) · firebase-tools MIT · React MIT ·
-  Vite MIT · Tailwind MIT · daisyUI MIT · Astro MIT (rejected for v1).
-  Lucide: verify per-file licence at phase 0 before DEPEND.
+- **Shipped in Phase 0:** React/React DOM 19.3.1 (MIT), Vite 8.3.5 and
+  React plugin 6.2.1 (MIT), TypeScript 7.0.2 (Apache-2.0), Tailwind CSS
+  and Vite plugin 4.3.3 (MIT), daisyUI 5.7.50 (MIT); test-only Vitest
+  5.0.5/jsdom 30.1.3 (MIT), Playwright 1.64.1 (Apache-2.0), and
+  axe-core Playwright 4.14.0 (MPL-2.0). Exact pins and the phase-time
+  licence check are recorded in `docs/phases/00-bootstrap-data-extraction.md`.
+- No Firebase SDK or icon library is shipped yet. Firebase licences remain
+  verified at planning only; re-check when used. Lucide is deferred until
+  a row-action screen needs icons; verify per-file/package licence then.
+  **Phase 1 added no dependency at all** — the same phase-0 pins ship, so
+  this list is unchanged and needs no re-verification.
+- Repo also holds a third-party site copy as STUDY reference only — not
+  licensed for redistribution and never part of a deployable build.
 
 ## Open
 
@@ -132,8 +204,12 @@
       item remains open, and none of them may be re-asked; changing
       any of them is a new GATE decision. Plan-docs commit +
       `copy-web/` move + merge to `main` were separately commanded
-      by the owner on 2026-11-02 (above); Phase 0 itself starts in
-      the next stage-2 chat — see `prompt.md`.
+      by the owner on 2026-11-02 (above). Phases 0, 0-D and 1 are
+      complete (0-D approved and tokens frozen 2026-11-02); phases 0-D
+      and 1 were merged to `main` through PR #3 on the owner's explicit
+      command of 2026-11-02 (above). Nothing is deployed or published —
+      there is no public URL and no Firebase project. Living state and
+      the next-chat prompt: `prompt.md`.
 
 ### Owner items (settings only you should change)
 

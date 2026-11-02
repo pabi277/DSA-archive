@@ -9,8 +9,8 @@ export type Problem = {
   links: Partial<Record<'practice' | 'article' | 'video' | 'leetcode', string>>
 }
 
-type Subtopic = { id: string; title: string; order: number; problems: Problem[] }
-type Topic = { id: string; title: string; order: number; subtopics: Subtopic[] }
+export type Subtopic = { id: string; title: string; order: number; problems: Problem[] }
+export type Topic = { id: string; title: string; order: number; subtopics: Subtopic[] }
 export type Catalogue = {
   schemaVersion: number
   generatedFrom: string

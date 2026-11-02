@@ -35,6 +35,14 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Phone/desktop screenshot and accessibility checks
         run: npm run test:e2e
+      - name: Upload browser diagnostics on failure
+        if: failure() && hashFiles('test-results/**') != ''
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: site-e2e-diagnostics
+          path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Package downloadable preview
         if: always()
         run: |
