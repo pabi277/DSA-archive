@@ -124,8 +124,10 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
 
 - [x] App header (wordmark, progress count pill, appearance + large-text
       controls) — *phase 1*. The **sync pill** and **avatar menu** are
-      *phase 2*; the progress **ring** and **streak** remain phase 4
-      (they need richer stats).
+      *phase 2*; the **streak** arrives with the phase-4 stats and is
+      surfaced in the context column's *Today at a glance* card (a ring is
+      still not drawn — the approved flat design has no depth/elevation and
+      the count pill plus the goal track carry the same information).
 - [x] Search box (keyboard shortcut `/` on desktop) + filter chips row
       (topic select, level, link type, hide-done) — *phase 1*.
 - [x] Topic accordion header (title, `done/total`, progress bar, chevron)
@@ -151,8 +153,17 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
       sheet, empty states) — *phase 3* (`src/ListsView.tsx`,
       `src/ListPicker.tsx`).
 - [x] View tabs (Sheet · Notes · Lists) using the approved `.list-tabs`
-      anatomy with `aria-pressed` — *phase 3*. Bottom nav and desktop rail
-      stay deferred (their destinations still do not exist).
+      anatomy with `aria-pressed` — *phase 3*, extended in *phase 4* to
+      Sheet · Today · Revision · Notes · Lists · Stats (horizontal overflow
+      on phones). Bottom nav and desktop rail stay deferred (Friends and
+      More still do not exist).
+- [x] Today (planner) — goal line + goal control, planned rows, add-from-sheet
+      search, suggested picks, continue-where-I-left — *phase 4*
+      (`src/PlannerViews.tsx`, `src/plannerData.ts`).
+- [x] Revision queue — due list with spoken due labels, one-tap *Revised ✓*,
+      next-up list, caught-up empty state — *phase 4*.
+- [x] Stats — metric tiles (solved / this week / streak), 8-week heatmap,
+      weekly strip, per-topic bars, solved by level — *phase 4*.
 - [ ] Friend summary card + compare bars · invite-code block — phase 5.
 
 ## Comparison duty (per UI phase)
@@ -167,6 +178,14 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
   and `Sheet · filters on` states. Same tokens, same chrome, same row
   anatomy, same neutral badges. Every difference found is listed below;
   none of them is a token change.
+- **Phase 4 review (2026-11-03):** `test-results/planner-phone.png` (the
+  Stats view at 390×844, captured by `e2e/planner.spec.ts`) plus the existing
+  desktop/phone captures were compared against the approved mock's
+  `Today (planner) — planned / nothing planned / goal met`,
+  `Revision queue — due / caught up` and `Stats` states. The goal line, goal
+  track, metric tiles, heatmap, weekly strip, bar rows and empty states reuse
+  the frozen anatomy; **no CSS was added in this phase**. Every difference is
+  listed below; none changes a token or the approved direction.
 - **Phase 3 review (2026-11-02):** `test-results/library-phone.png` (notes
   view at 390×844, captured by `e2e/library.spec.ts`) plus the existing
   desktop/phone captures were compared against the approved mock's
@@ -256,6 +275,24 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
   raw HTML is escaped and headings render as styled paragraphs so the page
   heading order stays audit-clean. No markdown/editor/sanitiser dependency
   ships.
+- **A six-view tab row instead of the mock's bottom nav.** Today, Revision and
+  Stats exist now, but Friends and More still do not, so the approved
+  five-destination bar would carry two dead controls. The existing
+  `.list-tabs` row grows to six views (it already scrolls horizontally on
+  phones) and the bottom nav returns in phase 5/6 when its destinations do.
+- **The progress ring became a goal track.** The mock sketched a ring in the
+  header; the approved token set is flat with no depth, and a conic-gradient
+  ring cannot be contrast-checked by axe. The goal line (`.goal-line` +
+  `.goal-track`, both frozen in 0-D) carries the same "n of goal" information,
+  stated in text as well as width.
+- **Heatmap shading is backed by numbers.** `.heat-cell` covers a full week
+  grid, so the strip underneath states each day's count and the summary line
+  gives the active-day total — state is never colour-only, as the token rules
+  require.
+- **Revision is a derived state, not a third status control.** The row's
+  status stays the approved binary done/todo check; "due for revision" lives
+  in the queue and in words (`Overdue 2 days · revision 1 of 3`), so the
+  sheet's dense row anatomy and the phase-2 merge logic are untouched.
 - **List membership is ticked, not dragged.** The row list picker is a
   checkbox list plus a "create and add" field — the simplest control that
   meets the 44px touch target and needs no drag-and-drop library.

@@ -1,22 +1,26 @@
 # DSA Archive — my own DSA sheet website
 
-> **Status: Phases 0, 0-D, 1 and 2 are complete and merged to `main`;
-> Phase 3 is complete on its session branch and stopped at the merge
+> **Status: Phases 0, 0-D, 1, 2 and 3 are complete and merged to `main`;
+> Phase 4 is complete on its session branch and stopped at the merge
 > gate.** The owner approved the 0-D design prototype on 2026-11-02, so
 > the design tokens remain **frozen** in
 > [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md). Phase 2 added Google
 > sign-in, a profile avatar menu, offline-first Firestore progress sync,
 > an explicit guest→account merge, versioned Firestore rules with
-> emulator tests, and JSON export/import. Phase 3 adds synced markdown
+> emulator tests, and JSON export/import. Phase 3 added synced markdown
 > notes + code snippets per problem, a searchable notes overview, custom
-> lists that filter the sheet, rules v2 (owner-only notes/lists with size
-> caps) and backup schema v2 with a backward-compatible v1 import. All
-> cloud acceptance runs against the **local Emulator Suite in CI**: Site
-> CI run [#30](https://github.com/pabi277/DSA-archive/actions/runs/41517643913)
-> is green at `21809c5`, with a downloadable `site-preview` artifact.
-> **No live Firebase project has been created, no rules or Hosting
-> deploy was made, and there is still no public URL.** The owner's own
-> live check and the 10-row content spot-check remain pending. Gate record:
+> lists that filter the sheet, rules v2 and backup schema v2. Phase 4 adds
+> the **daily goal + Today plan**, a **3/7/21-day spaced revision queue**
+> with one-tap *revised*, **streak/weekly stats with an 8-week heatmap**,
+> rules v3 (owner-only plan days + a revision counter on progress entries)
+> and backup schema v3 with a backward-compatible v1/v2 reader. All cloud
+> acceptance runs against the **local Emulator Suite in CI**: Site CI run
+> [#39](https://github.com/pabi277/DSA-archive/actions/runs/41524189110)
+> is green at `592c8fd`, with a downloadable `site-preview` artifact
+> (327,940 bytes). **No live Firebase project has been created, no rules
+> or Hosting deploy was made, and there is still no public URL.** The
+> owner's own live check, the 10-row content spot-check and the 14-day use
+> test remain pending. Gate record:
 > [`docs/DECISIONS.md`](docs/DECISIONS.md); phase records:
 > [`docs/phases/`](docs/phases/).**
 

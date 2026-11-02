@@ -1,5 +1,6 @@
 /**
- * Firestore Security Rules — Emulator Suite proof (roadmap 2.3, extended 3.1/3.3).
+ * Firestore Security Rules — Emulator Suite proof (roadmap 2.3, extended in
+ * phases 3.1/3.3 and 4.1/4.2).
  * Run by `npm run test:emulator`; CI starts Auth + Firestore emulators first.
  *
  * No Admin SDK and no service-account key: @firebase/rules-unit-testing
@@ -58,8 +59,17 @@ function entry(overrides = {}) {
     a: 1,
     fd: '2026-11-02T00:00:00.000Z',
     lr: null,
+    rc: 0,
     ...overrides,
   }
+}
+
+function planDoc(problemIds = [], doneIds = [], overrides = {}) {
+  return { problemIds, doneIds, updatedAt: serverTimestamp(), ...overrides }
+}
+
+function planRef(db, uid, date = '2026-11-03') {
+  return doc(db, `users/${uid}/plans/${date}`)
 }
 
 function ref(db, uid, topicId = 'arrays') {
@@ -136,10 +146,12 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
     )
     await assertFails(deleteDoc(ref(bob, 'alice')))
     // An allow rule on one path never opens an unspecified future collection.
-    // (Notes and lists became owner-only in phase 3; plans and friends are
-    // still default-deny until their phases ship explicit rules.)
-    await assertFails(getDoc(doc(alice, 'users/alice/plans/2026-11-02')))
-    await assertFails(setDoc(doc(alice, 'users/alice/plans/2026-11-02'), { problemIds: [] }))
+    // (Notes and lists became owner-only in phase 3, plans in phase 4; friends
+    // and summaries stay default-deny until phase 5 ships explicit rules.)
+    await assertFails(getDoc(doc(alice, 'users/alice/friends/bob')))
+    await assertFails(setDoc(doc(alice, 'users/alice/friends/bob'), { addedAt: serverTimestamp() }))
+    await assertFails(getDoc(doc(alice, 'users/alice/public/summary')))
+    await assertFails(setDoc(doc(alice, 'users/alice/public/summary'), { solvedCount: 1 }))
     await assertFails(getDoc(doc(alice, 'users/alice/not-a-collection/secret')))
   })
 
@@ -182,6 +194,22 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
     await assertFails(
       setDoc(shard, progressWrite('not-a-problem', entry()), { merge: true }),
     )
+    // Phase 4: `rc` is part of the entry contract — required, integer, bounded.
+    // (A missing key must be expressed by omitting it: the client SDK rejects
+    // `undefined` values before the rules ever see them.)
+    const { rc: _omitted, ...withoutRevisionCount } = entry()
+    await assertFails(
+      setDoc(shard, progressWrite(arraysIds[0], withoutRevisionCount), { merge: true }),
+    )
+    await assertFails(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ rc: -1 })), { merge: true }),
+    )
+    await assertFails(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ rc: 1.5 })), { merge: true }),
+    )
+    await assertFails(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ rc: '1' })), { merge: true }),
+    )
 
     // An oversized bulk write (83 changed entries + updatedAt) is refused even
     // though every id and value is individually known and valid.
@@ -207,6 +235,14 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
     )
     await assertSucceeds(
       setDoc(shard, progressWrite(arraysIds[0], entry({ b: true })), { merge: true }),
+    )
+    // A revised row: solved, with a higher revision count and a fresh lr.
+    await assertSucceeds(
+      setDoc(
+        shard,
+        progressWrite(arraysIds[0], entry({ rc: 1, lr: '2026-11-05T00:00:00.000Z' })),
+        { merge: true },
+      ),
     )
     // Explicit deletion of one known key is allowed for merge/import.
     await assertSucceeds(
@@ -316,6 +352,67 @@ describe('Firestore rules v2 — phase-3 custom lists (3.3)', () => {
       setDoc(listRef(alice, 'alice'), listDoc(Array.from({ length: 200 }, (_, index) => String(index))), {
         merge: true,
       }),
+    )
+  })
+})
+
+describe('Firestore rules v3 — phase-4 daily planner (4.1)', () => {
+  it('lets the owner create, extend, read, list and delete a plan; strangers are denied', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const bob = env.authenticatedContext('bob').firestore()
+    const stranger = env.unauthenticatedContext().firestore()
+
+    await assertSucceeds(setDoc(planRef(alice, 'alice'), planDoc([arraysIds[0], arraysIds[1]])))
+    await assertSucceeds(
+      setDoc(
+        planRef(alice, 'alice'),
+        planDoc([arraysIds[0], arraysIds[1], arraysIds[2]], [arraysIds[0]]),
+        { merge: true },
+      ),
+    )
+    const snap = await assertSucceeds(getDoc(planRef(alice, 'alice')))
+    assert.equal(snap.data().problemIds.length, 3)
+    assert.equal(snap.data().doneIds.length, 1)
+    await assertSucceeds(getDocs(collection(alice, 'users/alice/plans')))
+
+    await assertFails(getDoc(planRef(bob, 'alice')))
+    await assertFails(getDocs(collection(bob, 'users/alice/plans')))
+    await assertFails(setDoc(planRef(bob, 'alice'), planDoc([arraysIds[0]])))
+    await assertFails(deleteDoc(planRef(bob, 'alice')))
+    await assertFails(setDoc(planRef(stranger, 'alice'), planDoc([arraysIds[0]])))
+
+    await assertSucceeds(deleteDoc(planRef(alice, 'alice')))
+  })
+
+  it('validates the day id, field set, size caps, subset rule and server timestamp', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+
+    await assertFails(setDoc(planRef(alice, 'alice', 'yesterday'), planDoc([])))
+    await assertFails(setDoc(planRef(alice, 'alice', '2026-11-3'), planDoc([])))
+    await assertFails(setDoc(planRef(alice, 'alice'), planDoc([], [], { extra: true })))
+    await assertFails(
+      setDoc(planRef(alice, 'alice'), { problemIds: [arraysIds[0]] , updatedAt: serverTimestamp() }),
+    )
+    await assertFails(
+      setDoc(planRef(alice, 'alice'), planDoc([], [], { problemIds: 'two-sum' })),
+    )
+    await assertFails(
+      setDoc(planRef(alice, 'alice'), planDoc(Array.from({ length: 201 }, () => arraysIds[0]))),
+    )
+    // doneIds must be a subset of problemIds — a day cannot tick unplanned work.
+    await assertFails(setDoc(planRef(alice, 'alice'), planDoc([arraysIds[0]], [arraysIds[1]])))
+    await assertFails(
+      setDoc(planRef(alice, 'alice'), planDoc([], [], { updatedAt: '2026-11-03T00:00:00.000Z' })),
+    )
+
+    // An empty day and a full 200-problem day are both legal.
+    await assertSucceeds(setDoc(planRef(alice, 'alice'), planDoc([])))
+    await assertSucceeds(
+      setDoc(
+        planRef(alice, 'alice'),
+        planDoc(Array.from({ length: 200 }, (_, index) => `p${index}`)),
+        { merge: true },
+      ),
     )
   })
 })

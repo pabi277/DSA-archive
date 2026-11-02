@@ -14,6 +14,13 @@ export type CloudProgressEntry = {
   a: number
   fd: string | null
   lr: string | null
+  /**
+   * Phase 4: how many times this problem has been revised (0 = never). It is
+   * the only field phase 4 adds, and rules v3 requires it on every entry
+   * write; readers default a missing value to 0 so phase-2/3 documents and
+   * schema-v1/v2 backups still load unchanged.
+   */
+  rc: number
 }
 export type CloudTopicProgress = Record<string, CloudProgressEntry>
 export type CloudProgressByTopic = Record<string, CloudTopicProgress>
@@ -51,7 +58,9 @@ export function isValidCloudEntry(raw: unknown): raw is CloudProgressEntry {
     raw.a <= 10000 &&
     (raw.fd === null || isIsoLike(raw.fd)) &&
     (raw.lr === null || isIsoLike(raw.lr)) &&
-    Object.keys(raw).every((key) => ['s', 'b', 'a', 'fd', 'lr'].includes(key))
+    (raw.rc === undefined ||
+      (typeof raw.rc === 'number' && Number.isInteger(raw.rc) && raw.rc >= 0 && raw.rc <= 100)) &&
+    Object.keys(raw).every((key) => ['s', 'b', 'a', 'fd', 'lr', 'rc'].includes(key))
   )
 }
 
@@ -64,12 +73,17 @@ export function sanitizeCloudEntry(raw: unknown): CloudProgressEntry | null {
     typeof raw.a === 'number' && Number.isInteger(raw.a) && raw.a >= 0 && raw.a <= 10000
       ? raw.a
       : 0
+  const rc =
+    typeof raw.rc === 'number' && Number.isInteger(raw.rc) && raw.rc >= 0 && raw.rc <= 100
+      ? raw.rc
+      : 0
   return {
     s,
     b: raw.b === true,
     a,
     fd: isIsoLike(raw.fd) ? raw.fd : null,
     lr: isIsoLike(raw.lr) ? raw.lr : null,
+    rc,
   }
 }
 
@@ -115,6 +129,23 @@ export function nextCloudEntry(
     a: (old?.a ?? 0) + (becameDone ? 1 : 0),
     fd: old?.fd ?? (next.s === 'done' ? now : null),
     lr: field === 's' ? now : (old?.lr ?? null),
+    rc: old?.rc ?? 0,
+  }
+}
+
+/**
+ * 4.2 one-tap "revised": keep the problem solved, bump the revision count and
+ * stamp `lr`. The schedule lives in `planner.ts` (3/7/21 days from `fd`/`lr`),
+ * so a revision needs no other field and no extra document.
+ */
+export function nextRevisionEntry(old: CloudProgressEntry | undefined, now: string): CloudProgressEntry {
+  return {
+    s: 'done',
+    b: old?.b ?? false,
+    a: old?.a ?? 0,
+    fd: old?.fd ?? now,
+    lr: now,
+    rc: Math.min(100, (old?.rc ?? 0) + 1),
   }
 }
 
@@ -129,6 +160,7 @@ function guestEntryToCloud(
     a: old?.a ?? (guest.s === 'done' ? 1 : 0),
     fd: old?.fd ?? (guest.s === 'done' ? now : null),
     lr: old?.lr ?? null,
+    rc: old?.rc ?? 0,
   }
 }
 

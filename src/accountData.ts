@@ -31,8 +31,8 @@ import {
   countProgressRows,
   getGuestTimestamps,
   getProgressSnapshot,
-  markBookmarked,
-  markDone,
+  markBookmarked as markGuestBookmarked,
+  markDone as markGuestDone,
   useProgress,
   type ProblemProgress,
   type ProgressByTopic,
@@ -41,13 +41,17 @@ import {
   cloudShardFromFirestore,
   countCloudRows,
   nextCloudEntry,
+  nextRevisionEntry,
   planGuestMerge,
   toUiProgress,
   type CloudProgressByTopic,
+  type CloudProgressEntry,
   type CloudWrite,
   type MergePlan,
 } from './cloudProgress'
 import { createBackup, parseBackup, type Backup, type BackupCounts } from './backup'
+import { DEFAULT_DAILY_GOAL, clampGoal } from './planner'
+import type { PlannerState } from './plannerData'
 
 export type SyncState = 'local' | 'syncing' | 'synced' | 'pending' | 'offline' | 'error'
 export type MergeProposal = Omit<MergePlan, 'writes'>
@@ -63,6 +67,12 @@ export type AccountData = {
   profileReady: boolean
   cloudRows: number
   guestRows: number
+  /** Phase 4: rich per-problem entries (with fd/lr/rc) for planner + stats. */
+  entries: CloudProgressByTopic
+  dailyGoal: number
+  setDailyGoal: (goal: number) => void
+  markDone: (topicId: string, problemId: string) => void
+  markRevised: (topicId: string, problemId: string) => void
   mergeProposal: MergeProposal | null
   importPreview: ImportPreview | null
   error: string | null
@@ -73,7 +83,7 @@ export type AccountData = {
   clearGuestProgress: () => void
   mergeGuestProgress: () => void
   keepCloudProgress: () => void
-  exportBackup: () => void
+  exportBackup: () => Promise<void>
   chooseImportFile: (file: File) => Promise<void>
   cancelImport: () => void
   confirmImport: () => void
@@ -111,7 +121,11 @@ async function commitWrite(firestore: Firestore, uid: string, write: CloudWrite)
   await setDoc(shard, payload, { merge: true })
 }
 
-export function useAccountData(account: AccountState, library: LibraryState): AccountData {
+export function useAccountData(
+  account: AccountState,
+  library: LibraryState,
+  planner: PlannerState,
+): AccountData {
   const settings = useSettings()
   const guestProgress = useProgress()
   const uid = account.user?.uid ?? null
@@ -131,6 +145,7 @@ export function useAccountData(account: AccountState, library: LibraryState): Ac
   const [mergeProposal, setMergeProposal] = useState<MergeProposal | null>(null)
   const [mergeHandled, setMergeHandled] = useState(false)
   const [importPreview, setImportPreview] = useState<ImportPreview | null>(null)
+  const [dailyGoal, setDailyGoalState] = useState(DEFAULT_DAILY_GOAL)
   const [busy, setBusy] = useState(false)
 
   const setCloudState = (next: CloudProgressByTopic) => {
@@ -161,6 +176,7 @@ export function useAccountData(account: AccountState, library: LibraryState): Ac
     setMergeProposal(null)
     setMergeHandled(false)
     setImportPreview(null)
+    setDailyGoalState(DEFAULT_DAILY_GOAL)
   }, [uid])
 
   // Profile creation, cloud→local settings, and local→cloud settings.
@@ -182,7 +198,7 @@ export function useAccountData(account: AccountState, library: LibraryState): Ac
             uid,
             displayName: currentUser!.displayName.slice(0, 80) || 'DSA learner',
             photoURL: currentUser!.photoURL ? currentUser!.photoURL.slice(0, 300) : null,
-            dailyGoal: 5,
+            dailyGoal: DEFAULT_DAILY_GOAL,
             theme: local.theme,
             hideDone: local.hideDone,
             shareSummary: false,
@@ -201,6 +217,7 @@ export function useAccountData(account: AccountState, library: LibraryState): Ac
           const data = next.data()
           if (!data) return
           applyProfileSettings(data.theme === 'light' ? 'light' : 'dark', data.hideDone === true)
+          setDailyGoalState(clampGoal(typeof data.dailyGoal === 'number' ? data.dailyGoal : DEFAULT_DAILY_GOAL))
         })
         unsubscribeSettings = subscribeSettings((source) => {
           if (source !== 'local') return
@@ -309,8 +326,8 @@ export function useAccountData(account: AccountState, library: LibraryState): Ac
   ) {
     const firestore = db
     if (!signedIn || !uid || !firestore) {
-      if (field === 's') markDone(topicId, problemId)
-      else markBookmarked(topicId, problemId)
+      if (field === 's') markGuestDone(topicId, problemId)
+      else markGuestBookmarked(topicId, problemId)
       return
     }
     const now = new Date().toISOString()
@@ -329,6 +346,46 @@ export function useAccountData(account: AccountState, library: LibraryState): Ac
   const toggleStatus = (topicId: string, problemId: string) => {
     const current = progress[topicId]?.[problemId] ?? { s: 'todo', b: false }
     writeEntry(topicId, problemId, { s: current.s === 'done' ? 'todo' : 'done', b: current.b }, 's')
+  }
+
+  /** 4.1/4.2 — idempotent "solved" so Today can tick a row without toggling. */
+  const markDone = (topicId: string, problemId: string) => {
+    const current = progress[topicId]?.[problemId] ?? { s: 'todo', b: false }
+    if (current.s === 'done') return
+    writeEntry(topicId, problemId, { s: 'done', b: current.b }, 's')
+  }
+
+  /** 4.2 one-tap revised: bump `rc`, stamp `lr`, keep the row solved. */
+  const markRevised = (topicId: string, problemId: string) => {
+    const firestore = db
+    if (!signedIn || !uid || !firestore) {
+      setDataError('Sign in to use the revision queue — it follows your account.')
+      return
+    }
+    const now = new Date().toISOString()
+    const old = cloudRef.current[topicId]?.[problemId]
+    const entry = nextRevisionEntry(old as CloudProgressEntry | undefined, now)
+    setCloudState({
+      ...cloudRef.current,
+      [topicId]: { ...(cloudRef.current[topicId] ?? {}), [problemId]: entry },
+    })
+    setPendingWrites(true)
+    void commitWrite(firestore, uid, { topicId, problemId, entry }).catch((reason) => {
+      setDataError(`Could not save the revision: ${messageFrom(reason)}`)
+    })
+    setNotice('Marked as revised — next review scheduled further out.')
+  }
+
+  const setDailyGoal = (goal: number) => {
+    const next = clampGoal(goal)
+    setDailyGoalState(next)
+    const firestore = db
+    if (!uid || !firestore) return
+    void setDoc(
+      doc(firestore, 'users', uid),
+      { dailyGoal: next, updatedAt: serverTimestamp() },
+      { merge: true },
+    ).catch((reason) => setDataError(`Could not save the daily goal: ${messageFrom(reason)}`))
   }
 
   const toggleBookmark = (topicId: string, problemId: string) => {
@@ -377,7 +434,7 @@ export function useAccountData(account: AccountState, library: LibraryState): Ac
     setNotice('Kept cloud progress and discarded the guest rows on this device.')
   }
 
-  const exportBackup = () => {
+  const exportBackup = async () => {
     if (!signedIn || !uid || !db || !account.user || !cloudReady) {
       setDataError('Wait for the signed-in sheet to finish syncing before exporting.')
       return
@@ -386,23 +443,37 @@ export function useAccountData(account: AccountState, library: LibraryState): Ac
       setDataError('Wait for notes and lists to finish syncing before exporting.')
       return
     }
-    const text = createBackup({
-      account: { displayName: account.user.displayName, email: account.user.email },
-      settings: getSettingsSnapshot(),
-      progressByTopic: cloudRef.current,
-      notes: library.notesSnapshot(),
-      lists: library.listsSnapshot(),
-    })
-    const blob = new Blob([text], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = `dsa-archive-backup-${new Date().toISOString().slice(0, 10)}.json`
-    document.body.appendChild(anchor)
-    anchor.click()
-    anchor.remove()
-    setTimeout(() => URL.revokeObjectURL(url), 0)
-    setNotice(`Backup exported with ${countCloudRows(cloudRef.current)} progress rows.`)
+    setBusy(true)
+    try {
+      // Plan days are read on demand: the app subscribes to today only, and a
+      // backup must still carry the whole planner history.
+      const plans = await planner.collectPlansForBackup()
+      const text = createBackup({
+        account: { displayName: account.user.displayName, email: account.user.email },
+        settings: getSettingsSnapshot(),
+        progressByTopic: cloudRef.current,
+        notes: library.notesSnapshot(),
+        lists: library.listsSnapshot(),
+        plans,
+        dailyGoal,
+      })
+      const blob = new Blob([text], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = `dsa-archive-backup-${new Date().toISOString().slice(0, 10)}.json`
+      document.body.appendChild(anchor)
+      anchor.click()
+      anchor.remove()
+      setTimeout(() => URL.revokeObjectURL(url), 0)
+      setNotice(
+        `Backup exported with ${countCloudRows(cloudRef.current)} progress rows, ${library.notesSnapshot().length} notes and ${plans.length} plan day${plans.length === 1 ? '' : 's'}.`,
+      )
+    } catch (reason) {
+      setDataError(`Could not export the backup: ${messageFrom(reason)}`)
+    } finally {
+      setBusy(false)
+    }
   }
 
   const chooseImportFile = async (file: File) => {
@@ -462,12 +533,14 @@ export function useAccountData(account: AccountState, library: LibraryState): Ac
           preview.backup.profile.hideDone,
           preview.backup.profile.largeText,
         )
-        // Notes and lists are part of backup schema v2; a v1 file restores
-        // none, which clears them, exactly as its preview says.
+        setDailyGoalState(clampGoal(preview.backup.profile.dailyGoal))
+        // Notes, lists and plan days are part of backup schemas v2/v3; a v1
+        // file restores none of them, which clears them as its preview says.
         await library.applyBackup(preview.backup.notes, preview.backup.lists)
+        await planner.applyPlanBackup(preview.backup.plans)
         setImportPreview(null)
         setNotice(
-          `Imported ${preview.counts.rows} row${preview.counts.rows === 1 ? '' : 's'} across ${preview.counts.topics} topic${preview.counts.topics === 1 ? '' : 's'} · ${preview.counts.notes} note${preview.counts.notes === 1 ? '' : 's'} · ${preview.counts.lists} list${preview.counts.lists === 1 ? '' : 's'}.`,
+          `Imported ${preview.counts.rows} row${preview.counts.rows === 1 ? '' : 's'} across ${preview.counts.topics} topic${preview.counts.topics === 1 ? '' : 's'} · ${preview.counts.notes} note${preview.counts.notes === 1 ? '' : 's'} · ${preview.counts.lists} list${preview.counts.lists === 1 ? '' : 's'} · ${preview.counts.plans} plan day${preview.counts.plans === 1 ? '' : 's'}.`,
         )
       } catch (reason) {
         setDataError(`Import failed: ${messageFrom(reason)}`)
@@ -494,6 +567,11 @@ export function useAccountData(account: AccountState, library: LibraryState): Ac
     profileReady,
     cloudRows: countCloudRows(cloud),
     guestRows: countProgressRows(guestProgress),
+    entries: signedIn ? cloud : {},
+    dailyGoal,
+    setDailyGoal,
+    markDone,
+    markRevised,
     mergeProposal,
     importPreview,
     error,

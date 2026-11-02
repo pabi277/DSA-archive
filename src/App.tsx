@@ -26,12 +26,23 @@ import { locateProblem, listsContaining, sortLists } from './library'
 import { useAccount } from './account'
 import { useLibrary } from './libraryData'
 import { useAccountData } from './accountData'
+import { usePlanner } from './plannerData'
+import { RevisionView, StatsView, TodayView } from './PlannerViews'
+import {
+  continueWhereLeft,
+  heatmap,
+  revisionQueue,
+  streakInfo,
+  suggestedPicks,
+  todayTally,
+  weeklyStats,
+} from './planner'
 
 const summary = summarizeCatalogue()
 const levelSplit = LEVEL_FILTERS.map((level) => `${LEVEL_LABELS[level]} ${summary.levels[level] ?? 0}`).join(' · ')
 
 type Filters = Omit<SheetQuery, 'hideDone' | 'listProblemIds'>
-type View = 'sheet' | 'notes' | 'lists'
+type View = 'sheet' | 'today' | 'revision' | 'notes' | 'lists' | 'stats'
 const noFilters: Filters = { search: '', topicId: '', levels: [], linkTypes: [] }
 
 function scrollToId(id: string) {
@@ -48,14 +59,16 @@ function initials(name: string) {
 }
 
 /**
- * The app has three views over one screen: the sheet (phases 1–2), my notes
- * (3.2) and custom lists (3.3). Notes and lists are per-account Firestore
- * data; the sheet keeps working signed out. Frozen 0-D tokens are unchanged.
+ * The app has six views over one screen: the sheet (phases 1–2), Today (4.1),
+ * Revision (4.2), Stats (4.3), my notes (3.2) and custom lists (3.3). Personal
+ * data needs an account; the sheet keeps working signed out. Frozen 0-D tokens
+ * are unchanged.
  */
 export function App() {
   const account = useAccount()
   const library = useLibrary(account)
-  const data = useAccountData(account, library)
+  const planner = usePlanner(account)
+  const data = useAccountData(account, library, planner)
   const { progress, settings } = data
   const [filters, setFilters] = useState<Filters>(noFilters)
   const [view, setView] = useState<View>('sheet')
@@ -93,17 +106,34 @@ export function App() {
       }),
     [progress],
   )
+  const today = planner.today
+  const queue = useMemo(() => revisionQueue(data.entries, today), [data.entries, today])
+  const dayTally = useMemo(
+    () => todayTally(data.entries, planner.plan, today, data.dailyGoal),
+    [data.entries, planner.plan, today, data.dailyGoal],
+  )
+  const streak = useMemo(() => streakInfo(data.entries, today), [data.entries, today])
+  const weekly = useMemo(() => weeklyStats(data.entries, today), [data.entries, today])
+  const heat = useMemo(() => heatmap(data.entries, today), [data.entries, today])
+  const suggestions = useMemo(
+    () => suggestedPicks(data.entries, planner.plan, 5),
+    [data.entries, planner.plan],
+  )
+  const continuePick = useMemo(() => continueWhereLeft(data.entries), [data.entries])
+
   const filterCount = activeFilterCount(query)
   const signedIn = account.status === 'signed-in'
   const avatarInitials = account.user ? initials(account.user.displayName) : ''
   const progressDisabled = (signedIn && !data.cloudReady) || data.busy
-  const error = data.error ?? library.error
-  const notice = data.notice ?? library.notice
+  const error = data.error ?? planner.error ?? library.error
+  const notice = data.notice ?? planner.notice ?? library.notice
   const errorTestId = error?.startsWith('Invalid backup:')
     ? 'backup-error'
     : data.error
       ? 'account-error'
-      : 'library-error'
+      : planner.error
+        ? 'planner-error'
+        : 'library-error'
   const syncLabel = data.syncState === 'synced' && library.pending ? 'Changes pending' : data.syncLabel
 
   // A deleted list must never leave the sheet filtered by a list that is gone.
@@ -211,6 +241,20 @@ export function App() {
     setPick(null)
     setRevealed(null)
     setRowPanel(null)
+  }
+
+  const addToToday = (problemId: string) => planner.addToToday(problemId)
+
+  /** 4.1: ticking in Today also marks the row done everywhere. */
+  const completeToday = (problemId: string) => {
+    const location = locateProblem(problemId)
+    if (!location) return
+    planner.markTodayDone(problemId)
+    data.markDone(location.topicId, problemId)
+  }
+
+  const addSuggested = () => {
+    for (const problemId of suggestions) planner.addToToday(problemId)
   }
 
   const toggleRowPanel = (problemId: string, kind: 'note' | 'lists') =>
@@ -354,6 +398,7 @@ export function App() {
               className="button button-secondary"
               onClick={() => {
                 data.dismissError()
+                planner.dismissError()
                 library.dismissError()
               }}
             >
@@ -370,6 +415,7 @@ export function App() {
               className="button button-secondary"
               onClick={() => {
                 data.dismissNotice()
+                planner.dismissNotice()
                 library.dismissNotice()
               }}
             >
@@ -438,6 +484,24 @@ export function App() {
           </button>
           <button
             type="button"
+            className={view === 'today' ? 'active-tab' : undefined}
+            aria-pressed={view === 'today'}
+            data-testid="view-tab-today"
+            onClick={() => setView('today')}
+          >
+            Today <span>{dayTally.movedToday}/{dayTally.goal}</span>
+          </button>
+          <button
+            type="button"
+            className={view === 'revision' ? 'active-tab' : undefined}
+            aria-pressed={view === 'revision'}
+            data-testid="view-tab-revision"
+            onClick={() => setView('revision')}
+          >
+            Revision <span>{queue.due.length}</span>
+          </button>
+          <button
+            type="button"
             className={view === 'notes' ? 'active-tab' : undefined}
             aria-pressed={view === 'notes'}
             data-testid="view-tab-notes"
@@ -453,6 +517,15 @@ export function App() {
             onClick={() => setView('lists')}
           >
             Lists <span>{listTotal}</span>
+          </button>
+          <button
+            type="button"
+            className={view === 'stats' ? 'active-tab' : undefined}
+            aria-pressed={view === 'stats'}
+            data-testid="view-tab-stats"
+            onClick={() => setView('stats')}
+          >
+            Stats
           </button>
         </div>
 
@@ -597,7 +670,45 @@ export function App() {
 
         <div className="content-columns">
           <div className="sheet-column">
-            {view === 'notes' ? (
+            {view === 'today' ? (
+              <TodayView
+                signedIn={signedIn}
+                ready={planner.ready}
+                today={today}
+                plan={planner.plan}
+                goal={data.dailyGoal}
+                tally={dayTally}
+                suggestions={suggestions}
+                continuePick={continuePick}
+                disabled={planner.busy || (signedIn && !data.cloudReady)}
+                onAdd={addToToday}
+                onRemove={(problemId) => planner.removeFromToday(problemId)}
+                onDone={completeToday}
+                onOpen={openProblemInSheet}
+                onSetGoal={data.setDailyGoal}
+                onSuggest={addSuggested}
+              />
+            ) : view === 'revision' ? (
+              <RevisionView
+                signedIn={signedIn}
+                today={today}
+                due={queue.due}
+                upcoming={queue.upcoming}
+                graduated={queue.graduated}
+                scheduled={queue.scheduled}
+                disabled={!data.cloudReady || data.busy}
+                onRevised={data.markRevised}
+                onOpen={openProblemInSheet}
+              />
+            ) : view === 'stats' ? (
+              <StatsView
+                signedIn={signedIn}
+                entries={data.entries}
+                streak={streak}
+                weekly={weekly}
+                heat={heat}
+              />
+            ) : view === 'notes' ? (
               <NotesView
                 signedIn={library.signedIn}
                 notes={library.notes}
@@ -724,6 +835,30 @@ export function App() {
               )}
             </section>
 
+            {signedIn && (
+              <section className="card context-card" data-testid="planner-summary">
+                <h2 className="card-title">Today at a glance</h2>
+                <div className="context-stat">
+                  <strong data-testid="summary-streak">{streak.current}</strong>
+                  <span>day streak</span>
+                </div>
+                <div className="context-stat">
+                  <strong data-testid="summary-due">{queue.due.length}</strong>
+                  <span>due for revision</span>
+                </div>
+                <div className="context-stat">
+                  <strong>{dayTally.movedToday}/{dayTally.goal}</strong>
+                  <span>daily goal</span>
+                </div>
+                <p className="fine-print">
+                  {dayTally.goalMet ? 'Goal met today — revision still counts.' : 'Counts reset at midnight on this device.'}
+                </p>
+                <button type="button" className="text-button" onClick={() => setView('revision')}>
+                  Open revision queue →
+                </button>
+              </section>
+            )}
+
             {account.user && (
               <section className="card context-card" id="account-panel" data-testid="account-panel" aria-labelledby="account-title">
                 <h2 className="card-title" id="account-title">Account &amp; backup</h2>
@@ -740,7 +875,7 @@ export function App() {
                   friends and summaries are excluded from backups.
                 </p>
                 <div className="action-grid">
-                  <button type="button" className="button button-secondary" onClick={data.exportBackup}>
+                  <button type="button" className="button button-secondary" onClick={() => void data.exportBackup()}>
                     Export backup JSON
                   </button>
                   <label className="button button-secondary file-label">
@@ -805,9 +940,8 @@ export function App() {
       </main>
 
       <footer className="app-footer">
-        Phase 3 · synced markdown notes, code snippets and custom lists on top of phase-2 Google sign-in,
-        offline-first cloud progress, guest merge, Firestore rules and JSON backup — emulator-tested in CI;
-        no live project is configured or deployed.
+        Phase 4 · daily goal, Today plan, spaced revision queue (3/7/21 days) and on-device stats on top of
+        phases 1–3 — emulator-tested in CI; no live project is configured or deployed.
       </footer>
     </div>
   )

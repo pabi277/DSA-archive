@@ -115,7 +115,7 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     const path = await download.path()
     expect(path).toBeTruthy()
     const backup = JSON.parse(await readFile(path!, 'utf8'))
-    expect(backup.schemaVersion).toBe(2)
+    expect(backup.schemaVersion).toBe(3)
     expect(backup.notes).toHaveLength(1)
     expect(backup.notes[0]).toMatchObject({ problemId: 'two-sum' })
     expect(backup.notes[0].snippet).toContain('new Map()')
@@ -139,7 +139,7 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
 
     // A phase-2 (schemaVersion 1) file still imports — and clears lists, as
     // its own preview states. This is the recorded backward-compatible path.
-    const phaseTwo = { ...backup, schemaVersion: 1, notes: [], lists: [] }
+    const phaseTwo = { ...backup, schemaVersion: 1, notes: [], lists: [], plans: [] }
     await fileInput.setInputFiles({
       name: 'phase-2-backup.json',
       mimeType: 'application/json',

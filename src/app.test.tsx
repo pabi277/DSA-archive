@@ -316,3 +316,35 @@ describe('phase-3 views and row actions while signed out (3.1–3.3)', () => {
     expect(qa('#problem-two-sum .row-links a').length).toBeGreaterThan(0)
   })
 })
+
+describe('phase-4 views while signed out (4.1–4.3)', () => {
+  it('offers Today, Revision and Stats tabs and explains the account requirement', () => {
+    expect(q('[data-testid="view-tab-sheet"]').getAttribute('aria-pressed')).toBe('true')
+    expect(qa('.view-tabs button')).toHaveLength(6)
+    expect(q('[data-testid="view-tab-today"]').textContent).toContain('0/5')
+    expect(q('[data-testid="view-tab-revision"]').textContent).toContain('0')
+
+    click(q('[data-testid="view-tab-today"]'))
+    expect(q('[data-testid="view-tab-today"]').getAttribute('aria-pressed')).toBe('true')
+    expect(q('[data-testid="today-view"]').textContent).toContain('Today needs an account')
+    // No dead controls: the goal field only exists for a signed-in account.
+    expect(container.querySelector('[data-testid="goal-input"]')).toBeNull()
+    expect(container.querySelector('[data-testid="today-suggest"]')).toBeNull()
+
+    click(q('[data-testid="view-tab-revision"]'))
+    expect(q('[data-testid="revision-view"]').textContent).toContain('Revision needs an account')
+
+    click(q('[data-testid="view-tab-stats"]'))
+    expect(q('[data-testid="stats-view"]').textContent).toContain('Stats need an account')
+    expect(container.querySelector('[data-testid="heatmap"]')).toBeNull()
+
+    click(q('[data-testid="view-tab-sheet"]'))
+    expect(qa('details.topic-card')).toHaveLength(20)
+    expect(q('[data-testid="match-count"]').textContent).toContain('Showing 495 of 495')
+  })
+
+  it('keeps the planner summary quiet until an account is present', () => {
+    expect(container.querySelector('[data-testid="planner-summary"]')).toBeNull()
+    expect(container.querySelector('[data-testid="summary-streak"]')).toBeNull()
+  })
+})
