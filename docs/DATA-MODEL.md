@@ -111,7 +111,7 @@ summaries and do not restore sharing. Summary `asOf` is the author's local day;
 weekly counts are rolling seven days, and stale summaries are excluded from
 ranking and the viewer-local session goal. Active listeners cost one initial
 summary read per visible friend plus reads for updates; denied listeners retry
-at most once a minute while the app is open. Cache cannot retract previously
+with exponential backoff (2 seconds to 1 minute) while the app is open. Cache cannot retract previously
 observed data.
 
 ### Security-rules principles (the actual protection — `rule.md` §5)

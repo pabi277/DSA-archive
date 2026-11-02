@@ -33,7 +33,8 @@ export function useFriends(account: AccountState, entries: CloudProgressByTopic,
       const p = snap.data()
       if (p) setProfile({ uid, sharing: p.shareSummary === true, code: typeof p.friendCode === 'string' ? p.friendCode : null })
     }, (e) => setError(message(e)))
-    const u2 = onSnapshot(collection(db, 'users', uid, 'friends'), (snap) => {
+    const u2 = onSnapshot(collection(db, 'users', uid, 'friends'), { includeMetadataChanges: true }, (snap) => {
+      if (snap.metadata.hasPendingWrites || snap.metadata.fromCache) return
       setIds({ uid, ids: snap.docs.map((item) => item.id).sort() })
     }, (e) => setError(message(e)))
     return () => { u1(); u2() }
@@ -46,9 +47,11 @@ export function useFriends(account: AccountState, entries: CloudProgressByTopic,
     const cleanups = idsKey.split('\u0000').map((friendUid) => {
       let unsubscribe: (() => void) | undefined
       let timer: number | undefined
+      let delay = 2000
       const listen = () => {
         unsubscribe = onSnapshot(doc(db!, 'users', friendUid, 'public', 'summary'), { includeMetadataChanges: true }, (snap) => {
           if (!active) return
+          delay = 2000
           const parsed = !snap.metadata.fromCache && snap.exists() ? parseFriendSummary(snap.data()) : null
           setSummariesState((old) => {
             const next = { ...(old?.uid === uid ? old.values : {}) }; delete next[friendUid]
@@ -61,7 +64,8 @@ export function useFriends(account: AccountState, entries: CloudProgressByTopic,
           // Permission errors terminate a Firestore listener. Retry only failed
           // listeners so newly enabled sharing becomes visible without polling
           // every successfully subscribed friend.
-          timer = window.setTimeout(listen, 60_000)
+          timer = window.setTimeout(listen, delay)
+          delay = Math.min(delay * 2, 60_000)
         })
       }
       listen()

@@ -18,7 +18,7 @@
   date, rolling seven-day solves and the local day `asOf`. No notes, snippets,
   bookmarks, row ids or progress detail. Publication occurs when owner
   progress or local day changes; the reader validates the exact shape. Retry
-  of denied friend listeners occurs once per minute, not for healthy listeners.
+  of denied friend listeners uses exponential backoff (2 seconds to one minute), not for healthy listeners.
 - The ranking includes only available summaries calculated on the viewer's
   current local day. Stale and unavailable friends are reported, not counted
   as zero. The group goal is a **viewer-local, session-only target** over these
@@ -47,9 +47,7 @@
   passed at `3218933`: includes emulator rules and a two-context phone
   acceptance test that adds a friend, sees an opted-in summary, observes the
   leaderboard update after a solve, revokes sharing and removes friendship.
-  `site-preview` artifact: 330,678 bytes. Subsequent changes add an axe audit,
-  screenshot and retry only denied listeners; their CI result must also be
-  checked before treating the phase as done.
+  `site-preview` artifact: 330,678 bytes. A follow-up run exposed an acknowledgement race; the fix and axe audit require another green CI run before treating the phase as done.
 - The sandbox has no Java or installed browser; CI is the emulator and browser
   authority. The phone screenshot is captured by CI but cannot be downloaded
   in this sandbox for direct visual comparison. No claim of visual review is

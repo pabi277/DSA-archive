@@ -30,7 +30,7 @@ test('two accounts share only opted-in summaries and leaderboard follows progres
     await friend.getByLabel("Friend's invite code").fill(code)
     await friend.getByRole('button', { name: 'Add friend' }).click()
     await expect(friend.getByText('Your friends (1)')).toBeVisible()
-    await expect(friend.getByTestId('friends-leaderboard')).toContainText('CI Owner: 0 solved')
+    await expect(friend.getByTestId('friends-leaderboard')).toContainText('CI Owner: 0 solved', { timeout: 20_000 })
     await expect(owner.getByText('Summary unavailable')).toBeVisible()
     await owner.getByTestId('view-tab-today').click()
     await owner.getByTestId('today-suggest').click()
