@@ -21,8 +21,9 @@
   clone may default to a `noreply` address, so set the repo-local identity
   first (`git config user.name` / `user.email`). Phases 0/0-D/1 used earlier
   Arena branches, phase 2 used `arena/62f988be-dsa-archive`, phase 3 used
-  `arena/0277d181-dsa-archive`; all stopped at their merge gates. The next
-  chat must use **its own** Arena-assigned branch; never rename, switch,
+  `arena/0277d181-dsa-archive`; phases 0–3 are all merged to `main`, phase 3
+  through PR #5 on 2026-11-03. The next chat must use **its own**
+  Arena-assigned branch cut from the current `main`; never rename, switch,
   reuse another chat's branch, or push `main`.
 
 ## Rules digest (full rules: `./rule.md`)
@@ -44,7 +45,7 @@
   are frozen in `docs/UI-REFERENCE.md`. Build UI to those tokens; changing
   a frozen value or the design direction re-opens the GATE.
 
-## Current state (2026-11-02)
+## Current state (2026-11-03)
 
 - **Phase 0 — Bootstrap + data extraction: ✅ complete and merged.** PR #2
   at `8638a91`. Data: **495 rows · 20 topics** (Basic 84 · Core 287 · Pro 109
@@ -60,11 +61,11 @@
   `75a9d7e`. Google sign-in, profile/avatar menu, sync pill,
   `users/{uid}/progressByTopic/{topicId}` shards with `s,b,a,fd,lr`, offline
   cache, explicit guest merge, rules v1 + 4 emulator tests, backup schema v1.
-- **Phase 3 — Notes, snippets & custom lists: ✅ complete on
-  `arena/0277d181-dsa-archive`, stopped at the merge gate.** Record:
-  `docs/phases/03-notes-snippets-custom-lists.md`. Code tip
-  `21809c501735c385058c3d113991be2829abef8a`; the record/docs commit rides
-  after it on the same branch.
+- **Phase 3 — Notes, snippets & custom lists: ✅ complete and merged to
+  `main` through PR #5** (owner command 2026-11-03: "Merge it."). Record:
+  `docs/phases/03-notes-snippets-custom-lists.md`; branch tip
+  `0d02c72` with CI runs #30 (code) and #31 (docs) green. The merge commit is
+  confirmed by this chat at its start. **Nothing is deployed.**
   - **CI: Site CI run [#30](https://github.com/pabi277/DSA-archive/actions/runs/41517643913)
     SUCCESS** (2m01s): catalogue validation · generated-rules check ·
     **85 unit tests / 8 files** · emulator-configured build · dist/link

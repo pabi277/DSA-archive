@@ -109,6 +109,19 @@
   merge-commit SHA is visible in `main`'s history and is confirmed by the
   next phase chat (this repo never pushes `main` directly).
 
+## Owner decisions — phase 3 merge (2026-11-03)
+
+- 2026-11-03 — **Phase 3 merge to `main`: AUTHORIZED** by the owner's
+  explicit command in chat, verbatim: **"Merge it."** Recorded as
+  authorization to open **PR #5** (`arena/0277d181-dsa-archive` → `main`) and
+  merge it, covering the phase-3 commits (`4bd24cc` implementation through
+  `0d02c72` docs) plus the commit that records this command. It authorizes
+  **the merge only**: no deploy, no Hosting channel/preview URL, no Firebase
+  project creation or link, no live rules deploy, no repo-visibility change,
+  no tag/release, and no phase 4. The merge-commit SHA lands in `main`'s
+  history and is confirmed by the next phase chat; this repo never pushes
+  `main` directly and every future merge stays separately gated.
+
 ## Agent decisions (reversible — object if wrong)
 
 - 2026-11-02 — Stack after the Firebase pivot: **Vite + React +
@@ -289,9 +302,11 @@
       command of 2026-11-02 (above). Phase 2 is complete on its own
       session branch with green emulator CI, stopped at the merge gate.
       Phase 3 (notes, snippets, notes overview/search, custom lists, rules v2,
-      backup schema v2) is complete on `arena/0277d181-dsa-archive` with CI
-      run [#30](https://github.com/pabi277/DSA-archive/actions/runs/41517643913)
-      green, also stopped at the merge gate. Nothing is deployed or published
+      backup schema v2) is complete and **merged to `main` through PR #5** on
+      the owner's explicit command of 2026-11-03 (CI runs
+      [#30](https://github.com/pabi277/DSA-archive/actions/runs/41517643913)
+      and [#31](https://github.com/pabi277/DSA-archive/actions/runs/41518256654)
+      green). Nothing is deployed or published
       — there is no public URL and no live Firebase project. Living state and
       the next-chat prompt: `prompt.md`.
 

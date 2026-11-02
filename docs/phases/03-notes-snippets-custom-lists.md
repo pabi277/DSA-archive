@@ -1,7 +1,7 @@
 # Phase 3 — Notes, snippets & custom lists
 
 - Date: 2026-11-02
-- Status: ✅ **complete on the session branch, CI green, stopped at the merge gate.** Site CI **run [#30](https://github.com/pabi277/DSA-archive/actions/runs/41517643913)** (2m01s) at code tip `21809c501735c385058c3d113991be2829abef8a`; `site-preview` artifact **321,193 bytes** (14-day retention). This record's docs commit rides after that tip on the same branch and re-runs CI. No PR/merge/deploy.
+- Status: ✅ **complete and merged to `main` through PR #5** on the owner's explicit command of 2026-11-03 (**"Merge it."**). Site CI **run [#30](https://github.com/pabi277/DSA-archive/actions/runs/41517643913)** (2m01s) at code tip `21809c5`, and **run [#31](https://github.com/pabi277/DSA-archive/actions/runs/41518256654)** green at docs tip `0d02c72`; `site-preview` artifact **321,193 bytes** (14-day retention). The merge commit is visible in `main`'s history and is confirmed by the phase-4 chat. **No deploy.**
 - Scope: roadmap Phase 3 only — 3.1 per-problem markdown note + code snippet (synced) · 3.2 notes overview + search · 3.3 custom lists (create, rename, delete, add/remove, filter the sheet) · rules v2 with Emulator tests · backup schema v2 with a backward-compatible v1 import. **Not** in this phase: planner, revision queue, stats, friends, PWA, Hosting, or any live Firebase change.
 - Prerequisites: phase 2 complete on `arena/62f988be-dsa-archive` (merged to `main` as PR #4 at `b3e8217`); frozen 0-D tokens; repo-local Git identity reset from the fresh clone's `noreply` address to `pabi277 <chakraborttypabi2772006@gmail.com>` before any commit.
 
@@ -76,6 +76,6 @@ Reviewed `test-results/library-phone.png` plus the existing desktop/phone captur
 
 ## Gate / next
 
-- **Phase 3 stops at the merge gate.** No PR, merge, `main` push, tag, release, deploy, Hosting channel, Firebase project, live rules deploy or visibility change was made or is authorized by this phase. Green CI is evidence, not permission.
-- Phase 4 (planner, revision queue, stats) is **not** started. The next chat uses its own Arena-assigned branch, verifies branch/status/PRs/CI/Git identity first, and executes only roadmap phase 4 after the owner commands it.
+- **Merged to `main` via PR #5** on the owner's explicit command (2026-11-03, verbatim "Merge it."), as recorded in `DECISIONS.md`. That command authorized the merge only: **no deploy**, Hosting channel, tag/release, Firebase project, live rules deploy or visibility change was made.
+- Phase 4 (planner, revision queue, stats) is **not** started. The next chat uses its own Arena-assigned branch cut from `main`, verifies branch/status/PRs/CI/Git identity first, and executes only roadmap phase 4 after the owner commands it.
 - Owner items unchanged: make the repo private while `copy-web/` holds the third-party snapshot; complete the 10-row live-sheet content spot-check; create the Spark project personally and perform the gated live check.
