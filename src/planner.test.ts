@@ -248,8 +248,8 @@ describe('plan documents', () => {
     expect(removed.problemIds).toEqual([])
     expect(removed.doneIds).toEqual([])
 
-    const batch = withProblems(ticked, ['two-sum', 'linear-search', 'largest-element-in-an-array'])!
-    expect(batch.problemIds).toEqual(['two-sum', 'linear-search', 'largest-element-in-an-array'])
+    const batch = withProblems(ticked, ['two-sum', 'linear-search', 'breaking-the-myth'])!
+    expect(batch.problemIds).toEqual(['two-sum', 'linear-search', 'breaking-the-myth'])
     expect(batch.doneIds).toEqual(['two-sum'])
     expect(withProblems(ticked, ['two-sum', 'not-a-problem'])).toBeNull()
   })
