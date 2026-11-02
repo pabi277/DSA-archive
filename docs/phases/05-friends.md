@@ -47,7 +47,10 @@
   passed at `3218933`: includes emulator rules and a two-context phone
   acceptance test that adds a friend, sees an opted-in summary, observes the
   leaderboard update after a solve, revokes sharing and removes friendship.
-  `site-preview` artifact: 330,678 bytes. A follow-up run exposed an acknowledgement race; the fix and axe audit require another green CI run before treating the phase as done.
+  `site-preview` artifact: 330,678 bytes. A follow-up run exposed an
+  acknowledgement race; the fix and Friends axe audit passed
+  [run 41528923623](https://github.com/pabi277/DSA-archive/actions/runs/41528923623)
+  at `8aa30dc`. That run's `site-preview` is 330,704 bytes.
 - The sandbox has no Java or installed browser; CI is the emulator and browser
   authority. The phone screenshot is captured by CI but cannot be downloaded
   in this sandbox for direct visual comparison. No claim of visual review is
