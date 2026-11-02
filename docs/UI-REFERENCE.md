@@ -296,3 +296,12 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
 - **List membership is ticked, not dragged.** The row list picker is a
   checkbox list plus a "create and add" field — the simplest control that
   meets the 44px touch target and needs no drag-and-drop library.
+
+
+### Phase 5 implementation note (2026-11-03)
+
+The existing phone-scrollable view strip adds Friends. It uses existing notice,
+button and empty-state styles; frozen token values are unchanged. Friends has
+code, opt-in sharing, comparisons, ranking and a session-local goal. CI takes
+a phone screenshot and runs axe, but the sandbox cannot download the screenshot
+for direct mock comparison; owner visual review remains outstanding.

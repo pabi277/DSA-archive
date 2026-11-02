@@ -27,6 +27,8 @@ import { useAccount } from './account'
 import { useLibrary } from './libraryData'
 import { useAccountData } from './accountData'
 import { usePlanner } from './plannerData'
+import { useFriends } from './friendsData'
+import { FriendsView } from './FriendsView'
 import { RevisionView, StatsView, TodayView } from './PlannerViews'
 import {
   continueWhereLeft,
@@ -42,7 +44,7 @@ const summary = summarizeCatalogue()
 const levelSplit = LEVEL_FILTERS.map((level) => `${LEVEL_LABELS[level]} ${summary.levels[level] ?? 0}`).join(' · ')
 
 type Filters = Omit<SheetQuery, 'hideDone' | 'listProblemIds'>
-type View = 'sheet' | 'today' | 'revision' | 'notes' | 'lists' | 'stats'
+type View = 'sheet' | 'today' | 'revision' | 'notes' | 'lists' | 'stats' | 'friends'
 const noFilters: Filters = { search: '', topicId: '', levels: [], linkTypes: [] }
 
 function scrollToId(id: string) {
@@ -69,6 +71,7 @@ export function App() {
   const library = useLibrary(account)
   const planner = usePlanner(account)
   const data = useAccountData(account, library, planner)
+  const friends = useFriends(account, data.entries, data.cloudReady, planner.today)
   const { progress, settings } = data
   const [filters, setFilters] = useState<Filters>(noFilters)
   const [view, setView] = useState<View>('sheet')
@@ -527,6 +530,7 @@ export function App() {
           >
             Stats
           </button>
+          <button type="button" className={view === 'friends' ? 'active-tab' : undefined} aria-pressed={view === 'friends'} data-testid="view-tab-friends" onClick={() => setView('friends')}>Friends <span>{friends.ids.length}</span></button>
         </div>
 
         {view === 'sheet' && (
@@ -670,7 +674,9 @@ export function App() {
 
         <div className="content-columns">
           <div className="sheet-column">
-            {view === 'today' ? (
+            {view === 'friends' ? (
+              <FriendsView friends={friends} today={today} />
+            ) : view === 'today' ? (
               <TodayView
                 signedIn={signedIn}
                 ready={planner.ready}

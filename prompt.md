@@ -109,7 +109,18 @@
   spot-check** is pending; create the **Spark** project personally before the
   gated live check.
 
-## Next: Phase 5 — Friends (opt-in)
+## Phase 5 complete on `arena/49d9fa08-dsa-archive` — merge gate
+
+Implementation, two-account Emulator acceptance and Friends axe audit passed
+CI [41528923623](https://github.com/pabi277/DSA-archive/actions/runs/41528923623)
+at `8aa30dc`; `site-preview` 330,704 bytes. See `docs/phases/05-friends.md`
+for design, verification, preview and limitations. The rolling-seven-day group
+target is viewer-local and session-only, not synchronized. Owner visual review
+against the mock remains outstanding because this sandbox cannot download the
+CI screenshot. No PR, merge, or deploy was made. A fresh explicit owner command
+is needed for any PR or merge. Do not start phase 6 until asked.
+
+## Phase 5 original handoff — Friends (opt-in)
 
 Read `rule.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`,
 `docs/DATA-MODEL.md` (§3 profile/friends/summary shape, §4 quota, §6 backup),

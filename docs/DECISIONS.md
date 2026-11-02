@@ -393,3 +393,17 @@
       is emulator-only; the agent created no project, deployed no rules
       and published no Hosting URL. Never paste service account
       keys/passwords in chat or git.
+
+
+### Phase 5 agent implementation choices (2026-11-03)
+
+- Invite codes are 128-bit bearer capabilities, direct-get-only and rotatable;
+  friendship requires an atomic reciprocal write verified by rules. Remove
+  access requires reciprocal existence; rotate after removal to prevent the
+  removed person reusing an old code. No invite links or social backup.
+- The summary exposes only aggregate counts, streak and the last activity
+  date, plus an as-of day for freshness. The rolling-seven-day group target is
+  viewer-local and session-only, not a synchronized group setting. A stale or
+  inaccessible summary is excluded rather than assumed to be zero.
+- Access is server-revocable, but data already seen or cached cannot be erased
+  from another device; the app hides unconfirmed cached friend summaries.
