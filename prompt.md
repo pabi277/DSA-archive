@@ -109,16 +109,16 @@
   spot-check** is pending; create the **Spark** project personally before the
   gated live check.
 
-## Phase 5 in progress on `arena/49d9fa08-dsa-archive`
+## Phase 5 complete on `arena/49d9fa08-dsa-archive` — merge gate
 
-Implementation and two-account emulator acceptance passed CI run
-[41528159501](https://github.com/pabi277/DSA-archive/actions/runs/41528159501)
-at `3218933`; later retry/a11y changes require another green run. See
-`docs/phases/05-friends.md` for design, verification, preview and limitations.
-The target for the rolling-seven-day group total is viewer-local and
-session-only, not synchronized. No PR or deploy was made. Owner visual review
-of the phone screenshot against the mock remains outstanding; sandbox cannot
-download Actions artifacts. Continue phase 5 only until all phase gates pass.
+Implementation, two-account Emulator acceptance and Friends axe audit passed
+CI [41528923623](https://github.com/pabi277/DSA-archive/actions/runs/41528923623)
+at `8aa30dc`; `site-preview` 330,704 bytes. See `docs/phases/05-friends.md`
+for design, verification, preview and limitations. The rolling-seven-day group
+target is viewer-local and session-only, not synchronized. Owner visual review
+against the mock remains outstanding because this sandbox cannot download the
+CI screenshot. No PR, merge, or deploy was made. A fresh explicit owner command
+is needed for any PR or merge. Do not start phase 6 until asked.
 
 ## Phase 5 original handoff — Friends (opt-in)
 
