@@ -2,103 +2,85 @@
 
 # DSA Archive (website) — continuation prompt
 
-> **Self-contained handoff.** Repo authority is `rule.md`; owner answers
-> are in `docs/DECISIONS.md`; roadmap in `docs/ROADMAP.md`; live status
-> is here. AppFlow @ `57597b3332ad578614a0d9d5609f9cf8a278ee8a` is
-> provenance only. Update this file at every phase end in the same commit
-> as the phase record.
+> **Self-contained handoff.** Repo authority: `rule.md`; owner answers:
+> `docs/DECISIONS.md`; roadmap: `docs/ROADMAP.md`; design inventory and
+> token approval: `docs/UI-REFERENCE.md`; living state: this file. AppFlow
+> @ `57597b3332ad578614a0d9d5609f9cf8a278ee8a` is provenance only. Update
+> this file at each phase end in the same commit as that phase record.
 
 ## Identity (fixed — exit gate complete 2026-11-02)
 
 - Site: `DSA Archive` · repo: `pabi277/DSA-archive` · MIT applies to
-  original code/data only. `LICENSE` was added in Phase 0.1; it does not
-  cover `copy-web/`, third-party content or libraries.
-- Audience: owner + a few invited friends. Backend: **Firebase Spark
-  only** — Google Auth + Firestore + Hosting (gated); no Functions,
-  Storage or Blaze.
-- Website first; any Android app is a separate project. Keep data,
-  tokens and Firestore shape portable.
-- Git author (owner-designated): `pabi277
-  <chakraborttypabi2772006@gmail.com>`. Before each commit verify
-  `git var GIT_AUTHOR_IDENT` and `git var GIT_COMMITTER_IDENT`; repo-local
-  config is already set. Work only on the session branch assigned to your
-  chat. The current session branch is `arena/07bfcf1a-dsa-archive`;
-  planning branch `arena/6dcaf48f-dsa-archive` was merged and must not be
-  reused. Never push `main`.
+  original code/data only; `LICENSE` is present.
+- Audience: owner + a few invited friends. Backend: **Firebase Spark only**
+  — Google Auth + Firestore + Hosting (gated); no Functions, Storage or
+  Blaze. Website first; any Android app is a separate project.
+- Git author: `pabi277 <chakraborttypabi2772006@gmail.com>`. Before every
+  commit verify `git var GIT_AUTHOR_IDENT` / `GIT_COMMITTER_IDENT`; set
+  repo-local identity if needed. Current branch is this chat's assigned
+  `arena/9eff13a2-dsa-archive`; do not rename/switch it. Other chats must
+  use their own Arena-assigned branch. Never push `main`.
 
 ## Rules digest (full rules: `./rule.md`)
 
-- One phase per chat, strictly within `docs/ROADMAP.md` "Done means".
-- Never create/switch branches, push `main`, force-push, reset hard,
-  open a PR, merge, tag, release, deploy (including Hosting preview
-  channels), deploy live rules, create/upgrade a Firebase project, change
-  repo visibility or bulk-delete/move files without the owner's explicit
-  command.
-- Read `docs/DECISIONS.md` before asking; recorded decisions are never
-  re-asked. Ask less; gate always.
-- Clean-room law: `copy-web/index.html` is STUDY-only. Never ship its
-  code/assets/content. Only factual hierarchy, problem titles/order/levels
-  and outbound links may cross over in our own code/data. Link out to
-  learning content.
-- No secrets in git/chat. Owner personally handles Firebase console
-  work. Security rules are the protection and must be Emulator-tested
-  before a gated live deploy.
-- CI green + downloadable `site-preview` each phase. Firebase phases
-  also need emulator rule tests. Docs ride with code; report CI run, tip
-  SHA, artifact and what preview shows; print next-chat prompt in chat;
-  stop at the merge gate.
-- No real product UI until phase 0-D design approval and tokens freeze in
-  `docs/UI-REFERENCE.md`.
+- One phase per chat, exactly within `docs/ROADMAP.md` "Done means".
+- No PR, merge, release, deployment (including GitHub Pages or Hosting
+  preview channels), live Firebase changes, project creation/upgrade,
+  visibility change, or bulk move/delete without explicit owner command.
+- Never re-ask recorded choices. Read `docs/DECISIONS.md` first.
+- Clean-room: `copy-web/` is STUDY-only. Do not ship its code/assets/text.
+  Factual topic/problem labels/order/levels/links may be in our own data;
+  link out to learning content.
+- No secrets in git/chat. Owner handles Firebase console steps and
+  creates the Spark project personally. Security rules protect the app.
+- CI green + downloadable `site-preview` per phase. Any Firebase phase
+  additionally needs emulator rules tests. Docs ride with code. Report CI
+  run/tip/artifact and what preview shows; print next prompt; stop at gates.
+- **No Phase 1 UI before the 0-D prototype is explicitly owner-approved
+  and approved tokens are frozen in `docs/UI-REFERENCE.md`.**
 
-## State (update at every phase end)
+## Current state (2026-11-02)
 
-- **Phase 0 — Bootstrap + data extraction: ✅ complete** (2026-11-02)
-  on this session branch. Record: `docs/phases/00-bootstrap-data-extraction.md`.
-  Commit sequence starts with `4fd4b91`; branch tip before the final docs
-  update was `58d5e3e`.
-- Delivered: MIT licence/hygiene; one-time clean-room extraction to
-  `data/problems.json`; pinned Vite + React + TypeScript + Tailwind/daisyUI
-  hello-sheet; unit/data/build/link/dist checks; responsive/accessibility
-  CI and emulator-only `firebase.json` (no Firebase SDK/project/Hosting
-  config or live changes). `copy-web/` remains unchanged and excluded from
-  every build.
-- Catalogue: **495 rows · 20 topics**. Reconciled levels: Basic 84, Core
-  287, Pro 109, plus 15 rows with no source badge (`level: null`). Link
-  unique counts: practice 453, articles 286, LeetCode 273, `youtu.be` 256;
-  extraction also retains 65 additional unique `youtube.com` links. The
-  older 85/288/110 badge tally was not reproducible from the snapshot.
-- CI first green run: #1
-  `https://github.com/pabi277/DSA-archive/actions/runs/41473226909`
-  (tip `58d5e3eafabd03d07d59ab8d9f1e9ac4d1f55f3d`); `site-preview`
-  artifact uploaded (122,163 bytes, 14-day retention). The workflow Action
-  dependencies were updated after GitHub emitted a Node 20 deprecation
-  annotation; verify the latest run again at chat start/end.
-- **Owner content-accuracy task still pending:** spot-check 10 random
-  catalogue rows against the live sheet. The data file does not claim that
-  review happened. This task does not license copying explanations.
-- No design is approved. The page is only a minimal count/topic preview;
-  no sign-in, progress, notes or planner behavior exists.
-- Open owner items remain in `docs/DECISIONS.md`: repository is PUBLIC
-  while holding third-party copied material (owner should make it private
-  or explicitly command a visibility change); create a Spark Firebase
-  project personally before Phase 2 (not now).
-- No PR, merge, deploy, Hosting preview channel, live Firebase project,
-  or live rules change has been authorized/performed.
+- **Phase 0 — Bootstrap + data extraction: ✅ complete and merged.**
+  PR #2 merged to `main` at `8638a91` (owner explicitly commanded merge).
+  Phase record: `docs/phases/00-bootstrap-data-extraction.md`.
+- CI run #3 for the Phase 0 tip passed all checks and uploaded `site-preview`:
+  https://github.com/pabi277/DSA-archive/actions/runs/41474032087
+- Data: 495 rows · 20 topics. Levels Basic 84, Core 287, Pro 109, plus
+  15 unbadged rows stored as `null`. The owner's 10-row live-sheet
+  accuracy spot-check remains pending.
+- **Phase 0-D — Design prototype + tokens freeze: 🚧 in progress.** The
+  owner requested Phase 1, but Phase 1 is blocked until this prerequisite
+  is approved. This chat is doing Phase 0-D only and will stop for approval.
+- Owner selected prototype direction: **dark-first; neutral, text-labelled
+  levels; responsive for both phone and desktop; text-only wordmark**.
+  These are draft-direction choices, not prototype approval or frozen
+  tokens. Record: `docs/DECISIONS.md` and `docs/UI-REFERENCE.md`.
+- Prototype code: `src/design-prototype.tsx` + `src/styles.css`. It has a
+  selector for all screen/state mocks, fake account/progress data, no
+  Firebase connection, no persistence, no real outbound actions. The
+  approval checkbox in `docs/UI-REFERENCE.md` remains blank; proposed
+  palette/type/spacing are not frozen.
+- Branch `arena/9eff13a2-dsa-archive` is active. Phase 0-D code and docs
+  are in progress on that branch; verify status and latest CI/artifact before
+  continuing. Do not open a PR or merge unless the owner explicitly commands it.
+- No public website URL exists. GitHub Pages and Firebase Hosting have
+  not been enabled/deployed. Repo remains public while `copy-web/` holds
+  the third-party snapshot; owner should resolve the visibility item in
+  `docs/DECISIONS.md`. Owner creates Spark project before Phase 2, not now.
 
-## Next: Phase 0-D — Design prototype + tokens freeze
+## Finish Phase 0-D — approval gate
 
-Read `rule.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`,
-`docs/RESEARCH.md`, `docs/DATA-MODEL.md`, `docs/UI-REFERENCE.md`, and the
-Phase 0 record. Verify `git status`, `git log`, PRs, CI and author identity.
-Confirm the starting branch is the chat's assigned session branch; do not
-reuse the previous branch. Do not re-ask any recorded answer.
+Read `rule.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`, `docs/RESEARCH.md`,
+`docs/DATA-MODEL.md`, `docs/UI-REFERENCE.md`, and
+`docs/phases/00d-design-prototype.md`. Verify branch, status, PRs, CI and
+Git identity. Do not start Phase 1.
 
-Build only the phase 0-D prototype specified in `docs/UI-REFERENCE.md`:
-phone-first mockups for every listed screen/state (including sign-in,
-sync/offline and friends), using fake but real-shaped data; owner review
-via the `site-preview` artifact; ask the four recorded design choices
-(dark/light, badge colors, density, original wordmark); freeze tokens only
-after explicit owner approval in chat. Keep real UI code blocked until
-approval. Invite owner to complete the pending 10-row data spot-check.
-Do not start Phase 1 before the 0-D approval is recorded. End at the
-merge gate; no PR/merge/deploy without a new explicit command.
+Run the Phase 0-D checks, obtain green CI and upload the `site-preview`
+artifact. Present the prototype to the owner at phone and desktop widths.
+Ask them to approve the mock and proposed tokens or list changes. The
+owner's 10-row catalogue spot-check is a separate pending content-accuracy
+task. Only after explicit approval: date the approval, freeze the final
+values in `docs/UI-REFERENCE.md`, mark Phase 0-D ✅, and stop. Phase 1 is
+for a later chat on that chat's assigned branch. No PR/merge/deploy without
+fresh explicit authorization.

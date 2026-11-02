@@ -72,6 +72,15 @@
   `copy-web/index.html`. No deployment or live Firebase is authorized
   by this answer, and future merges remain gated.
 
+## Owner decisions — phase 0-D prototype direction (2026-11-02; approval pending)
+
+- 2026-11-02 — Prototype preference choices: **dark-first**; **neutral,
+  text-labelled level badges**; responsive for **both phone and desktop**
+  (comfortable phone touch spacing, wider desktop layout); **text-only
+  “DSA Archive” wordmark**. These choices guide the disposable prototype;
+  they are **not approval of the mock or a token freeze**. The owner must
+  still approve the prototype in chat before Phase 1 UI work.
+
 ## Agent decisions (reversible — object if wrong)
 
 - 2026-11-02 — Stack after the Firebase pivot: **Vite + React +
@@ -115,14 +124,17 @@
 
 ## Third-party licences
 
-- **Nothing shipped yet.** Repo currently holds a third-party site
-  copy (their build output/fonts/logos) as STUDY reference only — not
-  licensed for redistribution, never in a deployable build.
-- Verified at planning (2026-11-02, LICENSE files / API; to be logged
-  again with pinned versions when they actually ship): Firebase JS SDK
-  Apache-2.0 (+BSD-3 protobuf) · firebase-tools MIT · React MIT ·
-  Vite MIT · Tailwind MIT · daisyUI MIT · Astro MIT (rejected for v1).
-  Lucide: verify per-file licence at phase 0 before DEPEND.
+- **Shipped in Phase 0:** React/React DOM 19.3.1 (MIT), Vite 8.3.5 and
+  React plugin 6.2.1 (MIT), TypeScript 7.0.2 (Apache-2.0), Tailwind CSS
+  and Vite plugin 4.3.3 (MIT), daisyUI 5.7.50 (MIT); test-only Vitest
+  5.0.5/jsdom 30.1.3 (MIT), Playwright 1.64.1 (Apache-2.0), and
+  axe-core Playwright 4.14.0 (MPL-2.0). Exact pins and the phase-time
+  licence check are recorded in `docs/phases/00-bootstrap-data-extraction.md`.
+- No Firebase SDK or icon library is shipped yet. Firebase licences remain
+  verified at planning only; re-check when used. Lucide is deferred until
+  a row-action screen needs icons; verify per-file/package licence then.
+- Repo also holds a third-party site copy as STUDY reference only — not
+  licensed for redistribution and never part of a deployable build.
 
 ## Open
 
@@ -132,8 +144,8 @@
       item remains open, and none of them may be re-asked; changing
       any of them is a new GATE decision. Plan-docs commit +
       `copy-web/` move + merge to `main` were separately commanded
-      by the owner on 2026-11-02 (above); Phase 0 itself starts in
-      the next stage-2 chat — see `prompt.md`.
+      by the owner on 2026-11-02 (above). Phase 0 is complete; Phase 0-D
+      is in progress on the current session branch — see `prompt.md`.
 
 ### Owner items (settings only you should change)
 

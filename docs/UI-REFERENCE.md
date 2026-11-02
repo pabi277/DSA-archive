@@ -19,9 +19,14 @@
   data, phone-width first, reviewed via the `site-preview` artifact on
   the owner's phone. Approved values freeze here; the mock is then
   folded into phase 1 or discarded (recorded in the 0-D record).
-- Direction questions for the owner at 0-D (not before): dark-first or
-  light-first · level-badge colour story · density (comfortable phone
-  list vs compact) · site wordmark/logo style (our own, always).
+- Owner’s prototype direction (2026-11-02; selections guide the draft,
+  **not design approval**): **dark-first** with light alternative ·
+  **neutral level badges with text labels** · responsive for both phones
+  and desktop (comfortable touch rows on phones; wider/denser layout on
+  desktop) · **text-only “DSA Archive” wordmark**.
+- Phase 0-D prototype is being reviewed in this chat. It uses fake
+  progress/account data only; the four choices above and the candidate
+  values below remain provisional until the owner approves the prototype.
 
 ## Approval
 
@@ -54,6 +59,22 @@
 | Settings & account | profile, theme, daily goal, **share-summary toggle**, export/import (success + invalid-file error), sign out, delete-my-data | 2, 5 |
 | Offline / 404 | friendly offline page (PWA), not-found | 6 |
 | Every screen × | **dark + light · phone (~390px) + desktop · large-font** variants checked | 0-D, 6 |
+
+## Prototype token proposal (draft only — approval/freeze pending)
+
+- Palette in `src/styles.css`: dark canvas `#101313`, surface `#171b1b`,
+  raised surface `#1e2322`, border `#343a38`, primary text `#edf0ed`,
+  muted text `#a1aaa4`, neutral accent `#c4d0ca`; light alternative
+  canvas `#f3f5f2`, surface `#ffffff`, primary text `#202722`, accent
+  `#33483d`. Basic/Core/Pro badges share the same neutral treatment and
+  remain distinguished by their text labels (never color alone).
+- Type proposal: system sans for UI and system monospace for snippets;
+  no bundled font until licence/need is reviewed. Layout proposal: 4px
+  spacing base; ≥44px interactive targets; 60px problem row; 12–16px
+  radii; responsive two-column desktop / single-column phone.
+- These are prototype candidate values, **not frozen tokens**. Owner may
+  approve them or list changes; then copy final values into the Tokens
+  section below and date the Approval checkbox.
 
 ## Tokens (frozen at 0-D approval — placeholders until then)
 
