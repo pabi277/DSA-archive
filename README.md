@@ -1,21 +1,24 @@
 # DSA Archive — my own DSA sheet website
 
-> **Status: Phases 0, 0-D and 1 are complete and merged to `main`;
-> Phase 2 is complete on its session branch and stopped at the merge
+> **Status: Phases 0, 0-D, 1 and 2 are complete and merged to `main`;
+> Phase 3 is complete on its session branch and stopped at the merge
 > gate.** The owner approved the 0-D design prototype on 2026-11-02, so
 > the design tokens remain **frozen** in
-> [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md). Phase 2 adds Google
+> [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md). Phase 2 added Google
 > sign-in, a profile avatar menu, offline-first Firestore progress sync,
 > an explicit guest→account merge, versioned Firestore rules with
-> emulator tests, and JSON export/import. All cloud acceptance runs
-> against the **local Emulator Suite in CI**: Site CI run
-> [#23](https://github.com/pabi277/DSA-archive/actions/runs/41501878705)
-> is green at `75a9d7e`, with a downloadable `site-preview` artifact.
+> emulator tests, and JSON export/import. Phase 3 adds synced markdown
+> notes + code snippets per problem, a searchable notes overview, custom
+> lists that filter the sheet, rules v2 (owner-only notes/lists with size
+> caps) and backup schema v2 with a backward-compatible v1 import. All
+> cloud acceptance runs against the **local Emulator Suite in CI**: Site
+> CI run [#30](https://github.com/pabi277/DSA-archive/actions/runs/41517643913)
+> is green at `21809c5`, with a downloadable `site-preview` artifact.
 > **No live Firebase project has been created, no rules or Hosting
 > deploy was made, and there is still no public URL.** The owner's own
 > live check and the 10-row content spot-check remain pending. Gate record:
-> [`docs/DECISIONS.md`](docs/DECISIONS.md); owner checklist:
-> [`docs/phases/02-firebase-auth-cloud-progress.md`](docs/phases/02-firebase-auth-cloud-progress.md).**
+> [`docs/DECISIONS.md`](docs/DECISIONS.md); phase records:
+> [`docs/phases/`](docs/phases/).**
 
 Planning adapted from AppFlow @ `57597b3332ad578614a0d9d5609f9cf8a278ee8a`
 on 2026-11-02 (reference only — this repo is self-contained; see
@@ -40,16 +43,19 @@ on 2026-11-02 (reference only — this repo is self-contained; see
 - `data/problems.json` is our independently extracted catalogue;
   `tools/extract_problems.py` is a one-time source tool and is never
   part of the website bundle. The owner spot-check remains pending.
-- `src/` is the **real Phase 2 sheet** built to the frozen 0-D tokens:
-  `App.tsx` (page/account UI), `SheetList.tsx` (topic accordions + rows),
-  `sheet.ts` (search/filter/random/weakest-topic logic), `progress.ts`
-  (guest store), `cloudProgress.ts` (Firestore row shape + merge plan),
-  `account.ts`/`accountData.ts` (Google Auth, profile and sync),
-  `backup.ts` (JSON schema), `firebase.ts` (emulator/live config),
-  `settings.ts`, `catalogue.ts`, and unit tests. `firestore.rules` is
-  generated from `data/problems.json` by `tools/generate-firestore-rules.mjs`.
-  Notes, planner and friends remain later phases. The disposable 0-D mock
-  was folded into phase 1 and deleted (readable in git history at `1791693`).
+- `src/` is the **real Phase 3 app** built to the frozen 0-D tokens:
+  `App.tsx` (page/account UI + Sheet/Notes/Lists views), `SheetList.tsx`
+  (topic accordions + rows), `sheet.ts` (search/filter/random/weakest-topic
+  logic), `progress.ts` (guest store), `cloudProgress.ts` (Firestore row
+  shape + merge plan), `account.ts`/`accountData.ts` (Google Auth, profile,
+  sync, backup), `library.ts`/`libraryData.ts` (notes + custom lists),
+  `NoteEditor.tsx`, `NotesView.tsx`, `ListsView.tsx`, `ListPicker.tsx`,
+  `markdown.ts` (safe, dependency-free preview), `backup.ts` (JSON schema v2),
+  `firebase.ts` (emulator/live config), `settings.ts`, `catalogue.ts`, and
+  unit tests. `firestore.rules` is generated from `data/problems.json` by
+  `tools/generate-firestore-rules.mjs`. Planner, revision and friends remain
+  later phases. The disposable 0-D mock was folded into phase 1 and deleted
+  (readable in git history at `1791693`).
 - ⚠️ **This repo is currently PUBLIC while containing that copy.**
   Owner item #1 in `docs/DECISIONS.md`: make it private while the
   copy remains under `copy-web/`, before anything is published.

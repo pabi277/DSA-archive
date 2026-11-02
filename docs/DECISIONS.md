@@ -197,6 +197,56 @@
   `hideDone` sync through the profile doc. Cloud→local changes are tagged
   so they do not echo a write.
 
+- 2026-11-02 — **Phase 3: notes and custom lists require sign-in; guest mode
+  is unchanged for progress.** Personal writing is exactly the data `rule.md`
+  §5 says needs login ("only personal data requires login"), and phase 3 adds
+  no guest-note store to merge. The sheet, its search/filters and guest
+  progress keep working signed out; the Notes/Lists views explain why an
+  account is needed. Reversible if the owner later wants offline guest notes.
+- 2026-11-02 — **Phase 3: rules v2 validates notes and lists by shape and
+  size, not by a 495-id whitelist.** Firestore Rules allow 1,000 evaluated
+  expressions per request, so a 495-element `in` test on every note/list write
+  risks that ceiling — and it would not prevent extra documents anyway. The
+  rules enforce the owner-only paths, the exact field set, string/list types,
+  5,000/8,000 note caps, ≤60-char list titles, ≤200 list ids, joined-id text
+  ≤12,000, and `updatedAt == request.time`; catalogue membership is enforced
+  in the client (`isKnownProblemId`) and re-checked by the backup parser.
+  **No phase-2 rule was weakened**; the only phase-2 test edit is stricter
+  (it now proves `plans`/unknown collections stay denied, because notes and
+  lists became deliberately owner-readable).
+- 2026-11-02 — **Phase 3: backup schema v2 with a v1 reader.** The writer
+  emits real `notes[]` and `lists[]` arrays next to the unchanged profile and
+  progress payload; `parseBackup` accepts schema 1 **and** 2, so phase-2 files
+  import unchanged (they always wrote empty arrays, so they restore zero notes
+  and lists). A v1 file claiming note/list content is refused rather than
+  guessed. The 1 MB file cap rises to **4 MB** because notes are individually
+  capped but numerous.
+- 2026-11-02 — **Phase 3: the markdown preview is hand-written, not a
+  dependency.** `src/markdown.ts` escapes all HTML first, then re-introduces
+  only fenced code, `#`-headings, bullets, inline code, bold, italic and
+  `http(s)` links; `javascript:` and raw HTML never render. Headings are
+  styled paragraphs so the CI axe heading-order audit stays valid. No
+  markdown/editor/sanitiser/icon/dialog package was added, so no licence entry
+  is owed.
+- 2026-11-02 — **Phase 3: one screen, three views; the note editor stays
+  inline in the row.** Sheet · Notes · Lists are `.list-tabs` buttons with
+  `aria-pressed` (not ARIA tabs, which would promise a keyboard contract this
+  view switch does not implement). The approved problem-detail mock is served
+  by an inline row panel because the app still has no router; bottom nav and
+  the desktop rail stay deferred until phases 4–5 add real destinations.
+- 2026-11-02 — **Phase 3: emulator browser specs run serially
+  (`playwright.config.ts` → `workers: 1`).** Both emulator specs sign in as
+  the same deterministic CI user and reset the shared emulator, so overlapping
+  them would be flaky. `ci.yml` also pipes the emulator step to
+  `test-output.log` and, on failure only, re-emits the interesting lines as
+  check-run annotations — the agent sandbox cannot download Actions logs,
+  which made earlier failures unreadable.
+- 2026-11-02 — **Phase 3: notes/lists have no guest local store.** Unlike
+  progress, a signed-out note has nowhere truthful to live, and inventing a
+  second merge path would double the phase-2 merge risk. Drop a note's text
+  before signing in and it is simply not saved; the editor is not rendered
+  while signed out.
+
 ## Law waivers
 
 - 2026-11-02 — AppFlow law 13 ("no backend unless the niche proves it;
@@ -238,9 +288,12 @@
       and 1 were merged to `main` through PR #3 on the owner's explicit
       command of 2026-11-02 (above). Phase 2 is complete on its own
       session branch with green emulator CI, stopped at the merge gate.
-      Nothing is deployed or published — there is no public URL and no
-      live Firebase project. Living state and the next-chat prompt:
-      `prompt.md`.
+      Phase 3 (notes, snippets, notes overview/search, custom lists, rules v2,
+      backup schema v2) is complete on `arena/0277d181-dsa-archive` with CI
+      run [#30](https://github.com/pabi277/DSA-archive/actions/runs/41517643913)
+      green, also stopped at the merge gate. Nothing is deployed or published
+      — there is no public URL and no live Firebase project. Living state and
+      the next-chat prompt: `prompt.md`.
 
 ### Owner items (settings only you should change)
 
