@@ -1,5 +1,5 @@
 import { LINK_LABELS, LEVEL_LABELS, levelOf, type FilteredTopic, type LinkFilter } from './sheet'
-import { isBookmarked, isDone, markBookmarked, markDone, type ProgressByTopic } from './progress'
+import { isBookmarked, isDone, type ProgressByTopic } from './progress'
 import type { Problem } from './catalogue'
 
 const linkTypes = Object.keys(LINK_LABELS) as LinkFilter[]
@@ -7,19 +7,25 @@ const linkTypes = Object.keys(LINK_LABELS) as LinkFilter[]
 /**
  * One sheet row (roadmap 1.1 + 1.3): status control, title, text-labelled
  * level badge, bookmark, and the outbound links that exist for that row.
- * Links are real anchors opening in a new tab — phase 1 ships no in-app
- * problem detail screen (that is phase 3).
+ * Phase 2 passes progress actions in from the account-data hook so the same
+ * row works for guest localStorage and signed-in Firestore progress.
  */
 export function ProblemRow({
   topicId,
   problem,
   progress,
   revealed,
+  disabled,
+  onToggleStatus,
+  onToggleBookmark,
 }: {
   topicId: string
   problem: Problem
   progress: ProgressByTopic
   revealed: boolean
+  disabled: boolean
+  onToggleStatus: (topicId: string, problemId: string) => void
+  onToggleBookmark: (topicId: string, problemId: string) => void
 }) {
   const done = isDone(progress, topicId, problem.id)
   const bookmarked = isBookmarked(progress, topicId, problem.id)
@@ -30,9 +36,10 @@ export function ProblemRow({
       <button
         type="button"
         className="status-check"
+        disabled={disabled}
         aria-pressed={done}
         aria-label={`Mark ${problem.title} ${done ? 'to do' : 'done'}`}
-        onClick={() => markDone(topicId, problem.id)}
+        onClick={() => onToggleStatus(topicId, problem.id)}
       >
         {done ? '✓' : ''}
       </button>
@@ -46,9 +53,10 @@ export function ProblemRow({
       <button
         type="button"
         className="bookmark-button"
+        disabled={disabled}
         aria-pressed={bookmarked}
         aria-label={`${bookmarked ? 'Remove bookmark from' : 'Bookmark'} ${problem.title}`}
-        onClick={() => markBookmarked(topicId, problem.id)}
+        onClick={() => onToggleBookmark(topicId, problem.id)}
       >
         {bookmarked ? '★' : '☆'}
       </button>
@@ -77,6 +85,9 @@ export function TopicAccordion({
   open,
   onOpenChange,
   revealedProblemId,
+  progressDisabled,
+  onToggleStatus,
+  onToggleBookmark,
 }: {
   topic: FilteredTopic
   progress: ProgressByTopic
@@ -84,6 +95,9 @@ export function TopicAccordion({
   open: boolean
   onOpenChange: (open: boolean) => void
   revealedProblemId: string | null
+  progressDisabled: boolean
+  onToggleStatus: (topicId: string, problemId: string) => void
+  onToggleBookmark: (topicId: string, problemId: string) => void
 }) {
   return (
     <details
@@ -116,6 +130,9 @@ export function TopicAccordion({
                 problem={problem}
                 progress={progress}
                 revealed={revealedProblemId === problem.id}
+                disabled={progressDisabled}
+                onToggleStatus={onToggleStatus}
+                onToggleBookmark={onToggleBookmark}
               />
             ))}
           </section>

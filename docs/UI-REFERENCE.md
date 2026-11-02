@@ -123,9 +123,9 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
 ## Component inventory (= phase build checklist)
 
 - [x] App header (wordmark, progress count pill, appearance + large-text
-      controls) — *phase 1*. The progress **ring**, **streak** and **sync
-      pill** are phase 2/4 (they need an account and a network state);
-      the **avatar menu** is phase 2.
+      controls) — *phase 1*. The **sync pill** and **avatar menu** are
+      *phase 2*; the progress **ring** and **streak** remain phase 4
+      (they need richer stats).
 - [x] Search box (keyboard shortcut `/` on desktop) + filter chips row
       (topic select, level, link type, hide-done) — *phase 1*.
 - [x] Topic accordion header (title, `done/total`, progress bar, chevron)
@@ -133,8 +133,13 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
 - [x] Problem row (status control, title, level badge, outbound link
       buttons, bookmark) — *phase 1*.
 - [x] Buttons · notices · one reusable empty-state pattern — *phase 1*.
-      Dialogs and toasts are deferred to the first phase that needs them
-      (phase 2 sign-in errors / phase 3 note editor).
+      Phase 2 uses the same neutral inline notices for sign-in/sync/
+      merge/backup success and error states; no modal or toast library
+      was added. Dialogs remain deferred until a UI phase truly needs one.
+- [x] Sign-in banner · profile/avatar menu · sync pill · guest-merge
+      notice · account & backup card (export, invalid-file error,
+      import preview, success) — *phase 2*.
+- [x] Topic-complete quiet notice — *phase 2*.
 - [ ] Bottom nav (phone: Sheet · Today · Revision · Friends · More) —
       **deferred, see adaptations**; returns in phase 2+.
 - [ ] Desktop rail navigation — **deferred** with the bottom nav.
@@ -153,6 +158,13 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
   and `Sheet · filters on` states. Same tokens, same chrome, same row
   anatomy, same neutral badges. Every difference found is listed below;
   none of them is a token change.
+- **Phase 2 review (2026-11-02):** `test-results/sync-phone.png` plus the
+  existing desktop/phone screenshots were compared against the approved
+  mock's `Sheet — signed in`, `Sheet — syncing / offline`, `Sign-in`,
+  `Settings & account`, and `Topic complete` states. The chrome, sync
+  pill, avatar menu, neutral notices and account/backup controls use the
+  frozen tokens and existing component anatomy. Differences are listed
+  below; none changes a token or the approved direction.
 
 ## Deliberate adaptations (planned differences, not drift)
 
@@ -186,3 +198,25 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
 - **Subtopic headings are `<h2>`, not `<h3>`.** Topic titles live in a
   `<summary>` (not a heading), so an `<h3>` under an `<h1>` would skip a
   level and fail the axe `heading-order` rule in CI.
+- **Bottom nav and desktop rail stay deferred in phase 2.** Today,
+  Revision, Friends and More still do not exist until phases 4–5; the
+  account/backup destination is a card in the existing context column,
+  reachable from the header avatar menu, rather than a dead nav item.
+- **Settings & account is a context card, not a separate route.** Phase 2
+  has one real destination (the sheet), so a router and second screen
+  would be scaffolding. The approved profile-row and settings-row styles
+  are used in the card; export/import success and invalid-file errors are
+  inline notices with text labels, never colour-only states.
+- **The sign-in banner keeps the approved copy but gains real controls.**
+  The phase-1 static banner is now a Google button plus an explainer. An
+  emulator-only "Use CI Google account" button appears in CI builds so a
+  real `google.com` Auth user can be created deterministically; it is not
+  present in a live/unconfigured build.
+- **Guest progress remains writable and is merged visibly.** The approved
+  mock assumed login-gated progress; phase 1 shipped real guest rows, so
+  phase 2 keeps them and shows a merge notice with counts before any
+  cloud write. This is the "never silent" requirement, not a new design
+  direction.
+- **The sync pill uses a short text label, not a spinner or ring.** The
+  frozen design has no separate hue story; state is always text plus the
+  existing neutral dot. The progress ring and streak stay phase 4.

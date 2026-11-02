@@ -209,6 +209,28 @@ button, input, select, textarea { font: inherit; }
 .profile-button { width: 42px; }
 .privacy-note { margin-bottom: 10px; font-size: 12px; }
 
+/* --- phase 2: account, sync and backup (frozen-token components) ----------- */
+.banner-copy { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; min-width: 0; }
+.banner-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
+.app-banner .button { min-height: 44px; padding-block: 7px; font-size: 12px; }
+.sync-pill { flex: 0 1 auto; min-width: 0; }
+.sync-pill .status-dot { background: var(--accent); }
+.profile-menu { position: relative; }
+.profile-menu > summary { cursor: pointer; list-style: none; }
+.profile-menu > summary::-webkit-details-marker { display: none; }
+.profile-menu-panel { display: none; position: absolute; z-index: 10; top: 49px; right: 0; width: min(240px, calc(100vw - 32px)); padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.profile-menu[open] .profile-menu-panel { display: grid; gap: 8px; }
+.profile-menu-panel strong { color: var(--ink); font-size: 13px; }
+.profile-menu-panel p { margin: 0; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+.profile-menu-panel a, .profile-menu-panel button { min-height: 40px; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--surface-raised); color: var(--ink); font-size: 12px; font-weight: 650; text-align: left; text-decoration: none; cursor: pointer; }
+.profile-copy { min-width: 0; }
+.profile-copy strong, .profile-copy p { overflow-wrap: anywhere; }
+.file-label { position: relative; overflow: hidden; }
+.file-label:focus-within { outline: 3px solid var(--accent); outline-offset: 3px; }
+.file-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.context-card .notice { margin: 12px 0 0; }
+.button:disabled, .status-check:disabled, .bookmark-button:disabled { opacity: 0.55; cursor: not-allowed; }
+
 /* --- accessibility --------------------------------------------------------- */
 .skip-link { position: absolute; z-index: 20; top: -60px; left: 10px; border-radius: 9px; padding: 10px 14px; background: var(--accent); color: var(--accent-ink); }
 .skip-link:focus { top: 10px; }
@@ -259,4 +281,19 @@ button, input, select, textarea { font: inherit; }
   .metric-tile { padding: 10px; }
   .metric-tile strong { font-size: 19px; }
   .bar-row { grid-template-columns: minmax(75px, 1.1fr) minmax(50px, 1.5fr) 24px; gap: 7px; font-size: 11px; }
+}
+
+/* Phase 2 keeps every new control inside the approved 390px phone chrome. */
+@media (max-width: 820px) {
+  .app-banner { align-items: center; }
+  .banner-actions { margin-left: 0; }
+}
+@media (max-width: 560px) {
+  .topbar-actions { min-width: 0; }
+  .sync-pill { max-width: 112px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-inline: 8px; }
+  .banner-copy, .banner-actions { width: 100%; }
+  .app-banner .button { flex: 1 1 100%; }
+  .profile-menu-panel { top: 46px; }
+  .account-panel .heading-actions, .context-card .notice > .heading-actions { width: 100%; }
+  .context-card .notice > .heading-actions .button { flex: 1 1 100%; padding-inline: 9px; font-size: 11px; }
 }

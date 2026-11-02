@@ -2,21 +2,23 @@ import { useSyncExternalStore } from 'react'
 import { catalogue, type Topic } from './catalogue'
 
 /**
- * Local (guest) progress for phase 1.
+ * Local (guest) progress for phase 1, kept in phase 2 as the merge source.
  *
  * Shape deliberately mirrors `docs/DATA-MODEL.md` §3
  * `users/{uid}/progressByTopic/{topicId}` — `{ [problemId]: { s, b } }` —
- * so phase 2 can swap the localStorage source for Firestore and merge
- * guest rows without a data migration. Catalogue ids are the join key;
- * row positions are never stored. Nothing here talks to a network.
+ * so phase 2 can merge guest rows into Firestore without a data migration.
+ * The richer cloud-only fields (a/fd/lr/updatedAt) live in cloudProgress.ts.
+ * Catalogue ids are the join key; row positions are never stored.
  */
 
 export type Status = 'todo' | 'done'
 export type ProblemProgress = { s: Status; b: boolean }
 export type TopicProgress = Record<string, ProblemProgress>
 export type ProgressByTopic = Record<string, TopicProgress>
+export type GuestTimestamps = Record<string, number>
 
 const STORAGE_KEY = 'dsa-archive.progress.v1'
+const TIME_KEY = 'dsa-archive.progress.updatedAt.v1'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -58,6 +60,53 @@ function writeStorage(progress: ProgressByTopic) {
   }
 }
 
+function readGuestTimestamps(): GuestTimestamps {
+  try {
+    const raw = JSON.parse(localStorage.getItem(TIME_KEY) ?? '{}')
+    if (!isRecord(raw)) return {}
+    const result: GuestTimestamps = {}
+    for (const [topicId, value] of Object.entries(raw)) {
+      if (typeof value === 'number' && Number.isFinite(value)) result[topicId] = value
+    }
+    return result
+  } catch {
+    return {}
+  }
+}
+
+function writeGuestTimestamps(times: GuestTimestamps) {
+  try {
+    if (Object.keys(times).length === 0) localStorage.removeItem(TIME_KEY)
+    else localStorage.setItem(TIME_KEY, JSON.stringify(times))
+  } catch {
+    // Timestamps are merge metadata; browsing must still work without them.
+  }
+}
+
+/**
+ * Per-topic guest `updatedAt` values for the visible merge. Phase-1 rows had
+ * no timestamps, so missing ones are backfilled once with the current time.
+ */
+export function getGuestTimestamps(): GuestTimestamps {
+  const progress = current()
+  const stored = readGuestTimestamps()
+  const result: GuestTimestamps = {}
+  const now = Date.now()
+  let changed = false
+  for (const topicId of Object.keys(progress)) {
+    if (typeof stored[topicId] === 'number' && Number.isFinite(stored[topicId])) {
+      result[topicId] = stored[topicId]
+    } else {
+      result[topicId] = now
+      changed = true
+    }
+  }
+  if (changed || Object.keys(stored).length !== Object.keys(result).length) {
+    writeGuestTimestamps(result)
+  }
+  return result
+}
+
 let cached: ProgressByTopic | null = null
 const listeners = new Set<() => void>()
 
@@ -66,9 +115,18 @@ function current(): ProgressByTopic {
   return cached
 }
 
-function commit(next: ProgressByTopic) {
+function commit(next: ProgressByTopic, topicId?: string) {
   cached = next
   writeStorage(next)
+  if (topicId) {
+    const times = readGuestTimestamps()
+    times[topicId] = Date.now()
+    const pruned: GuestTimestamps = {}
+    for (const id of Object.keys(next)) pruned[id] = times[id] ?? Date.now()
+    writeGuestTimestamps(pruned)
+  } else if (Object.keys(next).length === 0) {
+    writeGuestTimestamps({})
+  }
   for (const listener of listeners) listener()
 }
 
@@ -121,11 +179,11 @@ export function isBookmarked(progress: ProgressByTopic, topicId: string, problem
 }
 
 export function markDone(topicId: string, problemId: string) {
-  commit(toggle(current(), topicId, problemId, 's'))
+  commit(toggle(current(), topicId, problemId, 's'), topicId)
 }
 
 export function markBookmarked(topicId: string, problemId: string) {
-  commit(toggle(current(), topicId, problemId, 'b'))
+  commit(toggle(current(), topicId, problemId, 'b'), topicId)
 }
 
 export function clearProgress() {
@@ -135,6 +193,10 @@ export function clearProgress() {
 /** Test/review helper: forget stored rows without touching the UI. */
 export function resetProgressStoreForTests() {
   cached = null
+}
+
+export function countProgressRows(progress: ProgressByTopic) {
+  return Object.values(progress).reduce((total, shard) => total + Object.keys(shard).length, 0)
 }
 
 export type Tally = { done: number; bookmarked: number; total: number; percent: number }

@@ -90,6 +90,16 @@ describe('the whole sheet is browsable signed out (1.1)', () => {
     expect(q('[data-testid="progress-pill"]').textContent).toBe('0/495 done')
   })
 
+  it('shows the phase-2 sign-in flow and a truthful local-only sync state', () => {
+    expect(q('[data-testid="sign-in-banner"]').textContent).toContain('Sign in to save progress')
+    expect(q('[data-testid="sync-pill"]').textContent).toContain('Local only')
+    expect(container.querySelector('[data-testid="account-panel"]')).toBeNull()
+    // With no live web config, the real button gives an actionable owner-setup
+    // error rather than pretending to sign in.
+    click(q('[data-testid="sign-in-banner"] .button-primary'))
+    expect(q('[data-testid="account-error"]').textContent).toContain('Cloud sign-in is not configured')
+  })
+
   it('renders subtopic headings and rows when a topic is opened', () => {
     const summary = q('#topic-arrays summary')
     act(() => {

@@ -51,7 +51,7 @@ row positions, so reordering the sheet can't scramble anyone's data.
 
 No problem statements/articles/solutions are stored — links point out.
 
-## 3. Firestore schema (sketch — frozen at phase 2, rules-tested)
+## 3. Firestore schema (frozen at phase 2 — rules-tested)
 
 Design driver: **Spark-quota frugality** (§4). One fat read on login
 beats 495 small ones, so progress is sharded per topic (20 docs),
@@ -108,23 +108,40 @@ users/{uid}/public/summary                   // phase 5, ONLY if shareSummary = 
   **computed on-device** from the docs above. Nothing needs a server
   clock job; `serverTimestamp` is used where ordering matters.
 
-### Signed-out & merge behaviour (phase 2 acceptance detail)
+### Signed-out & merge behaviour (phase 2 acceptance detail — shipped)
 
-- Signed out: sheet browsable, progress buttons prompt sign-in;
-  optional guest progress in `localStorage` merges into the account
-  on first login (newest `updatedAt` wins per topic doc; merge is
-  shown to the user, never silent) — if this proves fiddly at phase
-  2, guest mode is cut rather than shipped buggy (recorded there).
-- **Phase 1 already ships the guest half** (`src/progress.ts`, key
-  `dsa-archive.progress.v1`): one object sharded by topic id, each
-  holding `{ problemId: { s: 'todo'|'done', b: boolean } }` — the §3
-  Firestore shape minus `a`/`fd`/`lr`/`updatedAt`. Phase 2 must (a) add
-  those fields, (b) read this key as the guest source for the
-  signed-out→signed-in merge, and (c) keep the "merge is shown, never
-  silent" rule. Settings (`theme`, `largeText`, `hideDone`) live under
+- Signed out: sheet browsable and guest progress remains writable in
+  `localStorage`; no account or network is required.
+- Guest mode was **kept**, not cut. `src/progress.ts` still stores the
+  phase-1 object sharded by topic id at `dsa-archive.progress.v1`, each
+  row `{ s: 'todo'|'done', b: boolean }`. A second key
+  `dsa-archive.progress.updatedAt.v1` holds per-topic guest timestamps;
+  older phase-1 rows are backfilled once on read.
+- `src/cloudProgress.ts` plans the merge: newest `updatedAt` wins per
+  topic, guest `s`/`b` is combined with any cloud `a`/`fd`/`lr`, and
+  cloud-only rows are deleted when the guest shard wins. The UI shows
+  guest/cloud counts and per-topic winners and performs **no write**
+  until the user chooses "Merge guest rows" or "Keep cloud only".
+- Firestore Rules has no loops, so every progress write changes exactly
+  one problem key plus `updatedAt: serverTimestamp()`. Import and merge
+  apply sequences of these one-key writes; no Admin SDK is used.
+- Settings (`theme`, `largeText`, `hideDone`) live under
   `dsa-archive.settings.v1` and map to the §3 profile fields
   `theme`/`hideDone`; `largeText` is local-only (an accessibility
   preference, not user data worth a Firestore field).
+
+### Rules v1 validation (generated from `data/problems.json`)
+
+`tools/generate-firestore-rules.mjs` emits the versioned `firestore.rules`
+from the single validated catalogue: 20 topic whitelists, 495 unique
+problem ids. Default deny; owner-only `get/list/create/update/delete`
+under `users/{uid}`; profile field types and size caps; progress entry
+fields `s` (`todo|done|revision`), `b`, `a` (0–10000), `fd`/`lr`
+(≤40 chars or null); one changed problem key per write; top-level shard
+size capped at the topic's row count + `updatedAt`. The emulator test
+covers stranger read/write, unauthenticated access, invalid profile
+fields, invalid progress fields, unknown ids, oversized writes and
+owner deletion.
 
 ## 4. Spark quota budget (official limits checked 2026-11-02)
 
@@ -171,8 +188,13 @@ its phase record before it is built.
 
 ## 6. Export / import (anti-lock-in, phase 2)
 
-Export = one JSON file: profile settings + all `progressByTopic` +
-notes + lists + plans (friends/summary excluded — they're social,
-not study data). Import validates `schemaVersion`, previews counts,
-and only then replaces. This is also the migration path off Firebase
+Export = one JSON file: `schemaVersion: 1`, `generatedBy`,
+`exportedAt`, profile settings, all `progressByTopic` rows (with
+`a`/`fd`/`lr`), empty `notes`/`lists`/`plans` arrays for phases 3–4,
+and an `excluded` list naming friends/summary (they're social, not
+study data). `src/backup.ts` validates schema version, catalogue ids,
+field types and a 1 MB size cap; the UI previews row/topic/note/list/plan
+counts and only then replaces. Invalid files show an explicit error.
+Import deletes existing topic shards, replays one-key writes, and
+restores profile settings. This is also the migration path off Firebase
 if the owner ever wants one — powerful must never mean trapped.

@@ -171,6 +171,32 @@
   behaviour `e2e/sheet.spec.ts` asserts in CI. Local green is therefore
   evidence about CI, not a substitute for it; CI remains the authority.
 
+- 2026-11-02 — **Phase 2: Firebase 12.19.0** was pinned instead of 13.x
+  because this repo/CI use Node 22; 13.x subpackages require Node ≥24.12.
+  `@grpc/grpc-js` is overridden to 1.14.7 to clear the shipped-dependency
+  audit. `@firebase/rules-unit-testing` 5.0.2 and `firebase-tools` 15.34.2
+  are dev-only Emulator Suite tooling. All are inside the Firebase
+  whitelist; no UI/state/icon library was added.
+- 2026-11-02 — **Phase 2: guest mode was kept, not cut.** Phase-1
+  `dsa-archive.progress.v1` rows stay byte-for-byte compatible; a new
+  `dsa-archive.progress.updatedAt.v1` key holds per-topic guest
+  timestamps, backfilled once for older installs. The merge notice shows
+  guest/cloud row counts and per-topic winners, and writes nothing until
+  the user chooses. Firestore Rules has no loops, so progress writes are
+  one problem key per `setDoc`; import/merge use sequential one-key writes.
+- 2026-11-02 — **Phase 2: the CI Google account is emulator-only.**
+  `src/account.ts` supplies a strict JSON fake `google.com` id_token to
+  the Auth Emulator; production uses `signInWithPopup`. No service
+  account, Admin SDK, password, or live project identifier is present.
+- 2026-11-02 — **Phase 2: backup schema v1** is one JSON file with profile
+  settings plus all `progressByTopic` rows, empty notes/lists/plans arrays
+  for phases 3–4, and friends/summary excluded. Import validates schema,
+  catalogue ids, field types and a 1 MB cap, previews counts, then
+  replaces only after confirmation.
+- 2026-11-02 — **Phase 2: `largeText` remains local-only**; `theme` and
+  `hideDone` sync through the profile doc. Cloud→local changes are tagged
+  so they do not echo a write.
+
 ## Law waivers
 
 - 2026-11-02 — AppFlow law 13 ("no backend unless the niche proves it;
@@ -188,11 +214,14 @@
   5.0.5/jsdom 30.1.3 (MIT), Playwright 1.64.1 (Apache-2.0), and
   axe-core Playwright 4.14.0 (MPL-2.0). Exact pins and the phase-time
   licence check are recorded in `docs/phases/00-bootstrap-data-extraction.md`.
-- No Firebase SDK or icon library is shipped yet. Firebase licences remain
-  verified at planning only; re-check when used. Lucide is deferred until
-  a row-action screen needs icons; verify per-file/package licence then.
-  **Phase 1 added no dependency at all** — the same phase-0 pins ship, so
-  this list is unchanged and needs no re-verification.
+- **Shipped in Phase 2:** Firebase JS SDK 12.19.0 (Apache-2.0), with
+  `@firebase/app` 0.16.2 / `@firebase/app-compat` 0.5.18 and
+  `@grpc/grpc-js` 1.14.7 (Apache-2.0) overrides to keep Node 22 support
+  and a clean production audit. Dev-only Emulator Suite tools:
+  `@firebase/rules-unit-testing` 5.0.2 (Apache-2.0) and `firebase-tools`
+  15.34.2 (MIT). Package licences and engines were checked against npm
+  metadata on 2026-11-02. No icon library was added; Lucide remains
+  deferred until a row-action screen needs icons.
 - Repo also holds a third-party site copy as STUDY reference only — not
   licensed for redistribution and never part of a deployable build.
 
@@ -207,9 +236,11 @@
       by the owner on 2026-11-02 (above). Phases 0, 0-D and 1 are
       complete (0-D approved and tokens frozen 2026-11-02); phases 0-D
       and 1 were merged to `main` through PR #3 on the owner's explicit
-      command of 2026-11-02 (above). Nothing is deployed or published —
-      there is no public URL and no Firebase project. Living state and
-      the next-chat prompt: `prompt.md`.
+      command of 2026-11-02 (above). Phase 2 is complete on its own
+      session branch with green emulator CI, stopped at the merge gate.
+      Nothing is deployed or published — there is no public URL and no
+      live Firebase project. Living state and the next-chat prompt:
+      `prompt.md`.
 
 ### Owner items (settings only you should change)
 
@@ -217,7 +248,10 @@
       containing a third-party paid-site copy. Recommended: set
       Private while the third-party copy remains under `copy-web/` (Settings →
       Danger zone) — or explicitly command the agent to change it.
-- [ ] **Later, before phase 2 (not now):** create the Firebase
-      project personally on the **Spark (no-cost)** plan from the
-      checklist the phase-1 record will contain. Never paste service
-      account keys/passwords in chat or git.
+- [ ] **Owner live check (still gated):** create the Firebase project
+      personally on the **Spark (no-cost)** plan from the checklist in
+      `docs/phases/02-firebase-auth-cloud-progress.md`, then perform the
+      owner's own phone↔laptop check once linked. Phase 2's CI acceptance
+      is emulator-only; the agent created no project, deployed no rules
+      and published no Hosting URL. Never paste service account
+      keys/passwords in chat or git.
