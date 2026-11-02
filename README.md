@@ -1,17 +1,19 @@
 # DSA Archive — my own DSA sheet website
 
 > **Status: Phases 0, 0-D and 1 are complete and merged to `main`;
-> Phase 2 is implemented on its session branch and stopped at the merge
+> Phase 2 is complete on its session branch and stopped at the merge
 > gate.** The owner approved the 0-D design prototype on 2026-11-02, so
 > the design tokens remain **frozen** in
 > [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md). Phase 2 adds Google
 > sign-in, a profile avatar menu, offline-first Firestore progress sync,
 > an explicit guest→account merge, versioned Firestore rules with
 > emulator tests, and JSON export/import. All cloud acceptance runs
-> against the **local Emulator Suite in CI** — **no live Firebase
-> project has been created, no rules or Hosting deploy was made, and
-> there is still no public URL**. The owner's own live check and the
-> 10-row content spot-check remain pending. Gate record:
+> against the **local Emulator Suite in CI**: Site CI run
+> [#23](https://github.com/pabi277/DSA-archive/actions/runs/41501878705)
+> is green at `75a9d7e`, with a downloadable `site-preview` artifact.
+> **No live Firebase project has been created, no rules or Hosting
+> deploy was made, and there is still no public URL.** The owner's own
+> live check and the 10-row content spot-check remain pending. Gate record:
 > [`docs/DECISIONS.md`](docs/DECISIONS.md); owner checklist:
 > [`docs/phases/02-firebase-auth-cloud-progress.md`](docs/phases/02-firebase-auth-cloud-progress.md).**
 

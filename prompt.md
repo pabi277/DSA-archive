@@ -20,8 +20,9 @@
   commit verify `git var GIT_AUTHOR_IDENT` / `GIT_COMMITTER_IDENT`; a fresh
   clone may default to a `noreply` address, so set the repo-local identity
   first. Phases 0/0-D/1 used earlier Arena branches and were merged to
-  `main`; this chat uses `arena/62f988be-dsa-archive` and must not rename,
-  switch, reuse another chat's branch, or push `main`.
+  `main`; phase 2 used `arena/62f988be-dsa-archive` and stopped at its
+  merge gate. The next chat must use **its own** Arena-assigned branch;
+  never rename, switch, reuse another chat's branch, or push `main`.
 
 ## Rules digest (full rules: `./rule.md`)
 
@@ -58,9 +59,17 @@
   `dab3207c83953667d7af66b2cc127938d63862f3`; CI run #13 green at tip
   `baac7ac`. All 495 rows, instant cross-topic search, filters, random
   pick, weakest-topic hint, outbound links, guest progress and settings.
-- **Phase 2 — Firebase Auth + cloud progress: 🚧 implemented on this
-  branch; CI verification pending first run.** Record:
-  `docs/phases/02-firebase-auth-cloud-progress.md`. No PR/merge/deploy.
+- **Phase 2 — Firebase Auth + cloud progress: ✅ complete on
+  `arena/62f988be-dsa-archive`, stopped at the merge gate.** Record:
+  `docs/phases/02-firebase-auth-cloud-progress.md`. Final tip
+  `75a9d7e1fad9b5d11e037423ffe67f025e1a2943`.
+  - **CI: Site CI run [#23](https://github.com/pabi277/DSA-archive/actions/runs/41501878705)
+    SUCCESS** (1m46s): catalogue validation · generated-rules check ·
+    **60 unit tests** · emulator-configured build · dist/link checks ·
+    **4 Emulator Suite rules tests** · **4 real-Chromium Playwright tests**
+    (desktop + phone-light + signed-in phone sync/backup, three axe
+    audits). Failure-only diagnostics step skipped. **`site-preview`
+    artifact: 312,869 bytes** (14-day retention).
   - **2.1** Google sign-in (`signInWithPopup`) + emulator-only deterministic
     CI Google account, profile doc, avatar menu, sync pill, sign-out/error
     states, `theme`/`hideDone` profile sync (`largeText` stays local-only).
@@ -72,18 +81,17 @@
     no write happens before the user chooses. Guest mode was kept, not cut.
   - **2.3** versioned `firestore.rules`, generated from `data/problems.json`
     by `tools/generate-firestore-rules.mjs`: default deny, own-data-only,
-    exact profile/progress field types and size caps, known topic/problem
-    ids, one changed problem key per write, `serverTimestamp` enforcement.
-    `tools/firestore-rules.test.mjs` proves stranger/unauthenticated denial,
-    invalid fields, unknown ids, oversized/bulk writes, owner deletion.
+    owner collection queries, exact profile/progress field types and size
+    caps, known topic/problem ids, one changed problem key per write,
+    `serverTimestamp` enforcement. `tools/firestore-rules.test.mjs` proves
+    stranger/unauthenticated denial, invalid fields, unknown ids,
+    oversized/bulk writes, owner deletion. No rule was weakened.
   - **2.4** backup `schemaVersion: 1` (profile + all progress rows + empty
     notes/lists/plans + excluded friends/summary), with invalid-file error,
     count preview, explicit replace, and success state.
-  - CI now checks generated rules, installs Java, builds the emulator
-    `dist/`, and runs `npm run test:emulator` = Emulator Suite rules tests
-    + all Playwright specs. `e2e/sync.spec.ts` covers solve → guest merge →
-    relogin in a fresh browser profile → offline mark → reconnect → second
-    fresh profile → export/import at 390×844.
+  - `e2e/sync.spec.ts` covers solve → guest merge → relogin in a fresh
+    browser profile → offline mark → reconnect → second fresh profile →
+    export/import at 390×844 against Auth + Firestore emulators.
   - Local checks green: `test:data`, `npm test` (**60 tests / 6 files**),
     `check:rules`, emulator-configured `build`, `check:dist`, `check:links`,
     Playwright spec discovery, `git diff --check`. Java/Chromium downloads
@@ -93,7 +101,8 @@
     dev-only `@firebase/rules-unit-testing` **5.0.2** (Apache-2.0) and
     `firebase-tools` **15.34.2** (MIT); Node-22-compatible overrides
     `@firebase/app` 0.16.2, `@firebase/app-compat` 0.5.18,
-    `@grpc/grpc-js` 1.14.7. No dependency outside the Firebase whitelist.
+    `@grpc/grpc-js` 1.14.7. Java 21 is installed in CI for the emulator.
+    No dependency outside the Firebase whitelist.
   - **No live Firebase project was created or linked. No rules deploy,
     Hosting deploy, public URL, PR, merge, tag, release, or visibility
     change was made.** The owner's live check remains gated.

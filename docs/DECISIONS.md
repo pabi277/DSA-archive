@@ -236,9 +236,11 @@
       by the owner on 2026-11-02 (above). Phases 0, 0-D and 1 are
       complete (0-D approved and tokens frozen 2026-11-02); phases 0-D
       and 1 were merged to `main` through PR #3 on the owner's explicit
-      command of 2026-11-02 (above). Nothing is deployed or published —
-      there is no public URL and no Firebase project. Living state and
-      the next-chat prompt: `prompt.md`.
+      command of 2026-11-02 (above). Phase 2 is complete on its own
+      session branch with green emulator CI, stopped at the merge gate.
+      Nothing is deployed or published — there is no public URL and no
+      live Firebase project. Living state and the next-chat prompt:
+      `prompt.md`.
 
 ### Owner items (settings only you should change)
 
