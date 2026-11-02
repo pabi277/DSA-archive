@@ -61,9 +61,12 @@
   Firebase connection, no persistence, no real outbound actions. The
   approval checkbox in `docs/UI-REFERENCE.md` remains blank; proposed
   palette/type/spacing are not frozen.
-- Branch `arena/9eff13a2-dsa-archive` is active. Phase 0-D code and docs
-  are in progress on that branch; verify status and latest CI/artifact before
-  continuing. Do not open a PR or merge unless the owner explicitly commands it.
+- Branch `arena/9eff13a2-dsa-archive` is active. Prototype code tip `e03c4ca`
+  is pushed; CI run #10 passed the full browser/accessibility checks and
+  uploaded `site-preview` (130,951 bytes):
+  https://github.com/pabi277/DSA-archive/actions/runs/41479517916 . This
+  handoff update records that result; prototype approval is still pending.
+  Do not open a PR or merge unless the owner explicitly commands it.
 - No public website URL exists. GitHub Pages and Firebase Hosting have
   not been enabled/deployed. Repo remains public while `copy-web/` holds
   the third-party snapshot; owner should resolve the visibility item in

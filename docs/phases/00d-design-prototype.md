@@ -36,7 +36,8 @@ Candidate palette, typography and spacing are documented in `docs/UI-REFERENCE.m
 - `npm run check:dist` — PASS (no copied-site files).
 - `npm run check:links` — PASS.
 - `git diff --check` — PASS.
-- Local default `npm run test:e2e` initially could not launch because the Playwright-managed Chromium executable is absent and its download host is outside the configured network allowlist. For diagnosis, a temporary Chromium 153 package from the allowed npm registry was launched with its bundled shared libraries; the full local Playwright inventory, phone/desktop layout, and axe checks then passed. The first pushed CI run exposed an axe `region` violation because the preview disclosure was outside landmarks; it is now a named `<aside>` and the updated full test passes locally. CI on the corrected branch tip remains the final browser/screenshot check; record its run/artifact after it completes.
+- Local default `npm run test:e2e` initially could not launch because the Playwright-managed Chromium executable is absent and its download host is outside the configured network allowlist. For diagnosis, a temporary Chromium 153 package from the allowed npm registry was launched with its bundled shared libraries; the full local Playwright inventory, phone/desktop layout, and axe checks then passed. The first pushed CI run exposed an axe `region` violation because the preview disclosure was outside landmarks; it is now a named `<aside>`.
+- CI run [#10](https://github.com/pabi277/DSA-archive/actions/runs/41479517916) on `e03c4ca` passed catalogue validation, unit tests, build/dist/link checks, Chromium phone/desktop screenshots and axe checks. It uploaded `site-preview` (130,951 bytes; artifact is downloadable from the run).
 
 Preview shows a “DESIGN PREVIEW” banner, a dark-first mock sheet, 495 problems and 20 topics, state picker and fake-data context panel. It is not a public site and does not save anything.
 
