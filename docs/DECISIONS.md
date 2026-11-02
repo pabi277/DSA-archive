@@ -97,6 +97,12 @@
 - 2026-11-02 — Topic/problem **titles, order, levels, outbound links**
   = factual list data in our file; all prose/design/code clean-room;
   content linked out, never copied (`rule.md` §5).
+- 2026-11-02 — Phase 0 implementation pins the versions in
+  `package.json`/`package-lock.json`: Vite + React + TypeScript +
+  Tailwind/daisyUI. TypeScript catalogue levels permit `null` when the
+  source has no badge; do not guess a difficulty. The data is a factual
+  extraction only; the owner's 10-row live-sheet spot-check remains
+  pending. Reversible at Phase 0 / content remains owner-verified.
 
 ## Law waivers
 

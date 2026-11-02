@@ -1,19 +1,17 @@
 # DSA Archive — my own DSA sheet website
 
-> **Status: PLAN APPROVED — exit gate complete 2026-11-02;
-> implementation (Phase 0) not started. On the owner's explicit
-> command (2026-11-02), these planning documents are committed and
-> merged to `main` together with moving the copied website into
-> `copy-web/`, so the repo root stays clean and contains only plan
-> docs + `copy-web/`. Phase 0 starts in the next stage-2 chat. No
-> deploy or live Firebase is authorized. Gate record:
+> **Status: Phase 0 is complete on the assigned session branch.** It
+> adds the MIT licence, clean-room extracted catalogue, minimal
+> Vite/React hello-sheet, quality checks and green CI preview packaging.
+> The owner's 10-row live-sheet content spot-check remains pending. No
+> Firebase project, deploy, PR or merge is authorized. Gate record:
 > [`docs/DECISIONS.md`](docs/DECISIONS.md).**
 
 Planning adapted from AppFlow @ `57597b3332ad578614a0d9d5609f9cf8a278ee8a`
 on 2026-11-02 (reference only — this repo is self-contained; see
 [`rule.md`](rule.md)).
 
-## What this repo contains today (honest state)
+## Current repository contents
 
 - `copy-web/` — containing `index.html` + `css/` + `js/` + `fonts/`
   + `images/`: a one-page
@@ -29,6 +27,11 @@ on 2026-11-02 (reference only — this repo is self-contained; see
   `/blogs/...`, `/dashboard`, login, planner, contests, IDE) 404s or
   needs their backend. Progress is stuck at `0/495` forever without
   their account system. Evidence: [`docs/RESEARCH.md`](docs/RESEARCH.md) §1.
+- `data/problems.json` is our independently extracted catalogue;
+  `tools/extract_problems.py` is a one-time source tool and is never
+  part of the website bundle. The owner spot-check remains pending.
+- `src/` is a Phase 0 hello-sheet scaffold only; phase 0-D design
+  approval is still required before real product UI work.
 - ⚠️ **This repo is currently PUBLIC while containing that copy.**
   Owner item #1 in `docs/DECISIONS.md`: make it private while the
   copy remains under `copy-web/`, before anything is published.
@@ -72,9 +75,9 @@ Owner-gated, AppFlow-style (translated from apps to a website in
    approved; site name `DSA Archive`; MIT licence; Git author
    identity designated (recorded in `docs/DECISIONS.md`). By the
    owner's follow-up command the same day, the plan-docs commit and
-   the `copy-web/` move are merged to `main` now (not held for the
-   next chat); **Phase 0 implementation still starts in the next
-   stage-2 chat**, from `prompt.md`, on that chat's assigned branch.
+   the `copy-web/` move were merged to `main` (not held for the next
+   chat); Phase 0 implementation is now in progress on this session
+   branch. See `prompt.md` for the living state.
 2. Then **one phase per chat** from [`docs/ROADMAP.md`](docs/ROADMAP.md)
    (phases 0 → 6). Every phase ends with green CI and a downloadable
    `site-preview` artifact the owner can open on their phone — the
@@ -100,10 +103,13 @@ Owner-gated, AppFlow-style (translated from apps to a website in
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | dated decision log — the anti-re-ask register; all gate answers (complete 2026-11-02) |
 | [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md) | sheet schema, Firestore schema + security/cost design, extraction plan |
 | [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md) | every screen + state, design tokens (frozen at phase 0-D approval) |
+| `data/problems.json` | validated, versioned catalogue; 495 rows across 20 topics |
+| `tools/` | one-time clean-room extractor, permanent data validator and build/link checks |
+| `.github/workflows/ci.yml` | tests, production build, phone/desktop accessibility checks and `site-preview` artifact |
 
 ## License
 
 The owner selected **MIT on 2026-11-02** for our original code and
-data; the `LICENSE` file will be added during Phase 0.1. MIT can only
+data; `LICENSE` was added in Phase 0.1. MIT can only
 cover **our** work — never the copied third-party files above or the
 external content our original catalogue links to.
