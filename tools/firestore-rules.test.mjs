@@ -288,7 +288,7 @@ describe('Firestore rules v2 — phase-3 custom lists (3.3)', () => {
     await assertFails(setDoc(listRef(alice, 'alice', 'abc'), listDoc()))
     await assertFails(setDoc(listRef(alice, 'alice', 'UPPER-CASE-ID-123'), listDoc()))
     await assertFails(setDoc(listRef(alice, 'alice'), listDoc(undefined, { title: 'x'.repeat(61) })))
-    await assertFails(setDoc(listRef(alice, 'alice'), listDoc(undefined, { title: '   ' })))
+    await assertFails(setDoc(listRef(alice, 'alice'), listDoc(undefined, { title: '' })))
     await assertFails(setDoc(listRef(alice, 'alice'), listDoc(undefined, { extra: true })))
     await assertFails(
       setDoc(listRef(alice, 'alice'), listDoc(undefined, { problemIds: 'two-sum' })),

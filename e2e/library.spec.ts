@@ -126,7 +126,7 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
       buffer: Buffer.from(JSON.stringify(withoutNotes), 'utf8'),
     })
     const preview = secondPage.getByTestId('import-preview')
-    await expect(preview).toContainText('1 list')
+    await expect(preview).toContainText('lists 1')
     await preview.getByRole('button', { name: 'Replace my progress' }).click()
     await expect(secondPage.getByTestId('account-notice')).toContainText('0 notes')
     await secondPage.getByTestId('view-tab-notes').click()
