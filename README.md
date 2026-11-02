@@ -1,11 +1,16 @@
 # DSA Archive — my own DSA sheet website
 
-> **Status: Phase 0 is complete; Phase 0-D design prototype is in
-> progress.** The prototype uses the owner's selected dark-first,
-> neutral-badge, responsive, text-wordmark direction but is awaiting
-> explicit approval; no tokens are frozen and Phase 1 has not started.
-> The owner's 10-row live-sheet content spot-check also remains pending.
-> No Firebase project or deployment is authorized. Gate record:
+> **Status: Phases 0 and 0-D are complete, and Phase 1 (sheet core) is
+> implemented on the session branch.** The owner approved the 0-D design
+> prototype on 2026-11-02, so the design tokens are **frozen** in
+> [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md) and the real sheet is
+> built to them: all 495 rows in topic accordions, instant search,
+> topic/level/link-type filters, random pick, weakest-topic hint and
+> outbound row links — browsable with no account. Progress is stored on
+> the device only; there is **no Firebase, no sign-in and no sync yet**
+> (Phase 2). The owner's 10-row live-sheet content spot-check remains
+> pending, and nothing is merged, deployed or published: this branch
+> stops at the merge gate. Gate record:
 > [`docs/DECISIONS.md`](docs/DECISIONS.md).**
 
 Planning adapted from AppFlow @ `57597b3332ad578614a0d9d5609f9cf8a278ee8a`
@@ -31,9 +36,14 @@ on 2026-11-02 (reference only — this repo is self-contained; see
 - `data/problems.json` is our independently extracted catalogue;
   `tools/extract_problems.py` is a one-time source tool and is never
   part of the website bundle. The owner spot-check remains pending.
-- `src/` currently contains the Phase 0-D design prototype, with fake
-  data states only. It is not connected to Firebase or persisted; owner
-  approval/tokens are still pending before Phase 1 product UI.
+- `src/` is the **real Phase 1 sheet** built to the frozen 0-D tokens:
+  `App.tsx` (page), `SheetList.tsx` (topic accordions + rows), `sheet.ts`
+  (search/filter/random/weakest-topic logic), `progress.ts` and
+  `settings.ts` (device-local stores), `catalogue.ts` (typed reader for
+  `data/problems.json`). No Firebase SDK is imported and nothing is
+  synced; account, cloud progress, notes, planner and friends come in
+  later phases. The disposable 0-D mock was folded into this work and
+  deleted (readable in git history at `1791693`).
 - ⚠️ **This repo is currently PUBLIC while containing that copy.**
   Owner item #1 in `docs/DECISIONS.md`: make it private while the
   copy remains under `copy-web/`, before anything is published.
@@ -78,8 +88,10 @@ Owner-gated, AppFlow-style (translated from apps to a website in
    identity designated (recorded in `docs/DECISIONS.md`). By the
    owner's follow-up command the same day, the plan-docs commit and
    the `copy-web/` move were merged to `main` (not held for the next
-   chat); Phase 0 is complete and the 0-D design prototype is in
-   progress on this session branch. See `prompt.md` for living state.
+   chat). Phases 0 (bootstrap + data), 0-D (design prototype, approved
+   2026-11-02) and 1 (sheet core) are complete on their own session
+   branches, each stopping at the merge gate. See `prompt.md` for the
+   living state and the next-chat prompt.
 2. Then **one phase per chat** from [`docs/ROADMAP.md`](docs/ROADMAP.md)
    (phases 0 → 6). Every phase ends with green CI and a downloadable
    `site-preview` artifact the owner can open on their phone — the
@@ -87,8 +99,10 @@ Owner-gated, AppFlow-style (translated from apps to a website in
    against the local **emulator** in CI; the owner creates the real
    (Spark) Firebase project personally when phase 2 approaches —
    credentials/service keys are never pasted in chat or git.
-3. Design is approved before UI code (phase 0-D,
-   [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md)).
+3. ✅ Design was approved before any UI code: the owner approved the
+   phase 0-D prototype in chat on 2026-11-02 and the tokens are frozen
+   in [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md). Changing a frozen
+   token, or the design direction, re-opens that gate.
 4. **No PR, no merge, no deploy, no live-Firebase change without the
    owner's explicit command in chat.** Green CI is evidence, not
    authorization.
@@ -104,9 +118,9 @@ Owner-gated, AppFlow-style (translated from apps to a website in
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | phases 0–6, each with parts and "Done means" |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | dated decision log — the anti-re-ask register; all gate answers (complete 2026-11-02) |
 | [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md) | sheet schema, Firestore schema + security/cost design, extraction plan |
-| [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md) | every screen + state, design tokens (frozen at phase 0-D approval) |
-| `docs/phases/` | phase records, including the bootstrap record and current 0-D prototype record |
-| `src/design-prototype.tsx` | disposable Phase 0-D prototype (fake state only; not production UI) |
+| [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md) | every screen + state; design tokens **frozen 2026-11-02**; deliberate adaptations vs the approved mock |
+| `docs/phases/` | phase records: 0 bootstrap + data extraction · 0-D design prototype · 1 sheet core |
+| `src/` | the real sheet — `App.tsx`, `SheetList.tsx`, `sheet.ts`, `progress.ts`, `settings.ts`, `catalogue.ts`, `styles.css` and their tests |
 | `data/problems.json` | validated, versioned catalogue; 495 rows across 20 topics |
 | `tools/` | one-time clean-room extractor, permanent data validator and build/link checks |
 | `.github/workflows/ci.yml` | tests, production build, phone/desktop accessibility checks and `site-preview` artifact |

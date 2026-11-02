@@ -25,20 +25,23 @@ row positions, so reordering the sheet can't scramble anyone's data.
   "schemaVersion": 1,
   "generatedFrom": "one-time clean-room extraction from copy-web/index.html (phase 0)",
   // Owner's 10-row live-sheet spot-check remains a content-accuracy task.
+  // Real values from the shipped file (verified 2026-11-02, phase 1);
+  // this example used to be an invented sketch and disagreed with the
+  // data on `level`, subtopic `title`/`order` and problem `order`.
   "topics": [{
     "id": "arrays", "title": "Arrays", "order": 30,
     "subtopics": [{
-      "id": "arrays-faqs-medium", "title": "FAQs (Medium)", "order": 20,
+      "id": "arrays-faqs-medium", "title": "FAQs(Medium)", "order": 30,
       "problems": [{
         "id": "two-sum",                 // stable slug = Firestore key, never reused
-        "title": "Two Sum", "order": 10,
-        "level": "core",                 // basic | core | pro | null (source has no badge)
+        "title": "Two Sum", "order": 100,
+        "level": "basic",                // basic | core | pro | null (source has no badge)
         "kind": "problem",               // problem | theory
         "links": {                       // outbound only; any may be absent
-          "practice": "https://takeuforward.org/practice/dsa/…",
-          "article":  "https://takeuforward.org/blogs/…",
-          "video":    "https://youtu.be/…",
-          "leetcode": "https://leetcode.com/problems/…"
+          "practice": "https://takeuforward.org/practice/dsa/two-sum",
+          "article":  "https://takeuforward.org/blogs/data-structure-and-algorithm/two-sum",
+          "leetcode": "https://leetcode.com/problems/two-sum/",
+          "video":    "https://youtu.be/UXDSeD9mN-k"
         }
       }]
     }]
@@ -112,6 +115,16 @@ users/{uid}/public/summary                   // phase 5, ONLY if shareSummary = 
   on first login (newest `updatedAt` wins per topic doc; merge is
   shown to the user, never silent) — if this proves fiddly at phase
   2, guest mode is cut rather than shipped buggy (recorded there).
+- **Phase 1 already ships the guest half** (`src/progress.ts`, key
+  `dsa-archive.progress.v1`): one object sharded by topic id, each
+  holding `{ problemId: { s: 'todo'|'done', b: boolean } }` — the §3
+  Firestore shape minus `a`/`fd`/`lr`/`updatedAt`. Phase 2 must (a) add
+  those fields, (b) read this key as the guest source for the
+  signed-out→signed-in merge, and (c) keep the "merge is shown, never
+  silent" rule. Settings (`theme`, `largeText`, `hideDone`) live under
+  `dsa-archive.settings.v1` and map to the §3 profile fields
+  `theme`/`hideDone`; `largeText` is local-only (an accessibility
+  preference, not user data worth a Firestore field).
 
 ## 4. Spark quota budget (official limits checked 2026-11-02)
 

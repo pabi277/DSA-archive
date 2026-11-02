@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client'
-import { DesignPrototype } from './design-prototype'
+import { App } from './App'
 import './styles.css'
 
-createRoot(document.getElementById('root')!).render(<DesignPrototype />)
+createRoot(document.getElementById('root')!).render(<App />)
