@@ -307,7 +307,7 @@ export function DesignPrototype() {
             </div>
           </header>
 
-          <div className="prototype-banner"><span className="draft-indicator">DESIGN PREVIEW</span><span>Fake account and progress · no Firebase connection</span><label className="network-toggle"><input type="checkbox" checked={online} onChange={(event) => setOnline(event.target.checked)} /> {online ? 'Online' : 'Offline'}</label></div>
+          <aside className="prototype-banner" aria-label="Prototype preview disclosure"><span className="draft-indicator">DESIGN PREVIEW</span><span>Fake account and progress · no Firebase connection</span><label className="network-toggle"><input type="checkbox" checked={online} onChange={(event) => setOnline(event.target.checked)} /> {online ? 'Online' : 'Offline'}</label></aside>
 
           <main id="prototype-content" className="content-area">
             <div className="page-heading">

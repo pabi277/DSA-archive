@@ -36,7 +36,7 @@ Candidate palette, typography and spacing are documented in `docs/UI-REFERENCE.m
 - `npm run check:dist` — PASS (no copied-site files).
 - `npm run check:links` — PASS.
 - `git diff --check` — PASS.
-- Local Playwright could not launch because the sandbox has no installed Chromium and its browser download host is outside the configured network allowlist. CI installs Chromium and is the acceptance check for responsive screenshots, all screen switching and axe accessibility. Record its run/artifact after the branch push.
+- Local default `npm run test:e2e` initially could not launch because the Playwright-managed Chromium executable is absent and its download host is outside the configured network allowlist. For diagnosis, a temporary Chromium 153 package from the allowed npm registry was launched with its bundled shared libraries; the full local Playwright inventory, phone/desktop layout, and axe checks then passed. The first pushed CI run exposed an axe `region` violation because the preview disclosure was outside landmarks; it is now a named `<aside>` and the updated full test passes locally. CI on the corrected branch tip remains the final browser/screenshot check; record its run/artifact after it completes.
 
 Preview shows a “DESIGN PREVIEW” banner, a dark-first mock sheet, 495 problems and 20 topics, state picker and fake-data context panel. It is not a public site and does not save anything.
 

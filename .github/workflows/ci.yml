@@ -34,22 +34,7 @@ jobs:
       - name: Install browser for responsive and accessibility checks
         run: npx playwright install --with-deps chromium
       - name: Phone/desktop screenshot and accessibility checks
-        shell: bash
-        run: |
-          mkdir -p test-results
-          set +e
-          npm run test:e2e 2>&1 | tee test-results/e2e.log
-          result=${PIPESTATUS[0]}
-          if [[ "$result" -ne 0 ]]; then
-            echo "::group::Playwright failure details"
-            tail -n 80 test-results/e2e.log | while IFS= read -r line; do
-              escaped="${line//'%'/'%25'}"
-              escaped="${escaped//$'\r'/'%0D'}"
-              printf '::error::%s\n' "$escaped"
-            done
-            echo "::endgroup::"
-          fi
-          exit "$result"
+        run: npm run test:e2e
       - name: Upload browser diagnostics on failure
         if: failure() && hashFiles('test-results/**') != ''
         uses: actions/upload-artifact@v7.0.2
