@@ -136,7 +136,11 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
     )
     await assertFails(deleteDoc(ref(bob, 'alice')))
     // An allow rule on one path never opens an unspecified future collection.
-    await assertFails(getDoc(doc(alice, 'users/alice/notes/secret')))
+    // (Notes and lists became owner-only in phase 3; plans and friends are
+    // still default-deny until their phases ship explicit rules.)
+    await assertFails(getDoc(doc(alice, 'users/alice/plans/2026-11-02')))
+    await assertFails(setDoc(doc(alice, 'users/alice/plans/2026-11-02'), { problemIds: [] }))
+    await assertFails(getDoc(doc(alice, 'users/alice/not-a-collection/secret')))
   })
 
   it('validates profile field types and sizes', async () => {
