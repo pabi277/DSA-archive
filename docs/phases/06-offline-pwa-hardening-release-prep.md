@@ -1,7 +1,7 @@
 # Phase 6 — Offline/PWA, hardening & release prep (STOP before deploy)
 
 - Date: 2026-11-02
-- Status: 🚧 **implemented on `arena/991952b2-dsa-archive`, awaiting CI run confirmation, stopped before PR/merge/deploy.**
+- Status: ✅ **complete on `arena/991952b2-dsa-archive`, CI green ([`#41534903775`](https://github.com/pabi277/DSA-archive/actions/runs/41534903775)), stopped before PR/merge/deploy.**
 - Scope: roadmap Phase 6 only — **6.1** installable PWA + true offline open + friendly offline / 404 states · **6.2** perf & a11y budgets in CI, Firestore rules + Spark quota audit, Firebase App Check evaluation · **6.3** release checklist, truthful `README.md`/licence/credits, `copy-web/` disposition re-confirmed, Firebase Hosting + rules deploy runbook (`docs/RELEASE-RUNBOOK.md`). **Nothing is deployed; no live Firebase project was created or touched.**
 - Prerequisites: Phase 5 merged to `main` at `3303c8a8f965dbe50ef107de63e2fb81ab95c781` (PR #7); frozen 0-D tokens unchanged; repo-local Git identity set to and verified as `pabi277 <chakraborttypabi2772006@gmail.com>`.
 
@@ -79,9 +79,9 @@
   - `npm run build:emulator` — **PASS** (`tsc -b` + `vite build`, zero warnings, 19 files emitted including `sw.js`, `manifest.webmanifest`, `offline.html`, `404.html`, and 5 clean-room icons).
   - `npm run check:dist` — **PASS** (19 files; zero copied-site paths/assets).
   - `npm run check:links` — **PASS** (15 HTML & manifest asset references resolved).
-  - `npm run check:budgets` — **PASS** (CSS 26.86 / 6.30 kB gzip; entry JS 103.25 / 28.39 kB gzip; largest JS 486.05 / 139.89 kB gzip; full shell 317.66 kB gzip · ~1,133 cold installs/day on Spark).
+  - `npm run check:budgets` — **PASS** (CSS 26.86 / 6.30 kB gzip; entry JS 103.29 / 28.40 kB gzip; largest JS 486.05 / 139.89 kB gzip; full shell 317.67 kB gzip · ~1,133 cold installs/day on Spark).
   - `npx playwright test --list` — discovers **10 specs in 6 files**.
-- **CI (Emulator Suite + real Chromium):** recorded immediately below once pushed and verified on `arena/991952b2-dsa-archive`.
+- **CI (Emulator Suite + real Chromium):** GitHub Actions `Site CI` run [`#41534903775`](https://github.com/pabi277/DSA-archive/actions/runs/41534903775) **PASS** on `0b2b813` — 12/12 Firestore Emulator rules tests, 10/10 real-Chromium Playwright specs (`sheet`, `sync`, `library`, `planner`, `friends`, `pwa`), 0 axe violations across dark/light × phone/desktop × large-text, `site-preview` artifact `#13183212591` (**318,518 bytes**, down from 330,704 bytes in Phase 5 despite adding `sw.js`, `manifest.webmanifest`, `offline.html`, `404.html`, and 5 clean-room icons).
 
 ## What the preview shows
 
