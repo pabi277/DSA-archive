@@ -60,569 +60,590 @@ service cloud.firestore {
     }
 
     function validChangedEntry_beginner_problems(data, keys) {
-      return       (keys.hasAny(["breaking-the-myth"]) && validEntryOrDeleted(data, "breaking-the-myth"))
-        ||       (keys.hasAny(["programming-and-what-are-computers"]) && validEntryOrDeleted(data, "programming-and-what-are-computers"))
-        ||       (keys.hasAny(["how-to-think-like-a-programmer"]) && validEntryOrDeleted(data, "how-to-think-like-a-programmer"))
-        ||       (keys.hasAny(["flowcharts-and-pseudocode"]) && validEntryOrDeleted(data, "flowcharts-and-pseudocode"))
-        ||       (keys.hasAny(["flowchart-problem-solving"]) && validEntryOrDeleted(data, "flowchart-problem-solving"))
-        ||       (keys.hasAny(["dry-runs-edge-cases-and-debugging"]) && validEntryOrDeleted(data, "dry-runs-edge-cases-and-debugging"))
-        ||       (keys.hasAny(["programming-languages-and-choosing-a-path"]) && validEntryOrDeleted(data, "programming-languages-and-choosing-a-path"))
-        ||       (keys.hasAny(["learn-c"]) && validEntryOrDeleted(data, "learn-c"))
-        ||       (keys.hasAny(["learn-java"]) && validEntryOrDeleted(data, "learn-java"))
-        ||       (keys.hasAny(["learn-python"]) && validEntryOrDeleted(data, "learn-python"))
-        ||       (keys.hasAny(["easy-and-medium"]) && validEntryOrDeleted(data, "easy-and-medium"))
-        ||       (keys.hasAny(["hard"]) && validEntryOrDeleted(data, "hard"))
-        ||       (keys.hasAny(["pattern-1"]) && validEntryOrDeleted(data, "pattern-1"))
-        ||       (keys.hasAny(["pattern-2"]) && validEntryOrDeleted(data, "pattern-2"))
-        ||       (keys.hasAny(["pattern-3"]) && validEntryOrDeleted(data, "pattern-3"))
-        ||       (keys.hasAny(["pattern-4"]) && validEntryOrDeleted(data, "pattern-4"))
-        ||       (keys.hasAny(["pattern-5"]) && validEntryOrDeleted(data, "pattern-5"))
-        ||       (keys.hasAny(["pattern-6"]) && validEntryOrDeleted(data, "pattern-6"))
-        ||       (keys.hasAny(["pattern-7"]) && validEntryOrDeleted(data, "pattern-7"))
-        ||       (keys.hasAny(["pattern-8"]) && validEntryOrDeleted(data, "pattern-8"))
-        ||       (keys.hasAny(["pattern-9"]) && validEntryOrDeleted(data, "pattern-9"))
-        ||       (keys.hasAny(["pattern-10"]) && validEntryOrDeleted(data, "pattern-10"))
-        ||       (keys.hasAny(["pattern-11"]) && validEntryOrDeleted(data, "pattern-11"))
-        ||       (keys.hasAny(["pattern-12"]) && validEntryOrDeleted(data, "pattern-12"))
-        ||       (keys.hasAny(["pattern-13"]) && validEntryOrDeleted(data, "pattern-13"))
-        ||       (keys.hasAny(["pattern-14"]) && validEntryOrDeleted(data, "pattern-14"))
-        ||       (keys.hasAny(["pattern-15"]) && validEntryOrDeleted(data, "pattern-15"))
-        ||       (keys.hasAny(["pattern-16"]) && validEntryOrDeleted(data, "pattern-16"))
-        ||       (keys.hasAny(["pattern-17"]) && validEntryOrDeleted(data, "pattern-17"))
-        ||       (keys.hasAny(["pattern-18"]) && validEntryOrDeleted(data, "pattern-18"))
-        ||       (keys.hasAny(["pattern-19"]) && validEntryOrDeleted(data, "pattern-19"))
-        ||       (keys.hasAny(["pattern-20"]) && validEntryOrDeleted(data, "pattern-20"))
-        ||       (keys.hasAny(["pattern-21"]) && validEntryOrDeleted(data, "pattern-21"))
-        ||       (keys.hasAny(["pattern-22"]) && validEntryOrDeleted(data, "pattern-22"))
-        ||       (keys.hasAny(["theory-with-examples"]) && validEntryOrDeleted(data, "theory-with-examples"))
-        ||       (keys.hasAny(["stl"]) && validEntryOrDeleted(data, "stl"))
-        ||       (keys.hasAny(["java-collections"]) && validEntryOrDeleted(data, "java-collections"))
-        ||       (keys.hasAny(["python-libraries-part-1"]) && validEntryOrDeleted(data, "python-libraries-part-1"))
-        ||       (keys.hasAny(["python-libraries-part-2"]) && validEntryOrDeleted(data, "python-libraries-part-2"))
-        ||       (keys.hasAny(["basic-maths"]) && validEntryOrDeleted(data, "basic-maths"))
-        ||       (keys.hasAny(["basic-arrays"]) && validEntryOrDeleted(data, "basic-arrays"))
-        ||       (keys.hasAny(["basic-hashing"]) && validEntryOrDeleted(data, "basic-hashing"))
-        ||       (keys.hasAny(["basic-string"]) && validEntryOrDeleted(data, "basic-string"))
-        ||       (keys.hasAny(["count-all-digits-of-a-number"]) && validEntryOrDeleted(data, "count-all-digits-of-a-number"))
-        ||       (keys.hasAny(["count-number-of-odd-digits-in-a-number"]) && validEntryOrDeleted(data, "count-number-of-odd-digits-in-a-number"))
-        ||       (keys.hasAny(["reverse-a-number"]) && validEntryOrDeleted(data, "reverse-a-number"))
-        ||       (keys.hasAny(["palindrome-number"]) && validEntryOrDeleted(data, "palindrome-number"))
-        ||       (keys.hasAny(["return-the-largest-digit-in-a-number"]) && validEntryOrDeleted(data, "return-the-largest-digit-in-a-number"))
-        ||       (keys.hasAny(["factorial-of-a-given-number"]) && validEntryOrDeleted(data, "factorial-of-a-given-number"))
-        ||       (keys.hasAny(["check-if-the-number-is-armstrong"]) && validEntryOrDeleted(data, "check-if-the-number-is-armstrong"))
-        ||       (keys.hasAny(["check-for-perfect-number"]) && validEntryOrDeleted(data, "check-for-perfect-number"))
-        ||       (keys.hasAny(["check-for-prime-number"]) && validEntryOrDeleted(data, "check-for-prime-number"))
-        ||       (keys.hasAny(["count-of-prime-numbers-till-n"]) && validEntryOrDeleted(data, "count-of-prime-numbers-till-n"))
-        ||       (keys.hasAny(["gcd-of-two-numbers"]) && validEntryOrDeleted(data, "gcd-of-two-numbers"))
-        ||       (keys.hasAny(["lcm-of-two-numbers"]) && validEntryOrDeleted(data, "lcm-of-two-numbers"))
-        ||       (keys.hasAny(["divisors-of-a-number"]) && validEntryOrDeleted(data, "divisors-of-a-number"))
-        ||       (keys.hasAny(["sum-of-array-elements"]) && validEntryOrDeleted(data, "sum-of-array-elements"))
-        ||       (keys.hasAny(["count-of-odd-numbers-in-array"]) && validEntryOrDeleted(data, "count-of-odd-numbers-in-array"))
-        ||       (keys.hasAny(["check-if-the-array-is-sorted-i"]) && validEntryOrDeleted(data, "check-if-the-array-is-sorted-i"))
-        ||       (keys.hasAny(["reverse-an-array"]) && validEntryOrDeleted(data, "reverse-an-array"))
-        ||       (keys.hasAny(["highest-occurring-element-in-an-array"]) && validEntryOrDeleted(data, "highest-occurring-element-in-an-array"))
-        ||       (keys.hasAny(["second-highest-occurring-element"]) && validEntryOrDeleted(data, "second-highest-occurring-element"))
-        ||       (keys.hasAny(["sum-of-highest-and-lowest-frequency"]) && validEntryOrDeleted(data, "sum-of-highest-and-lowest-frequency"))
-        ||       (keys.hasAny(["reverse-a-string-ii"]) && validEntryOrDeleted(data, "reverse-a-string-ii"))
-        ||       (keys.hasAny(["palindrome-check"]) && validEntryOrDeleted(data, "palindrome-check"))
-        ||       (keys.hasAny(["largest-odd-number-in-a-string"]) && validEntryOrDeleted(data, "largest-odd-number-in-a-string"))
-        ||       (keys.hasAny(["longest-common-prefix"]) && validEntryOrDeleted(data, "longest-common-prefix"))
-        ||       (keys.hasAny(["isomorphic-strings"]) && validEntryOrDeleted(data, "isomorphic-strings"))
-        ||       (keys.hasAny(["rotate-string"]) && validEntryOrDeleted(data, "rotate-string"))
-        ||       (keys.hasAny(["valid-anagram"]) && validEntryOrDeleted(data, "valid-anagram"))
-        ||       (keys.hasAny(["sort-characters-by-frequency"]) && validEntryOrDeleted(data, "sort-characters-by-frequency"))
-        ||       (keys.hasAny(["recursion-theory"]) && validEntryOrDeleted(data, "recursion-theory"))
-        ||       (keys.hasAny(["recursion-concepts-with-parameters"]) && validEntryOrDeleted(data, "recursion-concepts-with-parameters"))
-        ||       (keys.hasAny(["sum-of-first-n-numbers"]) && validEntryOrDeleted(data, "sum-of-first-n-numbers"))
-        ||       (keys.hasAny(["factorial-of-a-given-number-2"]) && validEntryOrDeleted(data, "factorial-of-a-given-number-2"))
-        ||       (keys.hasAny(["sum-of-array-elements-ii"]) && validEntryOrDeleted(data, "sum-of-array-elements-ii"))
-        ||       (keys.hasAny(["reverse-a-string-i"]) && validEntryOrDeleted(data, "reverse-a-string-i"))
-        ||       (keys.hasAny(["check-if-string-is-palindrome-or-not"]) && validEntryOrDeleted(data, "check-if-string-is-palindrome-or-not"))
-        ||       (keys.hasAny(["check-if-a-number-is-prime-or-not"]) && validEntryOrDeleted(data, "check-if-a-number-is-prime-or-not"))
-        ||       (keys.hasAny(["reverse-an-array-2"]) && validEntryOrDeleted(data, "reverse-an-array-2"))
-        ||       (keys.hasAny(["check-if-the-array-is-sorted-ii"]) && validEntryOrDeleted(data, "check-if-the-array-is-sorted-ii"))
-        ||       (keys.hasAny(["sum-of-digits-in-a-given-number"]) && validEntryOrDeleted(data, "sum-of-digits-in-a-given-number"))
-        ||       (keys.hasAny(["fibonacci-number"]) && validEntryOrDeleted(data, "fibonacci-number"));
+      return keys.hasAny(["breaking-the-myth"]) ? validEntryOrDeleted(data, "breaking-the-myth")
+        : keys.hasAny(["programming-and-what-are-computers"]) ? validEntryOrDeleted(data, "programming-and-what-are-computers")
+        : keys.hasAny(["how-to-think-like-a-programmer"]) ? validEntryOrDeleted(data, "how-to-think-like-a-programmer")
+        : keys.hasAny(["flowcharts-and-pseudocode"]) ? validEntryOrDeleted(data, "flowcharts-and-pseudocode")
+        : keys.hasAny(["flowchart-problem-solving"]) ? validEntryOrDeleted(data, "flowchart-problem-solving")
+        : keys.hasAny(["dry-runs-edge-cases-and-debugging"]) ? validEntryOrDeleted(data, "dry-runs-edge-cases-and-debugging")
+        : keys.hasAny(["programming-languages-and-choosing-a-path"]) ? validEntryOrDeleted(data, "programming-languages-and-choosing-a-path")
+        : keys.hasAny(["learn-c"]) ? validEntryOrDeleted(data, "learn-c")
+        : keys.hasAny(["learn-java"]) ? validEntryOrDeleted(data, "learn-java")
+        : keys.hasAny(["learn-python"]) ? validEntryOrDeleted(data, "learn-python")
+        : keys.hasAny(["easy-and-medium"]) ? validEntryOrDeleted(data, "easy-and-medium")
+        : keys.hasAny(["hard"]) ? validEntryOrDeleted(data, "hard")
+        : keys.hasAny(["pattern-1"]) ? validEntryOrDeleted(data, "pattern-1")
+        : keys.hasAny(["pattern-2"]) ? validEntryOrDeleted(data, "pattern-2")
+        : keys.hasAny(["pattern-3"]) ? validEntryOrDeleted(data, "pattern-3")
+        : keys.hasAny(["pattern-4"]) ? validEntryOrDeleted(data, "pattern-4")
+        : keys.hasAny(["pattern-5"]) ? validEntryOrDeleted(data, "pattern-5")
+        : keys.hasAny(["pattern-6"]) ? validEntryOrDeleted(data, "pattern-6")
+        : keys.hasAny(["pattern-7"]) ? validEntryOrDeleted(data, "pattern-7")
+        : keys.hasAny(["pattern-8"]) ? validEntryOrDeleted(data, "pattern-8")
+        : keys.hasAny(["pattern-9"]) ? validEntryOrDeleted(data, "pattern-9")
+        : keys.hasAny(["pattern-10"]) ? validEntryOrDeleted(data, "pattern-10")
+        : keys.hasAny(["pattern-11"]) ? validEntryOrDeleted(data, "pattern-11")
+        : keys.hasAny(["pattern-12"]) ? validEntryOrDeleted(data, "pattern-12")
+        : keys.hasAny(["pattern-13"]) ? validEntryOrDeleted(data, "pattern-13")
+        : keys.hasAny(["pattern-14"]) ? validEntryOrDeleted(data, "pattern-14")
+        : keys.hasAny(["pattern-15"]) ? validEntryOrDeleted(data, "pattern-15")
+        : keys.hasAny(["pattern-16"]) ? validEntryOrDeleted(data, "pattern-16")
+        : keys.hasAny(["pattern-17"]) ? validEntryOrDeleted(data, "pattern-17")
+        : keys.hasAny(["pattern-18"]) ? validEntryOrDeleted(data, "pattern-18")
+        : keys.hasAny(["pattern-19"]) ? validEntryOrDeleted(data, "pattern-19")
+        : keys.hasAny(["pattern-20"]) ? validEntryOrDeleted(data, "pattern-20")
+        : keys.hasAny(["pattern-21"]) ? validEntryOrDeleted(data, "pattern-21")
+        : keys.hasAny(["pattern-22"]) ? validEntryOrDeleted(data, "pattern-22")
+        : keys.hasAny(["theory-with-examples"]) ? validEntryOrDeleted(data, "theory-with-examples")
+        : keys.hasAny(["stl"]) ? validEntryOrDeleted(data, "stl")
+        : keys.hasAny(["java-collections"]) ? validEntryOrDeleted(data, "java-collections")
+        : keys.hasAny(["python-libraries-part-1"]) ? validEntryOrDeleted(data, "python-libraries-part-1")
+        : keys.hasAny(["python-libraries-part-2"]) ? validEntryOrDeleted(data, "python-libraries-part-2")
+        : keys.hasAny(["basic-maths"]) ? validEntryOrDeleted(data, "basic-maths")
+        : keys.hasAny(["basic-arrays"]) ? validEntryOrDeleted(data, "basic-arrays")
+        : keys.hasAny(["basic-hashing"]) ? validEntryOrDeleted(data, "basic-hashing")
+        : keys.hasAny(["basic-string"]) ? validEntryOrDeleted(data, "basic-string")
+        : keys.hasAny(["count-all-digits-of-a-number"]) ? validEntryOrDeleted(data, "count-all-digits-of-a-number")
+        : keys.hasAny(["count-number-of-odd-digits-in-a-number"]) ? validEntryOrDeleted(data, "count-number-of-odd-digits-in-a-number")
+        : keys.hasAny(["reverse-a-number"]) ? validEntryOrDeleted(data, "reverse-a-number")
+        : keys.hasAny(["palindrome-number"]) ? validEntryOrDeleted(data, "palindrome-number")
+        : keys.hasAny(["return-the-largest-digit-in-a-number"]) ? validEntryOrDeleted(data, "return-the-largest-digit-in-a-number")
+        : keys.hasAny(["factorial-of-a-given-number"]) ? validEntryOrDeleted(data, "factorial-of-a-given-number")
+        : keys.hasAny(["check-if-the-number-is-armstrong"]) ? validEntryOrDeleted(data, "check-if-the-number-is-armstrong")
+        : keys.hasAny(["check-for-perfect-number"]) ? validEntryOrDeleted(data, "check-for-perfect-number")
+        : keys.hasAny(["check-for-prime-number"]) ? validEntryOrDeleted(data, "check-for-prime-number")
+        : keys.hasAny(["count-of-prime-numbers-till-n"]) ? validEntryOrDeleted(data, "count-of-prime-numbers-till-n")
+        : keys.hasAny(["gcd-of-two-numbers"]) ? validEntryOrDeleted(data, "gcd-of-two-numbers")
+        : keys.hasAny(["lcm-of-two-numbers"]) ? validEntryOrDeleted(data, "lcm-of-two-numbers")
+        : keys.hasAny(["divisors-of-a-number"]) ? validEntryOrDeleted(data, "divisors-of-a-number")
+        : keys.hasAny(["sum-of-array-elements"]) ? validEntryOrDeleted(data, "sum-of-array-elements")
+        : keys.hasAny(["count-of-odd-numbers-in-array"]) ? validEntryOrDeleted(data, "count-of-odd-numbers-in-array")
+        : keys.hasAny(["check-if-the-array-is-sorted-i"]) ? validEntryOrDeleted(data, "check-if-the-array-is-sorted-i")
+        : keys.hasAny(["reverse-an-array"]) ? validEntryOrDeleted(data, "reverse-an-array")
+        : keys.hasAny(["highest-occurring-element-in-an-array"]) ? validEntryOrDeleted(data, "highest-occurring-element-in-an-array")
+        : keys.hasAny(["second-highest-occurring-element"]) ? validEntryOrDeleted(data, "second-highest-occurring-element")
+        : keys.hasAny(["sum-of-highest-and-lowest-frequency"]) ? validEntryOrDeleted(data, "sum-of-highest-and-lowest-frequency")
+        : keys.hasAny(["reverse-a-string-ii"]) ? validEntryOrDeleted(data, "reverse-a-string-ii")
+        : keys.hasAny(["palindrome-check"]) ? validEntryOrDeleted(data, "palindrome-check")
+        : keys.hasAny(["largest-odd-number-in-a-string"]) ? validEntryOrDeleted(data, "largest-odd-number-in-a-string")
+        : keys.hasAny(["longest-common-prefix"]) ? validEntryOrDeleted(data, "longest-common-prefix")
+        : keys.hasAny(["isomorphic-strings"]) ? validEntryOrDeleted(data, "isomorphic-strings")
+        : keys.hasAny(["rotate-string"]) ? validEntryOrDeleted(data, "rotate-string")
+        : keys.hasAny(["valid-anagram"]) ? validEntryOrDeleted(data, "valid-anagram")
+        : keys.hasAny(["sort-characters-by-frequency"]) ? validEntryOrDeleted(data, "sort-characters-by-frequency")
+        : keys.hasAny(["recursion-theory"]) ? validEntryOrDeleted(data, "recursion-theory")
+        : keys.hasAny(["recursion-concepts-with-parameters"]) ? validEntryOrDeleted(data, "recursion-concepts-with-parameters")
+        : keys.hasAny(["sum-of-first-n-numbers"]) ? validEntryOrDeleted(data, "sum-of-first-n-numbers")
+        : keys.hasAny(["factorial-of-a-given-number-2"]) ? validEntryOrDeleted(data, "factorial-of-a-given-number-2")
+        : keys.hasAny(["sum-of-array-elements-ii"]) ? validEntryOrDeleted(data, "sum-of-array-elements-ii")
+        : keys.hasAny(["reverse-a-string-i"]) ? validEntryOrDeleted(data, "reverse-a-string-i")
+        : keys.hasAny(["check-if-string-is-palindrome-or-not"]) ? validEntryOrDeleted(data, "check-if-string-is-palindrome-or-not")
+        : keys.hasAny(["check-if-a-number-is-prime-or-not"]) ? validEntryOrDeleted(data, "check-if-a-number-is-prime-or-not")
+        : keys.hasAny(["reverse-an-array-2"]) ? validEntryOrDeleted(data, "reverse-an-array-2")
+        : keys.hasAny(["check-if-the-array-is-sorted-ii"]) ? validEntryOrDeleted(data, "check-if-the-array-is-sorted-ii")
+        : keys.hasAny(["sum-of-digits-in-a-given-number"]) ? validEntryOrDeleted(data, "sum-of-digits-in-a-given-number")
+        : keys.hasAny(["fibonacci-number"]) ? validEntryOrDeleted(data, "fibonacci-number")
+        : false;
     }
 
     function validChangedEntry_sorting(data, keys) {
-      return       (keys.hasAny(["selection-sort"]) && validEntryOrDeleted(data, "selection-sort"))
-        ||       (keys.hasAny(["bubble-sort"]) && validEntryOrDeleted(data, "bubble-sort"))
-        ||       (keys.hasAny(["insertion-sorting"]) && validEntryOrDeleted(data, "insertion-sorting"))
-        ||       (keys.hasAny(["merge-sorting"]) && validEntryOrDeleted(data, "merge-sorting"))
-        ||       (keys.hasAny(["quick-sorting"]) && validEntryOrDeleted(data, "quick-sorting"))
-        ||       (keys.hasAny(["recursive-bubble-sort"]) && validEntryOrDeleted(data, "recursive-bubble-sort"))
-        ||       (keys.hasAny(["recursive-insertion-sort"]) && validEntryOrDeleted(data, "recursive-insertion-sort"));
+      return keys.hasAny(["selection-sort"]) ? validEntryOrDeleted(data, "selection-sort")
+        : keys.hasAny(["bubble-sort"]) ? validEntryOrDeleted(data, "bubble-sort")
+        : keys.hasAny(["insertion-sorting"]) ? validEntryOrDeleted(data, "insertion-sorting")
+        : keys.hasAny(["merge-sorting"]) ? validEntryOrDeleted(data, "merge-sorting")
+        : keys.hasAny(["quick-sorting"]) ? validEntryOrDeleted(data, "quick-sorting")
+        : keys.hasAny(["recursive-bubble-sort"]) ? validEntryOrDeleted(data, "recursive-bubble-sort")
+        : keys.hasAny(["recursive-insertion-sort"]) ? validEntryOrDeleted(data, "recursive-insertion-sort")
+        : false;
     }
 
     function validChangedEntry_arrays(data, keys) {
-      return       (keys.hasAny(["linear-search"]) && validEntryOrDeleted(data, "linear-search"))
-        ||       (keys.hasAny(["largest-element"]) && validEntryOrDeleted(data, "largest-element"))
-        ||       (keys.hasAny(["second-largest-element"]) && validEntryOrDeleted(data, "second-largest-element"))
-        ||       (keys.hasAny(["maximum-consecutive-ones"]) && validEntryOrDeleted(data, "maximum-consecutive-ones"))
-        ||       (keys.hasAny(["left-rotate-array-by-one"]) && validEntryOrDeleted(data, "left-rotate-array-by-one"))
-        ||       (keys.hasAny(["left-rotate-array-by-k-places"]) && validEntryOrDeleted(data, "left-rotate-array-by-k-places"))
-        ||       (keys.hasAny(["move-zeros-to-end"]) && validEntryOrDeleted(data, "move-zeros-to-end"))
-        ||       (keys.hasAny(["remove-duplicates-from-sorted-array"]) && validEntryOrDeleted(data, "remove-duplicates-from-sorted-array"))
-        ||       (keys.hasAny(["find-missing-number"]) && validEntryOrDeleted(data, "find-missing-number"))
-        ||       (keys.hasAny(["union-of-two-sorted-arrays"]) && validEntryOrDeleted(data, "union-of-two-sorted-arrays"))
-        ||       (keys.hasAny(["intersection-of-two-sorted-arrays"]) && validEntryOrDeleted(data, "intersection-of-two-sorted-arrays"))
-        ||       (keys.hasAny(["majority-element-i"]) && validEntryOrDeleted(data, "majority-element-i"))
-        ||       (keys.hasAny(["leaders-in-an-array"]) && validEntryOrDeleted(data, "leaders-in-an-array"))
-        ||       (keys.hasAny(["rearrange-array-elements-by-sign"]) && validEntryOrDeleted(data, "rearrange-array-elements-by-sign"))
-        ||       (keys.hasAny(["print-the-matrix-in-spiral-manner"]) && validEntryOrDeleted(data, "print-the-matrix-in-spiral-manner"))
-        ||       (keys.hasAny(["pascal-s-triangle-i"]) && validEntryOrDeleted(data, "pascal-s-triangle-i"))
-        ||       (keys.hasAny(["pascal-s-triangle-ii"]) && validEntryOrDeleted(data, "pascal-s-triangle-ii"))
-        ||       (keys.hasAny(["pascal-s-triangle-iii"]) && validEntryOrDeleted(data, "pascal-s-triangle-iii"))
-        ||       (keys.hasAny(["rotate-matrix-by-90-degrees"]) && validEntryOrDeleted(data, "rotate-matrix-by-90-degrees"))
-        ||       (keys.hasAny(["set-matrix-zeroes"]) && validEntryOrDeleted(data, "set-matrix-zeroes"))
-        ||       (keys.hasAny(["two-sum"]) && validEntryOrDeleted(data, "two-sum"))
-        ||       (keys.hasAny(["3-sum"]) && validEntryOrDeleted(data, "3-sum"))
-        ||       (keys.hasAny(["4-sum"]) && validEntryOrDeleted(data, "4-sum"))
-        ||       (keys.hasAny(["sort-an-array-of-0-s-1-s-and-2-s"]) && validEntryOrDeleted(data, "sort-an-array-of-0-s-1-s-and-2-s"))
-        ||       (keys.hasAny(["kadane-s-algorithm"]) && validEntryOrDeleted(data, "kadane-s-algorithm"))
-        ||       (keys.hasAny(["next-permutation"]) && validEntryOrDeleted(data, "next-permutation"))
-        ||       (keys.hasAny(["majority-element-ii"]) && validEntryOrDeleted(data, "majority-element-ii"))
-        ||       (keys.hasAny(["find-the-repeating-and-missing-number"]) && validEntryOrDeleted(data, "find-the-repeating-and-missing-number"))
-        ||       (keys.hasAny(["count-inversions"]) && validEntryOrDeleted(data, "count-inversions"))
-        ||       (keys.hasAny(["reverse-pairs"]) && validEntryOrDeleted(data, "reverse-pairs"))
-        ||       (keys.hasAny(["maximum-product-subarray-in-an-array"]) && validEntryOrDeleted(data, "maximum-product-subarray-in-an-array"))
-        ||       (keys.hasAny(["merge-two-sorted-arrays-without-extra-space"]) && validEntryOrDeleted(data, "merge-two-sorted-arrays-without-extra-space"));
+      return keys.hasAny(["linear-search"]) ? validEntryOrDeleted(data, "linear-search")
+        : keys.hasAny(["largest-element"]) ? validEntryOrDeleted(data, "largest-element")
+        : keys.hasAny(["second-largest-element"]) ? validEntryOrDeleted(data, "second-largest-element")
+        : keys.hasAny(["maximum-consecutive-ones"]) ? validEntryOrDeleted(data, "maximum-consecutive-ones")
+        : keys.hasAny(["left-rotate-array-by-one"]) ? validEntryOrDeleted(data, "left-rotate-array-by-one")
+        : keys.hasAny(["left-rotate-array-by-k-places"]) ? validEntryOrDeleted(data, "left-rotate-array-by-k-places")
+        : keys.hasAny(["move-zeros-to-end"]) ? validEntryOrDeleted(data, "move-zeros-to-end")
+        : keys.hasAny(["remove-duplicates-from-sorted-array"]) ? validEntryOrDeleted(data, "remove-duplicates-from-sorted-array")
+        : keys.hasAny(["find-missing-number"]) ? validEntryOrDeleted(data, "find-missing-number")
+        : keys.hasAny(["union-of-two-sorted-arrays"]) ? validEntryOrDeleted(data, "union-of-two-sorted-arrays")
+        : keys.hasAny(["intersection-of-two-sorted-arrays"]) ? validEntryOrDeleted(data, "intersection-of-two-sorted-arrays")
+        : keys.hasAny(["majority-element-i"]) ? validEntryOrDeleted(data, "majority-element-i")
+        : keys.hasAny(["leaders-in-an-array"]) ? validEntryOrDeleted(data, "leaders-in-an-array")
+        : keys.hasAny(["rearrange-array-elements-by-sign"]) ? validEntryOrDeleted(data, "rearrange-array-elements-by-sign")
+        : keys.hasAny(["print-the-matrix-in-spiral-manner"]) ? validEntryOrDeleted(data, "print-the-matrix-in-spiral-manner")
+        : keys.hasAny(["pascal-s-triangle-i"]) ? validEntryOrDeleted(data, "pascal-s-triangle-i")
+        : keys.hasAny(["pascal-s-triangle-ii"]) ? validEntryOrDeleted(data, "pascal-s-triangle-ii")
+        : keys.hasAny(["pascal-s-triangle-iii"]) ? validEntryOrDeleted(data, "pascal-s-triangle-iii")
+        : keys.hasAny(["rotate-matrix-by-90-degrees"]) ? validEntryOrDeleted(data, "rotate-matrix-by-90-degrees")
+        : keys.hasAny(["set-matrix-zeroes"]) ? validEntryOrDeleted(data, "set-matrix-zeroes")
+        : keys.hasAny(["two-sum"]) ? validEntryOrDeleted(data, "two-sum")
+        : keys.hasAny(["3-sum"]) ? validEntryOrDeleted(data, "3-sum")
+        : keys.hasAny(["4-sum"]) ? validEntryOrDeleted(data, "4-sum")
+        : keys.hasAny(["sort-an-array-of-0-s-1-s-and-2-s"]) ? validEntryOrDeleted(data, "sort-an-array-of-0-s-1-s-and-2-s")
+        : keys.hasAny(["kadane-s-algorithm"]) ? validEntryOrDeleted(data, "kadane-s-algorithm")
+        : keys.hasAny(["next-permutation"]) ? validEntryOrDeleted(data, "next-permutation")
+        : keys.hasAny(["majority-element-ii"]) ? validEntryOrDeleted(data, "majority-element-ii")
+        : keys.hasAny(["find-the-repeating-and-missing-number"]) ? validEntryOrDeleted(data, "find-the-repeating-and-missing-number")
+        : keys.hasAny(["count-inversions"]) ? validEntryOrDeleted(data, "count-inversions")
+        : keys.hasAny(["reverse-pairs"]) ? validEntryOrDeleted(data, "reverse-pairs")
+        : keys.hasAny(["maximum-product-subarray-in-an-array"]) ? validEntryOrDeleted(data, "maximum-product-subarray-in-an-array")
+        : keys.hasAny(["merge-two-sorted-arrays-without-extra-space"]) ? validEntryOrDeleted(data, "merge-two-sorted-arrays-without-extra-space")
+        : false;
     }
 
     function validChangedEntry_hashing(data, keys) {
-      return       (keys.hasAny(["basic-hashing-2"]) && validEntryOrDeleted(data, "basic-hashing-2"))
-        ||       (keys.hasAny(["longest-consecutive-sequence-in-an-array"]) && validEntryOrDeleted(data, "longest-consecutive-sequence-in-an-array"))
-        ||       (keys.hasAny(["longest-subarray-with-sum-k"]) && validEntryOrDeleted(data, "longest-subarray-with-sum-k"))
-        ||       (keys.hasAny(["largest-subarray-with-sum-0"]) && validEntryOrDeleted(data, "largest-subarray-with-sum-0"))
-        ||       (keys.hasAny(["count-subarrays-with-given-sum"]) && validEntryOrDeleted(data, "count-subarrays-with-given-sum"))
-        ||       (keys.hasAny(["count-subarrays-with-given-xor-k"]) && validEntryOrDeleted(data, "count-subarrays-with-given-xor-k"));
+      return keys.hasAny(["basic-hashing-2"]) ? validEntryOrDeleted(data, "basic-hashing-2")
+        : keys.hasAny(["longest-consecutive-sequence-in-an-array"]) ? validEntryOrDeleted(data, "longest-consecutive-sequence-in-an-array")
+        : keys.hasAny(["longest-subarray-with-sum-k"]) ? validEntryOrDeleted(data, "longest-subarray-with-sum-k")
+        : keys.hasAny(["largest-subarray-with-sum-0"]) ? validEntryOrDeleted(data, "largest-subarray-with-sum-0")
+        : keys.hasAny(["count-subarrays-with-given-sum"]) ? validEntryOrDeleted(data, "count-subarrays-with-given-sum")
+        : keys.hasAny(["count-subarrays-with-given-xor-k"]) ? validEntryOrDeleted(data, "count-subarrays-with-given-xor-k")
+        : false;
     }
 
     function validChangedEntry_binary_search(data, keys) {
-      return       (keys.hasAny(["search-x-in-sorted-array"]) && validEntryOrDeleted(data, "search-x-in-sorted-array"))
-        ||       (keys.hasAny(["lower-bound"]) && validEntryOrDeleted(data, "lower-bound"))
-        ||       (keys.hasAny(["upper-bound"]) && validEntryOrDeleted(data, "upper-bound"))
-        ||       (keys.hasAny(["search-insert-position"]) && validEntryOrDeleted(data, "search-insert-position"))
-        ||       (keys.hasAny(["floor-and-ceil-in-sorted-array"]) && validEntryOrDeleted(data, "floor-and-ceil-in-sorted-array"))
-        ||       (keys.hasAny(["first-and-last-occurrence"]) && validEntryOrDeleted(data, "first-and-last-occurrence"))
-        ||       (keys.hasAny(["search-in-rotated-sorted-array-i"]) && validEntryOrDeleted(data, "search-in-rotated-sorted-array-i"))
-        ||       (keys.hasAny(["search-in-rotated-sorted-array-ii"]) && validEntryOrDeleted(data, "search-in-rotated-sorted-array-ii"))
-        ||       (keys.hasAny(["find-minimum-in-rotated-sorted-array"]) && validEntryOrDeleted(data, "find-minimum-in-rotated-sorted-array"))
-        ||       (keys.hasAny(["find-out-how-many-times-the-array-is-rotated"]) && validEntryOrDeleted(data, "find-out-how-many-times-the-array-is-rotated"))
-        ||       (keys.hasAny(["single-element-in-sorted-array"]) && validEntryOrDeleted(data, "single-element-in-sorted-array"))
-        ||       (keys.hasAny(["count-occurrences-in-a-sorted-array"]) && validEntryOrDeleted(data, "count-occurrences-in-a-sorted-array"))
-        ||       (keys.hasAny(["find-square-root-of-a-number"]) && validEntryOrDeleted(data, "find-square-root-of-a-number"))
-        ||       (keys.hasAny(["find-nth-root-of-a-number"]) && validEntryOrDeleted(data, "find-nth-root-of-a-number"))
-        ||       (keys.hasAny(["find-the-smallest-divisor"]) && validEntryOrDeleted(data, "find-the-smallest-divisor"))
-        ||       (keys.hasAny(["koko-eating-bananas"]) && validEntryOrDeleted(data, "koko-eating-bananas"))
-        ||       (keys.hasAny(["minimum-days-to-make-m-bouquets"]) && validEntryOrDeleted(data, "minimum-days-to-make-m-bouquets"))
-        ||       (keys.hasAny(["capacity-to-ship-packages-within-d-days"]) && validEntryOrDeleted(data, "capacity-to-ship-packages-within-d-days"))
-        ||       (keys.hasAny(["kth-missing-positive-number"]) && validEntryOrDeleted(data, "kth-missing-positive-number"))
-        ||       (keys.hasAny(["painter-s-partition"]) && validEntryOrDeleted(data, "painter-s-partition"))
-        ||       (keys.hasAny(["aggressive-cows"]) && validEntryOrDeleted(data, "aggressive-cows"))
-        ||       (keys.hasAny(["book-allocation-problem"]) && validEntryOrDeleted(data, "book-allocation-problem"))
-        ||       (keys.hasAny(["find-peak-element"]) && validEntryOrDeleted(data, "find-peak-element"))
-        ||       (keys.hasAny(["median-of-2-sorted-arrays"]) && validEntryOrDeleted(data, "median-of-2-sorted-arrays"))
-        ||       (keys.hasAny(["kth-element-of-2-sorted-arrays"]) && validEntryOrDeleted(data, "kth-element-of-2-sorted-arrays"))
-        ||       (keys.hasAny(["minimize-max-distance-to-gas-station"]) && validEntryOrDeleted(data, "minimize-max-distance-to-gas-station"))
-        ||       (keys.hasAny(["split-array-largest-sum"]) && validEntryOrDeleted(data, "split-array-largest-sum"))
-        ||       (keys.hasAny(["find-row-with-maximum-1-s"]) && validEntryOrDeleted(data, "find-row-with-maximum-1-s"))
-        ||       (keys.hasAny(["search-in-a-2d-matrix"]) && validEntryOrDeleted(data, "search-in-a-2d-matrix"))
-        ||       (keys.hasAny(["search-in-2d-matrix-ii"]) && validEntryOrDeleted(data, "search-in-2d-matrix-ii"))
-        ||       (keys.hasAny(["find-peak-element-ii"]) && validEntryOrDeleted(data, "find-peak-element-ii"))
-        ||       (keys.hasAny(["matrix-median"]) && validEntryOrDeleted(data, "matrix-median"));
+      return keys.hasAny(["search-x-in-sorted-array"]) ? validEntryOrDeleted(data, "search-x-in-sorted-array")
+        : keys.hasAny(["lower-bound"]) ? validEntryOrDeleted(data, "lower-bound")
+        : keys.hasAny(["upper-bound"]) ? validEntryOrDeleted(data, "upper-bound")
+        : keys.hasAny(["search-insert-position"]) ? validEntryOrDeleted(data, "search-insert-position")
+        : keys.hasAny(["floor-and-ceil-in-sorted-array"]) ? validEntryOrDeleted(data, "floor-and-ceil-in-sorted-array")
+        : keys.hasAny(["first-and-last-occurrence"]) ? validEntryOrDeleted(data, "first-and-last-occurrence")
+        : keys.hasAny(["search-in-rotated-sorted-array-i"]) ? validEntryOrDeleted(data, "search-in-rotated-sorted-array-i")
+        : keys.hasAny(["search-in-rotated-sorted-array-ii"]) ? validEntryOrDeleted(data, "search-in-rotated-sorted-array-ii")
+        : keys.hasAny(["find-minimum-in-rotated-sorted-array"]) ? validEntryOrDeleted(data, "find-minimum-in-rotated-sorted-array")
+        : keys.hasAny(["find-out-how-many-times-the-array-is-rotated"]) ? validEntryOrDeleted(data, "find-out-how-many-times-the-array-is-rotated")
+        : keys.hasAny(["single-element-in-sorted-array"]) ? validEntryOrDeleted(data, "single-element-in-sorted-array")
+        : keys.hasAny(["count-occurrences-in-a-sorted-array"]) ? validEntryOrDeleted(data, "count-occurrences-in-a-sorted-array")
+        : keys.hasAny(["find-square-root-of-a-number"]) ? validEntryOrDeleted(data, "find-square-root-of-a-number")
+        : keys.hasAny(["find-nth-root-of-a-number"]) ? validEntryOrDeleted(data, "find-nth-root-of-a-number")
+        : keys.hasAny(["find-the-smallest-divisor"]) ? validEntryOrDeleted(data, "find-the-smallest-divisor")
+        : keys.hasAny(["koko-eating-bananas"]) ? validEntryOrDeleted(data, "koko-eating-bananas")
+        : keys.hasAny(["minimum-days-to-make-m-bouquets"]) ? validEntryOrDeleted(data, "minimum-days-to-make-m-bouquets")
+        : keys.hasAny(["capacity-to-ship-packages-within-d-days"]) ? validEntryOrDeleted(data, "capacity-to-ship-packages-within-d-days")
+        : keys.hasAny(["kth-missing-positive-number"]) ? validEntryOrDeleted(data, "kth-missing-positive-number")
+        : keys.hasAny(["painter-s-partition"]) ? validEntryOrDeleted(data, "painter-s-partition")
+        : keys.hasAny(["aggressive-cows"]) ? validEntryOrDeleted(data, "aggressive-cows")
+        : keys.hasAny(["book-allocation-problem"]) ? validEntryOrDeleted(data, "book-allocation-problem")
+        : keys.hasAny(["find-peak-element"]) ? validEntryOrDeleted(data, "find-peak-element")
+        : keys.hasAny(["median-of-2-sorted-arrays"]) ? validEntryOrDeleted(data, "median-of-2-sorted-arrays")
+        : keys.hasAny(["kth-element-of-2-sorted-arrays"]) ? validEntryOrDeleted(data, "kth-element-of-2-sorted-arrays")
+        : keys.hasAny(["minimize-max-distance-to-gas-station"]) ? validEntryOrDeleted(data, "minimize-max-distance-to-gas-station")
+        : keys.hasAny(["split-array-largest-sum"]) ? validEntryOrDeleted(data, "split-array-largest-sum")
+        : keys.hasAny(["find-row-with-maximum-1-s"]) ? validEntryOrDeleted(data, "find-row-with-maximum-1-s")
+        : keys.hasAny(["search-in-a-2d-matrix"]) ? validEntryOrDeleted(data, "search-in-a-2d-matrix")
+        : keys.hasAny(["search-in-2d-matrix-ii"]) ? validEntryOrDeleted(data, "search-in-2d-matrix-ii")
+        : keys.hasAny(["find-peak-element-ii"]) ? validEntryOrDeleted(data, "find-peak-element-ii")
+        : keys.hasAny(["matrix-median"]) ? validEntryOrDeleted(data, "matrix-median")
+        : false;
     }
 
     function validChangedEntry_strings_basic_and_medium(data, keys) {
-      return       (keys.hasAny(["remove-outermost-parentheses"]) && validEntryOrDeleted(data, "remove-outermost-parentheses"))
-        ||       (keys.hasAny(["maximum-nesting-depth-of-the-parentheses"]) && validEntryOrDeleted(data, "maximum-nesting-depth-of-the-parentheses"))
-        ||       (keys.hasAny(["roman-to-integer"]) && validEntryOrDeleted(data, "roman-to-integer"))
-        ||       (keys.hasAny(["string-to-integer-atoi"]) && validEntryOrDeleted(data, "string-to-integer-atoi"))
-        ||       (keys.hasAny(["count-number-of-substrings"]) && validEntryOrDeleted(data, "count-number-of-substrings"))
-        ||       (keys.hasAny(["longest-palindromic-substring"]) && validEntryOrDeleted(data, "longest-palindromic-substring"))
-        ||       (keys.hasAny(["sum-of-beauty-of-all-substrings"]) && validEntryOrDeleted(data, "sum-of-beauty-of-all-substrings"));
+      return keys.hasAny(["remove-outermost-parentheses"]) ? validEntryOrDeleted(data, "remove-outermost-parentheses")
+        : keys.hasAny(["maximum-nesting-depth-of-the-parentheses"]) ? validEntryOrDeleted(data, "maximum-nesting-depth-of-the-parentheses")
+        : keys.hasAny(["roman-to-integer"]) ? validEntryOrDeleted(data, "roman-to-integer")
+        : keys.hasAny(["string-to-integer-atoi"]) ? validEntryOrDeleted(data, "string-to-integer-atoi")
+        : keys.hasAny(["count-number-of-substrings"]) ? validEntryOrDeleted(data, "count-number-of-substrings")
+        : keys.hasAny(["longest-palindromic-substring"]) ? validEntryOrDeleted(data, "longest-palindromic-substring")
+        : keys.hasAny(["sum-of-beauty-of-all-substrings"]) ? validEntryOrDeleted(data, "sum-of-beauty-of-all-substrings")
+        : false;
     }
 
     function validChangedEntry_recursion(data, keys) {
-      return       (keys.hasAny(["pow-x-n"]) && validEntryOrDeleted(data, "pow-x-n"))
-        ||       (keys.hasAny(["generate-parentheses"]) && validEntryOrDeleted(data, "generate-parentheses"))
-        ||       (keys.hasAny(["power-set"]) && validEntryOrDeleted(data, "power-set"))
-        ||       (keys.hasAny(["count-good-numbers"]) && validEntryOrDeleted(data, "count-good-numbers"))
-        ||       (keys.hasAny(["reverse-a-stack"]) && validEntryOrDeleted(data, "reverse-a-stack"))
-        ||       (keys.hasAny(["learn-all-patterns-of-subsequences-theory"]) && validEntryOrDeleted(data, "learn-all-patterns-of-subsequences-theory"))
-        ||       (keys.hasAny(["check-if-there-exists-a-subsequence-with-sum-k"]) && validEntryOrDeleted(data, "check-if-there-exists-a-subsequence-with-sum-k"))
-        ||       (keys.hasAny(["count-all-subsequences-with-sum-k"]) && validEntryOrDeleted(data, "count-all-subsequences-with-sum-k"))
-        ||       (keys.hasAny(["generate-binary-strings-without-consecutive-1s"]) && validEntryOrDeleted(data, "generate-binary-strings-without-consecutive-1s"))
-        ||       (keys.hasAny(["combination-sum"]) && validEntryOrDeleted(data, "combination-sum"))
-        ||       (keys.hasAny(["combination-sum-ii"]) && validEntryOrDeleted(data, "combination-sum-ii"))
-        ||       (keys.hasAny(["subsets-i"]) && validEntryOrDeleted(data, "subsets-i"))
-        ||       (keys.hasAny(["subsets-ii"]) && validEntryOrDeleted(data, "subsets-ii"))
-        ||       (keys.hasAny(["combination-sum-iii"]) && validEntryOrDeleted(data, "combination-sum-iii"))
-        ||       (keys.hasAny(["letter-combinations-of-a-phone-number"]) && validEntryOrDeleted(data, "letter-combinations-of-a-phone-number"))
-        ||       (keys.hasAny(["palindrome-partitioning"]) && validEntryOrDeleted(data, "palindrome-partitioning"))
-        ||       (keys.hasAny(["word-search"]) && validEntryOrDeleted(data, "word-search"))
-        ||       (keys.hasAny(["n-queen"]) && validEntryOrDeleted(data, "n-queen"))
-        ||       (keys.hasAny(["rat-in-a-maze"]) && validEntryOrDeleted(data, "rat-in-a-maze"))
-        ||       (keys.hasAny(["m-coloring-problem"]) && validEntryOrDeleted(data, "m-coloring-problem"))
-        ||       (keys.hasAny(["sudoku-solver"]) && validEntryOrDeleted(data, "sudoku-solver"))
-        ||       (keys.hasAny(["expression-add-operators"]) && validEntryOrDeleted(data, "expression-add-operators"));
+      return keys.hasAny(["pow-x-n"]) ? validEntryOrDeleted(data, "pow-x-n")
+        : keys.hasAny(["generate-parentheses"]) ? validEntryOrDeleted(data, "generate-parentheses")
+        : keys.hasAny(["power-set"]) ? validEntryOrDeleted(data, "power-set")
+        : keys.hasAny(["count-good-numbers"]) ? validEntryOrDeleted(data, "count-good-numbers")
+        : keys.hasAny(["reverse-a-stack"]) ? validEntryOrDeleted(data, "reverse-a-stack")
+        : keys.hasAny(["learn-all-patterns-of-subsequences-theory"]) ? validEntryOrDeleted(data, "learn-all-patterns-of-subsequences-theory")
+        : keys.hasAny(["check-if-there-exists-a-subsequence-with-sum-k"]) ? validEntryOrDeleted(data, "check-if-there-exists-a-subsequence-with-sum-k")
+        : keys.hasAny(["count-all-subsequences-with-sum-k"]) ? validEntryOrDeleted(data, "count-all-subsequences-with-sum-k")
+        : keys.hasAny(["generate-binary-strings-without-consecutive-1s"]) ? validEntryOrDeleted(data, "generate-binary-strings-without-consecutive-1s")
+        : keys.hasAny(["combination-sum"]) ? validEntryOrDeleted(data, "combination-sum")
+        : keys.hasAny(["combination-sum-ii"]) ? validEntryOrDeleted(data, "combination-sum-ii")
+        : keys.hasAny(["subsets-i"]) ? validEntryOrDeleted(data, "subsets-i")
+        : keys.hasAny(["subsets-ii"]) ? validEntryOrDeleted(data, "subsets-ii")
+        : keys.hasAny(["combination-sum-iii"]) ? validEntryOrDeleted(data, "combination-sum-iii")
+        : keys.hasAny(["letter-combinations-of-a-phone-number"]) ? validEntryOrDeleted(data, "letter-combinations-of-a-phone-number")
+        : keys.hasAny(["palindrome-partitioning"]) ? validEntryOrDeleted(data, "palindrome-partitioning")
+        : keys.hasAny(["word-search"]) ? validEntryOrDeleted(data, "word-search")
+        : keys.hasAny(["n-queen"]) ? validEntryOrDeleted(data, "n-queen")
+        : keys.hasAny(["rat-in-a-maze"]) ? validEntryOrDeleted(data, "rat-in-a-maze")
+        : keys.hasAny(["m-coloring-problem"]) ? validEntryOrDeleted(data, "m-coloring-problem")
+        : keys.hasAny(["sudoku-solver"]) ? validEntryOrDeleted(data, "sudoku-solver")
+        : keys.hasAny(["expression-add-operators"]) ? validEntryOrDeleted(data, "expression-add-operators")
+        : false;
     }
 
     function validChangedEntry_linked_list(data, keys) {
-      return       (keys.hasAny(["introduction-to-singly-linkedlist"]) && validEntryOrDeleted(data, "introduction-to-singly-linkedlist"))
-        ||       (keys.hasAny(["traversal-in-linked-list"]) && validEntryOrDeleted(data, "traversal-in-linked-list"))
-        ||       (keys.hasAny(["deletion-in-linked-list"]) && validEntryOrDeleted(data, "deletion-in-linked-list"))
-        ||       (keys.hasAny(["insertion-in-linked-list"]) && validEntryOrDeleted(data, "insertion-in-linked-list"))
-        ||       (keys.hasAny(["deletion-of-the-head-of-ll"]) && validEntryOrDeleted(data, "deletion-of-the-head-of-ll"))
-        ||       (keys.hasAny(["deletion-of-the-tail-of-linked-list"]) && validEntryOrDeleted(data, "deletion-of-the-tail-of-linked-list"))
-        ||       (keys.hasAny(["deletion-of-the-kth-element-of-linked-list"]) && validEntryOrDeleted(data, "deletion-of-the-kth-element-of-linked-list"))
-        ||       (keys.hasAny(["delete-the-element-with-value-x"]) && validEntryOrDeleted(data, "delete-the-element-with-value-x"))
-        ||       (keys.hasAny(["insertion-at-the-head-of-linked-list"]) && validEntryOrDeleted(data, "insertion-at-the-head-of-linked-list"))
-        ||       (keys.hasAny(["insertion-at-the-tail-of-linked-list"]) && validEntryOrDeleted(data, "insertion-at-the-tail-of-linked-list"))
-        ||       (keys.hasAny(["insertion-at-the-kth-position-of-linked-list"]) && validEntryOrDeleted(data, "insertion-at-the-kth-position-of-linked-list"))
-        ||       (keys.hasAny(["insertion-before-the-value-x-in-linked-list"]) && validEntryOrDeleted(data, "insertion-before-the-value-x-in-linked-list"))
-        ||       (keys.hasAny(["find-the-length-of-the-linked-list"]) && validEntryOrDeleted(data, "find-the-length-of-the-linked-list"))
-        ||       (keys.hasAny(["search-in-linked-list"]) && validEntryOrDeleted(data, "search-in-linked-list"))
-        ||       (keys.hasAny(["introduction-to-doubly-ll"]) && validEntryOrDeleted(data, "introduction-to-doubly-ll"))
-        ||       (keys.hasAny(["deletion-in-doubly-ll"]) && validEntryOrDeleted(data, "deletion-in-doubly-ll"))
-        ||       (keys.hasAny(["insertion-in-dll"]) && validEntryOrDeleted(data, "insertion-in-dll"))
-        ||       (keys.hasAny(["convert-array-to-doubly-linked-list"]) && validEntryOrDeleted(data, "convert-array-to-doubly-linked-list"))
-        ||       (keys.hasAny(["delete-tail-of-doubly-linked-list"]) && validEntryOrDeleted(data, "delete-tail-of-doubly-linked-list"))
-        ||       (keys.hasAny(["delete-kth-element-of-doubly-linked-list"]) && validEntryOrDeleted(data, "delete-kth-element-of-doubly-linked-list"))
-        ||       (keys.hasAny(["removing-given-node-in-doubly-linked-list"]) && validEntryOrDeleted(data, "removing-given-node-in-doubly-linked-list"))
-        ||       (keys.hasAny(["insert-node-before-head-in-doubly-linked-list"]) && validEntryOrDeleted(data, "insert-node-before-head-in-doubly-linked-list"))
-        ||       (keys.hasAny(["insert-node-before-tail-in-doubly-linked-list"]) && validEntryOrDeleted(data, "insert-node-before-tail-in-doubly-linked-list"))
-        ||       (keys.hasAny(["insert-node-before-kth-node-in-doubly-linked-list"]) && validEntryOrDeleted(data, "insert-node-before-kth-node-in-doubly-linked-list"))
-        ||       (keys.hasAny(["insert-before-given-node-in-doubly-linked-list"]) && validEntryOrDeleted(data, "insert-before-given-node-in-doubly-linked-list"))
-        ||       (keys.hasAny(["delete-head-of-doubly-linked-list"]) && validEntryOrDeleted(data, "delete-head-of-doubly-linked-list"))
-        ||       (keys.hasAny(["reverse-a-doubly-linked-list"]) && validEntryOrDeleted(data, "reverse-a-doubly-linked-list"))
-        ||       (keys.hasAny(["add-two-numbers-in-linked-list"]) && validEntryOrDeleted(data, "add-two-numbers-in-linked-list"))
-        ||       (keys.hasAny(["segregate-odd-and-even-nodes-in-linked-list"]) && validEntryOrDeleted(data, "segregate-odd-and-even-nodes-in-linked-list"))
-        ||       (keys.hasAny(["sort-a-linked-list-of-0-s-1-s-and-2-s"]) && validEntryOrDeleted(data, "sort-a-linked-list-of-0-s-1-s-and-2-s"))
-        ||       (keys.hasAny(["remove-nth-node-from-the-back-of-the-ll"]) && validEntryOrDeleted(data, "remove-nth-node-from-the-back-of-the-ll"))
-        ||       (keys.hasAny(["reverse-a-ll"]) && validEntryOrDeleted(data, "reverse-a-ll"))
-        ||       (keys.hasAny(["add-one-to-a-number-represented-by-ll"]) && validEntryOrDeleted(data, "add-one-to-a-number-represented-by-ll"))
-        ||       (keys.hasAny(["find-middle-of-linked-list"]) && validEntryOrDeleted(data, "find-middle-of-linked-list"))
-        ||       (keys.hasAny(["delete-the-middle-node-in-ll"]) && validEntryOrDeleted(data, "delete-the-middle-node-in-ll"))
-        ||       (keys.hasAny(["check-if-ll-is-palindrome-or-not"]) && validEntryOrDeleted(data, "check-if-ll-is-palindrome-or-not"))
-        ||       (keys.hasAny(["find-the-intersection-point-of-y-ll"]) && validEntryOrDeleted(data, "find-the-intersection-point-of-y-ll"))
-        ||       (keys.hasAny(["detect-a-loop-in-ll"]) && validEntryOrDeleted(data, "detect-a-loop-in-ll"))
-        ||       (keys.hasAny(["find-the-starting-point-in-ll"]) && validEntryOrDeleted(data, "find-the-starting-point-in-ll"))
-        ||       (keys.hasAny(["length-of-loop-in-ll"]) && validEntryOrDeleted(data, "length-of-loop-in-ll"))
-        ||       (keys.hasAny(["reverse-ll-in-group-of-given-size-k"]) && validEntryOrDeleted(data, "reverse-ll-in-group-of-given-size-k"))
-        ||       (keys.hasAny(["rotate-a-ll"]) && validEntryOrDeleted(data, "rotate-a-ll"))
-        ||       (keys.hasAny(["merge-two-sorted-lists"]) && validEntryOrDeleted(data, "merge-two-sorted-lists"))
-        ||       (keys.hasAny(["flattening-of-ll"]) && validEntryOrDeleted(data, "flattening-of-ll"))
-        ||       (keys.hasAny(["sort-ll"]) && validEntryOrDeleted(data, "sort-ll"))
-        ||       (keys.hasAny(["clone-a-ll-with-random-and-next-pointer"]) && validEntryOrDeleted(data, "clone-a-ll-with-random-and-next-pointer"))
-        ||       (keys.hasAny(["delete-all-occurrences-of-a-key-in-dll"]) && validEntryOrDeleted(data, "delete-all-occurrences-of-a-key-in-dll"))
-        ||       (keys.hasAny(["remove-duplicates-from-sorted-dll"]) && validEntryOrDeleted(data, "remove-duplicates-from-sorted-dll"))
-        ||       (keys.hasAny(["find-pairs-with-given-sum-in-doubly-linked-list"]) && validEntryOrDeleted(data, "find-pairs-with-given-sum-in-doubly-linked-list"));
+      return keys.hasAny(["introduction-to-singly-linkedlist"]) ? validEntryOrDeleted(data, "introduction-to-singly-linkedlist")
+        : keys.hasAny(["traversal-in-linked-list"]) ? validEntryOrDeleted(data, "traversal-in-linked-list")
+        : keys.hasAny(["deletion-in-linked-list"]) ? validEntryOrDeleted(data, "deletion-in-linked-list")
+        : keys.hasAny(["insertion-in-linked-list"]) ? validEntryOrDeleted(data, "insertion-in-linked-list")
+        : keys.hasAny(["deletion-of-the-head-of-ll"]) ? validEntryOrDeleted(data, "deletion-of-the-head-of-ll")
+        : keys.hasAny(["deletion-of-the-tail-of-linked-list"]) ? validEntryOrDeleted(data, "deletion-of-the-tail-of-linked-list")
+        : keys.hasAny(["deletion-of-the-kth-element-of-linked-list"]) ? validEntryOrDeleted(data, "deletion-of-the-kth-element-of-linked-list")
+        : keys.hasAny(["delete-the-element-with-value-x"]) ? validEntryOrDeleted(data, "delete-the-element-with-value-x")
+        : keys.hasAny(["insertion-at-the-head-of-linked-list"]) ? validEntryOrDeleted(data, "insertion-at-the-head-of-linked-list")
+        : keys.hasAny(["insertion-at-the-tail-of-linked-list"]) ? validEntryOrDeleted(data, "insertion-at-the-tail-of-linked-list")
+        : keys.hasAny(["insertion-at-the-kth-position-of-linked-list"]) ? validEntryOrDeleted(data, "insertion-at-the-kth-position-of-linked-list")
+        : keys.hasAny(["insertion-before-the-value-x-in-linked-list"]) ? validEntryOrDeleted(data, "insertion-before-the-value-x-in-linked-list")
+        : keys.hasAny(["find-the-length-of-the-linked-list"]) ? validEntryOrDeleted(data, "find-the-length-of-the-linked-list")
+        : keys.hasAny(["search-in-linked-list"]) ? validEntryOrDeleted(data, "search-in-linked-list")
+        : keys.hasAny(["introduction-to-doubly-ll"]) ? validEntryOrDeleted(data, "introduction-to-doubly-ll")
+        : keys.hasAny(["deletion-in-doubly-ll"]) ? validEntryOrDeleted(data, "deletion-in-doubly-ll")
+        : keys.hasAny(["insertion-in-dll"]) ? validEntryOrDeleted(data, "insertion-in-dll")
+        : keys.hasAny(["convert-array-to-doubly-linked-list"]) ? validEntryOrDeleted(data, "convert-array-to-doubly-linked-list")
+        : keys.hasAny(["delete-tail-of-doubly-linked-list"]) ? validEntryOrDeleted(data, "delete-tail-of-doubly-linked-list")
+        : keys.hasAny(["delete-kth-element-of-doubly-linked-list"]) ? validEntryOrDeleted(data, "delete-kth-element-of-doubly-linked-list")
+        : keys.hasAny(["removing-given-node-in-doubly-linked-list"]) ? validEntryOrDeleted(data, "removing-given-node-in-doubly-linked-list")
+        : keys.hasAny(["insert-node-before-head-in-doubly-linked-list"]) ? validEntryOrDeleted(data, "insert-node-before-head-in-doubly-linked-list")
+        : keys.hasAny(["insert-node-before-tail-in-doubly-linked-list"]) ? validEntryOrDeleted(data, "insert-node-before-tail-in-doubly-linked-list")
+        : keys.hasAny(["insert-node-before-kth-node-in-doubly-linked-list"]) ? validEntryOrDeleted(data, "insert-node-before-kth-node-in-doubly-linked-list")
+        : keys.hasAny(["insert-before-given-node-in-doubly-linked-list"]) ? validEntryOrDeleted(data, "insert-before-given-node-in-doubly-linked-list")
+        : keys.hasAny(["delete-head-of-doubly-linked-list"]) ? validEntryOrDeleted(data, "delete-head-of-doubly-linked-list")
+        : keys.hasAny(["reverse-a-doubly-linked-list"]) ? validEntryOrDeleted(data, "reverse-a-doubly-linked-list")
+        : keys.hasAny(["add-two-numbers-in-linked-list"]) ? validEntryOrDeleted(data, "add-two-numbers-in-linked-list")
+        : keys.hasAny(["segregate-odd-and-even-nodes-in-linked-list"]) ? validEntryOrDeleted(data, "segregate-odd-and-even-nodes-in-linked-list")
+        : keys.hasAny(["sort-a-linked-list-of-0-s-1-s-and-2-s"]) ? validEntryOrDeleted(data, "sort-a-linked-list-of-0-s-1-s-and-2-s")
+        : keys.hasAny(["remove-nth-node-from-the-back-of-the-ll"]) ? validEntryOrDeleted(data, "remove-nth-node-from-the-back-of-the-ll")
+        : keys.hasAny(["reverse-a-ll"]) ? validEntryOrDeleted(data, "reverse-a-ll")
+        : keys.hasAny(["add-one-to-a-number-represented-by-ll"]) ? validEntryOrDeleted(data, "add-one-to-a-number-represented-by-ll")
+        : keys.hasAny(["find-middle-of-linked-list"]) ? validEntryOrDeleted(data, "find-middle-of-linked-list")
+        : keys.hasAny(["delete-the-middle-node-in-ll"]) ? validEntryOrDeleted(data, "delete-the-middle-node-in-ll")
+        : keys.hasAny(["check-if-ll-is-palindrome-or-not"]) ? validEntryOrDeleted(data, "check-if-ll-is-palindrome-or-not")
+        : keys.hasAny(["find-the-intersection-point-of-y-ll"]) ? validEntryOrDeleted(data, "find-the-intersection-point-of-y-ll")
+        : keys.hasAny(["detect-a-loop-in-ll"]) ? validEntryOrDeleted(data, "detect-a-loop-in-ll")
+        : keys.hasAny(["find-the-starting-point-in-ll"]) ? validEntryOrDeleted(data, "find-the-starting-point-in-ll")
+        : keys.hasAny(["length-of-loop-in-ll"]) ? validEntryOrDeleted(data, "length-of-loop-in-ll")
+        : keys.hasAny(["reverse-ll-in-group-of-given-size-k"]) ? validEntryOrDeleted(data, "reverse-ll-in-group-of-given-size-k")
+        : keys.hasAny(["rotate-a-ll"]) ? validEntryOrDeleted(data, "rotate-a-ll")
+        : keys.hasAny(["merge-two-sorted-lists"]) ? validEntryOrDeleted(data, "merge-two-sorted-lists")
+        : keys.hasAny(["flattening-of-ll"]) ? validEntryOrDeleted(data, "flattening-of-ll")
+        : keys.hasAny(["sort-ll"]) ? validEntryOrDeleted(data, "sort-ll")
+        : keys.hasAny(["clone-a-ll-with-random-and-next-pointer"]) ? validEntryOrDeleted(data, "clone-a-ll-with-random-and-next-pointer")
+        : keys.hasAny(["delete-all-occurrences-of-a-key-in-dll"]) ? validEntryOrDeleted(data, "delete-all-occurrences-of-a-key-in-dll")
+        : keys.hasAny(["remove-duplicates-from-sorted-dll"]) ? validEntryOrDeleted(data, "remove-duplicates-from-sorted-dll")
+        : keys.hasAny(["find-pairs-with-given-sum-in-doubly-linked-list"]) ? validEntryOrDeleted(data, "find-pairs-with-given-sum-in-doubly-linked-list")
+        : false;
     }
 
     function validChangedEntry_bit_manipulation(data, keys) {
-      return       (keys.hasAny(["introduction-to-bits-and-tricks"]) && validEntryOrDeleted(data, "introduction-to-bits-and-tricks"))
-        ||       (keys.hasAny(["check-if-the-i-th-bit-is-set-or-not"]) && validEntryOrDeleted(data, "check-if-the-i-th-bit-is-set-or-not"))
-        ||       (keys.hasAny(["check-if-a-number-is-odd-or-not"]) && validEntryOrDeleted(data, "check-if-a-number-is-odd-or-not"))
-        ||       (keys.hasAny(["check-if-a-number-is-power-of-2-or-not"]) && validEntryOrDeleted(data, "check-if-a-number-is-power-of-2-or-not"))
-        ||       (keys.hasAny(["count-the-number-of-set-bits"]) && validEntryOrDeleted(data, "count-the-number-of-set-bits"))
-        ||       (keys.hasAny(["set-the-rightmost-unset-bit"]) && validEntryOrDeleted(data, "set-the-rightmost-unset-bit"))
-        ||       (keys.hasAny(["swap-two-numbers"]) && validEntryOrDeleted(data, "swap-two-numbers"))
-        ||       (keys.hasAny(["minimum-bit-flips-to-convert-number"]) && validEntryOrDeleted(data, "minimum-bit-flips-to-convert-number"))
-        ||       (keys.hasAny(["single-number-i"]) && validEntryOrDeleted(data, "single-number-i"))
-        ||       (keys.hasAny(["single-number-ii"]) && validEntryOrDeleted(data, "single-number-ii"))
-        ||       (keys.hasAny(["single-number-iii"]) && validEntryOrDeleted(data, "single-number-iii"))
-        ||       (keys.hasAny(["divide-two-numbers-without-multiplication-and-division"]) && validEntryOrDeleted(data, "divide-two-numbers-without-multiplication-and-division"))
-        ||       (keys.hasAny(["power-set-bit-manipulation"]) && validEntryOrDeleted(data, "power-set-bit-manipulation"))
-        ||       (keys.hasAny(["xor-of-numbers-in-a-given-range"]) && validEntryOrDeleted(data, "xor-of-numbers-in-a-given-range"));
+      return keys.hasAny(["introduction-to-bits-and-tricks"]) ? validEntryOrDeleted(data, "introduction-to-bits-and-tricks")
+        : keys.hasAny(["check-if-the-i-th-bit-is-set-or-not"]) ? validEntryOrDeleted(data, "check-if-the-i-th-bit-is-set-or-not")
+        : keys.hasAny(["check-if-a-number-is-odd-or-not"]) ? validEntryOrDeleted(data, "check-if-a-number-is-odd-or-not")
+        : keys.hasAny(["check-if-a-number-is-power-of-2-or-not"]) ? validEntryOrDeleted(data, "check-if-a-number-is-power-of-2-or-not")
+        : keys.hasAny(["count-the-number-of-set-bits"]) ? validEntryOrDeleted(data, "count-the-number-of-set-bits")
+        : keys.hasAny(["set-the-rightmost-unset-bit"]) ? validEntryOrDeleted(data, "set-the-rightmost-unset-bit")
+        : keys.hasAny(["swap-two-numbers"]) ? validEntryOrDeleted(data, "swap-two-numbers")
+        : keys.hasAny(["minimum-bit-flips-to-convert-number"]) ? validEntryOrDeleted(data, "minimum-bit-flips-to-convert-number")
+        : keys.hasAny(["single-number-i"]) ? validEntryOrDeleted(data, "single-number-i")
+        : keys.hasAny(["single-number-ii"]) ? validEntryOrDeleted(data, "single-number-ii")
+        : keys.hasAny(["single-number-iii"]) ? validEntryOrDeleted(data, "single-number-iii")
+        : keys.hasAny(["divide-two-numbers-without-multiplication-and-division"]) ? validEntryOrDeleted(data, "divide-two-numbers-without-multiplication-and-division")
+        : keys.hasAny(["power-set-bit-manipulation"]) ? validEntryOrDeleted(data, "power-set-bit-manipulation")
+        : keys.hasAny(["xor-of-numbers-in-a-given-range"]) ? validEntryOrDeleted(data, "xor-of-numbers-in-a-given-range")
+        : false;
     }
 
     function validChangedEntry_greedy_algorithms(data, keys) {
-      return       (keys.hasAny(["assign-cookies"]) && validEntryOrDeleted(data, "assign-cookies"))
-        ||       (keys.hasAny(["lemonade-change"]) && validEntryOrDeleted(data, "lemonade-change"))
-        ||       (keys.hasAny(["fractional-knapsack"]) && validEntryOrDeleted(data, "fractional-knapsack"))
-        ||       (keys.hasAny(["jump-game-i"]) && validEntryOrDeleted(data, "jump-game-i"))
-        ||       (keys.hasAny(["shortest-job-first"]) && validEntryOrDeleted(data, "shortest-job-first"))
-        ||       (keys.hasAny(["job-sequencing-problem"]) && validEntryOrDeleted(data, "job-sequencing-problem"))
-        ||       (keys.hasAny(["n-meetings-in-one-room"]) && validEntryOrDeleted(data, "n-meetings-in-one-room"))
-        ||       (keys.hasAny(["non-overlapping-intervals"]) && validEntryOrDeleted(data, "non-overlapping-intervals"))
-        ||       (keys.hasAny(["insert-interval"]) && validEntryOrDeleted(data, "insert-interval"))
-        ||       (keys.hasAny(["merge-intervals"]) && validEntryOrDeleted(data, "merge-intervals"))
-        ||       (keys.hasAny(["minimum-number-of-platforms-required-for-a-railway"]) && validEntryOrDeleted(data, "minimum-number-of-platforms-required-for-a-railway"))
-        ||       (keys.hasAny(["valid-parenthesis-checker"]) && validEntryOrDeleted(data, "valid-parenthesis-checker"))
-        ||       (keys.hasAny(["candy"]) && validEntryOrDeleted(data, "candy"))
-        ||       (keys.hasAny(["jump-game-ii"]) && validEntryOrDeleted(data, "jump-game-ii"));
+      return keys.hasAny(["assign-cookies"]) ? validEntryOrDeleted(data, "assign-cookies")
+        : keys.hasAny(["lemonade-change"]) ? validEntryOrDeleted(data, "lemonade-change")
+        : keys.hasAny(["fractional-knapsack"]) ? validEntryOrDeleted(data, "fractional-knapsack")
+        : keys.hasAny(["jump-game-i"]) ? validEntryOrDeleted(data, "jump-game-i")
+        : keys.hasAny(["shortest-job-first"]) ? validEntryOrDeleted(data, "shortest-job-first")
+        : keys.hasAny(["job-sequencing-problem"]) ? validEntryOrDeleted(data, "job-sequencing-problem")
+        : keys.hasAny(["n-meetings-in-one-room"]) ? validEntryOrDeleted(data, "n-meetings-in-one-room")
+        : keys.hasAny(["non-overlapping-intervals"]) ? validEntryOrDeleted(data, "non-overlapping-intervals")
+        : keys.hasAny(["insert-interval"]) ? validEntryOrDeleted(data, "insert-interval")
+        : keys.hasAny(["merge-intervals"]) ? validEntryOrDeleted(data, "merge-intervals")
+        : keys.hasAny(["minimum-number-of-platforms-required-for-a-railway"]) ? validEntryOrDeleted(data, "minimum-number-of-platforms-required-for-a-railway")
+        : keys.hasAny(["valid-parenthesis-checker"]) ? validEntryOrDeleted(data, "valid-parenthesis-checker")
+        : keys.hasAny(["candy"]) ? validEntryOrDeleted(data, "candy")
+        : keys.hasAny(["jump-game-ii"]) ? validEntryOrDeleted(data, "jump-game-ii")
+        : false;
     }
 
     function validChangedEntry_sliding_window_2_pointer(data, keys) {
-      return       (keys.hasAny(["theory"]) && validEntryOrDeleted(data, "theory"))
-        ||       (keys.hasAny(["maximum-points-you-can-obtain-from-cards"]) && validEntryOrDeleted(data, "maximum-points-you-can-obtain-from-cards"))
-        ||       (keys.hasAny(["longest-substring-without-repeating-characters"]) && validEntryOrDeleted(data, "longest-substring-without-repeating-characters"))
-        ||       (keys.hasAny(["max-consecutive-ones-iii"]) && validEntryOrDeleted(data, "max-consecutive-ones-iii"))
-        ||       (keys.hasAny(["fruit-into-baskets"]) && validEntryOrDeleted(data, "fruit-into-baskets"))
-        ||       (keys.hasAny(["longest-substring-with-at-most-k-distinct-characters"]) && validEntryOrDeleted(data, "longest-substring-with-at-most-k-distinct-characters"))
-        ||       (keys.hasAny(["longest-repeating-character-replacement"]) && validEntryOrDeleted(data, "longest-repeating-character-replacement"))
-        ||       (keys.hasAny(["minimum-window-substring"]) && validEntryOrDeleted(data, "minimum-window-substring"))
-        ||       (keys.hasAny(["minimum-window-subsequence"]) && validEntryOrDeleted(data, "minimum-window-subsequence"))
-        ||       (keys.hasAny(["number-of-substrings-containing-all-three-characters"]) && validEntryOrDeleted(data, "number-of-substrings-containing-all-three-characters"))
-        ||       (keys.hasAny(["binary-subarrays-with-sum"]) && validEntryOrDeleted(data, "binary-subarrays-with-sum"))
-        ||       (keys.hasAny(["count-number-of-nice-subarrays"]) && validEntryOrDeleted(data, "count-number-of-nice-subarrays"))
-        ||       (keys.hasAny(["subarrays-with-k-different-integers"]) && validEntryOrDeleted(data, "subarrays-with-k-different-integers"));
+      return keys.hasAny(["theory"]) ? validEntryOrDeleted(data, "theory")
+        : keys.hasAny(["maximum-points-you-can-obtain-from-cards"]) ? validEntryOrDeleted(data, "maximum-points-you-can-obtain-from-cards")
+        : keys.hasAny(["longest-substring-without-repeating-characters"]) ? validEntryOrDeleted(data, "longest-substring-without-repeating-characters")
+        : keys.hasAny(["max-consecutive-ones-iii"]) ? validEntryOrDeleted(data, "max-consecutive-ones-iii")
+        : keys.hasAny(["fruit-into-baskets"]) ? validEntryOrDeleted(data, "fruit-into-baskets")
+        : keys.hasAny(["longest-substring-with-at-most-k-distinct-characters"]) ? validEntryOrDeleted(data, "longest-substring-with-at-most-k-distinct-characters")
+        : keys.hasAny(["longest-repeating-character-replacement"]) ? validEntryOrDeleted(data, "longest-repeating-character-replacement")
+        : keys.hasAny(["minimum-window-substring"]) ? validEntryOrDeleted(data, "minimum-window-substring")
+        : keys.hasAny(["minimum-window-subsequence"]) ? validEntryOrDeleted(data, "minimum-window-subsequence")
+        : keys.hasAny(["number-of-substrings-containing-all-three-characters"]) ? validEntryOrDeleted(data, "number-of-substrings-containing-all-three-characters")
+        : keys.hasAny(["binary-subarrays-with-sum"]) ? validEntryOrDeleted(data, "binary-subarrays-with-sum")
+        : keys.hasAny(["count-number-of-nice-subarrays"]) ? validEntryOrDeleted(data, "count-number-of-nice-subarrays")
+        : keys.hasAny(["subarrays-with-k-different-integers"]) ? validEntryOrDeleted(data, "subarrays-with-k-different-integers")
+        : false;
     }
 
     function validChangedEntry_stack_queues(data, keys) {
-      return       (keys.hasAny(["implementation-using-different-ds"]) && validEntryOrDeleted(data, "implementation-using-different-ds"))
-        ||       (keys.hasAny(["implement-stack-using-arrays"]) && validEntryOrDeleted(data, "implement-stack-using-arrays"))
-        ||       (keys.hasAny(["implement-queue-using-arrays"]) && validEntryOrDeleted(data, "implement-queue-using-arrays"))
-        ||       (keys.hasAny(["implement-stack-using-queue"]) && validEntryOrDeleted(data, "implement-stack-using-queue"))
-        ||       (keys.hasAny(["implement-queue-using-stack"]) && validEntryOrDeleted(data, "implement-queue-using-stack"))
-        ||       (keys.hasAny(["implement-stack-using-linkedlist"]) && validEntryOrDeleted(data, "implement-stack-using-linkedlist"))
-        ||       (keys.hasAny(["implement-queue-using-linkedlist"]) && validEntryOrDeleted(data, "implement-queue-using-linkedlist"))
-        ||       (keys.hasAny(["balanced-paranthesis"]) && validEntryOrDeleted(data, "balanced-paranthesis"))
-        ||       (keys.hasAny(["infix-to-postfix-conversion"]) && validEntryOrDeleted(data, "infix-to-postfix-conversion"))
-        ||       (keys.hasAny(["infix-to-prefix-conversion"]) && validEntryOrDeleted(data, "infix-to-prefix-conversion"))
-        ||       (keys.hasAny(["prefix-to-infix-conversion"]) && validEntryOrDeleted(data, "prefix-to-infix-conversion"))
-        ||       (keys.hasAny(["prefix-to-postfix-conversion"]) && validEntryOrDeleted(data, "prefix-to-postfix-conversion"))
-        ||       (keys.hasAny(["postfix-to-infix-conversion"]) && validEntryOrDeleted(data, "postfix-to-infix-conversion"))
-        ||       (keys.hasAny(["postfix-to-prefix-conversion"]) && validEntryOrDeleted(data, "postfix-to-prefix-conversion"))
-        ||       (keys.hasAny(["next-greater-element"]) && validEntryOrDeleted(data, "next-greater-element"))
-        ||       (keys.hasAny(["next-greater-element-2"]) && validEntryOrDeleted(data, "next-greater-element-2"))
-        ||       (keys.hasAny(["asteroid-collision"]) && validEntryOrDeleted(data, "asteroid-collision"))
-        ||       (keys.hasAny(["sum-of-subarray-minimums"]) && validEntryOrDeleted(data, "sum-of-subarray-minimums"))
-        ||       (keys.hasAny(["sum-of-subarray-ranges"]) && validEntryOrDeleted(data, "sum-of-subarray-ranges"))
-        ||       (keys.hasAny(["remove-k-digits"]) && validEntryOrDeleted(data, "remove-k-digits"))
-        ||       (keys.hasAny(["next-smaller-element"]) && validEntryOrDeleted(data, "next-smaller-element"))
-        ||       (keys.hasAny(["implement-min-stack"]) && validEntryOrDeleted(data, "implement-min-stack"))
-        ||       (keys.hasAny(["sliding-window-maximum"]) && validEntryOrDeleted(data, "sliding-window-maximum"))
-        ||       (keys.hasAny(["trapping-rainwater"]) && validEntryOrDeleted(data, "trapping-rainwater"))
-        ||       (keys.hasAny(["largest-rectangle-in-a-histogram"]) && validEntryOrDeleted(data, "largest-rectangle-in-a-histogram"))
-        ||       (keys.hasAny(["maximum-rectangles"]) && validEntryOrDeleted(data, "maximum-rectangles"))
-        ||       (keys.hasAny(["stock-span-problem"]) && validEntryOrDeleted(data, "stock-span-problem"))
-        ||       (keys.hasAny(["celebrity-problem"]) && validEntryOrDeleted(data, "celebrity-problem"))
-        ||       (keys.hasAny(["lru-cache"]) && validEntryOrDeleted(data, "lru-cache"))
-        ||       (keys.hasAny(["lfu-cache"]) && validEntryOrDeleted(data, "lfu-cache"))
-        ||       (keys.hasAny(["number-of-greater-elements-to-the-right"]) && validEntryOrDeleted(data, "number-of-greater-elements-to-the-right"));
+      return keys.hasAny(["implementation-using-different-ds"]) ? validEntryOrDeleted(data, "implementation-using-different-ds")
+        : keys.hasAny(["implement-stack-using-arrays"]) ? validEntryOrDeleted(data, "implement-stack-using-arrays")
+        : keys.hasAny(["implement-queue-using-arrays"]) ? validEntryOrDeleted(data, "implement-queue-using-arrays")
+        : keys.hasAny(["implement-stack-using-queue"]) ? validEntryOrDeleted(data, "implement-stack-using-queue")
+        : keys.hasAny(["implement-queue-using-stack"]) ? validEntryOrDeleted(data, "implement-queue-using-stack")
+        : keys.hasAny(["implement-stack-using-linkedlist"]) ? validEntryOrDeleted(data, "implement-stack-using-linkedlist")
+        : keys.hasAny(["implement-queue-using-linkedlist"]) ? validEntryOrDeleted(data, "implement-queue-using-linkedlist")
+        : keys.hasAny(["balanced-paranthesis"]) ? validEntryOrDeleted(data, "balanced-paranthesis")
+        : keys.hasAny(["infix-to-postfix-conversion"]) ? validEntryOrDeleted(data, "infix-to-postfix-conversion")
+        : keys.hasAny(["infix-to-prefix-conversion"]) ? validEntryOrDeleted(data, "infix-to-prefix-conversion")
+        : keys.hasAny(["prefix-to-infix-conversion"]) ? validEntryOrDeleted(data, "prefix-to-infix-conversion")
+        : keys.hasAny(["prefix-to-postfix-conversion"]) ? validEntryOrDeleted(data, "prefix-to-postfix-conversion")
+        : keys.hasAny(["postfix-to-infix-conversion"]) ? validEntryOrDeleted(data, "postfix-to-infix-conversion")
+        : keys.hasAny(["postfix-to-prefix-conversion"]) ? validEntryOrDeleted(data, "postfix-to-prefix-conversion")
+        : keys.hasAny(["next-greater-element"]) ? validEntryOrDeleted(data, "next-greater-element")
+        : keys.hasAny(["next-greater-element-2"]) ? validEntryOrDeleted(data, "next-greater-element-2")
+        : keys.hasAny(["asteroid-collision"]) ? validEntryOrDeleted(data, "asteroid-collision")
+        : keys.hasAny(["sum-of-subarray-minimums"]) ? validEntryOrDeleted(data, "sum-of-subarray-minimums")
+        : keys.hasAny(["sum-of-subarray-ranges"]) ? validEntryOrDeleted(data, "sum-of-subarray-ranges")
+        : keys.hasAny(["remove-k-digits"]) ? validEntryOrDeleted(data, "remove-k-digits")
+        : keys.hasAny(["next-smaller-element"]) ? validEntryOrDeleted(data, "next-smaller-element")
+        : keys.hasAny(["implement-min-stack"]) ? validEntryOrDeleted(data, "implement-min-stack")
+        : keys.hasAny(["sliding-window-maximum"]) ? validEntryOrDeleted(data, "sliding-window-maximum")
+        : keys.hasAny(["trapping-rainwater"]) ? validEntryOrDeleted(data, "trapping-rainwater")
+        : keys.hasAny(["largest-rectangle-in-a-histogram"]) ? validEntryOrDeleted(data, "largest-rectangle-in-a-histogram")
+        : keys.hasAny(["maximum-rectangles"]) ? validEntryOrDeleted(data, "maximum-rectangles")
+        : keys.hasAny(["stock-span-problem"]) ? validEntryOrDeleted(data, "stock-span-problem")
+        : keys.hasAny(["celebrity-problem"]) ? validEntryOrDeleted(data, "celebrity-problem")
+        : keys.hasAny(["lru-cache"]) ? validEntryOrDeleted(data, "lru-cache")
+        : keys.hasAny(["lfu-cache"]) ? validEntryOrDeleted(data, "lfu-cache")
+        : keys.hasAny(["number-of-greater-elements-to-the-right"]) ? validEntryOrDeleted(data, "number-of-greater-elements-to-the-right")
+        : false;
     }
 
     function validChangedEntry_binary_trees(data, keys) {
-      return       (keys.hasAny(["introduction"]) && validEntryOrDeleted(data, "introduction"))
-        ||       (keys.hasAny(["inorder-traversal"]) && validEntryOrDeleted(data, "inorder-traversal"))
-        ||       (keys.hasAny(["preorder-traversal"]) && validEntryOrDeleted(data, "preorder-traversal"))
-        ||       (keys.hasAny(["postorder-traversal"]) && validEntryOrDeleted(data, "postorder-traversal"))
-        ||       (keys.hasAny(["level-order-traversal"]) && validEntryOrDeleted(data, "level-order-traversal"))
-        ||       (keys.hasAny(["pre-post-inorder-in-one-traversal"]) && validEntryOrDeleted(data, "pre-post-inorder-in-one-traversal"))
-        ||       (keys.hasAny(["maximum-depth-in-bt"]) && validEntryOrDeleted(data, "maximum-depth-in-bt"))
-        ||       (keys.hasAny(["check-if-two-trees-are-identical-or-not"]) && validEntryOrDeleted(data, "check-if-two-trees-are-identical-or-not"))
-        ||       (keys.hasAny(["check-for-balanced-binary-tree"]) && validEntryOrDeleted(data, "check-for-balanced-binary-tree"))
-        ||       (keys.hasAny(["diameter-of-binary-tree"]) && validEntryOrDeleted(data, "diameter-of-binary-tree"))
-        ||       (keys.hasAny(["maximum-path-sum"]) && validEntryOrDeleted(data, "maximum-path-sum"))
-        ||       (keys.hasAny(["check-for-symmetrical-bts"]) && validEntryOrDeleted(data, "check-for-symmetrical-bts"))
-        ||       (keys.hasAny(["children-sum-property-in-binary-tree"]) && validEntryOrDeleted(data, "children-sum-property-in-binary-tree"))
-        ||       (keys.hasAny(["zig-zag-or-spiral-traversal"]) && validEntryOrDeleted(data, "zig-zag-or-spiral-traversal"))
-        ||       (keys.hasAny(["boundary-traversal"]) && validEntryOrDeleted(data, "boundary-traversal"))
-        ||       (keys.hasAny(["vertical-order-traversal"]) && validEntryOrDeleted(data, "vertical-order-traversal"))
-        ||       (keys.hasAny(["top-view-of-bt"]) && validEntryOrDeleted(data, "top-view-of-bt"))
-        ||       (keys.hasAny(["bottom-view-of-bt"]) && validEntryOrDeleted(data, "bottom-view-of-bt"))
-        ||       (keys.hasAny(["right-left-view-of-bt"]) && validEntryOrDeleted(data, "right-left-view-of-bt"))
-        ||       (keys.hasAny(["print-root-to-leaf-path-in-bt"]) && validEntryOrDeleted(data, "print-root-to-leaf-path-in-bt"))
-        ||       (keys.hasAny(["lca-in-bt"]) && validEntryOrDeleted(data, "lca-in-bt"))
-        ||       (keys.hasAny(["maximum-width-of-bt"]) && validEntryOrDeleted(data, "maximum-width-of-bt"))
-        ||       (keys.hasAny(["print-all-nodes-at-a-distance-of-k-in-bt"]) && validEntryOrDeleted(data, "print-all-nodes-at-a-distance-of-k-in-bt"))
-        ||       (keys.hasAny(["minimum-time-taken-to-burn-the-bt-from-a-given-node"]) && validEntryOrDeleted(data, "minimum-time-taken-to-burn-the-bt-from-a-given-node"))
-        ||       (keys.hasAny(["count-total-nodes-in-a-complete-bt"]) && validEntryOrDeleted(data, "count-total-nodes-in-a-complete-bt"))
-        ||       (keys.hasAny(["flatten-binary-tree-to-linked-list"]) && validEntryOrDeleted(data, "flatten-binary-tree-to-linked-list"))
-        ||       (keys.hasAny(["requirements-needed-to-construct-a-unique-bt"]) && validEntryOrDeleted(data, "requirements-needed-to-construct-a-unique-bt"))
-        ||       (keys.hasAny(["construct-a-bt-from-preorder-and-inorder"]) && validEntryOrDeleted(data, "construct-a-bt-from-preorder-and-inorder"))
-        ||       (keys.hasAny(["construct-a-bt-from-postorder-and-inorder"]) && validEntryOrDeleted(data, "construct-a-bt-from-postorder-and-inorder"))
-        ||       (keys.hasAny(["serialize-and-de-serialize-bt"]) && validEntryOrDeleted(data, "serialize-and-de-serialize-bt"))
-        ||       (keys.hasAny(["morris-inorder-traversal"]) && validEntryOrDeleted(data, "morris-inorder-traversal"))
-        ||       (keys.hasAny(["morris-preorder-traversal"]) && validEntryOrDeleted(data, "morris-preorder-traversal"));
+      return keys.hasAny(["introduction"]) ? validEntryOrDeleted(data, "introduction")
+        : keys.hasAny(["inorder-traversal"]) ? validEntryOrDeleted(data, "inorder-traversal")
+        : keys.hasAny(["preorder-traversal"]) ? validEntryOrDeleted(data, "preorder-traversal")
+        : keys.hasAny(["postorder-traversal"]) ? validEntryOrDeleted(data, "postorder-traversal")
+        : keys.hasAny(["level-order-traversal"]) ? validEntryOrDeleted(data, "level-order-traversal")
+        : keys.hasAny(["pre-post-inorder-in-one-traversal"]) ? validEntryOrDeleted(data, "pre-post-inorder-in-one-traversal")
+        : keys.hasAny(["maximum-depth-in-bt"]) ? validEntryOrDeleted(data, "maximum-depth-in-bt")
+        : keys.hasAny(["check-if-two-trees-are-identical-or-not"]) ? validEntryOrDeleted(data, "check-if-two-trees-are-identical-or-not")
+        : keys.hasAny(["check-for-balanced-binary-tree"]) ? validEntryOrDeleted(data, "check-for-balanced-binary-tree")
+        : keys.hasAny(["diameter-of-binary-tree"]) ? validEntryOrDeleted(data, "diameter-of-binary-tree")
+        : keys.hasAny(["maximum-path-sum"]) ? validEntryOrDeleted(data, "maximum-path-sum")
+        : keys.hasAny(["check-for-symmetrical-bts"]) ? validEntryOrDeleted(data, "check-for-symmetrical-bts")
+        : keys.hasAny(["children-sum-property-in-binary-tree"]) ? validEntryOrDeleted(data, "children-sum-property-in-binary-tree")
+        : keys.hasAny(["zig-zag-or-spiral-traversal"]) ? validEntryOrDeleted(data, "zig-zag-or-spiral-traversal")
+        : keys.hasAny(["boundary-traversal"]) ? validEntryOrDeleted(data, "boundary-traversal")
+        : keys.hasAny(["vertical-order-traversal"]) ? validEntryOrDeleted(data, "vertical-order-traversal")
+        : keys.hasAny(["top-view-of-bt"]) ? validEntryOrDeleted(data, "top-view-of-bt")
+        : keys.hasAny(["bottom-view-of-bt"]) ? validEntryOrDeleted(data, "bottom-view-of-bt")
+        : keys.hasAny(["right-left-view-of-bt"]) ? validEntryOrDeleted(data, "right-left-view-of-bt")
+        : keys.hasAny(["print-root-to-leaf-path-in-bt"]) ? validEntryOrDeleted(data, "print-root-to-leaf-path-in-bt")
+        : keys.hasAny(["lca-in-bt"]) ? validEntryOrDeleted(data, "lca-in-bt")
+        : keys.hasAny(["maximum-width-of-bt"]) ? validEntryOrDeleted(data, "maximum-width-of-bt")
+        : keys.hasAny(["print-all-nodes-at-a-distance-of-k-in-bt"]) ? validEntryOrDeleted(data, "print-all-nodes-at-a-distance-of-k-in-bt")
+        : keys.hasAny(["minimum-time-taken-to-burn-the-bt-from-a-given-node"]) ? validEntryOrDeleted(data, "minimum-time-taken-to-burn-the-bt-from-a-given-node")
+        : keys.hasAny(["count-total-nodes-in-a-complete-bt"]) ? validEntryOrDeleted(data, "count-total-nodes-in-a-complete-bt")
+        : keys.hasAny(["flatten-binary-tree-to-linked-list"]) ? validEntryOrDeleted(data, "flatten-binary-tree-to-linked-list")
+        : keys.hasAny(["requirements-needed-to-construct-a-unique-bt"]) ? validEntryOrDeleted(data, "requirements-needed-to-construct-a-unique-bt")
+        : keys.hasAny(["construct-a-bt-from-preorder-and-inorder"]) ? validEntryOrDeleted(data, "construct-a-bt-from-preorder-and-inorder")
+        : keys.hasAny(["construct-a-bt-from-postorder-and-inorder"]) ? validEntryOrDeleted(data, "construct-a-bt-from-postorder-and-inorder")
+        : keys.hasAny(["serialize-and-de-serialize-bt"]) ? validEntryOrDeleted(data, "serialize-and-de-serialize-bt")
+        : keys.hasAny(["morris-inorder-traversal"]) ? validEntryOrDeleted(data, "morris-inorder-traversal")
+        : keys.hasAny(["morris-preorder-traversal"]) ? validEntryOrDeleted(data, "morris-preorder-traversal")
+        : false;
     }
 
     function validChangedEntry_binary_search_trees(data, keys) {
-      return       (keys.hasAny(["introduction-to-bst"]) && validEntryOrDeleted(data, "introduction-to-bst"))
-        ||       (keys.hasAny(["search-in-bst"]) && validEntryOrDeleted(data, "search-in-bst"))
-        ||       (keys.hasAny(["floor-and-ceil-in-a-bst"]) && validEntryOrDeleted(data, "floor-and-ceil-in-a-bst"))
-        ||       (keys.hasAny(["minimum-and-maximum-in-bst"]) && validEntryOrDeleted(data, "minimum-and-maximum-in-bst"))
-        ||       (keys.hasAny(["insert-a-given-node-in-bst"]) && validEntryOrDeleted(data, "insert-a-given-node-in-bst"))
-        ||       (keys.hasAny(["delete-a-node-in-bst"]) && validEntryOrDeleted(data, "delete-a-node-in-bst"))
-        ||       (keys.hasAny(["kth-smallest-and-largest-element-in-bst"]) && validEntryOrDeleted(data, "kth-smallest-and-largest-element-in-bst"))
-        ||       (keys.hasAny(["check-if-a-tree-is-a-bst-or-not"]) && validEntryOrDeleted(data, "check-if-a-tree-is-a-bst-or-not"))
-        ||       (keys.hasAny(["lca-in-bst"]) && validEntryOrDeleted(data, "lca-in-bst"))
-        ||       (keys.hasAny(["construct-a-bst-from-a-preorder-traversal"]) && validEntryOrDeleted(data, "construct-a-bst-from-a-preorder-traversal"))
-        ||       (keys.hasAny(["inorder-successor-and-predecessor-in-bst"]) && validEntryOrDeleted(data, "inorder-successor-and-predecessor-in-bst"))
-        ||       (keys.hasAny(["bst-iterator"]) && validEntryOrDeleted(data, "bst-iterator"))
-        ||       (keys.hasAny(["two-sum-in-bst"]) && validEntryOrDeleted(data, "two-sum-in-bst"))
-        ||       (keys.hasAny(["correct-bst-with-two-nodes-swapped"]) && validEntryOrDeleted(data, "correct-bst-with-two-nodes-swapped"))
-        ||       (keys.hasAny(["largest-bst-in-binary-tree"]) && validEntryOrDeleted(data, "largest-bst-in-binary-tree"));
+      return keys.hasAny(["introduction-to-bst"]) ? validEntryOrDeleted(data, "introduction-to-bst")
+        : keys.hasAny(["search-in-bst"]) ? validEntryOrDeleted(data, "search-in-bst")
+        : keys.hasAny(["floor-and-ceil-in-a-bst"]) ? validEntryOrDeleted(data, "floor-and-ceil-in-a-bst")
+        : keys.hasAny(["minimum-and-maximum-in-bst"]) ? validEntryOrDeleted(data, "minimum-and-maximum-in-bst")
+        : keys.hasAny(["insert-a-given-node-in-bst"]) ? validEntryOrDeleted(data, "insert-a-given-node-in-bst")
+        : keys.hasAny(["delete-a-node-in-bst"]) ? validEntryOrDeleted(data, "delete-a-node-in-bst")
+        : keys.hasAny(["kth-smallest-and-largest-element-in-bst"]) ? validEntryOrDeleted(data, "kth-smallest-and-largest-element-in-bst")
+        : keys.hasAny(["check-if-a-tree-is-a-bst-or-not"]) ? validEntryOrDeleted(data, "check-if-a-tree-is-a-bst-or-not")
+        : keys.hasAny(["lca-in-bst"]) ? validEntryOrDeleted(data, "lca-in-bst")
+        : keys.hasAny(["construct-a-bst-from-a-preorder-traversal"]) ? validEntryOrDeleted(data, "construct-a-bst-from-a-preorder-traversal")
+        : keys.hasAny(["inorder-successor-and-predecessor-in-bst"]) ? validEntryOrDeleted(data, "inorder-successor-and-predecessor-in-bst")
+        : keys.hasAny(["bst-iterator"]) ? validEntryOrDeleted(data, "bst-iterator")
+        : keys.hasAny(["two-sum-in-bst"]) ? validEntryOrDeleted(data, "two-sum-in-bst")
+        : keys.hasAny(["correct-bst-with-two-nodes-swapped"]) ? validEntryOrDeleted(data, "correct-bst-with-two-nodes-swapped")
+        : keys.hasAny(["largest-bst-in-binary-tree"]) ? validEntryOrDeleted(data, "largest-bst-in-binary-tree")
+        : false;
     }
 
     function validChangedEntry_heaps(data, keys) {
-      return       (keys.hasAny(["heaps-theory-video"]) && validEntryOrDeleted(data, "heaps-theory-video"))
-        ||       (keys.hasAny(["heapify-algorithm"]) && validEntryOrDeleted(data, "heapify-algorithm"))
-        ||       (keys.hasAny(["build-heap-from-a-given-array"]) && validEntryOrDeleted(data, "build-heap-from-a-given-array"))
-        ||       (keys.hasAny(["implement-min-heap"]) && validEntryOrDeleted(data, "implement-min-heap"))
-        ||       (keys.hasAny(["implement-max-heap"]) && validEntryOrDeleted(data, "implement-max-heap"))
-        ||       (keys.hasAny(["check-if-an-array-represents-a-min-heap"]) && validEntryOrDeleted(data, "check-if-an-array-represents-a-min-heap"))
-        ||       (keys.hasAny(["convert-min-heap-to-max-heap"]) && validEntryOrDeleted(data, "convert-min-heap-to-max-heap"))
-        ||       (keys.hasAny(["heap-sort"]) && validEntryOrDeleted(data, "heap-sort"))
-        ||       (keys.hasAny(["k-th-largest-element-in-an-array"]) && validEntryOrDeleted(data, "k-th-largest-element-in-an-array"))
-        ||       (keys.hasAny(["kth-largest-element-in-a-stream-of-running-integers"]) && validEntryOrDeleted(data, "kth-largest-element-in-a-stream-of-running-integers"))
-        ||       (keys.hasAny(["sort-a-k-sorted-array"]) && validEntryOrDeleted(data, "sort-a-k-sorted-array"))
-        ||       (keys.hasAny(["merge-k-sorted-lists"]) && validEntryOrDeleted(data, "merge-k-sorted-lists"))
-        ||       (keys.hasAny(["replace-elements-by-their-rank"]) && validEntryOrDeleted(data, "replace-elements-by-their-rank"))
-        ||       (keys.hasAny(["task-scheduler"]) && validEntryOrDeleted(data, "task-scheduler"))
-        ||       (keys.hasAny(["hand-of-straights"]) && validEntryOrDeleted(data, "hand-of-straights"))
-        ||       (keys.hasAny(["design-twitter"]) && validEntryOrDeleted(data, "design-twitter"))
-        ||       (keys.hasAny(["minimum-cost-to-connect-sticks"]) && validEntryOrDeleted(data, "minimum-cost-to-connect-sticks"))
-        ||       (keys.hasAny(["maximum-sum-combination"]) && validEntryOrDeleted(data, "maximum-sum-combination"))
-        ||       (keys.hasAny(["find-median-from-data-stream"]) && validEntryOrDeleted(data, "find-median-from-data-stream"))
-        ||       (keys.hasAny(["top-k-frequent-elements"]) && validEntryOrDeleted(data, "top-k-frequent-elements"));
+      return keys.hasAny(["heaps-theory-video"]) ? validEntryOrDeleted(data, "heaps-theory-video")
+        : keys.hasAny(["heapify-algorithm"]) ? validEntryOrDeleted(data, "heapify-algorithm")
+        : keys.hasAny(["build-heap-from-a-given-array"]) ? validEntryOrDeleted(data, "build-heap-from-a-given-array")
+        : keys.hasAny(["implement-min-heap"]) ? validEntryOrDeleted(data, "implement-min-heap")
+        : keys.hasAny(["implement-max-heap"]) ? validEntryOrDeleted(data, "implement-max-heap")
+        : keys.hasAny(["check-if-an-array-represents-a-min-heap"]) ? validEntryOrDeleted(data, "check-if-an-array-represents-a-min-heap")
+        : keys.hasAny(["convert-min-heap-to-max-heap"]) ? validEntryOrDeleted(data, "convert-min-heap-to-max-heap")
+        : keys.hasAny(["heap-sort"]) ? validEntryOrDeleted(data, "heap-sort")
+        : keys.hasAny(["k-th-largest-element-in-an-array"]) ? validEntryOrDeleted(data, "k-th-largest-element-in-an-array")
+        : keys.hasAny(["kth-largest-element-in-a-stream-of-running-integers"]) ? validEntryOrDeleted(data, "kth-largest-element-in-a-stream-of-running-integers")
+        : keys.hasAny(["sort-a-k-sorted-array"]) ? validEntryOrDeleted(data, "sort-a-k-sorted-array")
+        : keys.hasAny(["merge-k-sorted-lists"]) ? validEntryOrDeleted(data, "merge-k-sorted-lists")
+        : keys.hasAny(["replace-elements-by-their-rank"]) ? validEntryOrDeleted(data, "replace-elements-by-their-rank")
+        : keys.hasAny(["task-scheduler"]) ? validEntryOrDeleted(data, "task-scheduler")
+        : keys.hasAny(["hand-of-straights"]) ? validEntryOrDeleted(data, "hand-of-straights")
+        : keys.hasAny(["design-twitter"]) ? validEntryOrDeleted(data, "design-twitter")
+        : keys.hasAny(["minimum-cost-to-connect-sticks"]) ? validEntryOrDeleted(data, "minimum-cost-to-connect-sticks")
+        : keys.hasAny(["maximum-sum-combination"]) ? validEntryOrDeleted(data, "maximum-sum-combination")
+        : keys.hasAny(["find-median-from-data-stream"]) ? validEntryOrDeleted(data, "find-median-from-data-stream")
+        : keys.hasAny(["top-k-frequent-elements"]) ? validEntryOrDeleted(data, "top-k-frequent-elements")
+        : false;
     }
 
     function validChangedEntry_graphs(data, keys) {
-      return       (keys.hasAny(["introduction-to-graph"]) && validEntryOrDeleted(data, "introduction-to-graph"))
-        ||       (keys.hasAny(["traversal-techniques"]) && validEntryOrDeleted(data, "traversal-techniques"))
-        ||       (keys.hasAny(["connected-components"]) && validEntryOrDeleted(data, "connected-components"))
-        ||       (keys.hasAny(["number-of-provinces"]) && validEntryOrDeleted(data, "number-of-provinces"))
-        ||       (keys.hasAny(["number-of-islands"]) && validEntryOrDeleted(data, "number-of-islands"))
-        ||       (keys.hasAny(["flood-fill-algorithm"]) && validEntryOrDeleted(data, "flood-fill-algorithm"))
-        ||       (keys.hasAny(["number-of-enclaves"]) && validEntryOrDeleted(data, "number-of-enclaves"))
-        ||       (keys.hasAny(["rotten-oranges"]) && validEntryOrDeleted(data, "rotten-oranges"))
-        ||       (keys.hasAny(["distance-of-nearest-cell-having-one"]) && validEntryOrDeleted(data, "distance-of-nearest-cell-having-one"))
-        ||       (keys.hasAny(["surrounded-regions"]) && validEntryOrDeleted(data, "surrounded-regions"))
-        ||       (keys.hasAny(["number-of-distinct-islands"]) && validEntryOrDeleted(data, "number-of-distinct-islands"))
-        ||       (keys.hasAny(["detect-a-cycle-in-an-undirected-graph"]) && validEntryOrDeleted(data, "detect-a-cycle-in-an-undirected-graph"))
-        ||       (keys.hasAny(["bipartite-graph"]) && validEntryOrDeleted(data, "bipartite-graph"))
-        ||       (keys.hasAny(["topological-sort-or-kahn-s-algorithm"]) && validEntryOrDeleted(data, "topological-sort-or-kahn-s-algorithm"))
-        ||       (keys.hasAny(["detect-a-cycle-in-a-directed-graph"]) && validEntryOrDeleted(data, "detect-a-cycle-in-a-directed-graph"))
-        ||       (keys.hasAny(["find-eventual-safe-states"]) && validEntryOrDeleted(data, "find-eventual-safe-states"))
-        ||       (keys.hasAny(["course-schedule-i"]) && validEntryOrDeleted(data, "course-schedule-i"))
-        ||       (keys.hasAny(["course-schedule-ii"]) && validEntryOrDeleted(data, "course-schedule-ii"))
-        ||       (keys.hasAny(["alien-dictionary"]) && validEntryOrDeleted(data, "alien-dictionary"))
-        ||       (keys.hasAny(["shortest-path-in-dag"]) && validEntryOrDeleted(data, "shortest-path-in-dag"))
-        ||       (keys.hasAny(["shortest-path-in-undirected-graph-with-unit-weights"]) && validEntryOrDeleted(data, "shortest-path-in-undirected-graph-with-unit-weights"))
-        ||       (keys.hasAny(["word-ladder-i"]) && validEntryOrDeleted(data, "word-ladder-i"))
-        ||       (keys.hasAny(["word-ladder-ii"]) && validEntryOrDeleted(data, "word-ladder-ii"))
-        ||       (keys.hasAny(["dijkstra-s-algorithm"]) && validEntryOrDeleted(data, "dijkstra-s-algorithm"))
-        ||       (keys.hasAny(["print-shortest-path"]) && validEntryOrDeleted(data, "print-shortest-path"))
-        ||       (keys.hasAny(["shortest-distance-in-a-binary-maze"]) && validEntryOrDeleted(data, "shortest-distance-in-a-binary-maze"))
-        ||       (keys.hasAny(["path-with-minimum-effort"]) && validEntryOrDeleted(data, "path-with-minimum-effort"))
-        ||       (keys.hasAny(["cheapest-flight-within-k-stops"]) && validEntryOrDeleted(data, "cheapest-flight-within-k-stops"))
-        ||       (keys.hasAny(["minimum-multiplications-to-reach-end"]) && validEntryOrDeleted(data, "minimum-multiplications-to-reach-end"))
-        ||       (keys.hasAny(["number-of-ways-to-arrive-at-destination"]) && validEntryOrDeleted(data, "number-of-ways-to-arrive-at-destination"))
-        ||       (keys.hasAny(["bellman-ford-algorithm"]) && validEntryOrDeleted(data, "bellman-ford-algorithm"))
-        ||       (keys.hasAny(["floyd-warshall-algorithm"]) && validEntryOrDeleted(data, "floyd-warshall-algorithm"))
-        ||       (keys.hasAny(["find-the-city-with-the-smallest-number-of-neighbors"]) && validEntryOrDeleted(data, "find-the-city-with-the-smallest-number-of-neighbors"))
-        ||       (keys.hasAny(["network-delay-time"]) && validEntryOrDeleted(data, "network-delay-time"))
-        ||       (keys.hasAny(["swim-in-rising-water"]) && validEntryOrDeleted(data, "swim-in-rising-water"))
-        ||       (keys.hasAny(["mst-theory"]) && validEntryOrDeleted(data, "mst-theory"))
-        ||       (keys.hasAny(["disjoint-set"]) && validEntryOrDeleted(data, "disjoint-set"))
-        ||       (keys.hasAny(["find-the-mst-weight"]) && validEntryOrDeleted(data, "find-the-mst-weight"))
-        ||       (keys.hasAny(["number-of-operations-to-make-network-connected"]) && validEntryOrDeleted(data, "number-of-operations-to-make-network-connected"))
-        ||       (keys.hasAny(["accounts-merge"]) && validEntryOrDeleted(data, "accounts-merge"))
-        ||       (keys.hasAny(["number-of-islands-ii"]) && validEntryOrDeleted(data, "number-of-islands-ii"))
-        ||       (keys.hasAny(["making-a-large-island"]) && validEntryOrDeleted(data, "making-a-large-island"))
-        ||       (keys.hasAny(["most-stones-removed-with-same-row-or-column"]) && validEntryOrDeleted(data, "most-stones-removed-with-same-row-or-column"))
-        ||       (keys.hasAny(["kosaraju-s-algorithm"]) && validEntryOrDeleted(data, "kosaraju-s-algorithm"))
-        ||       (keys.hasAny(["bridges-in-graph"]) && validEntryOrDeleted(data, "bridges-in-graph"))
-        ||       (keys.hasAny(["articulation-point-in-graph"]) && validEntryOrDeleted(data, "articulation-point-in-graph"));
+      return keys.hasAny(["introduction-to-graph"]) ? validEntryOrDeleted(data, "introduction-to-graph")
+        : keys.hasAny(["traversal-techniques"]) ? validEntryOrDeleted(data, "traversal-techniques")
+        : keys.hasAny(["connected-components"]) ? validEntryOrDeleted(data, "connected-components")
+        : keys.hasAny(["number-of-provinces"]) ? validEntryOrDeleted(data, "number-of-provinces")
+        : keys.hasAny(["number-of-islands"]) ? validEntryOrDeleted(data, "number-of-islands")
+        : keys.hasAny(["flood-fill-algorithm"]) ? validEntryOrDeleted(data, "flood-fill-algorithm")
+        : keys.hasAny(["number-of-enclaves"]) ? validEntryOrDeleted(data, "number-of-enclaves")
+        : keys.hasAny(["rotten-oranges"]) ? validEntryOrDeleted(data, "rotten-oranges")
+        : keys.hasAny(["distance-of-nearest-cell-having-one"]) ? validEntryOrDeleted(data, "distance-of-nearest-cell-having-one")
+        : keys.hasAny(["surrounded-regions"]) ? validEntryOrDeleted(data, "surrounded-regions")
+        : keys.hasAny(["number-of-distinct-islands"]) ? validEntryOrDeleted(data, "number-of-distinct-islands")
+        : keys.hasAny(["detect-a-cycle-in-an-undirected-graph"]) ? validEntryOrDeleted(data, "detect-a-cycle-in-an-undirected-graph")
+        : keys.hasAny(["bipartite-graph"]) ? validEntryOrDeleted(data, "bipartite-graph")
+        : keys.hasAny(["topological-sort-or-kahn-s-algorithm"]) ? validEntryOrDeleted(data, "topological-sort-or-kahn-s-algorithm")
+        : keys.hasAny(["detect-a-cycle-in-a-directed-graph"]) ? validEntryOrDeleted(data, "detect-a-cycle-in-a-directed-graph")
+        : keys.hasAny(["find-eventual-safe-states"]) ? validEntryOrDeleted(data, "find-eventual-safe-states")
+        : keys.hasAny(["course-schedule-i"]) ? validEntryOrDeleted(data, "course-schedule-i")
+        : keys.hasAny(["course-schedule-ii"]) ? validEntryOrDeleted(data, "course-schedule-ii")
+        : keys.hasAny(["alien-dictionary"]) ? validEntryOrDeleted(data, "alien-dictionary")
+        : keys.hasAny(["shortest-path-in-dag"]) ? validEntryOrDeleted(data, "shortest-path-in-dag")
+        : keys.hasAny(["shortest-path-in-undirected-graph-with-unit-weights"]) ? validEntryOrDeleted(data, "shortest-path-in-undirected-graph-with-unit-weights")
+        : keys.hasAny(["word-ladder-i"]) ? validEntryOrDeleted(data, "word-ladder-i")
+        : keys.hasAny(["word-ladder-ii"]) ? validEntryOrDeleted(data, "word-ladder-ii")
+        : keys.hasAny(["dijkstra-s-algorithm"]) ? validEntryOrDeleted(data, "dijkstra-s-algorithm")
+        : keys.hasAny(["print-shortest-path"]) ? validEntryOrDeleted(data, "print-shortest-path")
+        : keys.hasAny(["shortest-distance-in-a-binary-maze"]) ? validEntryOrDeleted(data, "shortest-distance-in-a-binary-maze")
+        : keys.hasAny(["path-with-minimum-effort"]) ? validEntryOrDeleted(data, "path-with-minimum-effort")
+        : keys.hasAny(["cheapest-flight-within-k-stops"]) ? validEntryOrDeleted(data, "cheapest-flight-within-k-stops")
+        : keys.hasAny(["minimum-multiplications-to-reach-end"]) ? validEntryOrDeleted(data, "minimum-multiplications-to-reach-end")
+        : keys.hasAny(["number-of-ways-to-arrive-at-destination"]) ? validEntryOrDeleted(data, "number-of-ways-to-arrive-at-destination")
+        : keys.hasAny(["bellman-ford-algorithm"]) ? validEntryOrDeleted(data, "bellman-ford-algorithm")
+        : keys.hasAny(["floyd-warshall-algorithm"]) ? validEntryOrDeleted(data, "floyd-warshall-algorithm")
+        : keys.hasAny(["find-the-city-with-the-smallest-number-of-neighbors"]) ? validEntryOrDeleted(data, "find-the-city-with-the-smallest-number-of-neighbors")
+        : keys.hasAny(["network-delay-time"]) ? validEntryOrDeleted(data, "network-delay-time")
+        : keys.hasAny(["swim-in-rising-water"]) ? validEntryOrDeleted(data, "swim-in-rising-water")
+        : keys.hasAny(["mst-theory"]) ? validEntryOrDeleted(data, "mst-theory")
+        : keys.hasAny(["disjoint-set"]) ? validEntryOrDeleted(data, "disjoint-set")
+        : keys.hasAny(["find-the-mst-weight"]) ? validEntryOrDeleted(data, "find-the-mst-weight")
+        : keys.hasAny(["number-of-operations-to-make-network-connected"]) ? validEntryOrDeleted(data, "number-of-operations-to-make-network-connected")
+        : keys.hasAny(["accounts-merge"]) ? validEntryOrDeleted(data, "accounts-merge")
+        : keys.hasAny(["number-of-islands-ii"]) ? validEntryOrDeleted(data, "number-of-islands-ii")
+        : keys.hasAny(["making-a-large-island"]) ? validEntryOrDeleted(data, "making-a-large-island")
+        : keys.hasAny(["most-stones-removed-with-same-row-or-column"]) ? validEntryOrDeleted(data, "most-stones-removed-with-same-row-or-column")
+        : keys.hasAny(["kosaraju-s-algorithm"]) ? validEntryOrDeleted(data, "kosaraju-s-algorithm")
+        : keys.hasAny(["bridges-in-graph"]) ? validEntryOrDeleted(data, "bridges-in-graph")
+        : keys.hasAny(["articulation-point-in-graph"]) ? validEntryOrDeleted(data, "articulation-point-in-graph")
+        : false;
     }
 
     function validChangedEntry_dynamic_programming(data, keys) {
-      return       (keys.hasAny(["introduction-to-dp"]) && validEntryOrDeleted(data, "introduction-to-dp"))
-        ||       (keys.hasAny(["climbing-stairs"]) && validEntryOrDeleted(data, "climbing-stairs"))
-        ||       (keys.hasAny(["frog-jump"]) && validEntryOrDeleted(data, "frog-jump"))
-        ||       (keys.hasAny(["frog-jump-with-k-distances"]) && validEntryOrDeleted(data, "frog-jump-with-k-distances"))
-        ||       (keys.hasAny(["maximum-sum-of-non-adjacent-elements"]) && validEntryOrDeleted(data, "maximum-sum-of-non-adjacent-elements"))
-        ||       (keys.hasAny(["house-robber"]) && validEntryOrDeleted(data, "house-robber"))
-        ||       (keys.hasAny(["ninja-s-training"]) && validEntryOrDeleted(data, "ninja-s-training"))
-        ||       (keys.hasAny(["grid-unique-paths"]) && validEntryOrDeleted(data, "grid-unique-paths"))
-        ||       (keys.hasAny(["unique-paths-ii"]) && validEntryOrDeleted(data, "unique-paths-ii"))
-        ||       (keys.hasAny(["minimum-falling-path-sum"]) && validEntryOrDeleted(data, "minimum-falling-path-sum"))
-        ||       (keys.hasAny(["triangle"]) && validEntryOrDeleted(data, "triangle"))
-        ||       (keys.hasAny(["cherry-pickup-ii"]) && validEntryOrDeleted(data, "cherry-pickup-ii"))
-        ||       (keys.hasAny(["count-square-submatrices-with-all-ones"]) && validEntryOrDeleted(data, "count-square-submatrices-with-all-ones"))
-        ||       (keys.hasAny(["best-time-to-buy-and-sell-stock"]) && validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock"))
-        ||       (keys.hasAny(["best-time-to-buy-and-sell-stock-ii"]) && validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock-ii"))
-        ||       (keys.hasAny(["best-time-to-buy-and-sell-stock-iii"]) && validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock-iii"))
-        ||       (keys.hasAny(["best-time-to-buy-and-sell-stock-iv"]) && validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock-iv"))
-        ||       (keys.hasAny(["best-time-to-buy-and-sell-stock-with-transaction-fees"]) && validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock-with-transaction-fees"))
-        ||       (keys.hasAny(["best-time-to-buy-and-sell-stock-with-cooldown"]) && validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock-with-cooldown"))
-        ||       (keys.hasAny(["subset-sum-equals-to-target"]) && validEntryOrDeleted(data, "subset-sum-equals-to-target"))
-        ||       (keys.hasAny(["partition-equal-subset-sum"]) && validEntryOrDeleted(data, "partition-equal-subset-sum"))
-        ||       (keys.hasAny(["partition-a-set-into-two-subsets-with-minimum-absolute-sum-difference"]) && validEntryOrDeleted(data, "partition-a-set-into-two-subsets-with-minimum-absolute-sum-difference"))
-        ||       (keys.hasAny(["count-subsets-with-sum-k"]) && validEntryOrDeleted(data, "count-subsets-with-sum-k"))
-        ||       (keys.hasAny(["count-partitions-with-given-difference"]) && validEntryOrDeleted(data, "count-partitions-with-given-difference"))
-        ||       (keys.hasAny(["0-and-1-knapsack"]) && validEntryOrDeleted(data, "0-and-1-knapsack"))
-        ||       (keys.hasAny(["minimum-coins"]) && validEntryOrDeleted(data, "minimum-coins"))
-        ||       (keys.hasAny(["target-sum"]) && validEntryOrDeleted(data, "target-sum"))
-        ||       (keys.hasAny(["coin-change-ii"]) && validEntryOrDeleted(data, "coin-change-ii"))
-        ||       (keys.hasAny(["unbounded-knapsack"]) && validEntryOrDeleted(data, "unbounded-knapsack"))
-        ||       (keys.hasAny(["rod-cutting-problem"]) && validEntryOrDeleted(data, "rod-cutting-problem"))
-        ||       (keys.hasAny(["longest-increasing-subsequence"]) && validEntryOrDeleted(data, "longest-increasing-subsequence"))
-        ||       (keys.hasAny(["print-longest-increasing-subsequence"]) && validEntryOrDeleted(data, "print-longest-increasing-subsequence"))
-        ||       (keys.hasAny(["largest-divisible-subset"]) && validEntryOrDeleted(data, "largest-divisible-subset"))
-        ||       (keys.hasAny(["longest-string-chain"]) && validEntryOrDeleted(data, "longest-string-chain"))
-        ||       (keys.hasAny(["longest-bitonic-subsequence"]) && validEntryOrDeleted(data, "longest-bitonic-subsequence"))
-        ||       (keys.hasAny(["number-of-longest-increasing-subsequences"]) && validEntryOrDeleted(data, "number-of-longest-increasing-subsequences"))
-        ||       (keys.hasAny(["longest-common-subsequence"]) && validEntryOrDeleted(data, "longest-common-subsequence"))
-        ||       (keys.hasAny(["longest-common-substring"]) && validEntryOrDeleted(data, "longest-common-substring"))
-        ||       (keys.hasAny(["longest-palindromic-subsequence"]) && validEntryOrDeleted(data, "longest-palindromic-subsequence"))
-        ||       (keys.hasAny(["minimum-insertions-to-make-string-palindrome"]) && validEntryOrDeleted(data, "minimum-insertions-to-make-string-palindrome"))
-        ||       (keys.hasAny(["minimum-insertions-or-deletions-to-convert-string-a-to-b"]) && validEntryOrDeleted(data, "minimum-insertions-or-deletions-to-convert-string-a-to-b"))
-        ||       (keys.hasAny(["shortest-common-supersequence"]) && validEntryOrDeleted(data, "shortest-common-supersequence"))
-        ||       (keys.hasAny(["distinct-subsequences"]) && validEntryOrDeleted(data, "distinct-subsequences"))
-        ||       (keys.hasAny(["edit-distance"]) && validEntryOrDeleted(data, "edit-distance"))
-        ||       (keys.hasAny(["wildcard-matching"]) && validEntryOrDeleted(data, "wildcard-matching"))
-        ||       (keys.hasAny(["word-break"]) && validEntryOrDeleted(data, "word-break"))
-        ||       (keys.hasAny(["count-palindromic-subsequences"]) && validEntryOrDeleted(data, "count-palindromic-subsequences"))
-        ||       (keys.hasAny(["matrix-chain-multiplication"]) && validEntryOrDeleted(data, "matrix-chain-multiplication"))
-        ||       (keys.hasAny(["burst-balloons"]) && validEntryOrDeleted(data, "burst-balloons"))
-        ||       (keys.hasAny(["palindrome-partitioning-ii"]) && validEntryOrDeleted(data, "palindrome-partitioning-ii"))
-        ||       (keys.hasAny(["partition-array-for-maximum-sum"]) && validEntryOrDeleted(data, "partition-array-for-maximum-sum"))
-        ||       (keys.hasAny(["minimum-cost-to-cut-the-stick"]) && validEntryOrDeleted(data, "minimum-cost-to-cut-the-stick"))
-        ||       (keys.hasAny(["different-ways-to-evaluate-a-boolean-expression"]) && validEntryOrDeleted(data, "different-ways-to-evaluate-a-boolean-expression"));
+      return keys.hasAny(["introduction-to-dp"]) ? validEntryOrDeleted(data, "introduction-to-dp")
+        : keys.hasAny(["climbing-stairs"]) ? validEntryOrDeleted(data, "climbing-stairs")
+        : keys.hasAny(["frog-jump"]) ? validEntryOrDeleted(data, "frog-jump")
+        : keys.hasAny(["frog-jump-with-k-distances"]) ? validEntryOrDeleted(data, "frog-jump-with-k-distances")
+        : keys.hasAny(["maximum-sum-of-non-adjacent-elements"]) ? validEntryOrDeleted(data, "maximum-sum-of-non-adjacent-elements")
+        : keys.hasAny(["house-robber"]) ? validEntryOrDeleted(data, "house-robber")
+        : keys.hasAny(["ninja-s-training"]) ? validEntryOrDeleted(data, "ninja-s-training")
+        : keys.hasAny(["grid-unique-paths"]) ? validEntryOrDeleted(data, "grid-unique-paths")
+        : keys.hasAny(["unique-paths-ii"]) ? validEntryOrDeleted(data, "unique-paths-ii")
+        : keys.hasAny(["minimum-falling-path-sum"]) ? validEntryOrDeleted(data, "minimum-falling-path-sum")
+        : keys.hasAny(["triangle"]) ? validEntryOrDeleted(data, "triangle")
+        : keys.hasAny(["cherry-pickup-ii"]) ? validEntryOrDeleted(data, "cherry-pickup-ii")
+        : keys.hasAny(["count-square-submatrices-with-all-ones"]) ? validEntryOrDeleted(data, "count-square-submatrices-with-all-ones")
+        : keys.hasAny(["best-time-to-buy-and-sell-stock"]) ? validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock")
+        : keys.hasAny(["best-time-to-buy-and-sell-stock-ii"]) ? validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock-ii")
+        : keys.hasAny(["best-time-to-buy-and-sell-stock-iii"]) ? validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock-iii")
+        : keys.hasAny(["best-time-to-buy-and-sell-stock-iv"]) ? validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock-iv")
+        : keys.hasAny(["best-time-to-buy-and-sell-stock-with-transaction-fees"]) ? validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock-with-transaction-fees")
+        : keys.hasAny(["best-time-to-buy-and-sell-stock-with-cooldown"]) ? validEntryOrDeleted(data, "best-time-to-buy-and-sell-stock-with-cooldown")
+        : keys.hasAny(["subset-sum-equals-to-target"]) ? validEntryOrDeleted(data, "subset-sum-equals-to-target")
+        : keys.hasAny(["partition-equal-subset-sum"]) ? validEntryOrDeleted(data, "partition-equal-subset-sum")
+        : keys.hasAny(["partition-a-set-into-two-subsets-with-minimum-absolute-sum-difference"]) ? validEntryOrDeleted(data, "partition-a-set-into-two-subsets-with-minimum-absolute-sum-difference")
+        : keys.hasAny(["count-subsets-with-sum-k"]) ? validEntryOrDeleted(data, "count-subsets-with-sum-k")
+        : keys.hasAny(["count-partitions-with-given-difference"]) ? validEntryOrDeleted(data, "count-partitions-with-given-difference")
+        : keys.hasAny(["0-and-1-knapsack"]) ? validEntryOrDeleted(data, "0-and-1-knapsack")
+        : keys.hasAny(["minimum-coins"]) ? validEntryOrDeleted(data, "minimum-coins")
+        : keys.hasAny(["target-sum"]) ? validEntryOrDeleted(data, "target-sum")
+        : keys.hasAny(["coin-change-ii"]) ? validEntryOrDeleted(data, "coin-change-ii")
+        : keys.hasAny(["unbounded-knapsack"]) ? validEntryOrDeleted(data, "unbounded-knapsack")
+        : keys.hasAny(["rod-cutting-problem"]) ? validEntryOrDeleted(data, "rod-cutting-problem")
+        : keys.hasAny(["longest-increasing-subsequence"]) ? validEntryOrDeleted(data, "longest-increasing-subsequence")
+        : keys.hasAny(["print-longest-increasing-subsequence"]) ? validEntryOrDeleted(data, "print-longest-increasing-subsequence")
+        : keys.hasAny(["largest-divisible-subset"]) ? validEntryOrDeleted(data, "largest-divisible-subset")
+        : keys.hasAny(["longest-string-chain"]) ? validEntryOrDeleted(data, "longest-string-chain")
+        : keys.hasAny(["longest-bitonic-subsequence"]) ? validEntryOrDeleted(data, "longest-bitonic-subsequence")
+        : keys.hasAny(["number-of-longest-increasing-subsequences"]) ? validEntryOrDeleted(data, "number-of-longest-increasing-subsequences")
+        : keys.hasAny(["longest-common-subsequence"]) ? validEntryOrDeleted(data, "longest-common-subsequence")
+        : keys.hasAny(["longest-common-substring"]) ? validEntryOrDeleted(data, "longest-common-substring")
+        : keys.hasAny(["longest-palindromic-subsequence"]) ? validEntryOrDeleted(data, "longest-palindromic-subsequence")
+        : keys.hasAny(["minimum-insertions-to-make-string-palindrome"]) ? validEntryOrDeleted(data, "minimum-insertions-to-make-string-palindrome")
+        : keys.hasAny(["minimum-insertions-or-deletions-to-convert-string-a-to-b"]) ? validEntryOrDeleted(data, "minimum-insertions-or-deletions-to-convert-string-a-to-b")
+        : keys.hasAny(["shortest-common-supersequence"]) ? validEntryOrDeleted(data, "shortest-common-supersequence")
+        : keys.hasAny(["distinct-subsequences"]) ? validEntryOrDeleted(data, "distinct-subsequences")
+        : keys.hasAny(["edit-distance"]) ? validEntryOrDeleted(data, "edit-distance")
+        : keys.hasAny(["wildcard-matching"]) ? validEntryOrDeleted(data, "wildcard-matching")
+        : keys.hasAny(["word-break"]) ? validEntryOrDeleted(data, "word-break")
+        : keys.hasAny(["count-palindromic-subsequences"]) ? validEntryOrDeleted(data, "count-palindromic-subsequences")
+        : keys.hasAny(["matrix-chain-multiplication"]) ? validEntryOrDeleted(data, "matrix-chain-multiplication")
+        : keys.hasAny(["burst-balloons"]) ? validEntryOrDeleted(data, "burst-balloons")
+        : keys.hasAny(["palindrome-partitioning-ii"]) ? validEntryOrDeleted(data, "palindrome-partitioning-ii")
+        : keys.hasAny(["partition-array-for-maximum-sum"]) ? validEntryOrDeleted(data, "partition-array-for-maximum-sum")
+        : keys.hasAny(["minimum-cost-to-cut-the-stick"]) ? validEntryOrDeleted(data, "minimum-cost-to-cut-the-stick")
+        : keys.hasAny(["different-ways-to-evaluate-a-boolean-expression"]) ? validEntryOrDeleted(data, "different-ways-to-evaluate-a-boolean-expression")
+        : false;
     }
 
     function validChangedEntry_tries(data, keys) {
-      return       (keys.hasAny(["bit-prerequisites-for-trie-problems"]) && validEntryOrDeleted(data, "bit-prerequisites-for-trie-problems"))
-        ||       (keys.hasAny(["trie-implementation-and-operations"]) && validEntryOrDeleted(data, "trie-implementation-and-operations"))
-        ||       (keys.hasAny(["trie-implementation-and-advanced-operations"]) && validEntryOrDeleted(data, "trie-implementation-and-advanced-operations"))
-        ||       (keys.hasAny(["longest-word-with-all-prefixes"]) && validEntryOrDeleted(data, "longest-word-with-all-prefixes"))
-        ||       (keys.hasAny(["number-of-distinct-substrings-in-a-string"]) && validEntryOrDeleted(data, "number-of-distinct-substrings-in-a-string"))
-        ||       (keys.hasAny(["maximum-xor-of-two-numbers-in-an-array"]) && validEntryOrDeleted(data, "maximum-xor-of-two-numbers-in-an-array"))
-        ||       (keys.hasAny(["maximum-xor-with-an-element-from-an-array"]) && validEntryOrDeleted(data, "maximum-xor-with-an-element-from-an-array"));
+      return keys.hasAny(["bit-prerequisites-for-trie-problems"]) ? validEntryOrDeleted(data, "bit-prerequisites-for-trie-problems")
+        : keys.hasAny(["trie-implementation-and-operations"]) ? validEntryOrDeleted(data, "trie-implementation-and-operations")
+        : keys.hasAny(["trie-implementation-and-advanced-operations"]) ? validEntryOrDeleted(data, "trie-implementation-and-advanced-operations")
+        : keys.hasAny(["longest-word-with-all-prefixes"]) ? validEntryOrDeleted(data, "longest-word-with-all-prefixes")
+        : keys.hasAny(["number-of-distinct-substrings-in-a-string"]) ? validEntryOrDeleted(data, "number-of-distinct-substrings-in-a-string")
+        : keys.hasAny(["maximum-xor-of-two-numbers-in-an-array"]) ? validEntryOrDeleted(data, "maximum-xor-of-two-numbers-in-an-array")
+        : keys.hasAny(["maximum-xor-with-an-element-from-an-array"]) ? validEntryOrDeleted(data, "maximum-xor-with-an-element-from-an-array")
+        : false;
     }
 
     function validChangedEntry_strings_advanced_algo(data, keys) {
-      return       (keys.hasAny(["reverse-every-word-in-a-string"]) && validEntryOrDeleted(data, "reverse-every-word-in-a-string"))
-        ||       (keys.hasAny(["minimum-number-of-bracket-reversals-to-make-an-expression-balanced"]) && validEntryOrDeleted(data, "minimum-number-of-bracket-reversals-to-make-an-expression-balanced"))
-        ||       (keys.hasAny(["count-and-say"]) && validEntryOrDeleted(data, "count-and-say"))
-        ||       (keys.hasAny(["hashing-in-strings-theory"]) && validEntryOrDeleted(data, "hashing-in-strings-theory"))
-        ||       (keys.hasAny(["rabin-karp-algorithm"]) && validEntryOrDeleted(data, "rabin-karp-algorithm"))
-        ||       (keys.hasAny(["z-function"]) && validEntryOrDeleted(data, "z-function"))
-        ||       (keys.hasAny(["kmp-algorithm-or-lps-array"]) && validEntryOrDeleted(data, "kmp-algorithm-or-lps-array"))
-        ||       (keys.hasAny(["shortest-palindrome"]) && validEntryOrDeleted(data, "shortest-palindrome"))
-        ||       (keys.hasAny(["longest-happy-prefix"]) && validEntryOrDeleted(data, "longest-happy-prefix"));
+      return keys.hasAny(["reverse-every-word-in-a-string"]) ? validEntryOrDeleted(data, "reverse-every-word-in-a-string")
+        : keys.hasAny(["minimum-number-of-bracket-reversals-to-make-an-expression-balanced"]) ? validEntryOrDeleted(data, "minimum-number-of-bracket-reversals-to-make-an-expression-balanced")
+        : keys.hasAny(["count-and-say"]) ? validEntryOrDeleted(data, "count-and-say")
+        : keys.hasAny(["hashing-in-strings-theory"]) ? validEntryOrDeleted(data, "hashing-in-strings-theory")
+        : keys.hasAny(["rabin-karp-algorithm"]) ? validEntryOrDeleted(data, "rabin-karp-algorithm")
+        : keys.hasAny(["z-function"]) ? validEntryOrDeleted(data, "z-function")
+        : keys.hasAny(["kmp-algorithm-or-lps-array"]) ? validEntryOrDeleted(data, "kmp-algorithm-or-lps-array")
+        : keys.hasAny(["shortest-palindrome"]) ? validEntryOrDeleted(data, "shortest-palindrome")
+        : keys.hasAny(["longest-happy-prefix"]) ? validEntryOrDeleted(data, "longest-happy-prefix")
+        : false;
     }
 
     function validChangedEntry_maths(data, keys) {
-      return       (keys.hasAny(["print-all-primes-till-n"]) && validEntryOrDeleted(data, "print-all-primes-till-n"))
-        ||       (keys.hasAny(["prime-factorisation-of-a-number"]) && validEntryOrDeleted(data, "prime-factorisation-of-a-number"))
-        ||       (keys.hasAny(["count-primes-in-range-l-to-r"]) && validEntryOrDeleted(data, "count-primes-in-range-l-to-r"));
+      return keys.hasAny(["print-all-primes-till-n"]) ? validEntryOrDeleted(data, "print-all-primes-till-n")
+        : keys.hasAny(["prime-factorisation-of-a-number"]) ? validEntryOrDeleted(data, "prime-factorisation-of-a-number")
+        : keys.hasAny(["count-primes-in-range-l-to-r"]) ? validEntryOrDeleted(data, "count-primes-in-range-l-to-r")
+        : false;
     }
 
     function validProgressWrite_beginner_problems(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["breaking-the-myth", "programming-and-what-are-computers", "how-to-think-like-a-programmer", "flowcharts-and-pseudocode", "flowchart-problem-solving", "dry-runs-edge-cases-and-debugging", "programming-languages-and-choosing-a-path", "learn-c", "learn-java", "learn-python", "easy-and-medium", "hard", "pattern-1", "pattern-2", "pattern-3", "pattern-4", "pattern-5", "pattern-6", "pattern-7", "pattern-8", "pattern-9", "pattern-10", "pattern-11", "pattern-12", "pattern-13", "pattern-14", "pattern-15", "pattern-16", "pattern-17", "pattern-18", "pattern-19", "pattern-20", "pattern-21", "pattern-22", "theory-with-examples", "stl", "java-collections", "python-libraries-part-1", "python-libraries-part-2", "basic-maths", "basic-arrays", "basic-hashing", "basic-string", "count-all-digits-of-a-number", "count-number-of-odd-digits-in-a-number", "reverse-a-number", "palindrome-number", "return-the-largest-digit-in-a-number", "factorial-of-a-given-number", "check-if-the-number-is-armstrong", "check-for-perfect-number", "check-for-prime-number", "count-of-prime-numbers-till-n", "gcd-of-two-numbers", "lcm-of-two-numbers", "divisors-of-a-number", "sum-of-array-elements", "count-of-odd-numbers-in-array", "check-if-the-array-is-sorted-i", "reverse-an-array", "highest-occurring-element-in-an-array", "second-highest-occurring-element", "sum-of-highest-and-lowest-frequency", "reverse-a-string-ii", "palindrome-check", "largest-odd-number-in-a-string", "longest-common-prefix", "isomorphic-strings", "rotate-string", "valid-anagram", "sort-characters-by-frequency", "recursion-theory", "recursion-concepts-with-parameters", "sum-of-first-n-numbers", "factorial-of-a-given-number-2", "sum-of-array-elements-ii", "reverse-a-string-i", "check-if-string-is-palindrome-or-not", "check-if-a-number-is-prime-or-not", "reverse-an-array-2", "check-if-the-array-is-sorted-ii", "sum-of-digits-in-a-given-number", "fibonacci-number"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_beginner_problems(data, entriesChanged);
@@ -632,11 +653,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["selection-sort", "bubble-sort", "insertion-sorting", "merge-sorting", "quick-sorting", "recursive-bubble-sort", "recursive-insertion-sort"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_sorting(data, entriesChanged);
@@ -646,11 +668,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["linear-search", "largest-element", "second-largest-element", "maximum-consecutive-ones", "left-rotate-array-by-one", "left-rotate-array-by-k-places", "move-zeros-to-end", "remove-duplicates-from-sorted-array", "find-missing-number", "union-of-two-sorted-arrays", "intersection-of-two-sorted-arrays", "majority-element-i", "leaders-in-an-array", "rearrange-array-elements-by-sign", "print-the-matrix-in-spiral-manner", "pascal-s-triangle-i", "pascal-s-triangle-ii", "pascal-s-triangle-iii", "rotate-matrix-by-90-degrees", "set-matrix-zeroes", "two-sum", "3-sum", "4-sum", "sort-an-array-of-0-s-1-s-and-2-s", "kadane-s-algorithm", "next-permutation", "majority-element-ii", "find-the-repeating-and-missing-number", "count-inversions", "reverse-pairs", "maximum-product-subarray-in-an-array", "merge-two-sorted-arrays-without-extra-space"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_arrays(data, entriesChanged);
@@ -660,11 +683,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["basic-hashing-2", "longest-consecutive-sequence-in-an-array", "longest-subarray-with-sum-k", "largest-subarray-with-sum-0", "count-subarrays-with-given-sum", "count-subarrays-with-given-xor-k"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_hashing(data, entriesChanged);
@@ -674,11 +698,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["search-x-in-sorted-array", "lower-bound", "upper-bound", "search-insert-position", "floor-and-ceil-in-sorted-array", "first-and-last-occurrence", "search-in-rotated-sorted-array-i", "search-in-rotated-sorted-array-ii", "find-minimum-in-rotated-sorted-array", "find-out-how-many-times-the-array-is-rotated", "single-element-in-sorted-array", "count-occurrences-in-a-sorted-array", "find-square-root-of-a-number", "find-nth-root-of-a-number", "find-the-smallest-divisor", "koko-eating-bananas", "minimum-days-to-make-m-bouquets", "capacity-to-ship-packages-within-d-days", "kth-missing-positive-number", "painter-s-partition", "aggressive-cows", "book-allocation-problem", "find-peak-element", "median-of-2-sorted-arrays", "kth-element-of-2-sorted-arrays", "minimize-max-distance-to-gas-station", "split-array-largest-sum", "find-row-with-maximum-1-s", "search-in-a-2d-matrix", "search-in-2d-matrix-ii", "find-peak-element-ii", "matrix-median"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_binary_search(data, entriesChanged);
@@ -688,11 +713,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["remove-outermost-parentheses", "maximum-nesting-depth-of-the-parentheses", "roman-to-integer", "string-to-integer-atoi", "count-number-of-substrings", "longest-palindromic-substring", "sum-of-beauty-of-all-substrings"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_strings_basic_and_medium(data, entriesChanged);
@@ -702,11 +728,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["pow-x-n", "generate-parentheses", "power-set", "count-good-numbers", "reverse-a-stack", "learn-all-patterns-of-subsequences-theory", "check-if-there-exists-a-subsequence-with-sum-k", "count-all-subsequences-with-sum-k", "generate-binary-strings-without-consecutive-1s", "combination-sum", "combination-sum-ii", "subsets-i", "subsets-ii", "combination-sum-iii", "letter-combinations-of-a-phone-number", "palindrome-partitioning", "word-search", "n-queen", "rat-in-a-maze", "m-coloring-problem", "sudoku-solver", "expression-add-operators"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_recursion(data, entriesChanged);
@@ -716,11 +743,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["introduction-to-singly-linkedlist", "traversal-in-linked-list", "deletion-in-linked-list", "insertion-in-linked-list", "deletion-of-the-head-of-ll", "deletion-of-the-tail-of-linked-list", "deletion-of-the-kth-element-of-linked-list", "delete-the-element-with-value-x", "insertion-at-the-head-of-linked-list", "insertion-at-the-tail-of-linked-list", "insertion-at-the-kth-position-of-linked-list", "insertion-before-the-value-x-in-linked-list", "find-the-length-of-the-linked-list", "search-in-linked-list", "introduction-to-doubly-ll", "deletion-in-doubly-ll", "insertion-in-dll", "convert-array-to-doubly-linked-list", "delete-tail-of-doubly-linked-list", "delete-kth-element-of-doubly-linked-list", "removing-given-node-in-doubly-linked-list", "insert-node-before-head-in-doubly-linked-list", "insert-node-before-tail-in-doubly-linked-list", "insert-node-before-kth-node-in-doubly-linked-list", "insert-before-given-node-in-doubly-linked-list", "delete-head-of-doubly-linked-list", "reverse-a-doubly-linked-list", "add-two-numbers-in-linked-list", "segregate-odd-and-even-nodes-in-linked-list", "sort-a-linked-list-of-0-s-1-s-and-2-s", "remove-nth-node-from-the-back-of-the-ll", "reverse-a-ll", "add-one-to-a-number-represented-by-ll", "find-middle-of-linked-list", "delete-the-middle-node-in-ll", "check-if-ll-is-palindrome-or-not", "find-the-intersection-point-of-y-ll", "detect-a-loop-in-ll", "find-the-starting-point-in-ll", "length-of-loop-in-ll", "reverse-ll-in-group-of-given-size-k", "rotate-a-ll", "merge-two-sorted-lists", "flattening-of-ll", "sort-ll", "clone-a-ll-with-random-and-next-pointer", "delete-all-occurrences-of-a-key-in-dll", "remove-duplicates-from-sorted-dll", "find-pairs-with-given-sum-in-doubly-linked-list"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_linked_list(data, entriesChanged);
@@ -730,11 +758,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["introduction-to-bits-and-tricks", "check-if-the-i-th-bit-is-set-or-not", "check-if-a-number-is-odd-or-not", "check-if-a-number-is-power-of-2-or-not", "count-the-number-of-set-bits", "set-the-rightmost-unset-bit", "swap-two-numbers", "minimum-bit-flips-to-convert-number", "single-number-i", "single-number-ii", "single-number-iii", "divide-two-numbers-without-multiplication-and-division", "power-set-bit-manipulation", "xor-of-numbers-in-a-given-range"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_bit_manipulation(data, entriesChanged);
@@ -744,11 +773,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["assign-cookies", "lemonade-change", "fractional-knapsack", "jump-game-i", "shortest-job-first", "job-sequencing-problem", "n-meetings-in-one-room", "non-overlapping-intervals", "insert-interval", "merge-intervals", "minimum-number-of-platforms-required-for-a-railway", "valid-parenthesis-checker", "candy", "jump-game-ii"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_greedy_algorithms(data, entriesChanged);
@@ -758,11 +788,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["theory", "maximum-points-you-can-obtain-from-cards", "longest-substring-without-repeating-characters", "max-consecutive-ones-iii", "fruit-into-baskets", "longest-substring-with-at-most-k-distinct-characters", "longest-repeating-character-replacement", "minimum-window-substring", "minimum-window-subsequence", "number-of-substrings-containing-all-three-characters", "binary-subarrays-with-sum", "count-number-of-nice-subarrays", "subarrays-with-k-different-integers"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_sliding_window_2_pointer(data, entriesChanged);
@@ -772,11 +803,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["implementation-using-different-ds", "implement-stack-using-arrays", "implement-queue-using-arrays", "implement-stack-using-queue", "implement-queue-using-stack", "implement-stack-using-linkedlist", "implement-queue-using-linkedlist", "balanced-paranthesis", "infix-to-postfix-conversion", "infix-to-prefix-conversion", "prefix-to-infix-conversion", "prefix-to-postfix-conversion", "postfix-to-infix-conversion", "postfix-to-prefix-conversion", "next-greater-element", "next-greater-element-2", "asteroid-collision", "sum-of-subarray-minimums", "sum-of-subarray-ranges", "remove-k-digits", "next-smaller-element", "implement-min-stack", "sliding-window-maximum", "trapping-rainwater", "largest-rectangle-in-a-histogram", "maximum-rectangles", "stock-span-problem", "celebrity-problem", "lru-cache", "lfu-cache", "number-of-greater-elements-to-the-right"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_stack_queues(data, entriesChanged);
@@ -786,11 +818,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["introduction", "inorder-traversal", "preorder-traversal", "postorder-traversal", "level-order-traversal", "pre-post-inorder-in-one-traversal", "maximum-depth-in-bt", "check-if-two-trees-are-identical-or-not", "check-for-balanced-binary-tree", "diameter-of-binary-tree", "maximum-path-sum", "check-for-symmetrical-bts", "children-sum-property-in-binary-tree", "zig-zag-or-spiral-traversal", "boundary-traversal", "vertical-order-traversal", "top-view-of-bt", "bottom-view-of-bt", "right-left-view-of-bt", "print-root-to-leaf-path-in-bt", "lca-in-bt", "maximum-width-of-bt", "print-all-nodes-at-a-distance-of-k-in-bt", "minimum-time-taken-to-burn-the-bt-from-a-given-node", "count-total-nodes-in-a-complete-bt", "flatten-binary-tree-to-linked-list", "requirements-needed-to-construct-a-unique-bt", "construct-a-bt-from-preorder-and-inorder", "construct-a-bt-from-postorder-and-inorder", "serialize-and-de-serialize-bt", "morris-inorder-traversal", "morris-preorder-traversal"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_binary_trees(data, entriesChanged);
@@ -800,11 +833,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["introduction-to-bst", "search-in-bst", "floor-and-ceil-in-a-bst", "minimum-and-maximum-in-bst", "insert-a-given-node-in-bst", "delete-a-node-in-bst", "kth-smallest-and-largest-element-in-bst", "check-if-a-tree-is-a-bst-or-not", "lca-in-bst", "construct-a-bst-from-a-preorder-traversal", "inorder-successor-and-predecessor-in-bst", "bst-iterator", "two-sum-in-bst", "correct-bst-with-two-nodes-swapped", "largest-bst-in-binary-tree"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_binary_search_trees(data, entriesChanged);
@@ -814,11 +848,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["heaps-theory-video", "heapify-algorithm", "build-heap-from-a-given-array", "implement-min-heap", "implement-max-heap", "check-if-an-array-represents-a-min-heap", "convert-min-heap-to-max-heap", "heap-sort", "k-th-largest-element-in-an-array", "kth-largest-element-in-a-stream-of-running-integers", "sort-a-k-sorted-array", "merge-k-sorted-lists", "replace-elements-by-their-rank", "task-scheduler", "hand-of-straights", "design-twitter", "minimum-cost-to-connect-sticks", "maximum-sum-combination", "find-median-from-data-stream", "top-k-frequent-elements"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_heaps(data, entriesChanged);
@@ -828,11 +863,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["introduction-to-graph", "traversal-techniques", "connected-components", "number-of-provinces", "number-of-islands", "flood-fill-algorithm", "number-of-enclaves", "rotten-oranges", "distance-of-nearest-cell-having-one", "surrounded-regions", "number-of-distinct-islands", "detect-a-cycle-in-an-undirected-graph", "bipartite-graph", "topological-sort-or-kahn-s-algorithm", "detect-a-cycle-in-a-directed-graph", "find-eventual-safe-states", "course-schedule-i", "course-schedule-ii", "alien-dictionary", "shortest-path-in-dag", "shortest-path-in-undirected-graph-with-unit-weights", "word-ladder-i", "word-ladder-ii", "dijkstra-s-algorithm", "print-shortest-path", "shortest-distance-in-a-binary-maze", "path-with-minimum-effort", "cheapest-flight-within-k-stops", "minimum-multiplications-to-reach-end", "number-of-ways-to-arrive-at-destination", "bellman-ford-algorithm", "floyd-warshall-algorithm", "find-the-city-with-the-smallest-number-of-neighbors", "network-delay-time", "swim-in-rising-water", "mst-theory", "disjoint-set", "find-the-mst-weight", "number-of-operations-to-make-network-connected", "accounts-merge", "number-of-islands-ii", "making-a-large-island", "most-stones-removed-with-same-row-or-column", "kosaraju-s-algorithm", "bridges-in-graph", "articulation-point-in-graph"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_graphs(data, entriesChanged);
@@ -842,11 +878,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["introduction-to-dp", "climbing-stairs", "frog-jump", "frog-jump-with-k-distances", "maximum-sum-of-non-adjacent-elements", "house-robber", "ninja-s-training", "grid-unique-paths", "unique-paths-ii", "minimum-falling-path-sum", "triangle", "cherry-pickup-ii", "count-square-submatrices-with-all-ones", "best-time-to-buy-and-sell-stock", "best-time-to-buy-and-sell-stock-ii", "best-time-to-buy-and-sell-stock-iii", "best-time-to-buy-and-sell-stock-iv", "best-time-to-buy-and-sell-stock-with-transaction-fees", "best-time-to-buy-and-sell-stock-with-cooldown", "subset-sum-equals-to-target", "partition-equal-subset-sum", "partition-a-set-into-two-subsets-with-minimum-absolute-sum-difference", "count-subsets-with-sum-k", "count-partitions-with-given-difference", "0-and-1-knapsack", "minimum-coins", "target-sum", "coin-change-ii", "unbounded-knapsack", "rod-cutting-problem", "longest-increasing-subsequence", "print-longest-increasing-subsequence", "largest-divisible-subset", "longest-string-chain", "longest-bitonic-subsequence", "number-of-longest-increasing-subsequences", "longest-common-subsequence", "longest-common-substring", "longest-palindromic-subsequence", "minimum-insertions-to-make-string-palindrome", "minimum-insertions-or-deletions-to-convert-string-a-to-b", "shortest-common-supersequence", "distinct-subsequences", "edit-distance", "wildcard-matching", "word-break", "count-palindromic-subsequences", "matrix-chain-multiplication", "burst-balloons", "palindrome-partitioning-ii", "partition-array-for-maximum-sum", "minimum-cost-to-cut-the-stick", "different-ways-to-evaluate-a-boolean-expression"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_dynamic_programming(data, entriesChanged);
@@ -856,11 +893,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["bit-prerequisites-for-trie-problems", "trie-implementation-and-operations", "trie-implementation-and-advanced-operations", "longest-word-with-all-prefixes", "number-of-distinct-substrings-in-a-string", "maximum-xor-of-two-numbers-in-an-array", "maximum-xor-with-an-element-from-an-array"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_tries(data, entriesChanged);
@@ -870,11 +908,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["reverse-every-word-in-a-string", "minimum-number-of-bracket-reversals-to-make-an-expression-balanced", "count-and-say", "hashing-in-strings-theory", "rabin-karp-algorithm", "z-function", "kmp-algorithm-or-lps-array", "shortest-palindrome", "longest-happy-prefix"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_strings_advanced_algo(data, entriesChanged);
@@ -884,11 +923,12 @@ service cloud.firestore {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ["print-all-primes-till-n", "prime-factorisation-of-a-number", "count-primes-in-range-l-to-r"];
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_maths(data, entriesChanged);
@@ -901,8 +941,14 @@ service cloud.firestore {
         && validProfileUpdate(request.resource.data, resource.data, uid);
       allow delete: if isOwner(uid);
 
-      match /progressByTopic/beginner-problems {
+      // A collection query must be provably readable for every possible topic
+      // id, so get/list lives on the wildcard. Writes only exist for the 20
+      // literal catalogue topic blocks below.
+      match /progressByTopic/{topicId} {
         allow get, list: if isOwner(uid);
+      }
+
+      match /progressByTopic/beginner-problems {
         allow create: if isOwner(uid)
           && validProgressWrite_beginner_problems(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -911,7 +957,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/sorting {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_sorting(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -920,7 +965,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/arrays {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_arrays(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -929,7 +973,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/hashing {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_hashing(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -938,7 +981,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/binary-search {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_binary_search(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -947,7 +989,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/strings-basic-and-medium {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_strings_basic_and_medium(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -956,7 +997,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/recursion {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_recursion(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -965,7 +1005,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/linked-list {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_linked_list(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -974,7 +1013,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/bit-manipulation {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_bit_manipulation(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -983,7 +1021,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/greedy-algorithms {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_greedy_algorithms(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -992,7 +1029,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/sliding-window-2-pointer {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_sliding_window_2_pointer(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -1001,7 +1037,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/stack-queues {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_stack_queues(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -1010,7 +1045,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/binary-trees {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_binary_trees(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -1019,7 +1053,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/binary-search-trees {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_binary_search_trees(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -1028,7 +1061,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/heaps {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_heaps(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -1037,7 +1069,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/graphs {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_graphs(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -1046,7 +1077,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/dynamic-programming {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_dynamic_programming(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -1055,7 +1085,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/tries {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_tries(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -1064,7 +1093,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/strings-advanced-algo {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_strings_advanced_algo(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -1073,7 +1101,6 @@ service cloud.firestore {
       }
 
       match /progressByTopic/maths {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_maths(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -1082,10 +1109,8 @@ service cloud.firestore {
       }
     }
 
-    // Every other collection/path is denied: no friend summaries, notes,
-    // lists or plans are readable until their phase ships explicit rules.
-    match /{document=**} {
-      allow read, write: if false;
-    }
+    // Default deny: no other collection/path has an allow rule. Friend
+    // summaries, notes, lists and plans stay private until their phase ships
+    // explicit, emulator-tested rules.
   }
 }

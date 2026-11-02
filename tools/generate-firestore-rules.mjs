@@ -27,10 +27,19 @@ function functionSuffix(topicId) {
 
 function changedValidator(topic) {
   const suffix = functionSuffix(topic.id)
-  const clauses = topic.problemIds.map(
-    (id) => `      (keys.hasAny([${literal(id)}]) && validEntryOrDeleted(data, ${literal(id)}))`,
-  )
-  return `    function validChangedEntry_${suffix}(data, keys) {\n      return ${clauses.join('\n        || ')};\n    }\n`
+  // Ternary short-circuits: only the one changed entry is validated, which
+  // stays far below Firestore Rules' 1000-expression evaluation limit.
+  const first = topic.problemIds[0]
+  const rest = topic.problemIds.slice(1)
+  const body = [
+    `      return keys.hasAny([${literal(first)}]) ? validEntryOrDeleted(data, ${literal(first)})`,
+    ...rest.map(
+      (id, index) =>
+        `        : keys.hasAny([${literal(id)}]) ? validEntryOrDeleted(data, ${literal(id)})${index === rest.length - 1 ? '' : ''}`,
+    ),
+    '        : false;',
+  ].join('\n')
+  return `    function validChangedEntry_${suffix}(data, keys) {\n${body}\n    }\n`
 }
 
 function progressValidator(topic) {
@@ -40,11 +49,12 @@ function progressValidator(topic) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
       let allowed = ${ids};
-      return data.keys().hasOnly(allowed.concat(['updatedAt']))
+      let allowedWithTime = allowed.concat(['updatedAt']);
+      return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
         && data.updatedAt == request.time
         && data.size() <= allowed.size() + 1
-        && changed.hasOnly(allowed.concat(['updatedAt']))
+        && changed.hasOnly(allowedWithTime)
         && changed.hasAny(['updatedAt'])
         && entriesChanged.size() == 1
         && validChangedEntry_${suffix}(data, entriesChanged);
@@ -55,7 +65,6 @@ function progressValidator(topic) {
 function topicBlock(topic) {
   const suffix = functionSuffix(topic.id)
   return `      match /progressByTopic/${topic.id} {
-        allow get, list: if isOwner(uid);
         allow create: if isOwner(uid)
           && validProgressWrite_${suffix}(request.resource.data, {});
         allow update: if isOwner(uid)
@@ -148,13 +157,18 @@ ${topics.map(progressValidator).join('\n')}
         && validProfileUpdate(request.resource.data, resource.data, uid);
       allow delete: if isOwner(uid);
 
+      // A collection query must be provably readable for every possible topic
+      // id, so get/list lives on the wildcard. Writes only exist for the 20
+      // literal catalogue topic blocks below.
+      match /progressByTopic/{topicId} {
+        allow get, list: if isOwner(uid);
+      }
+
 ${topics.map(topicBlock).join('\n')}    }
 
-    // Every other collection/path is denied: no friend summaries, notes,
-    // lists or plans are readable until their phase ships explicit rules.
-    match /{document=**} {
-      allow read, write: if false;
-    }
+    // Default deny: no other collection/path has an allow rule. Friend
+    // summaries, notes, lists and plans stay private until their phase ships
+    // explicit, emulator-tested rules.
   }
 }
 `
