@@ -1,19 +1,19 @@
 # DSA Archive — my own DSA sheet website
 
-> **Status: Phases 0, 0-D and 1 are complete and merged to `main`.** The
-> owner approved the 0-D design prototype on 2026-11-02, so the design
-> tokens are **frozen** in
-> [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md) and the real sheet is
-> built to them: all 495 rows in topic accordions, instant search,
-> topic/level/link-type filters, random pick, weakest-topic hint and
-> outbound row links — browsable with no account. Progress is stored on
-> the device only; there is **no Firebase, no sign-in and no sync yet**
-> (Phase 2). Phases 0-D and 1 were merged together through **PR #3** on
-> the owner's explicit command (2026-11-02) — but **nothing is deployed or
-> published: there is still no public URL**, and no Firebase project
-> exists. The owner's 10-row live-sheet content spot-check remains
-> pending. Gate record:
-> [`docs/DECISIONS.md`](docs/DECISIONS.md).**
+> **Status: Phases 0, 0-D and 1 are complete and merged to `main`;
+> Phase 2 is implemented on its session branch and stopped at the merge
+> gate.** The owner approved the 0-D design prototype on 2026-11-02, so
+> the design tokens remain **frozen** in
+> [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md). Phase 2 adds Google
+> sign-in, a profile avatar menu, offline-first Firestore progress sync,
+> an explicit guest→account merge, versioned Firestore rules with
+> emulator tests, and JSON export/import. All cloud acceptance runs
+> against the **local Emulator Suite in CI** — **no live Firebase
+> project has been created, no rules or Hosting deploy was made, and
+> there is still no public URL**. The owner's own live check and the
+> 10-row content spot-check remain pending. Gate record:
+> [`docs/DECISIONS.md`](docs/DECISIONS.md); owner checklist:
+> [`docs/phases/02-firebase-auth-cloud-progress.md`](docs/phases/02-firebase-auth-cloud-progress.md).**
 
 Planning adapted from AppFlow @ `57597b3332ad578614a0d9d5609f9cf8a278ee8a`
 on 2026-11-02 (reference only — this repo is self-contained; see
@@ -38,14 +38,16 @@ on 2026-11-02 (reference only — this repo is self-contained; see
 - `data/problems.json` is our independently extracted catalogue;
   `tools/extract_problems.py` is a one-time source tool and is never
   part of the website bundle. The owner spot-check remains pending.
-- `src/` is the **real Phase 1 sheet** built to the frozen 0-D tokens:
-  `App.tsx` (page), `SheetList.tsx` (topic accordions + rows), `sheet.ts`
-  (search/filter/random/weakest-topic logic), `progress.ts` and
-  `settings.ts` (device-local stores), `catalogue.ts` (typed reader for
-  `data/problems.json`). No Firebase SDK is imported and nothing is
-  synced; account, cloud progress, notes, planner and friends come in
-  later phases. The disposable 0-D mock was folded into this work and
-  deleted (readable in git history at `1791693`).
+- `src/` is the **real Phase 2 sheet** built to the frozen 0-D tokens:
+  `App.tsx` (page/account UI), `SheetList.tsx` (topic accordions + rows),
+  `sheet.ts` (search/filter/random/weakest-topic logic), `progress.ts`
+  (guest store), `cloudProgress.ts` (Firestore row shape + merge plan),
+  `account.ts`/`accountData.ts` (Google Auth, profile and sync),
+  `backup.ts` (JSON schema), `firebase.ts` (emulator/live config),
+  `settings.ts`, `catalogue.ts`, and unit tests. `firestore.rules` is
+  generated from `data/problems.json` by `tools/generate-firestore-rules.mjs`.
+  Notes, planner and friends remain later phases. The disposable 0-D mock
+  was folded into phase 1 and deleted (readable in git history at `1791693`).
 - ⚠️ **This repo is currently PUBLIC while containing that copy.**
   Owner item #1 in `docs/DECISIONS.md`: make it private while the
   copy remains under `copy-web/`, before anything is published.
@@ -98,8 +100,9 @@ Owner-gated, AppFlow-style (translated from apps to a website in
    (phases 0 → 6). Every phase ends with green CI and a downloadable
    `site-preview` artifact the owner can open on their phone — the
    website equivalent of AppFlow's per-phase APK. Firebase work runs
-   against the local **emulator** in CI; the owner creates the real
-   (Spark) Firebase project personally when phase 2 approaches —
+   against the local **Auth + Firestore emulators** in CI, including
+   rules tests and signed-in browser acceptance; the owner creates the
+   real (Spark) Firebase project personally before any gated live check —
    credentials/service keys are never pasted in chat or git.
 3. ✅ Design was approved before any UI code: the owner approved the
    phase 0-D prototype in chat on 2026-11-02 and the tokens are frozen
@@ -122,10 +125,13 @@ Owner-gated, AppFlow-style (translated from apps to a website in
 | [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md) | sheet schema, Firestore schema + security/cost design, extraction plan |
 | [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md) | every screen + state; design tokens **frozen 2026-11-02**; deliberate adaptations vs the approved mock |
 | `docs/phases/` | phase records: 0 bootstrap + data extraction · 0-D design prototype · 1 sheet core |
-| `src/` | the real sheet — `App.tsx`, `SheetList.tsx`, `sheet.ts`, `progress.ts`, `settings.ts`, `catalogue.ts`, `styles.css` and their tests |
+| `src/` | the real sheet + phase-2 account/sync/backup modules, styles and unit tests |
+| `firestore.rules` | generated, versioned own-data-only rules with field/size validation |
 | `data/problems.json` | validated, versioned catalogue; 495 rows across 20 topics |
-| `tools/` | one-time clean-room extractor, permanent data validator and build/link checks |
-| `.github/workflows/ci.yml` | tests, production build, phone/desktop accessibility checks and `site-preview` artifact |
+| `tools/` | one-time extractor, data validator, rules generator/test, build/link checks |
+| `e2e/` | real-Chromium sheet and emulator-backed sync acceptance specs |
+| `.env.example` | public Firebase web identifiers and emulator settings; `.env.local` is gitignored |
+| `.github/workflows/ci.yml` | tests, rules-generation check, emulator rules tests, production build, phone/desktop accessibility checks and `site-preview` artifact |
 
 ## License
 

@@ -2,6 +2,8 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { catalogue } from './catalogue'
 import {
   clearProgress,
+  countProgressRows,
+  getGuestTimestamps,
   getProgressSnapshot,
   isBookmarked,
   isDone,
@@ -94,6 +96,22 @@ describe('local guest progress', () => {
     clearProgress()
     expect(getProgressSnapshot()).toEqual({})
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+  })
+
+  it('keeps per-topic guest timestamps for the visible phase-2 merge', () => {
+    markDone('arrays', 'two-sum')
+    const times = getGuestTimestamps()
+    expect(Number.isFinite(times.arrays)).toBe(true)
+    expect(countProgressRows(getProgressSnapshot())).toBe(1)
+
+    // A phase-1 install has rows but no timestamp key: backfill once.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ arrays: { 'two-sum': { s: 'done', b: false } } }))
+    localStorage.removeItem('dsa-archive.progress.updatedAt.v1')
+    resetProgressStoreForTests()
+    expect(Number.isFinite(getGuestTimestamps().arrays)).toBe(true)
+
+    clearProgress()
+    expect(getGuestTimestamps()).toEqual({})
   })
 })
 

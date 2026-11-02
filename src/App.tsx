@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { catalogue, summarizeCatalogue } from './catalogue'
-import { clearProgress, tallyCatalogue, useProgress } from './progress'
-import { toggleHideDone, toggleLargeText, toggleTheme, useSettings } from './settings'
+import { tallyCatalogue, tallyTopic } from './progress'
+import { toggleHideDone, toggleLargeText, toggleTheme } from './settings'
 import {
   LEVEL_FILTERS,
   LEVEL_LABELS,
@@ -18,6 +18,7 @@ import {
   type SheetQuery,
 } from './sheet'
 import { TopicAccordion } from './SheetList'
+import { useAccountData } from './accountData'
 
 const summary = summarizeCatalogue()
 const levelSplit = LEVEL_FILTERS.map((level) => `${LEVEL_LABELS[level]} ${summary.levels[level] ?? 0}`).join(' · ')
@@ -33,15 +34,19 @@ function chipClass(on: boolean) {
   return on ? 'chip is-on' : 'chip'
 }
 
+function initials(name: string) {
+  const pieces = name.trim().split(/\s+/).filter(Boolean)
+  return (pieces.length > 1 ? `${pieces[0][0]}${pieces[1][0]}` : pieces[0]?.slice(0, 2) ?? 'DS').toUpperCase()
+}
+
 /**
- * Phase 1 sheet core (roadmap 1.1–1.3): the whole catalogue in topic/subtopic
- * accordions, browsable signed out, with instant search, topic/level/link-type
- * filters, hide-done, a random pick and a weakest-topic hint. Rows link out;
- * progress is local until phase 2 (`src/progress.ts`).
+ * Phase 2 sheet: the phase-1 catalogue UI keeps working signed out, while the
+ * header, banner, account panel and progress actions now use Auth/Firestore.
+ * Frozen 0-D tokens are unchanged.
  */
 export function App() {
-  const progress = useProgress()
-  const settings = useSettings()
+  const data = useAccountData()
+  const { account, progress, settings } = data
   const [filters, setFilters] = useState<Filters>(noFilters)
   const [openTopics, setOpenTopics] = useState<ReadonlySet<string>>(() => new Set())
   const [pick, setPick] = useState<RandomPick | null>(null)
@@ -57,7 +62,18 @@ export function App() {
   const sheet = useMemo(() => applySheetQuery(query, progress), [query, progress])
   const tally = useMemo(() => tallyCatalogue(progress), [progress])
   const hint = useMemo(() => weakestTopic(progress), [progress])
+  const completedTopics = useMemo(
+    () =>
+      catalogue.topics.filter((topic) => {
+        const topicTally = tallyTopic(progress, topic)
+        return topicTally.total > 0 && topicTally.done === topicTally.total
+      }),
+    [progress],
+  )
   const filterCount = activeFilterCount(query)
+  const signedIn = account.status === 'signed-in'
+  const progressDisabled = (signedIn && !data.cloudReady) || data.busy
+  const errorTestId = data.error?.startsWith('Invalid backup:') ? 'backup-error' : 'account-error'
 
   // Search narrows instantly: expand every topic that still has matches. The
   // dependency is the *signature* of matching topic ids, so ticking a row done
@@ -139,6 +155,10 @@ export function App() {
         <div className="wordmark">DSA Archive</div>
         <div className="topbar-actions">
           <span className="count-pill" data-testid="progress-pill">{tally.done}/{tally.total} done</span>
+          <span className="sync-pill" data-testid="sync-pill" aria-live="polite">
+            <span className="status-dot" aria-hidden="true" />
+            {data.syncLabel}
+          </span>
           <button
             type="button"
             className="icon-button"
@@ -156,15 +176,113 @@ export function App() {
           >
             Aa
           </button>
+          {account.user && (
+            <details className="profile-menu">
+              <summary className="profile-button" aria-label="Open account menu">
+                {initials(account.user.displayName)}
+              </summary>
+              <div className="profile-menu-panel">
+                <strong>{account.user.displayName}</strong>
+                <p>{account.user.email}</p>
+                <a href="#account-panel">Account &amp; backup</a>
+                <button type="button" data-testid="menu-sign-out" onClick={() => void account.signOut()}>
+                  Sign out
+                </button>
+              </div>
+            </details>
+          )}
         </div>
       </header>
 
-      <aside className="app-banner" aria-label="Account and storage status">
-        <strong>Sign in to save progress</strong>
-        <span>Phase 1 keeps progress on this device only · Google sign-in and cloud sync arrive in phase 2</span>
-      </aside>
+      {signedIn && account.user ? (
+        <aside className="app-banner" data-testid="signed-in-banner" aria-label="Account and storage status">
+          <strong>Signed in as {account.user.displayName}</strong>
+          <span>Progress and settings follow this account · offline changes sync on reconnect</span>
+        </aside>
+      ) : (
+        <aside className="app-banner" data-testid="sign-in-banner" aria-label="Account and storage status">
+          <div className="banner-copy">
+            <strong>Sign in to save progress</strong>
+            <span>Guest rows stay on this device until you choose to merge them · Google sign-in enables cloud sync</span>
+          </div>
+          <div className="banner-actions">
+            <button
+              type="button"
+              className="button button-primary"
+              disabled={account.busy}
+              onClick={() => void account.signIn()}
+            >
+              Sign in with Google
+            </button>
+            {account.canUseTestGoogle && (
+              <button
+                type="button"
+                className="button button-secondary"
+                data-testid="emulator-sign-in"
+                disabled={account.busy}
+                onClick={() => void account.signInWithTestGoogle()}
+              >
+                Use CI Google account
+              </button>
+            )}
+          </div>
+        </aside>
+      )}
 
       <main id="sheet-content" className="content-area">
+        {data.error && (
+          <div className="notice notice-error" role="alert" data-testid={errorTestId}>
+            <div>
+              <strong>Something needs attention</strong>
+              <p>{data.error}</p>
+            </div>
+            <button type="button" className="button button-secondary" onClick={data.dismissError}>
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {data.notice && (
+          <div className="notice" role="status" data-testid="account-notice">
+            <div><strong>{data.notice}</strong></div>
+            <button type="button" className="button button-secondary" onClick={data.dismissNotice}>
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {data.mergeProposal && (
+          <section className="notice notice-warning" data-testid="merge-notice" aria-labelledby="merge-title">
+            <div>
+              <strong id="merge-title">Merge guest progress?</strong>
+              <p>
+                {data.mergeProposal.guestRows} guest row{data.mergeProposal.guestRows === 1 ? '' : 's'} and{' '}
+                {data.mergeProposal.cloudRows} cloud row{data.mergeProposal.cloudRows === 1 ? '' : 's'} found.
+                Guest rows are newer on {data.mergeProposal.guestWins} topic{data.mergeProposal.guestWins === 1 ? '' : 's'};
+                cloud is newer on {data.mergeProposal.cloudWins}. Nothing is merged until you choose.
+              </p>
+            </div>
+            <div className="heading-actions">
+              <button
+                type="button"
+                className="button button-primary"
+                disabled={data.busy}
+                onClick={data.mergeGuestProgress}
+              >
+                Merge guest rows
+              </button>
+              <button
+                type="button"
+                className="button button-secondary"
+                disabled={data.busy}
+                onClick={data.keepCloudProgress}
+              >
+                Keep cloud only
+              </button>
+            </div>
+          </section>
+        )}
+
         <div className="page-heading">
           <div>
             <p className="eyebrow">DSA ARCHIVE · PERSONAL STUDY</p>
@@ -176,7 +294,7 @@ export function App() {
           <div className="heading-actions">
             <span className="status-chip">
               <span className="status-dot" aria-hidden="true" />
-              Saved on this device
+              {signedIn ? 'Saved in your account' : 'Saved on this device'}
             </span>
           </div>
         </div>
@@ -269,6 +387,15 @@ export function App() {
           {filters.search.trim() === '' ? ' · press / to search' : ''}
         </p>
 
+        {completedTopics.length > 0 && (
+          <div className="notice" role="status" data-testid="topic-complete">
+            <div>
+              <strong>Quiet win · topic complete</strong>
+              <p>{completedTopics.map((topic) => topic.title).join(' · ')} — every row is marked done.</p>
+            </div>
+          </div>
+        )}
+
         {pick && (
           <div className="notice" role="status" data-testid="random-notice">
             <div>
@@ -322,6 +449,9 @@ export function App() {
                       })
                     }
                     revealedProblemId={revealed}
+                    progressDisabled={progressDisabled}
+                    onToggleStatus={data.toggleStatus}
+                    onToggleBookmark={data.toggleBookmark}
                   />
                 ))}
               </div>
@@ -336,12 +466,15 @@ export function App() {
               <div className="context-progress" aria-hidden="true">
                 <span style={{ width: `${tally.percent}%` }} />
               </div>
-              <p className="fine-print">{tally.percent}% of {tally.total} rows · stored on this device</p>
-              {tally.done + tally.bookmarked > 0 && (
+              <p className="fine-print">
+                {tally.percent}% of {tally.total} rows ·{' '}
+                {signedIn ? 'synced to your account with an offline cache' : 'stored on this device'}
+              </p>
+              {!signedIn && tally.done + tally.bookmarked > 0 && (
                 <button
                   type="button"
                   className="text-button"
-                  onClick={() => { clearProgress(); setPick(null); setRevealed(null) }}
+                  onClick={() => { data.clearGuestProgress(); setPick(null); setRevealed(null) }}
                 >
                   Clear local progress
                 </button>
@@ -371,6 +504,71 @@ export function App() {
               )}
             </section>
 
+            {account.user && (
+              <section className="card context-card" id="account-panel" data-testid="account-panel" aria-labelledby="account-title">
+                <h2 className="card-title" id="account-title">Account &amp; backup</h2>
+                <div className="profile-row">
+                  <span className="avatar-placeholder" aria-hidden="true">{initials(account.user.displayName)}</span>
+                  <div className="profile-copy">
+                    <strong>{account.user.displayName}</strong>
+                    <p>{account.user.email}</p>
+                  </div>
+                </div>
+                <p className="fine-print">
+                  {data.cloudRows} cloud row{data.cloudRows === 1 ? '' : 's'} · {data.guestRows} guest row{data.guestRows === 1 ? '' : 's'} ·
+                  friends and summaries are excluded from backups.
+                </p>
+                <div className="action-grid">
+                  <button type="button" className="button button-secondary" onClick={data.exportBackup}>
+                    Export backup JSON
+                  </button>
+                  <label className="button button-secondary file-label">
+                    Import JSON
+                    <input
+                      className="file-input"
+                      type="file"
+                      accept=".json,application/json"
+                      aria-label="Import backup JSON"
+                      onChange={(event) => {
+                        const file = event.currentTarget.files?.[0]
+                        if (file) void data.chooseImportFile(file)
+                        event.currentTarget.value = ''
+                      }}
+                    />
+                  </label>
+                  <button type="button" className="button button-secondary" data-testid="sign-out" onClick={() => void account.signOut()}>
+                    Sign out
+                  </button>
+                </div>
+                {data.importPreview && (
+                  <div className="notice" role="status" data-testid="import-preview">
+                    <div>
+                      <strong>Backup looks valid</strong>
+                      <p>
+                        {data.importPreview.counts.rows} row{data.importPreview.counts.rows === 1 ? '' : 's'} across{' '}
+                        {data.importPreview.counts.topics} topic{data.importPreview.counts.topics === 1 ? '' : 's'} ·
+                        notes {data.importPreview.counts.notes} · lists {data.importPreview.counts.lists} · plans{' '}
+                        {data.importPreview.counts.plans}. Replacing happens only after confirmation.
+                      </p>
+                    </div>
+                    <div className="heading-actions">
+                      <button
+                        type="button"
+                        className="button button-primary"
+                        disabled={data.busy || !data.profileReady}
+                        onClick={data.confirmImport}
+                      >
+                        Replace my progress
+                      </button>
+                      <button type="button" className="button button-secondary" onClick={data.cancelImport}>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
             <section className="card context-card">
               <h2 className="card-title">Catalogue</h2>
               <div className="context-stat"><strong>{summary.problemCount}</strong><span>rows</span></div>
@@ -386,8 +584,8 @@ export function App() {
       </main>
 
       <footer className="app-footer">
-        Phase 1 · sheet core — all {summary.problemCount} rows, search, filters and outbound links.
-        Progress stays on this device until phase 2 adds Google sign-in and sync.
+        Phase 2 · Google sign-in, offline-first cloud progress, guest merge, Firestore rules and JSON backup —
+        emulator-tested in CI; no live project is configured or deployed.
       </footer>
     </div>
   )
