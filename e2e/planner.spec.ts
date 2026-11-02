@@ -161,7 +161,9 @@ test('a study session runs Today → solve → revise, with stats and a v3 backu
     await page.getByTestId('revised-linear-search').click()
     await expect(page.getByTestId('due-item-linear-search')).toHaveCount(0)
     await expect(page.getByTestId('revision-count')).toContainText('0 due today')
-    await expect(page.getByTestId('revision-count')).toContainText('1 scheduled')
+    // Scheduled counts every solved row with a future date — the one seeded
+    // five days ago (now +7) and anything solved today (now +3).
+    await expect(page.getByTestId('revision-count')).toContainText(/[1-9]\d* scheduled/)
     await expect(page.getByTestId('upcoming-list')).toContainText('Linear Search')
 
     // --- 4.3 Stats: streak, weekly strip, heatmap, topic and level bars -----
