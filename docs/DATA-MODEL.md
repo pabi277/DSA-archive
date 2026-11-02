@@ -65,11 +65,12 @@ users/{uid}                                  // profile + settings (1 doc)
   friendCode: "…"                            // rotate-able invite code (phase 5)
 
 users/{uid}/progressByTopic/{topicId}        // ≤20 docs — the login read set
-  { "two-sum": { "s": "done",                // todo | done | revision
+  { "two-sum": { "s": "done",                // todo | done (revision allowed, unused)
                  "b": true,                  // bookmarked
                  "a": 2,                     // attempts
                  "fd": "2026-…",             // firstDoneAt (drives 3/7/21-day dues)
-                 "lr": "2026-…" }, … }       // lastRevisedAt
+                 "lr": "2026-…",             // lastRevisedAt
+                 "rc": 1 }, … }              // phase 4: revisions done (0–100)
   updatedAt
 
 users/{uid}/notes/{problemId}                // phase 3 — created only when a note exists
@@ -82,8 +83,10 @@ users/{uid}/lists/{listId}                   // phase 3 — custom lists
   problemIds: […],                           // ≤ 200 known catalogue ids
   updatedAt                                  // serverTimestamp, enforced by rules
 
-users/{uid}/plans/{yyyy-mm-dd}               // daily planner (phase 4)
-  problemIds: […], doneIds: […]
+users/{uid}/plans/{yyyy-mm-dd}               // phase 4 — today's plan (1 doc read/day)
+  problemIds: […],                           // ≤200 solved-or-planned catalogue ids
+  doneIds: […],                              // ticked in Today; always ⊆ problemIds
+  updatedAt                                  // serverTimestamp, enforced by rules
 
 users/{uid}/friends/{friendUid}              // phase 5
   addedAt                                    // existence = friendship (both sides written client-side per rules)
@@ -156,14 +159,27 @@ phase-2 rules above:
   1–60 character title, a list of ≤200 ids whose joined text is ≤12,000
   characters, and `updatedAt == request.time`.
 
+**Rules v3 (phase 4)** adds the planner and the revision counter without
+touching anything above except the entry field list:
+
+- `plans/{date}` — owner `get/list/delete`; `create/update` require a day-key doc
+  id (`^[0-9]{4}-[0-9]{2}-[0-9]{2}$`), exactly `problemIds`/`doneIds`/`updatedAt`,
+  two lists of ≤200 ids with joined text ≤12,000, `doneIds` a subset of
+  `problemIds`, and `updatedAt == request.time`.
+- Progress entries now have exactly `s`, `b`, `a`, `fd`, `lr`, **`rc`** (int
+  0–100). Phase-2/3 documents and v1/v2 backup entries without `rc` still load
+  (readers default it to 0) and the backup parser normalizes it on import,
+  because every v3 write must carry it.
+
 Rules have no loops and only 1,000 evaluated expressions per request, so
 catalogue membership for these two collections is enforced by the client and
 the backup parser (recorded in `DECISIONS.md`), while the rules bound every
-document's shape and size. The emulator suite (8 tests) covers stranger and
+document's shape and size. The emulator suite (10 tests) covers stranger and
 unauthenticated denial on both collections, invalid/oversized fields, unknown
 extra keys, a non-server `updatedAt`, malformed note/list ids, over-long
-titles, >200 ids, oversized joined id text, plus owner create/update/delete,
-and proves `plans`/unknown collections stay denied until their phase ships.
+titles, >200 ids, oversized joined id text, plus owner create/update/delete, and — since phase 4 — owner-only plan days,
+day-id/field/size/subset validation and stranger denial on `plans`, with
+`friends`/`public/summary` still proving that unknown collections stay denied.
 
 ## 4. Spark quota budget (official limits checked 2026-11-02)
 
@@ -175,9 +191,10 @@ Rough day for owner + 5 friends, cache misses only (cache hits = 0):
 
 | Action | Reads | Writes |
 |---|---|---|
-| Login / app open (profile + 20 topic docs + notes/lists collections + today plan) | ~24 | 0 |
+| Login / app open (profile + 20 topic docs + notes/lists collections + today's plan) | ~24 | 0 |
 | Solve/revise 10 problems (same 2–3 topics, batched per topic doc) | 0 | ≤10 |
 | Notes: read 5, write 2 | 5 | 2 |
+| Planner: tick 3 rows, revise 2 (plan writes + 2 progress writes) | 0 | ~5 |
 | Friends screen (6 summaries) | 6 | 0 (summary write rides the progress write, +1) |
 | **Per user/day (3 sessions)** | **~100** | **~40** |
 | **× 6 users** | **~600 / 50,000** | **~240 / 20,000** |
@@ -208,22 +225,25 @@ its phase record before it is built.
    owner command); keep it there, outside every build, and never as
    a runtime input.
 
-## 6. Export / import (anti-lock-in — schema v2 since phase 3)
+## 6. Export / import (anti-lock-in — schema v3 since phase 4)
 
-Export = one JSON file: `schemaVersion: 2`, `generatedBy`, `exportedAt`,
-profile settings, all `progressByTopic` rows (with `a`/`fd`/`lr`), the real
-`notes[]` array (`problemId`, `markdown`, `snippet`, `updatedAt`), the real
-`lists[]` array (`listId`, `title`, `problemIds`, `updatedAt`), an empty
-`plans` array for phase 4, and an `excluded` list naming friends/summary
+Export = one JSON file: `schemaVersion: 3`, `generatedBy`, `exportedAt`,
+profile settings (including the real `dailyGoal`), all `progressByTopic` rows
+(with `a`/`fd`/`lr` and `rc`), the real `notes[]` array (`problemId`,
+`markdown`, `snippet`, `updatedAt`), the real `lists[]` array (`listId`,
+`title`, `problemIds`, `updatedAt`), the real `plans[]` array (`date`,
+`problemIds`, `doneIds`, `updatedAt` — every day, read on demand at export), and
+an `excluded` list naming friends/summary
 (they're social, not study data). `src/backup.ts` validates schema version,
 catalogue ids, field types, per-note/per-list caps and a 4 MB file cap; the UI
 previews row/topic/note/list/plan counts and only then replaces. Invalid files
 show an explicit error. Import deletes existing topic shards, replays one-key
-writes, restores profile settings, then replaces notes and lists one document
-per item.
+writes, restores profile settings (and the daily goal), then replaces notes,
+lists and plan days one document per item.
 
-**Recorded migration:** `parseBackup` accepts **schema 1 and 2**. Phase-2
-files wrote empty `notes`/`lists` arrays, so they import unchanged and simply
-restore no notes or lists; a v1 file that claims note/list content is refused
-rather than guessed. This is also the migration path off Firebase if the owner
+**Recorded migration:** `parseBackup` accepts **schema 1, 2 and 3**. Phase-2
+files wrote empty `notes`/`lists`/`plans` arrays, so they import unchanged and
+simply restore none of them; a v1 or v2 file that claims note/list/plan content
+is refused rather than guessed. A missing `rc` in a v1/v2 entry is normalized
+to 0 before the restore writes it. This is also the migration path off Firebase if the owner
 ever wants one — powerful must never mean trapped.

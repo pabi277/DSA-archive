@@ -260,6 +260,58 @@
   before signing in and it is simply not saved; the editor is not rendered
   while signed out.
 
+- 2026-11-03 — **Phase 4: the daily plan is one document per local day**
+  (`users/{uid}/plans/{yyyy-mm-dd}`, `problemIds` + `doneIds` + server
+  `updatedAt`), exactly the shape sketched in `DATA-MODEL.md` §3. Only **today's**
+  document is subscribed (one read per app open, offline-cached); export is the
+  only place that reads the whole history. The day key is the phone's *local*
+  calendar day, so a 23:59 session on one device never lands on another date
+  than the one the owner is living in.
+- 2026-11-03 — **Phase 4: revision status is derived, never stored.** A solved
+  row is due 3 → 7 → 21 days after its first solve and each revision, then
+  graduates. The only new field is `rc` (revision count), which rules v3 requires
+  on every progress entry; `s` stays `todo|done` so the sheet control, the phase-2
+  merge logic and the "revision" value the rules already allowed all keep working.
+  Consequence recorded for the next phase: a phase-2/3 document (and a v1/v2
+  backup entry) without `rc` still loads — readers default it to 0 — and the
+  backup parser normalizes it before writing, because the v3 rules demand it.
+- 2026-11-03 — **Phase 4: the planner, the queue and the stats need an account;
+  the sheet does not.** Planning writes per-account data and the queue is
+  computed from the owner's own dates, so signed out these three views show a
+  short explainer instead of controls that cannot save (the same rule phases 2–3
+  used for notes and lists). No guest planner store was invented, so guest mode
+  keeps exactly one merge path — progress.
+- 2026-11-03 — **Phase 4: rules v3 adds `plans` and the `rc` field, and weakens
+  nothing.** Phase-2 profile/progress rules and phase-3 note/list rules are
+  byte-for-byte unchanged apart from the entry field set gaining `rc`; the plan
+  block is owner-only with a day-key doc id, exact fields, ≤200 ids each, joined
+  text ≤12,000 and `doneIds` ⊆ `problemIds`. The phase-2 "unspecified collection
+  is denied" assertion now names `friends`/`public/summary` — still a *stricter*
+  statement, and the emulator suite grew to 10 tests rather than losing any.
+- 2026-11-03 — **Phase 4: stats are computed on the device, with no chart or
+  date dependency.** Streak, heatmap, weekly strip and topic/level bars are
+  derived from `fd`/`lr` (and a plan day's `doneIds`) by ~200 lines of pure
+  TypeScript in `src/planner.ts`; nothing is stored for them and no server job,
+  Cloud Function or extra collection exists. Avoiding a chart/date library keeps
+  the Spark-only, no-new-licence position intact and the bundle honest.
+- 2026-11-03 — **Phase 4: backup schema v3, still reading 1 and 2.** Plans are
+  real documents in the export (`date`, `problemIds`, `doneIds`, `updatedAt`) and
+  entries carry `rc`; `parseBackup` accepts schemas 1, 2 and 3, defaults a missing
+  `rc` to 0, and refuses a v1/v2 file that claims plan content rather than
+  guessing. The exported `profile.dailyGoal` is now the real value instead of the
+  hard-coded 5 the phase-2 writer emitted.
+- 2026-11-03 — **Phase 4: tabs, not a router or a bottom nav.** The view row
+  grows to Sheet · Today · Revision · Notes · Lists · Stats with `aria-pressed`
+  and horizontal overflow on phones; the 0-D mock's five-destination bottom nav
+  stays deferred because Friends and More still do not exist. No new CSS token or
+  colour was introduced — the phase reuses the goal track, metric tiles, heatmap,
+  weekly strip and bar rows the mock already froze.
+- 2026-11-03 — **Phase 4: CI failure diagnostics now include context.** The
+  sandbox can download neither Actions logs nor artifacts (both blob hosts are
+  outside its allowlist), so `ci.yml` re-emits each failing block with 14 lines of
+  context as a check-run annotation. That change is what turned three opaque
+  Playwright failures into fixable ones this phase.
+
 ## Law waivers
 
 - 2026-11-02 — AppFlow law 13 ("no backend unless the niche proves it;
@@ -302,11 +354,14 @@
       command of 2026-11-02 (above). Phase 2 is complete on its own
       session branch with green emulator CI, stopped at the merge gate.
       Phase 3 (notes, snippets, notes overview/search, custom lists, rules v2,
-      backup schema v2) is complete and **merged to `main` through PR #5** on
-      the owner's explicit command of 2026-11-03 (CI runs
+      backup schema v2) is **merged to `main` through PR #5** on the owner's
+      explicit command of 2026-11-03 (CI runs
       [#30](https://github.com/pabi277/DSA-archive/actions/runs/41517643913)
       and [#31](https://github.com/pabi277/DSA-archive/actions/runs/41518256654)
-      green). Nothing is deployed or published
+      green). Phase 4 (daily goal + Today, 3/7/21-day revision queue, stats,
+      rules v3, backup schema v3) is complete on `arena/08f229da-dsa-archive`
+      with CI [#39](https://github.com/pabi277/DSA-archive/actions/runs/41524189110)
+      green, stopped at the merge gate. Nothing is deployed or published
       — there is no public URL and no live Firebase project. Living state and
       the next-chat prompt: `prompt.md`.
 
