@@ -211,12 +211,17 @@ Rough day for owner + 5 friends, cache misses only (cache hits = 0):
 | Solve/revise 10 problems (same 2–3 topics, batched per topic doc) | 0 | ≤10 |
 | Notes: read 5, write 2 | 5 | 2 |
 | Planner: tick 3 rows, revise 2 (plan writes + 2 progress writes) | 0 | ~5 |
-| Friends screen (6 summaries) | 6 | 0 (summary write rides the progress write, +1) |
+| Friends screen (6 summaries) | 6 | 0 (summary write rides solved-count change only; deduplicated in phase 6.2) |
 | **Per user/day (3 sessions)** | **~100** | **~40** |
 | **× 6 users** | **~600 / 50,000** | **~240 / 20,000** |
 
 ≈1% of the free quota, and real usage is lower (repeat opens hit the
 persistent cache). Data stored: ~a few hundred KB/user ≪ 1 GiB.
+**Phase 6.2 Hosting transfer audit:** the full 19-file PWA precache shell
+is **317.66 kB gzip** (enforced by `npm run check:budgets` ≤ 335 kB gzip),
+allowing **~1,133 full cold uncached installs per day** inside Spark
+Hosting's **360 MB/day** cap; repeat opens and Airplane-Mode sessions hit
+the Service Worker cache at **0 B** of Hosting transfer.
 Conclusion: **Spark is not a constraint at friend scale** — the real
 constraints are the *absence* on Spark of Functions/Storage, which
 this design never needs. Any future feature must re-run this table in

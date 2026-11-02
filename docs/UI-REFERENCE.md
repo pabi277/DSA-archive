@@ -164,7 +164,12 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
       next-up list, caught-up empty state — *phase 4*.
 - [x] Stats — metric tiles (solved / this week / streak), 8-week heatmap,
       weekly strip, per-topic bars, solved by level — *phase 4*.
-- [ ] Friend summary card + compare bars · invite-code block — phase 5.
+- [x] Friend summary card + compare bars · invite-code block — *phase 5*,
+      responsive large-text layout hardened in *phase 6*.
+- [x] Offline / 404 — friendly self-contained `offline.html` + `404.html` and
+      in-app `Page not found` state + installable PWA shell (`manifest.webmanifest`,
+      clean-room `"DA"` monogram icons, `sw.js`, optional `Install` control on
+      `beforeinstallprompt`) — *phase 6*.
 
 ## Comparison duty (per UI phase)
 
@@ -305,3 +310,27 @@ button and empty-state styles; frozen token values are unchanged. Friends has
 code, opt-in sharing, comparisons, ranking and a session-local goal. CI takes
 a phone screenshot and runs axe, but the sandbox cannot download the screenshot
 for direct mock comparison; owner visual review remains outstanding.
+
+### Phase 6 review & deliberate adaptations (2026-11-02 UTC)
+
+- **Comparison review:** `Offline / 404` (`src/App.tsx` unknown-route view +
+  self-contained `public/offline.html` and `public/404.html`), `FriendsView`
+  responsive cards, and the full `dark + light × phone (390×844) + desktop
+  (1280×900) × large-text` matrix (`e2e/pwa.spec.ts`) were checked against the
+  frozen 0-D token specification. Zero token values, hues, fonts, radii, or
+  touch targets changed; `e2e/pwa.spec.ts` asserts 0 axe violations and 0
+  horizontal overflow across every view and variant, and captures
+  `test-results/pwa-offline-phone.png`.
+- **Deliberate adaptations kept for v1:**
+  - The 7-item `.list-tabs` strip (`Sheet · Today · Revision · Notes · Lists ·
+    Stats · Friends`, horizontally scrollable on phones) + context-column
+    `Account & backup` card serve all destinations cleanly without introducing
+    a separate `More` route or duplicating navigation in a bottom bar.
+  - `Install` appears in the topbar **only** when the browser fires
+    `beforeinstallprompt` (no dead install button on Safari/already-installed
+    PWAs).
+  - `delete-my-data` is deferred out of the v1 UI because wiping multi-collection
+    account data without Cloud Functions would require multi-batch client deletes
+    not in roadmap Phases 2–6; JSON export/import and `Clear local progress`
+    ship now.
+

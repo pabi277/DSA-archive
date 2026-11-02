@@ -50,6 +50,7 @@ function matchCount() {
 }
 
 beforeEach(() => {
+  window.history.replaceState(null, '', '/')
   localStorage.clear()
   resetProgressStoreForTests()
   resetSettingsStoreForTests()
@@ -348,3 +349,74 @@ describe('phase-4 views while signed out (4.1–4.3)', () => {
     expect(container.querySelector('[data-testid="summary-streak"]')).toBeNull()
   })
 })
+
+describe('phase-5 and phase-6 offline/PWA/404 behaviour while signed out', () => {
+  it('offers the Friends tab with an opt-in sign-in explainer when signed out', () => {
+    click(q('[data-testid="view-tab-friends"]'))
+    expect(q('[data-testid="view-tab-friends"]').getAttribute('aria-pressed')).toBe('true')
+    expect(q('[data-testid="friends-view"]').textContent).toContain('Sign in to invite friends')
+  })
+
+  it('reports offline local-only status in airplane mode while keeping guest rows writable', () => {
+    const originalDescriptor = Object.getOwnPropertyDescriptor(window.navigator, 'onLine')
+    Object.defineProperty(window.navigator, 'onLine', { configurable: true, get: () => false })
+    try {
+      act(() => {
+        window.dispatchEvent(new Event('offline'))
+      })
+      expect(q('[data-testid="sync-pill"]').textContent).toContain('Offline — local only')
+      click(q('#problem-two-sum .status-check'))
+      expect(q('[data-testid="progress-pill"]').textContent).toBe('1/495 done')
+
+      Object.defineProperty(window.navigator, 'onLine', { configurable: true, get: () => true })
+      act(() => {
+        window.dispatchEvent(new Event('online'))
+      })
+      expect(q('[data-testid="sync-pill"]').textContent).toContain('Local only')
+    } finally {
+      if (originalDescriptor) {
+        Object.defineProperty(window.navigator, 'onLine', originalDescriptor)
+      }
+    }
+  })
+
+  it('shows the Install button only when beforeinstallprompt fires', async () => {
+    expect(container.querySelector('[data-testid="install-app"]')).toBeNull()
+    let prompted = false
+    const event = Object.assign(new Event('beforeinstallprompt', { cancelable: true }), {
+      prompt: async () => {
+        prompted = true
+      },
+      userChoice: Promise.resolve({ outcome: 'accepted' as const, platform: 'web' }),
+    })
+    act(() => {
+      window.dispatchEvent(event)
+    })
+    const installButton = q('[data-testid="install-app"]')
+    expect(installButton.textContent).toBe('Install')
+    await act(async () => {
+      installButton.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    expect(prompted).toBe(true)
+    expect(container.querySelector('[data-testid="install-app"]')).toBeNull()
+  })
+
+  it('renders the friendly 404 Not Found state on unknown paths and returns to the sheet', () => {
+    act(() => {
+      root.unmount()
+    })
+    window.history.replaceState(null, '', '/not-a-real-route')
+    root = createRoot(container)
+    act(() => {
+      root.render(<App />)
+    })
+
+    expect(q('[data-testid="not-found-view"] h1').textContent).toBe('Page not found')
+    expect(q('[data-testid="not-found-view"]').textContent).toContain('/not-a-real-route')
+    click(q('[data-testid="not-found-home"]'))
+    expect(window.location.pathname).toBe('/')
+    expect(q('h1').textContent).toBe('Your learning sheet')
+    expect(qa('details.topic-card')).toHaveLength(20)
+  })
+})
+

@@ -469,3 +469,45 @@ describe('Firestore rules v4 — invitation and summary privacy', () => {
     await assertSucceeds(deleteDoc(doc(alice, 'invites', code)))
   })
 })
+
+describe('Firestore rules audit — phase 6.2 enumeration & tampering hardening', () => {
+  it('blocks user/public directory enumeration, invite updates, and third-party friend deletion', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const bob = env.authenticatedContext('bob').firestore()
+    const eve = env.authenticatedContext('eve').firestore()
+    const code = 'c'.repeat(32)
+    const friend = { code, addedAt: serverTimestamp() }
+
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), profile('alice', { shareSummary: true })))
+    await assertSucceeds(setDoc(doc(bob, 'users/bob'), profile('bob')))
+    await assertSucceeds(setDoc(doc(alice, 'invites', code), { uid: 'alice', createdAt: serverTimestamp() }))
+
+    // Directory enumeration on /users and /users/{uid}/public is denied.
+    await assertFails(getDocs(collection(alice, 'users')))
+    await assertFails(getDocs(collection(alice, 'users/alice/public')))
+    await assertFails(getDocs(collection(bob, 'users/alice/public')))
+
+    // Non-`summary` public doc ids are denied even when shareSummary is true.
+    await assertFails(setDoc(doc(alice, 'users/alice/public/other'), { hello: 'world' }))
+    await assertFails(getDoc(doc(alice, 'users/alice/public/other')))
+
+    // Invites are immutable once created and deletable only by their owner.
+    await assertFails(
+      setDoc(doc(alice, 'invites', code), { uid: 'alice', createdAt: serverTimestamp() }, { merge: true }),
+    )
+    await assertFails(
+      setDoc(doc(bob, 'invites', code), { uid: 'bob', createdAt: serverTimestamp() }),
+    )
+    await assertFails(deleteDoc(doc(bob, 'invites', code)))
+    await assertFails(setDoc(doc(alice, 'invites', 'short-code'), { uid: 'alice', createdAt: serverTimestamp() }))
+
+    // Establish reciprocal friendship between alice and bob; eve cannot sever it.
+    const batch = writeBatch(bob)
+    batch.set(doc(bob, 'users/alice/friends/bob'), friend)
+    batch.set(doc(bob, 'users/bob/friends/alice'), friend)
+    await assertSucceeds(batch.commit())
+    await assertFails(deleteDoc(doc(eve, 'users/alice/friends/bob')))
+    await assertFails(deleteDoc(doc(eve, 'users/bob/friends/alice')))
+  })
+})
+

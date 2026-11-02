@@ -1,5 +1,5 @@
 /** Phase 5 social data. Summary access is controlled by Firestore rules. */
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { collection, deleteDoc, doc, getDoc, onSnapshot, serverTimestamp, setDoc, writeBatch } from 'firebase/firestore'
 import { db } from './firebase'
 import type { AccountState } from './account'
@@ -25,6 +25,8 @@ export function useFriends(account: AccountState, entries: CloudProgressByTopic,
   const profileCurrent = profile?.uid === uid ? profile : null
   const idsKey = ids.join('\u0000')
   const summary = useMemo(() => makeFriendSummary(displayName, entries, today), [displayName, entries, today])
+  const summaryJson = useMemo(() => JSON.stringify(summary), [summary])
+  const lastPublishedRef = useRef<{ uid: string; json: string } | null>(null)
 
   useEffect(() => {
     setProfile(null); setIds(null); setSummariesState(null); setError(null)
@@ -75,13 +77,23 @@ export function useFriends(account: AccountState, entries: CloudProgressByTopic,
   }, [uid, idsKey])
 
   useEffect(() => {
-    if (!uid || !db || !ready || !profileCurrent?.sharing) return
+    if (!uid || !db || !ready || !profileCurrent?.sharing) {
+      lastPublishedRef.current = null
+      return
+    }
+    if (lastPublishedRef.current?.uid === uid && lastPublishedRef.current.json === summaryJson) {
+      return
+    }
     let active = true
-    void setDoc(doc(db, 'users', uid, 'public', 'summary'), summary).catch((e) => {
-      if (active) setError(`Could not publish summary: ${message(e)}`)
-    })
+    void setDoc(doc(db, 'users', uid, 'public', 'summary'), summary)
+      .then(() => {
+        if (active) lastPublishedRef.current = { uid, json: summaryJson }
+      })
+      .catch((e) => {
+        if (active) setError(`Could not publish summary: ${message(e)}`)
+      })
     return () => { active = false }
-  }, [uid, ready, profileCurrent?.sharing, summary])
+  }, [uid, ready, profileCurrent?.sharing, summary, summaryJson])
 
   async function perform(action: () => Promise<void>) {
     setBusy(true); setError(null)

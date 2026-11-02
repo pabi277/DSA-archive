@@ -41,6 +41,8 @@ jobs:
         run: npm run check:dist
       - name: Check built-page asset links
         run: npm run check:links
+      - name: Enforce bundle, PWA and Spark transfer budgets
+        run: npm run check:budgets
       - name: Install browser for responsive and accessibility checks
         run: npx playwright install --with-deps chromium
       - name: Emulator rules tests + phone/desktop browser acceptance

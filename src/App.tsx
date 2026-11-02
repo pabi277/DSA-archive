@@ -29,6 +29,7 @@ import { useAccountData } from './accountData'
 import { usePlanner } from './plannerData'
 import { useFriends } from './friendsData'
 import { FriendsView } from './FriendsView'
+import { useAppPathname, useInstallPrompt } from './pwa'
 import { RevisionView, StatsView, TodayView } from './PlannerViews'
 import {
   continueWhereLeft,
@@ -67,6 +68,8 @@ function initials(name: string) {
  * are unchanged.
  */
 export function App() {
+  const route = useAppPathname()
+  const installPrompt = useInstallPrompt()
   const account = useAccount()
   const library = useLibrary(account)
   const planner = usePlanner(account)
@@ -316,6 +319,16 @@ export function App() {
             <span className="status-dot" aria-hidden="true" />
             {syncLabel}
           </span>
+          {installPrompt.canInstall && (
+            <button
+              type="button"
+              className="icon-button"
+              data-testid="install-app"
+              onClick={() => void installPrompt.install()}
+            >
+              Install
+            </button>
+          )}
           <button
             type="button"
             className="icon-button"
@@ -390,6 +403,25 @@ export function App() {
       )}
 
       <main id="sheet-content" className="content-area">
+        {!route.isKnownRoute ? (
+          <section className="empty-state" data-testid="not-found-view" aria-labelledby="not-found-heading">
+            <span className="empty-mark" aria-hidden="true">?</span>
+            <h1 id="not-found-heading">Page not found</h1>
+            <p>
+              No page exists at <code>{route.pathname}</code>. DSA Archive lives on a single sheet page;
+              problem statements, articles and videos open on their original sites from each row.
+            </p>
+            <button
+              type="button"
+              className="button button-primary"
+              data-testid="not-found-home"
+              onClick={route.goHome}
+            >
+              Back to the sheet
+            </button>
+          </section>
+        ) : (
+          <>
         {error && (
           <div className="notice notice-error" role="alert" data-testid={errorTestId}>
             <div>
@@ -943,11 +975,13 @@ export function App() {
             </section>
           </aside>
         </div>
+          </>
+        )}
       </main>
 
       <footer className="app-footer">
-        Phase 4 · daily goal, Today plan, spaced revision queue (3/7/21 days) and on-device stats on top of
-        phases 1–3 — emulator-tested in CI; no live project is configured or deployed.
+        DSA Archive · clean-room personal study sheet (MIT for original code &amp; data; outbound links belong to
+        their authors) · installable offline-first PWA · no live deploy without explicit owner command.
       </footer>
     </div>
   )
