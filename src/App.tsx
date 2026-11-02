@@ -18,12 +18,20 @@ import {
   type SheetQuery,
 } from './sheet'
 import { TopicAccordion } from './SheetList'
+import { NoteEditor } from './NoteEditor'
+import { NotesView } from './NotesView'
+import { ListsView } from './ListsView'
+import { ListPicker } from './ListPicker'
+import { locateProblem, listsContaining, sortLists } from './library'
+import { useAccount } from './account'
+import { useLibrary } from './libraryData'
 import { useAccountData } from './accountData'
 
 const summary = summarizeCatalogue()
 const levelSplit = LEVEL_FILTERS.map((level) => `${LEVEL_LABELS[level]} ${summary.levels[level] ?? 0}`).join(' · ')
 
-type Filters = Omit<SheetQuery, 'hideDone'>
+type Filters = Omit<SheetQuery, 'hideDone' | 'listProblemIds'>
+type View = 'sheet' | 'notes' | 'lists'
 const noFilters: Filters = { search: '', topicId: '', levels: [], linkTypes: [] }
 
 function scrollToId(id: string) {
@@ -40,14 +48,20 @@ function initials(name: string) {
 }
 
 /**
- * Phase 2 sheet: the phase-1 catalogue UI keeps working signed out, while the
- * header, banner, account panel and progress actions now use Auth/Firestore.
- * Frozen 0-D tokens are unchanged.
+ * The app has three views over one screen: the sheet (phases 1–2), my notes
+ * (3.2) and custom lists (3.3). Notes and lists are per-account Firestore
+ * data; the sheet keeps working signed out. Frozen 0-D tokens are unchanged.
  */
 export function App() {
-  const data = useAccountData()
-  const { account, progress, settings } = data
+  const account = useAccount()
+  const library = useLibrary(account)
+  const data = useAccountData(account, library)
+  const { progress, settings } = data
   const [filters, setFilters] = useState<Filters>(noFilters)
+  const [view, setView] = useState<View>('sheet')
+  const [noteQuery, setNoteQuery] = useState('')
+  const [activeListId, setActiveListId] = useState<string | null>(null)
+  const [rowPanel, setRowPanel] = useState<{ problemId: string; kind: 'note' | 'lists' } | null>(null)
   const [openTopics, setOpenTopics] = useState<ReadonlySet<string>>(() => new Set())
   const [pick, setPick] = useState<RandomPick | null>(null)
   const [revealed, setRevealed] = useState<string | null>(null)
@@ -55,9 +69,18 @@ export function App() {
   const searchRef = useRef<HTMLInputElement>(null)
   const scrollNonce = useRef(0)
 
+  const activeList = activeListId ? library.lists[activeListId] ?? null : null
+  const listChoices = useMemo(() => sortLists(library.lists), [library.lists])
+  const noteTotal = Object.keys(library.notes).length
+  const listTotal = listChoices.length
+
   const query = useMemo<SheetQuery>(
-    () => ({ ...filters, hideDone: settings.hideDone }),
-    [filters, settings.hideDone],
+    () => ({
+      ...filters,
+      hideDone: settings.hideDone,
+      listProblemIds: activeList ? new Set(activeList.problemIds) : null,
+    }),
+    [filters, settings.hideDone, activeList],
   )
   const sheet = useMemo(() => applySheetQuery(query, progress), [query, progress])
   const tally = useMemo(() => tallyCatalogue(progress), [progress])
@@ -74,7 +97,19 @@ export function App() {
   const signedIn = account.status === 'signed-in'
   const avatarInitials = account.user ? initials(account.user.displayName) : ''
   const progressDisabled = (signedIn && !data.cloudReady) || data.busy
-  const errorTestId = data.error?.startsWith('Invalid backup:') ? 'backup-error' : 'account-error'
+  const error = data.error ?? library.error
+  const notice = data.notice ?? library.notice
+  const errorTestId = error?.startsWith('Invalid backup:')
+    ? 'backup-error'
+    : data.error
+      ? 'account-error'
+      : 'library-error'
+  const syncLabel = data.syncState === 'synced' && library.pending ? 'Changes pending' : data.syncLabel
+
+  // A deleted list must never leave the sheet filtered by a list that is gone.
+  useEffect(() => {
+    if (activeListId && !library.lists[activeListId]) setActiveListId(null)
+  }, [activeListId, library.lists])
 
   // Search narrows instantly: expand every topic that still has matches. The
   // dependency is the *signature* of matching topic ids, so ticking a row done
@@ -126,13 +161,16 @@ export function App() {
 
   const clearFilters = () => {
     setFilters(noFilters)
+    setActiveListId(null)
     if (settings.hideDone) toggleHideDone()
     setPick(null)
     setRevealed(null)
   }
 
   const openTopic = (topicId: string) => {
+    setView('sheet')
     setFilters(noFilters)
+    setActiveListId(null)
     setPick(null)
     setRevealed(null)
     setOpenTopics((current) => new Set(current).add(topicId))
@@ -148,6 +186,77 @@ export function App() {
     focus(`problem-${next.problem.id}`)
   }
 
+  const openProblemInSheet = (problemId: string) => {
+    const location = locateProblem(problemId)
+    if (!location) return
+    setView('sheet')
+    setFilters(noFilters)
+    setActiveListId(null)
+    setPick(null)
+    setRowPanel(null)
+    setRevealed(problemId)
+    setOpenTopics((current) => new Set(current).add(location.topicId))
+    focus(`problem-${problemId}`)
+  }
+
+  const editNoteFor = (problemId: string) => {
+    openProblemInSheet(problemId)
+    setRowPanel({ problemId, kind: 'note' })
+  }
+
+  const filterByList = (listId: string) => {
+    setView('sheet')
+    setFilters(noFilters)
+    setActiveListId(listId)
+    setPick(null)
+    setRevealed(null)
+    setRowPanel(null)
+  }
+
+  const toggleRowPanel = (problemId: string, kind: 'note' | 'lists') =>
+    setRowPanel((current) =>
+      current && current.problemId === problemId && current.kind === kind ? null : { problemId, kind },
+    )
+
+  const renderRowPanel = (problemId: string, kind: 'note' | 'lists') => {
+    const location = locateProblem(problemId)
+    if (!location) return null
+    if (kind === 'note') {
+      const note = library.notes[problemId] ?? null
+      return (
+        <NoteEditor
+          key={`${problemId}-${note?.updatedAt ?? 'new'}`}
+          problemId={problemId}
+          problemTitle={location.problem.title}
+          note={note}
+          disabled={library.busy || !library.signedIn}
+          onSave={(markdown, snippet) => {
+            void library.saveNote(problemId, markdown, snippet)
+          }}
+          onDelete={() => {
+            void library.deleteNote(problemId)
+          }}
+          onClose={() => setRowPanel(null)}
+        />
+      )
+    }
+    return (
+      <ListPicker
+        problemId={problemId}
+        problemTitle={location.problem.title}
+        lists={library.lists}
+        disabled={library.busy || !library.signedIn}
+        onToggle={(listId) => {
+          void library.toggleProblemInList(listId, problemId)
+        }}
+        onCreate={(title) => {
+          void library.createList(title, problemId)
+        }}
+        onClose={() => setRowPanel(null)}
+      />
+    )
+  }
+
   return (
     <div className={settings.largeText ? 'app-root large-text' : 'app-root'} data-theme={settings.theme}>
       <a className="skip-link" href="#sheet-content">Skip to sheet</a>
@@ -158,7 +267,7 @@ export function App() {
           <span className="count-pill" data-testid="progress-pill">{tally.done}/{tally.total} done</span>
           <span className="sync-pill" data-testid="sync-pill" aria-live="polite">
             <span className="status-dot" aria-hidden="true" />
-            {data.syncLabel}
+            {syncLabel}
           </span>
           <button
             type="button"
@@ -198,13 +307,16 @@ export function App() {
       {signedIn && account.user ? (
         <aside className="app-banner" data-testid="signed-in-banner" aria-label="Account and storage status">
           <strong>Signed in as {account.user.displayName}</strong>
-          <span>Progress and settings follow this account · offline changes sync on reconnect</span>
+          <span>Progress, notes and lists follow this account · offline changes sync on reconnect</span>
         </aside>
       ) : (
         <aside className="app-banner" data-testid="sign-in-banner" aria-label="Account and storage status">
           <div className="banner-copy">
             <strong>Sign in to save progress</strong>
-            <span>Guest rows stay on this device until you choose to merge them · Google sign-in enables cloud sync</span>
+            <span>
+              Guest rows stay on this device until you choose to merge them · Google sign-in enables cloud
+              sync, notes and lists
+            </span>
           </div>
           <div className="banner-actions">
             <button
@@ -231,22 +343,36 @@ export function App() {
       )}
 
       <main id="sheet-content" className="content-area">
-        {data.error && (
+        {error && (
           <div className="notice notice-error" role="alert" data-testid={errorTestId}>
             <div>
               <strong>Something needs attention</strong>
-              <p>{data.error}</p>
+              <p>{error}</p>
             </div>
-            <button type="button" className="button button-secondary" onClick={data.dismissError}>
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={() => {
+                data.dismissError()
+                library.dismissError()
+              }}
+            >
               Dismiss
             </button>
           </div>
         )}
 
-        {data.notice && (
+        {notice && (
           <div className="notice" role="status" data-testid="account-notice">
-            <div><strong>{data.notice}</strong></div>
-            <button type="button" className="button button-secondary" onClick={data.dismissNotice}>
+            <div><strong>{notice}</strong></div>
+            <button
+              type="button"
+              className="button button-secondary"
+              onClick={() => {
+                data.dismissNotice()
+                library.dismissNotice()
+              }}
+            >
               Dismiss
             </button>
           </div>
@@ -300,133 +426,214 @@ export function App() {
           </div>
         </div>
 
-        <div className="toolbar">
-          {/* div, not label: a clear button inside a <label> would nest
-              interactive content in the labelled control. */}
-          <div className="search-field">
-            <span aria-hidden="true">⌕</span>
-            <input
-              ref={searchRef}
-              type="search"
-              value={filters.search}
-              placeholder="Search all problems"
-              aria-label="Search problems"
-              onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
-            />
-            {filters.search !== '' && (
-              <button
-                type="button"
-                aria-label="Clear search"
-                onClick={() => setFilters((current) => ({ ...current, search: '' }))}
-              >
-                ✕
-              </button>
-            )}
-          </div>
-          <button type="button" className="button button-secondary" onClick={randomPick} data-testid="random-pick">
-            Random pick
-          </button>
-          {sheet.filtering && (
-            <button type="button" className="button button-secondary" onClick={clearFilters}>
-              Clear all
-            </button>
-          )}
-        </div>
-
-        <div className="chip-row">
-          <select
-            className="select-field"
-            aria-label="Filter by topic"
-            value={filters.topicId}
-            onChange={(event) => setFilters((current) => ({ ...current, topicId: event.target.value }))}
+        <div className="list-tabs view-tabs" role="group" aria-label="Choose a view">
+          <button
+            type="button"
+            className={view === 'sheet' ? 'active-tab' : undefined}
+            aria-pressed={view === 'sheet'}
+            data-testid="view-tab-sheet"
+            onClick={() => setView('sheet')}
           >
-            <option value="">All topics</option>
-            {catalogue.topics.map((topic) => (
-              <option key={topic.id} value={topic.id}>{topic.title}</option>
-            ))}
-          </select>
-          <div className="chip-group" role="group" aria-label="Filter by level">
-            {LEVEL_FILTERS.map((level) => (
-              <button
-                key={level}
-                type="button"
-                className={chipClass(filters.levels.includes(level))}
-                aria-pressed={filters.levels.includes(level)}
-                onClick={() => toggleLevel(level)}
-              >
-                {LEVEL_LABELS[level]}
-              </button>
-            ))}
-          </div>
-          <div className="chip-group" role="group" aria-label="Filter by link type">
-            {LINK_FILTERS.map((linkType) => (
-              <button
-                key={linkType}
-                type="button"
-                className={chipClass(filters.linkTypes.includes(linkType))}
-                aria-pressed={filters.linkTypes.includes(linkType)}
-                onClick={() => toggleLinkType(linkType)}
-              >
-                {LINK_LABELS[linkType]}
-              </button>
-            ))}
-            <button
-              type="button"
-              className={chipClass(settings.hideDone)}
-              aria-pressed={settings.hideDone}
-              onClick={toggleHideDone}
-            >
-              Hide done
-            </button>
-          </div>
+            Sheet <span>{sheet.matchCount}</span>
+          </button>
+          <button
+            type="button"
+            className={view === 'notes' ? 'active-tab' : undefined}
+            aria-pressed={view === 'notes'}
+            data-testid="view-tab-notes"
+            onClick={() => setView('notes')}
+          >
+            Notes <span>{noteTotal}</span>
+          </button>
+          <button
+            type="button"
+            className={view === 'lists' ? 'active-tab' : undefined}
+            aria-pressed={view === 'lists'}
+            data-testid="view-tab-lists"
+            onClick={() => setView('lists')}
+          >
+            Lists <span>{listTotal}</span>
+          </button>
         </div>
 
-        <p className="quiet-note" data-testid="match-count">
-          Showing {sheet.matchCount} of {sheet.totalCount} problems across {sheet.topics.length} of{' '}
-          {sheet.topicCount} topics
-          {filterCount > 0 ? ` · ${filterCount} filter${filterCount === 1 ? '' : 's'} on` : ''}
-          {filters.search.trim() === '' ? ' · press / to search' : ''}
-        </p>
-
-        {completedTopics.length > 0 && (
-          <div className="notice" role="status" data-testid="topic-complete">
-            <div>
-              <strong>Quiet win · topic complete</strong>
-              <p>{completedTopics.map((topic) => topic.title).join(' · ')} — every row is marked done.</p>
-            </div>
-          </div>
-        )}
-
-        {pick && (
-          <div className="notice" role="status" data-testid="random-notice">
-            <div>
-              <strong>Random pick · {pick.problem.title}</strong>
-              <p>{pick.topicTitle} · {LEVEL_LABELS[levelOf(pick.problem)]}</p>
-            </div>
-            <div className="heading-actions">
-              <button type="button" className="button button-secondary" onClick={randomPick}>
-                Pick another
+        {view === 'sheet' && (
+          <>
+            <div className="toolbar">
+              {/* div, not label: a clear button inside a <label> would nest
+                  interactive content in the labelled control. */}
+              <div className="search-field">
+                <span aria-hidden="true">⌕</span>
+                <input
+                  ref={searchRef}
+                  type="search"
+                  value={filters.search}
+                  placeholder="Search all problems"
+                  aria-label="Search problems"
+                  onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
+                />
+                {filters.search !== '' && (
+                  <button
+                    type="button"
+                    aria-label="Clear search"
+                    onClick={() => setFilters((current) => ({ ...current, search: '' }))}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              <button type="button" className="button button-secondary" onClick={randomPick} data-testid="random-pick">
+                Random pick
               </button>
-              <button
-                type="button"
-                className="button button-secondary"
-                onClick={() => { setPick(null); setRevealed(null) }}
+              {sheet.filtering && (
+                <button type="button" className="button button-secondary" onClick={clearFilters}>
+                  Clear all
+                </button>
+              )}
+            </div>
+
+            <div className="chip-row">
+              <select
+                className="select-field"
+                aria-label="Filter by topic"
+                value={filters.topicId}
+                onChange={(event) => setFilters((current) => ({ ...current, topicId: event.target.value }))}
               >
-                Dismiss
-              </button>
+                <option value="">All topics</option>
+                {catalogue.topics.map((topic) => (
+                  <option key={topic.id} value={topic.id}>{topic.title}</option>
+                ))}
+              </select>
+              <div className="chip-group" role="group" aria-label="Filter by level">
+                {LEVEL_FILTERS.map((level) => (
+                  <button
+                    key={level}
+                    type="button"
+                    className={chipClass(filters.levels.includes(level))}
+                    aria-pressed={filters.levels.includes(level)}
+                    onClick={() => toggleLevel(level)}
+                  >
+                    {LEVEL_LABELS[level]}
+                  </button>
+                ))}
+              </div>
+              <div className="chip-group" role="group" aria-label="Filter by link type">
+                {LINK_FILTERS.map((linkType) => (
+                  <button
+                    key={linkType}
+                    type="button"
+                    className={chipClass(filters.linkTypes.includes(linkType))}
+                    aria-pressed={filters.linkTypes.includes(linkType)}
+                    onClick={() => toggleLinkType(linkType)}
+                  >
+                    {LINK_LABELS[linkType]}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className={chipClass(settings.hideDone)}
+                  aria-pressed={settings.hideDone}
+                  onClick={toggleHideDone}
+                >
+                  Hide done
+                </button>
+              </div>
+              {listChoices.length > 0 && (
+                <div className="chip-group" role="group" aria-label="Filter by list">
+                  {listChoices.map((list) => (
+                    <button
+                      key={list.id}
+                      type="button"
+                      className={chipClass(activeListId === list.id)}
+                      aria-pressed={activeListId === list.id}
+                      data-testid={`list-chip-${list.id}`}
+                      onClick={() => setActiveListId((current) => (current === list.id ? null : list.id))}
+                    >
+                      List · {list.title} ({list.problemIds.length})
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
+
+            <p className="quiet-note" data-testid="match-count">
+              Showing {sheet.matchCount} of {sheet.totalCount} problems across {sheet.topics.length} of{' '}
+              {sheet.topicCount} topics
+              {filterCount > 0 ? ` · ${filterCount} filter${filterCount === 1 ? '' : 's'} on` : ''}
+              {activeList ? ` · list “${activeList.title}”` : ''}
+              {filters.search.trim() === '' ? ' · press / to search' : ''}
+            </p>
+
+            {completedTopics.length > 0 && (
+              <div className="notice" role="status" data-testid="topic-complete">
+                <div>
+                  <strong>Quiet win · topic complete</strong>
+                  <p>{completedTopics.map((topic) => topic.title).join(' · ')} — every row is marked done.</p>
+                </div>
+              </div>
+            )}
+
+            {pick && (
+              <div className="notice" role="status" data-testid="random-notice">
+                <div>
+                  <strong>Random pick · {pick.problem.title}</strong>
+                  <p>{pick.topicTitle} · {LEVEL_LABELS[levelOf(pick.problem)]}</p>
+                </div>
+                <div className="heading-actions">
+                  <button type="button" className="button button-secondary" onClick={randomPick}>
+                    Pick another
+                  </button>
+                  <button
+                    type="button"
+                    className="button button-secondary"
+                    onClick={() => { setPick(null); setRevealed(null) }}
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         <div className="content-columns">
           <div className="sheet-column">
-            {sheet.topics.length === 0 ? (
+            {view === 'notes' ? (
+              <NotesView
+                signedIn={library.signedIn}
+                notes={library.notes}
+                query={noteQuery}
+                onQueryChange={setNoteQuery}
+                onEdit={editNoteFor}
+                onOpen={openProblemInSheet}
+              />
+            ) : view === 'lists' ? (
+              <ListsView
+                signedIn={library.signedIn}
+                lists={library.lists}
+                disabled={library.busy}
+                onCreate={(title) => {
+                  void library.createList(title)
+                }}
+                onRename={(listId, title) => {
+                  void library.renameList(listId, title)
+                }}
+                onDelete={(listId) => {
+                  void library.deleteList(listId)
+                }}
+                onRemove={(listId, problemId) => {
+                  void library.toggleProblemInList(listId, problemId)
+                }}
+                onFilterSheet={filterByList}
+                onOpenProblem={openProblemInSheet}
+              />
+            ) : sheet.topics.length === 0 ? (
               <div className="empty-state">
                 <span className="empty-mark" aria-hidden="true">—</span>
                 <h2>No matching problems</h2>
                 <p>
                   Nothing in the {summary.problemCount}-row sheet matches
-                  {filters.search.trim() !== '' ? ` “${filters.search.trim()}”` : ' those filters'}.
+                  {filters.search.trim() !== '' ? ` “${filters.search.trim()}”` : ' those filters'}
+                  {activeList ? ` inside “${activeList.title}”` : ''}.
                 </p>
                 <button type="button" className="button button-secondary" onClick={clearFilters}>
                   Clear search and filters
@@ -453,6 +660,12 @@ export function App() {
                     progressDisabled={progressDisabled}
                     onToggleStatus={data.toggleStatus}
                     onToggleBookmark={data.toggleBookmark}
+                    canEditNotes={library.signedIn}
+                    hasNote={(problemId) => Boolean(library.notes[problemId])}
+                    listCountFor={(problemId) => listsContaining(library.lists, problemId).length}
+                    openPanel={rowPanel}
+                    onTogglePanel={toggleRowPanel}
+                    renderPanel={renderRowPanel}
                   />
                 ))}
               </div>
@@ -464,6 +677,12 @@ export function App() {
               <h2 className="card-title">Your progress</h2>
               <div className="context-stat"><strong>{tally.done}</strong><span>marked done</span></div>
               <div className="context-stat"><strong>{tally.bookmarked}</strong><span>bookmarked</span></div>
+              {library.signedIn && (
+                <>
+                  <div className="context-stat"><strong>{noteTotal}</strong><span>notes</span></div>
+                  <div className="context-stat"><strong>{listTotal}</strong><span>custom lists</span></div>
+                </>
+              )}
               <div className="context-progress" aria-hidden="true">
                 <span style={{ width: `${tally.percent}%` }} />
               </div>
@@ -516,7 +735,8 @@ export function App() {
                   </div>
                 </div>
                 <p className="fine-print">
-                  {data.cloudRows} cloud row{data.cloudRows === 1 ? '' : 's'} · {data.guestRows} guest row{data.guestRows === 1 ? '' : 's'} ·
+                  {data.cloudRows} cloud row{data.cloudRows === 1 ? '' : 's'} · {data.guestRows} guest row{data.guestRows === 1 ? '' : 's'} ·{' '}
+                  {noteTotal} note{noteTotal === 1 ? '' : 's'} · {listTotal} list{listTotal === 1 ? '' : 's'} ·
                   friends and summaries are excluded from backups.
                 </p>
                 <div className="action-grid">
@@ -585,8 +805,9 @@ export function App() {
       </main>
 
       <footer className="app-footer">
-        Phase 2 · Google sign-in, offline-first cloud progress, guest merge, Firestore rules and JSON backup —
-        emulator-tested in CI; no live project is configured or deployed.
+        Phase 3 · synced markdown notes, code snippets and custom lists on top of phase-2 Google sign-in,
+        offline-first cloud progress, guest merge, Firestore rules and JSON backup — emulator-tested in CI;
+        no live project is configured or deployed.
       </footer>
     </div>
   )

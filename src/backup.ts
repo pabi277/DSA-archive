@@ -1,7 +1,12 @@
 /**
- * Phase 2.4 anti-lock-in backup. One JSON file carries profile settings plus
- * every progressByTopic row; friends/summaries are deliberately excluded.
- * Phase 3/4 note/list/plan arrays are present but empty in schema v1.
+ * Anti-lock-in JSON backup.
+ *
+ * Schema v1 shipped in phase 2 with `notes`/`lists` present but always empty
+ * (phases 3–4 would fill them). Phase 3 bumps the writer to **schema v2**:
+ * the same profile + `progressByTopic` payload, plus real note and custom-list
+ * arrays. v1 files still import — that is the recorded, backward-compatible
+ * migration — they simply carry no notes or lists, exactly as they were
+ * written. Friends/summaries stay excluded; plans remain for phase 4.
  */
 import { catalogue } from './catalogue'
 import {
@@ -11,9 +16,23 @@ import {
   type CloudTopicProgress,
 } from './cloudProgress'
 import type { Settings, Theme } from './settings'
+import {
+  LIST_ID_PATTERN,
+  LIST_MAX_PROBLEMS,
+  LIST_TITLE_LIMIT,
+  NOTE_MARKDOWN_LIMIT,
+  NOTE_SNIPPET_LIMIT,
+  isKnownProblemId,
+  noteIsEmpty,
+  type BackupList,
+  type BackupNote,
+} from './library'
 
-export const BACKUP_SCHEMA_VERSION = 1
-const MAX_BACKUP_BYTES = 1_000_000
+export const BACKUP_SCHEMA_VERSION = 2
+/** v1 (phase 2) files import unchanged; they carry no notes or lists. */
+export const SUPPORTED_BACKUP_SCHEMAS = [1, 2] as const
+/** Room for many notes/snippets; each field is individually capped below. */
+const MAX_BACKUP_BYTES = 4_000_000
 
 export type BackupProfile = {
   displayName: string
@@ -26,13 +45,13 @@ export type BackupProfile = {
 }
 
 export type Backup = {
-  schemaVersion: typeof BACKUP_SCHEMA_VERSION
+  schemaVersion: number
   generatedBy: 'DSA Archive'
   exportedAt: string
   profile: BackupProfile
   progressByTopic: CloudProgressByTopic
-  notes: unknown[]
-  lists: unknown[]
+  notes: BackupNote[]
+  lists: BackupList[]
   plans: unknown[]
   excluded: string[]
 }
@@ -49,6 +68,8 @@ export type BackupInput = {
   account: { displayName: string; email: string }
   settings: Settings
   progressByTopic: CloudProgressByTopic
+  notes?: BackupNote[]
+  lists?: BackupList[]
   exportedAt?: string
 }
 
@@ -61,6 +82,10 @@ export class BackupError extends Error {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function fail(message: string): never {
+  throw new BackupError(message)
 }
 
 export function createBackup(input: BackupInput): string {
@@ -78,8 +103,8 @@ export function createBackup(input: BackupInput): string {
       shareSummary: false,
     },
     progressByTopic: input.progressByTopic,
-    notes: [],
-    lists: [],
+    notes: input.notes ?? [],
+    lists: input.lists ?? [],
     plans: [],
     excluded: ['friends', 'public/summary'],
   }
@@ -93,9 +118,95 @@ const knownIds = new Map(
   ]),
 )
 
+const NOTE_KEYS = ['problemId', 'markdown', 'snippet', 'updatedAt']
+const LIST_KEYS = ['listId', 'title', 'problemIds', 'updatedAt']
+
+function parseTimestamp(value: unknown, label: string): string | null {
+  if (value === undefined || value === null) return null
+  if (typeof value !== 'string' || value.length > 40) {
+    fail(`${label} must be an ISO timestamp string or null`)
+  }
+  return value
+}
+
+function parseNotes(raw: unknown, schemaVersion: number): BackupNote[] {
+  if (raw === undefined) return []
+  if (!Array.isArray(raw)) fail('notes must be an array')
+  if (schemaVersion === 1 && raw.length > 0) {
+    // Phase-2 files always wrote this array empty; content there is not a
+    // shape we ever produced, so refuse it instead of guessing.
+    fail('a schemaVersion 1 backup cannot contain notes')
+  }
+  const seen = new Set<string>()
+  return raw.map((entry, index) => {
+    if (!isRecord(entry)) fail(`notes[${index}] must be an object`)
+    if (!Object.keys(entry).every((key) => NOTE_KEYS.includes(key))) {
+      fail(`notes[${index}] has unexpected fields`)
+    }
+    const problemId = entry.problemId
+    if (typeof problemId !== 'string' || !isKnownProblemId(problemId)) {
+      fail(`notes[${index}] does not name a problem in this catalogue`)
+    }
+    if (seen.has(problemId)) fail(`duplicate note for "${problemId}"`)
+    seen.add(problemId)
+    const markdown = typeof entry.markdown === 'string' ? entry.markdown : fail(`notes[${index}].markdown must be text`)
+    const snippet = typeof entry.snippet === 'string' ? entry.snippet : fail(`notes[${index}].snippet must be text`)
+    if (markdown.length > NOTE_MARKDOWN_LIMIT) fail(`notes[${index}].markdown is over ${NOTE_MARKDOWN_LIMIT} characters`)
+    if (snippet.length > NOTE_SNIPPET_LIMIT) fail(`notes[${index}].snippet is over ${NOTE_SNIPPET_LIMIT} characters`)
+    if (noteIsEmpty(markdown, snippet)) fail(`notes[${index}] is empty`)
+    return {
+      problemId,
+      markdown,
+      snippet,
+      updatedAt: parseTimestamp(entry.updatedAt, `notes[${index}].updatedAt`),
+    }
+  })
+}
+
+function parseLists(raw: unknown, schemaVersion: number): BackupList[] {
+  if (raw === undefined) return []
+  if (!Array.isArray(raw)) fail('lists must be an array')
+  if (schemaVersion === 1 && raw.length > 0) {
+    fail('a schemaVersion 1 backup cannot contain lists')
+  }
+  const seen = new Set<string>()
+  return raw.map((entry, index) => {
+    if (!isRecord(entry)) fail(`lists[${index}] must be an object`)
+    if (!Object.keys(entry).every((key) => LIST_KEYS.includes(key))) {
+      fail(`lists[${index}] has unexpected fields`)
+    }
+    const listId = entry.listId
+    if (typeof listId !== 'string' || !LIST_ID_PATTERN.test(listId)) {
+      fail(`lists[${index}] has an invalid listId`)
+    }
+    if (seen.has(listId)) fail(`duplicate list id "${listId}"`)
+    seen.add(listId)
+    const title = typeof entry.title === 'string' ? entry.title.trim() : fail(`lists[${index}].title must be text`)
+    if (title === '') fail(`lists[${index}] has no title`)
+    if (title.length > LIST_TITLE_LIMIT) fail(`lists[${index}].title is over ${LIST_TITLE_LIMIT} characters`)
+    if (!Array.isArray(entry.problemIds)) fail(`lists[${index}].problemIds must be an array`)
+    if (entry.problemIds.length > LIST_MAX_PROBLEMS) {
+      fail(`lists[${index}] holds more than ${LIST_MAX_PROBLEMS} problems`)
+    }
+    const problemIds: string[] = []
+    for (const problemId of entry.problemIds) {
+      if (typeof problemId !== 'string' || !isKnownProblemId(problemId)) {
+        fail(`lists[${index}] contains a problem id that is not in this catalogue`)
+      }
+      if (!problemIds.includes(problemId)) problemIds.push(problemId)
+    }
+    return {
+      listId,
+      title,
+      problemIds,
+      updatedAt: parseTimestamp(entry.updatedAt, `lists[${index}].updatedAt`),
+    }
+  })
+}
+
 export function parseBackup(text: string): { backup: Backup; counts: BackupCounts } {
   if (text.length > MAX_BACKUP_BYTES) {
-    throw new BackupError('file is larger than the 1 MB backup limit')
+    throw new BackupError('file is larger than the 4 MB backup limit')
   }
   let raw: unknown
   try {
@@ -104,8 +215,11 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
     throw new BackupError('file is not valid JSON')
   }
   if (!isRecord(raw)) throw new BackupError('root must be a JSON object')
-  if (raw.schemaVersion !== BACKUP_SCHEMA_VERSION) {
-    throw new BackupError(`unsupported schemaVersion (expected ${BACKUP_SCHEMA_VERSION})`)
+  const schemaVersion = raw.schemaVersion
+  if (typeof schemaVersion !== 'number' || !(SUPPORTED_BACKUP_SCHEMAS as readonly number[]).includes(schemaVersion)) {
+    throw new BackupError(
+      `unsupported schemaVersion (expected ${SUPPORTED_BACKUP_SCHEMAS.join(' or ')})`,
+    )
   }
   if (raw.generatedBy !== 'DSA Archive') throw new BackupError('not a DSA Archive backup')
   if (typeof raw.exportedAt !== 'string') throw new BackupError('missing exportedAt')
@@ -151,10 +265,11 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
     if (Object.keys(nextShard).length > 0) progressByTopic[topicId] = nextShard
   }
 
-  for (const key of ['notes', 'lists', 'plans'] as const) {
-    if (raw[key] !== undefined && !Array.isArray(raw[key])) {
-      throw new BackupError(`${key} must be an array`)
-    }
+  const notes = parseNotes(raw.notes, schemaVersion)
+  const lists = parseLists(raw.lists, schemaVersion)
+
+  if (raw.plans !== undefined && !Array.isArray(raw.plans)) {
+    throw new BackupError('plans must be an array')
   }
 
   const backup: Backup = {
@@ -163,8 +278,8 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
     exportedAt: raw.exportedAt,
     profile,
     progressByTopic,
-    notes: Array.isArray(raw.notes) ? raw.notes : [],
-    lists: Array.isArray(raw.lists) ? raw.lists : [],
+    notes,
+    lists,
     plans: Array.isArray(raw.plans) ? raw.plans : [],
     excluded: Array.isArray(raw.excluded) ? raw.excluded.filter((item): item is string => typeof item === 'string') : [],
   }
@@ -173,8 +288,8 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
     counts: {
       topics: Object.keys(progressByTopic).length,
       rows: countCloudRows(progressByTopic),
-      notes: backup.notes.length,
-      lists: backup.lists.length,
+      notes: notes.length,
+      lists: lists.length,
       plans: backup.plans.length,
     },
   }

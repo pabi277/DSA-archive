@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { LINK_LABELS, LEVEL_LABELS, levelOf, type FilteredTopic, type LinkFilter } from './sheet'
 import { isBookmarked, isDone, type ProgressByTopic } from './progress'
 import type { Problem } from './catalogue'
@@ -5,10 +6,9 @@ import type { Problem } from './catalogue'
 const linkTypes = Object.keys(LINK_LABELS) as LinkFilter[]
 
 /**
- * One sheet row (roadmap 1.1 + 1.3): status control, title, text-labelled
- * level badge, bookmark, and the outbound links that exist for that row.
- * Phase 2 passes progress actions in from the account-data hook so the same
- * row works for guest localStorage and signed-in Firestore progress.
+ * One sheet row (roadmap 1.1 + 1.3, extended in 3.1/3.3): status control,
+ * title, text-labelled level badge, bookmark, the outbound links that exist,
+ * and — signed in — the note editor and list-picker entry points.
  */
 export function ProblemRow({
   topicId,
@@ -18,6 +18,12 @@ export function ProblemRow({
   disabled,
   onToggleStatus,
   onToggleBookmark,
+  hasNote,
+  listCount,
+  canEditNotes,
+  openPanel,
+  onTogglePanel,
+  panel,
 }: {
   topicId: string
   problem: Problem
@@ -26,6 +32,12 @@ export function ProblemRow({
   disabled: boolean
   onToggleStatus: (topicId: string, problemId: string) => void
   onToggleBookmark: (topicId: string, problemId: string) => void
+  hasNote: boolean
+  listCount: number
+  canEditNotes: boolean
+  openPanel: 'note' | 'lists' | null
+  onTogglePanel: (kind: 'note' | 'lists') => void
+  panel: ReactNode
 }) {
   const done = isDone(progress, topicId, problem.id)
   const bookmarked = isBookmarked(progress, topicId, problem.id)
@@ -60,15 +72,44 @@ export function ProblemRow({
       >
         {bookmarked ? '★' : '☆'}
       </button>
-      {links.length > 0 && (
-        <div className="row-actions" role="group" aria-label={`Outbound links for ${problem.title}`}>
-          {links.map((linkType) => (
-            <a key={linkType} href={problem.links[linkType]} target="_blank" rel="noopener noreferrer">
-              {LINK_LABELS[linkType]}
-            </a>
-          ))}
+      {(links.length > 0 || canEditNotes) && (
+        <div className="row-actions" role="group" aria-label={`Actions for ${problem.title}`}>
+          {canEditNotes && (
+            <div className="row-tools" role="group" aria-label={`Notes and lists for ${problem.title}`}>
+              <button
+                type="button"
+                className={openPanel === 'note' ? 'row-tool is-on' : 'row-tool'}
+                aria-expanded={openPanel === 'note'}
+                aria-label={`${hasNote ? 'Edit' : 'Add'} note for ${problem.title}`}
+                data-testid={`note-button-${problem.id}`}
+                onClick={() => onTogglePanel('note')}
+              >
+                {hasNote ? 'Note ✓' : 'Note'}
+              </button>
+              <button
+                type="button"
+                className={openPanel === 'lists' ? 'row-tool is-on' : 'row-tool'}
+                aria-expanded={openPanel === 'lists'}
+                aria-label={`Lists for ${problem.title}`}
+                data-testid={`list-button-${problem.id}`}
+                onClick={() => onTogglePanel('lists')}
+              >
+                {listCount > 0 ? `List · ${listCount}` : '+ List'}
+              </button>
+            </div>
+          )}
+          {links.length > 0 && (
+            <div className="row-links" role="group" aria-label={`Outbound links for ${problem.title}`}>
+              {links.map((linkType) => (
+                <a key={linkType} href={problem.links[linkType]} target="_blank" rel="noopener noreferrer">
+                  {LINK_LABELS[linkType]}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       )}
+      {panel && <div className="row-panel">{panel}</div>}
     </article>
   )
 }
@@ -88,6 +129,12 @@ export function TopicAccordion({
   progressDisabled,
   onToggleStatus,
   onToggleBookmark,
+  canEditNotes,
+  hasNote,
+  listCountFor,
+  openPanel,
+  onTogglePanel,
+  renderPanel,
 }: {
   topic: FilteredTopic
   progress: ProgressByTopic
@@ -98,6 +145,12 @@ export function TopicAccordion({
   progressDisabled: boolean
   onToggleStatus: (topicId: string, problemId: string) => void
   onToggleBookmark: (topicId: string, problemId: string) => void
+  canEditNotes: boolean
+  hasNote: (problemId: string) => boolean
+  listCountFor: (problemId: string) => number
+  openPanel: { problemId: string; kind: 'note' | 'lists' } | null
+  onTogglePanel: (problemId: string, kind: 'note' | 'lists') => void
+  renderPanel: (problemId: string, kind: 'note' | 'lists') => ReactNode
 }) {
   return (
     <details
@@ -123,18 +176,27 @@ export function TopicAccordion({
             {/* h2, not h3: topic names live in <summary> (not a heading), so an
                 h3 here would skip a level and fail the axe heading-order rule. */}
             <h2 className="subtopic-title" id={`subtopic-${subtopic.id}`}>{subtopic.title}</h2>
-            {subtopic.problems.map((problem) => (
-              <ProblemRow
-                key={problem.id}
-                topicId={topic.id}
-                problem={problem}
-                progress={progress}
-                revealed={revealedProblemId === problem.id}
-                disabled={progressDisabled}
-                onToggleStatus={onToggleStatus}
-                onToggleBookmark={onToggleBookmark}
-              />
-            ))}
+            {subtopic.problems.map((problem) => {
+              const panelKind = openPanel?.problemId === problem.id ? openPanel.kind : null
+              return (
+                <ProblemRow
+                  key={problem.id}
+                  topicId={topic.id}
+                  problem={problem}
+                  progress={progress}
+                  revealed={revealedProblemId === problem.id}
+                  disabled={progressDisabled}
+                  onToggleStatus={onToggleStatus}
+                  onToggleBookmark={onToggleBookmark}
+                  hasNote={hasNote(problem.id)}
+                  listCount={listCountFor(problem.id)}
+                  canEditNotes={canEditNotes}
+                  openPanel={panelKind}
+                  onTogglePanel={(kind) => onTogglePanel(problem.id, kind)}
+                  panel={panelKind ? renderPanel(problem.id, panelKind) : null}
+                />
+              )
+            })}
           </section>
         ))}
       </div>

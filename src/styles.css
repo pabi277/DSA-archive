@@ -297,3 +297,57 @@ button, input, select, textarea { font: inherit; }
   .account-panel .heading-actions, .context-card .notice > .heading-actions { width: 100%; }
   .context-card .notice > .heading-actions .button { flex: 1 1 100%; padding-inline: 9px; font-size: 11px; }
 }
+
+/* --- phase 3: notes, snippets and custom lists ----------------------------
+   Built only from the frozen phase-0-D tokens: flat surfaces, 1px lines,
+   neutral level badges, text labels for every state. No new hue is added. */
+.view-tabs { margin: 0 0 15px; }
+.list-tabs button { cursor: pointer; }
+.row-tools, .row-links { display: flex; flex-wrap: wrap; gap: 6px; }
+.row-tool.is-on { border-color: var(--notice-line); background: var(--notice); color: var(--ink); }
+.row-panel { grid-column: 1 / -1; }
+.note-editor, .list-picker { display: grid; gap: 4px; border: 1px solid var(--line); border-radius: 14px; padding: 14px; background: var(--surface-raised); }
+.note-editor-head, .note-card-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.note-editor-head strong { color: var(--ink); font-size: 13px; }
+.note-counter { margin: 0 0 4px; color: var(--subtle); font-size: 11px; text-align: right; }
+.code-input { font-family: var(--font-mono); font-size: 12px; }
+.note-preview { overflow-wrap: anywhere; font-size: 13px; }
+.note-preview p { margin: 0 0 8px; }
+.note-preview .md-heading { color: var(--ink); font-weight: 720; }
+.note-preview ul { margin: 0 0 8px; padding-left: 20px; }
+.note-preview code { font-family: var(--font-mono); font-size: 12px; }
+.note-preview pre, .md-code { overflow-x: auto; margin: 0 0 8px; padding: 10px; border-radius: 9px; background: var(--surface); font-family: var(--font-mono); font-size: 12px; }
+.note-preview a { color: var(--ink); }
+.check-list { display: grid; gap: 5px; margin: 8px 0; padding: 0; list-style: none; }
+.check-list label { display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 5px 9px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font-size: 13px; cursor: pointer; }
+.check-list input { flex: 0 0 auto; width: 18px; height: 18px; accent-color: var(--accent); }
+.check-count { margin-left: auto; color: var(--muted); font-size: 11px; }
+.inline-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px; margin: 8px 0 4px; }
+.inline-form .field-label { flex: 1 1 100%; margin: 0; }
+.inline-form input { flex: 1 1 180px; min-height: 44px; }
+.library-view { display: grid; gap: 12px; }
+.library-head .card-title { margin-bottom: 4px; }
+.library-head .quiet-note { margin: 0 0 6px; }
+.note-list, .list-cards { display: grid; gap: 11px; }
+.note-card, .list-card { display: grid; gap: 9px; padding: 15px; }
+.note-card-copy { min-width: 0; }
+.note-card-copy strong { color: var(--ink); font-size: 14px; }
+.note-card-copy p { margin: 3px 0 0; }
+.note-excerpt { margin: 0; color: var(--muted); font-size: 13px; }
+.note-card-code { max-height: 120px; margin: 0; }
+.list-problems { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.list-problems li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border-top: 1px solid var(--line); padding: 6px 0; }
+.list-problems .text-button { flex: 1 1 auto; min-width: 0; padding: 4px 0; text-align: left; }
+.list-problems .fine-print { flex: 0 1 auto; margin: 0; }
+.list-problems .button { min-height: 34px; padding: 4px 10px; font-size: 11px; }
+.list-create { margin-bottom: 6px; }
+
+@media (max-width: 560px) {
+  .note-editor, .list-picker { padding: 11px; }
+  .note-editor-head { display: grid; }
+  .list-tabs button { min-height: 40px; padding-inline: 9px; font-size: 12px; }
+  .inline-form { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .inline-form .field-label { grid-column: 1 / -1; }
+  .inline-form .button { width: 100%; }
+  .list-problems .button { width: auto; }
+}

@@ -41,7 +41,7 @@ test('the full sheet is browsable signed out and rows link out (1.1 + 1.3, deskt
     expect(attribute.target).toBe('_blank')
     expect(attribute.rel).toContain('noopener')
   }
-  await expect(page.locator('#problem-two-sum .row-actions')).toHaveAttribute(
+  await expect(page.locator('#problem-two-sum .row-links')).toHaveAttribute(
     'aria-label',
     'Outbound links for Two Sum',
   )

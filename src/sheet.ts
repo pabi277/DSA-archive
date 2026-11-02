@@ -33,6 +33,8 @@ export type SheetQuery = {
   levels: LevelFilter[]
   linkTypes: LinkFilter[]
   hideDone: boolean
+  /** Phase 3: restrict the sheet to a custom list's problems. */
+  listProblemIds: ReadonlySet<string> | null
 }
 
 export const emptyQuery: SheetQuery = {
@@ -41,6 +43,7 @@ export const emptyQuery: SheetQuery = {
   levels: [],
   linkTypes: [],
   hideDone: false,
+  listProblemIds: null,
 }
 
 export function levelOf(problem: Problem): LevelFilter {
@@ -92,14 +95,15 @@ export function isFiltering(query: SheetQuery) {
     query.topicId !== '' ||
     query.levels.length > 0 ||
     query.linkTypes.length > 0 ||
-    query.hideDone
+    query.hideDone ||
+    query.listProblemIds !== null
   )
 }
 
 export function activeFilterCount(query: SheetQuery) {
   return (
     (query.topicId === '' ? 0 : 1) + query.levels.length + query.linkTypes.length +
-    (query.hideDone ? 1 : 0)
+    (query.hideDone ? 1 : 0) + (query.listProblemIds === null ? 0 : 1)
   )
 }
 
@@ -121,6 +125,7 @@ export function applySheetQuery(
 
     for (const subtopic of topic.subtopics) {
       const problems = subtopic.problems.filter((problem) => {
+        if (query.listProblemIds && !query.listProblemIds.has(problem.id)) return false
         if (query.levels.length > 0 && !query.levels.includes(levelOf(problem))) return false
         if (!matchesLinkTypes(problem, query.linkTypes)) return false
         if (query.hideDone && progress[topic.id]?.[problem.id]?.s === 'done') return false

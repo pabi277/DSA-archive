@@ -1,5 +1,5 @@
 /**
- * Firestore Security Rules v1 — Emulator Suite proof (roadmap 2.3).
+ * Firestore Security Rules — Emulator Suite proof (roadmap 2.3, extended 3.1/3.3).
  * Run by `npm run test:emulator`; CI starts Auth + Firestore emulators first.
  *
  * No Admin SDK and no service-account key: @firebase/rules-unit-testing
@@ -68,6 +68,27 @@ function ref(db, uid, topicId = 'arrays') {
 
 function progressWrite(problemId, value) {
   return { [problemId]: value, updatedAt: serverTimestamp() }
+}
+
+function noteDoc(overrides = {}) {
+  return {
+    markdown: '## Two sum\nUse a **hash map** and store the complement.',
+    snippet: 'const seen = new Map()',
+    updatedAt: serverTimestamp(),
+    ...overrides,
+  }
+}
+
+function listDoc(problemIds = [arraysIds[0], arraysIds[1]], overrides = {}) {
+  return { title: 'Interview warmup', problemIds, updatedAt: serverTimestamp(), ...overrides }
+}
+
+function noteRef(db, uid, problemId = arraysIds[0]) {
+  return doc(db, `users/${uid}/notes/${problemId}`)
+}
+
+function listRef(db, uid, listId = 'aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa') {
+  return doc(db, `users/${uid}/lists/${listId}`)
 }
 
 before(async () => {
@@ -188,5 +209,109 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
       setDoc(shard, { [arraysIds[0]]: deleteField(), updatedAt: serverTimestamp() }, { merge: true }),
     )
     await assertSucceeds(deleteDoc(shard))
+  })
+})
+
+describe('Firestore rules v2 — phase-3 notes (3.1)', () => {
+  it('lets the owner write, list, update and delete notes; strangers are denied', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const bob = env.authenticatedContext('bob').firestore()
+    const stranger = env.unauthenticatedContext().firestore()
+
+    await assertSucceeds(setDoc(noteRef(alice, 'alice'), noteDoc()))
+    const snap = await assertSucceeds(getDoc(noteRef(alice, 'alice')))
+    assert.equal(snap.data().markdown.includes('hash map'), true)
+    await assertSucceeds(getDocs(collection(alice, 'users/alice/notes')))
+    await assertSucceeds(
+      setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: 'Shrunk note' }), { merge: true }),
+    )
+    await assertSucceeds(deleteDoc(noteRef(alice, 'alice')))
+
+    await assertFails(getDoc(noteRef(bob, 'alice')))
+    await assertFails(getDocs(collection(bob, 'users/alice/notes')))
+    await assertFails(setDoc(noteRef(bob, 'alice'), noteDoc()))
+    await assertFails(deleteDoc(noteRef(bob, 'alice')))
+    await assertFails(getDoc(noteRef(stranger, 'alice')))
+    await assertFails(setDoc(noteRef(stranger, 'alice'), noteDoc()))
+  })
+
+  it('validates note field types, size caps, doc ids and the empty-note rule', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+
+    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: 'x'.repeat(5001) })))
+    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ snippet: 'x'.repeat(8001) })))
+    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ extra: 'field' })))
+    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: 42 })))
+    await assertFails(setDoc(noteRef(alice, 'alice'), { markdown: 'no snippet key' }))
+    // An all-empty note must be deleted instead of stored (the client does).
+    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: '', snippet: '' })))
+    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ updatedAt: '2026-11-02T00:00:00.000Z' })))
+    await assertFails(setDoc(noteRef(alice, 'alice', 'Not A Slug!'), noteDoc()))
+
+    // A snippet-only note is a real note; the row shows the code card.
+    await assertSucceeds(
+      setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: '', snippet: 'while (lo < hi) {}' })),
+    )
+    await assertSucceeds(setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: 'x'.repeat(5000) })))
+  })
+})
+
+describe('Firestore rules v2 — phase-3 custom lists (3.3)', () => {
+  it('lets the owner create, extend, list and delete a list; strangers are denied', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const bob = env.authenticatedContext('bob').firestore()
+    const stranger = env.unauthenticatedContext().firestore()
+
+    await assertSucceeds(setDoc(listRef(alice, 'alice'), listDoc()))
+    await assertSucceeds(
+      setDoc(
+        listRef(alice, 'alice'),
+        listDoc([arraysIds[0], arraysIds[1], arraysIds[2]]),
+        { merge: true },
+      ),
+    )
+    const snap = await assertSucceeds(getDoc(listRef(alice, 'alice')))
+    assert.equal(snap.data().problemIds.length, 3)
+    await assertSucceeds(getDocs(collection(alice, 'users/alice/lists')))
+    await assertSucceeds(deleteDoc(listRef(alice, 'alice')))
+
+    await assertFails(getDoc(listRef(bob, 'alice')))
+    await assertFails(getDocs(collection(bob, 'users/alice/lists')))
+    await assertFails(setDoc(listRef(bob, 'alice'), listDoc()))
+    await assertFails(deleteDoc(listRef(bob, 'alice')))
+    await assertFails(setDoc(listRef(stranger, 'alice'), listDoc()))
+  })
+
+  it('validates list ids, titles, sizes and field sets', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+
+    await assertFails(setDoc(listRef(alice, 'alice', 'abc'), listDoc()))
+    await assertFails(setDoc(listRef(alice, 'alice', 'UPPER-CASE-ID-123'), listDoc()))
+    await assertFails(setDoc(listRef(alice, 'alice'), listDoc(undefined, { title: 'x'.repeat(61) })))
+    await assertFails(setDoc(listRef(alice, 'alice'), listDoc(undefined, { title: '   ' })))
+    await assertFails(setDoc(listRef(alice, 'alice'), listDoc(undefined, { extra: true })))
+    await assertFails(
+      setDoc(listRef(alice, 'alice'), listDoc(undefined, { problemIds: 'two-sum' })),
+    )
+    await assertFails(
+      setDoc(
+        listRef(alice, 'alice'),
+        listDoc(Array.from({ length: 201 }, (_, index) => arraysIds[index % arraysIds.length])),
+      ),
+    )
+    // 200 ids whose joined text is 20,000 characters: refused by the text cap.
+    await assertFails(
+      setDoc(
+        listRef(alice, 'alice'),
+        listDoc(Array.from({ length: 200 }, () => 'x'.repeat(100))),
+      ),
+    )
+
+    await assertSucceeds(setDoc(listRef(alice, 'alice'), listDoc([])))
+    await assertSucceeds(
+      setDoc(listRef(alice, 'alice'), listDoc(Array.from({ length: 200 }, (_, index) => String(index))), {
+        merge: true,
+      }),
+    )
   })
 })

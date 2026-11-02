@@ -16,7 +16,8 @@ import {
   writeBatch,
   type Firestore,
 } from 'firebase/firestore'
-import { useAccount, type AccountState } from './account'
+import type { AccountState } from './account'
+import type { LibraryState } from './libraryData'
 import { db } from './firebase'
 import {
   applyProfileSettings,
@@ -110,8 +111,7 @@ async function commitWrite(firestore: Firestore, uid: string, write: CloudWrite)
   await setDoc(shard, payload, { merge: true })
 }
 
-export function useAccountData(): AccountData {
-  const account = useAccount()
+export function useAccountData(account: AccountState, library: LibraryState): AccountData {
   const settings = useSettings()
   const guestProgress = useProgress()
   const uid = account.user?.uid ?? null
@@ -382,10 +382,16 @@ export function useAccountData(): AccountData {
       setDataError('Wait for the signed-in sheet to finish syncing before exporting.')
       return
     }
+    if (!library.ready) {
+      setDataError('Wait for notes and lists to finish syncing before exporting.')
+      return
+    }
     const text = createBackup({
       account: { displayName: account.user.displayName, email: account.user.email },
       settings: getSettingsSnapshot(),
       progressByTopic: cloudRef.current,
+      notes: library.notesSnapshot(),
+      lists: library.listsSnapshot(),
     })
     const blob = new Blob([text], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -456,9 +462,12 @@ export function useAccountData(): AccountData {
           preview.backup.profile.hideDone,
           preview.backup.profile.largeText,
         )
+        // Notes and lists are part of backup schema v2; a v1 file restores
+        // none, which clears them, exactly as its preview says.
+        await library.applyBackup(preview.backup.notes, preview.backup.lists)
         setImportPreview(null)
         setNotice(
-          `Imported ${preview.counts.rows} row${preview.counts.rows === 1 ? '' : 's'} across ${preview.counts.topics} topic${preview.counts.topics === 1 ? '' : 's'}.`,
+          `Imported ${preview.counts.rows} row${preview.counts.rows === 1 ? '' : 's'} across ${preview.counts.topics} topic${preview.counts.topics === 1 ? '' : 's'} · ${preview.counts.notes} note${preview.counts.notes === 1 ? '' : 's'} · ${preview.counts.lists} list${preview.counts.lists === 1 ? '' : 's'}.`,
         )
       } catch (reason) {
         setDataError(`Import failed: ${messageFrom(reason)}`)

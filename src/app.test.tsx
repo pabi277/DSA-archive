@@ -142,7 +142,7 @@ describe('outbound row actions (1.3)', () => {
         (linkType) => LINK_LABELS[linkType as LinkFilter],
       ),
     )
-    expect(q('#problem-two-sum .row-actions').getAttribute('aria-label')).toBe(
+    expect(q('#problem-two-sum .row-links').getAttribute('aria-label')).toBe(
       'Outbound links for Two Sum',
     )
   })
@@ -288,5 +288,31 @@ describe('approved 0-D variants (dark/light, large text)', () => {
     click(q('button[aria-label="Toggle large text"]'))
     expect(q('.app-root').className).toContain('large-text')
     expect(q('button[aria-label="Toggle large text"]').getAttribute('aria-pressed')).toBe('true')
+  })
+})
+
+describe('phase-3 views and row actions while signed out (3.1–3.3)', () => {
+  it('switches between the sheet, notes and lists views', () => {
+    expect(q('[data-testid="view-tab-sheet"]').getAttribute('aria-pressed')).toBe('true')
+
+    click(q('[data-testid="view-tab-notes"]'))
+    expect(q('[data-testid="view-tab-notes"]').getAttribute('aria-pressed')).toBe('true')
+    expect(q('[data-testid="notes-view"]').textContent).toContain('Notes need an account')
+    expect(q('[data-testid="notes-view"]').textContent).toContain('JSON backup')
+
+    click(q('[data-testid="view-tab-lists"]'))
+    expect(q('[data-testid="lists-view"]').textContent).toContain('Lists need an account')
+    expect(container.querySelector('[data-testid="create-list"]')).toBeNull()
+
+    click(q('[data-testid="view-tab-sheet"]'))
+    expect(qa('details.topic-card')).toHaveLength(20)
+    expect(q('[data-testid="match-count"]').textContent).toContain('Showing 495 of 495')
+  })
+
+  it('hides the note and list row actions until an account is present', () => {
+    expect(container.querySelector('[data-testid="note-button-two-sum"]')).toBeNull()
+    expect(container.querySelector('[data-testid="list-button-two-sum"]')).toBeNull()
+    // Outbound links stay available signed out: the sheet is browsable.
+    expect(qa('#problem-two-sum .row-links a').length).toBeGreaterThan(0)
   })
 })
