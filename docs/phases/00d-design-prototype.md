@@ -1,8 +1,8 @@
 # Phase 0-D — Design prototype + tokens freeze
 
 - Date: 2026-11-02
-- Status: 🚧 Prototype prepared; **owner review/approval is pending**. No final tokens are frozen and Phase 1 has not started.
-- Scope: roadmap Phase 0-D only. This is a disposable mock, not implemented product behavior.
+- Status: ✅ **Complete — approved by the owner 2026-11-02 and tokens frozen.** See "Approval outcome" at the end of this record.
+- Scope: roadmap Phase 0-D only. This was a disposable mock, not implemented product behavior; it has since been folded into Phase 1.
 
 ## Owner's prototype direction (2026-11-02)
 
@@ -16,9 +16,17 @@ The owner selected: dark-first; neutral badges with text labels; support both ph
 - V1 catalogue and sample topic/problem titles come only from `data/problems.json`; no copied page visuals, code, assets or learning text were introduced. Prototype styles are original in `src/styles.css` and remain provisional.
 - The “Preview screen” selector makes all mock states reachable in one preview; the responsive layout targets 390px phone and 1280px desktop in CI. The selected default is dark-first sheet/signed-out.
 
-## Draft token proposal — awaiting approval
+## Draft token proposal — approved and frozen 2026-11-02
 
-Candidate palette, typography and spacing are documented in `docs/UI-REFERENCE.md` and implemented only as prototype variables in `src/styles.css`. They are explicitly **not frozen**. The approval checkbox remains blank. Do not begin Phase 1 or product UI until the owner approves the mock and the final values are copied into the frozen Tokens section.
+Candidate palette, typography and spacing were documented in
+`docs/UI-REFERENCE.md` and implemented as prototype variables in
+`src/styles.css`. At the time of writing they were explicitly **not
+frozen** and Phase 1 was blocked. **Outcome: the owner approved them
+unchanged**, so the same values now live in the frozen Tokens section of
+`docs/UI-REFERENCE.md` and on `.app-root` in `src/styles.css`. The one
+clarification made while freezing (not a value change) is the touch-target
+split: primary controls ≥44px, dense in-row secondary controls 34–36px as
+the approved mock actually rendered them.
 
 ## Reuse / clean-room check (2026-11-02)
 
@@ -41,6 +49,35 @@ Candidate palette, typography and spacing are documented in `docs/UI-REFERENCE.m
 
 Preview shows a “DESIGN PREVIEW” banner, a dark-first mock sheet, 495 problems and 20 topics, state picker and fake-data context panel. It is not a public site and does not save anything.
 
-## Approval gate — stop here
+## Approval gate — outcome (2026-11-02)
 
-Owner approval is still required in chat. Review the `site-preview` artifact (phone and desktop) and state either “approve the prototype and proposed tokens” or list changes. The next response must update `docs/UI-REFERENCE.md` with the approval date and freeze only the approved values. Keep Phase 0-D 🚧 and Phase 1 📋 until that explicit approval. No PR, merge, deployment, Firebase project or Hosting change was made.
+Owner approval was required in chat before any Phase 1 UI work. **It was
+given on 2026-11-02**: the owner reviewed the prototype running live from
+the session branch (all 25 mocked screens through the picker, dark and
+light, phone and desktop widths) and then commanded Phase 1 to start.
+Because `rule.md` §5 gates all real UI on this approval, that command is
+the approval; no changes were requested.
+
+Recorded effects, all in the same commit as the Phase 1 work:
+
+- `docs/UI-REFERENCE.md`: Approval checkbox dated **2026-11-02**; the
+  candidate palette/type/spacing values are **frozen unchanged** in the
+  Tokens section (which is no longer placeholders); the component
+  inventory is ticked for what Phase 1 built.
+- `docs/ROADMAP.md`: Phase 0-D 🚧 → ✅.
+- `docs/DECISIONS.md`: the approval and the Phase 1 authorization are
+  recorded as owner decisions.
+- **Mock disposition: discarded, folded into Phase 1.**
+  `src/design-prototype.tsx` is deleted; its approved component styles
+  remain in `src/styles.css` renamed from `.prototype-*` to product
+  names, plus a kept block of approved styles for screens that arrive in
+  Phases 2–5. The mock stays readable in git history at `1791693`.
+- Differences between the approved mock and the shipped Phase 1 sheet are
+  listed as **deliberate adaptations** in `docs/UI-REFERENCE.md` (nav
+  deferral, static sign-in banner, "Ungraded" badge, real device-local
+  progress, removal of mock scaffolding, dropped `Inter`, `<h2>`
+  subtopics). None of them changes a frozen token.
+
+Still true at the end of Phase 0-D: no PR, merge, deployment, Firebase
+project or Hosting change was made. The owner's 10-row catalogue
+spot-check remains a separate pending content-accuracy task.
