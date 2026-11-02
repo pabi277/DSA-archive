@@ -195,8 +195,11 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
       setDoc(shard, progressWrite('not-a-problem', entry()), { merge: true }),
     )
     // Phase 4: `rc` is part of the entry contract — required, integer, bounded.
+    // (A missing key must be expressed by omitting it: the client SDK rejects
+    // `undefined` values before the rules ever see them.)
+    const { rc: _omitted, ...withoutRevisionCount } = entry()
     await assertFails(
-      setDoc(shard, progressWrite(arraysIds[0], entry({ rc: undefined })), { merge: true }),
+      setDoc(shard, progressWrite(arraysIds[0], withoutRevisionCount), { merge: true }),
     )
     await assertFails(
       setDoc(shard, progressWrite(arraysIds[0], entry({ rc: -1 })), { merge: true }),
