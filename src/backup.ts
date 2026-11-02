@@ -1,12 +1,12 @@
 /**
  * Anti-lock-in JSON backup.
  *
- * Schema v1 shipped in phase 2 with `notes`/`lists` present but always empty
- * (phases 3–4 would fill them). Phase 3 bumps the writer to **schema v2**:
- * the same profile + `progressByTopic` payload, plus real note and custom-list
- * arrays. v1 files still import — that is the recorded, backward-compatible
- * migration — they simply carry no notes or lists, exactly as they were
- * written. Friends/summaries stay excluded; plans remain for phase 4.
+ * Schema v1 shipped in phase 2 with `notes`/`lists` present but always empty.
+ * Phase 3 wrote **schema v2** (real notes and custom lists). Phase 4 writes
+ * **schema v3**: the same payload plus the daily plans and the `rc` revision
+ * counter on every progress entry. v1 and v2 files still import — that is the
+ * recorded, backward-compatible migration — they simply carry no plans, and
+ * their entries default `rc` to 0. Friends/summaries stay excluded.
  */
 import { catalogue } from './catalogue'
 import {
@@ -16,6 +16,13 @@ import {
   type CloudTopicProgress,
 } from './cloudProgress'
 import type { Settings, Theme } from './settings'
+import {
+  DEFAULT_DAILY_GOAL,
+  PLAN_ID_PATTERN,
+  PLAN_MAX_PROBLEMS,
+  clampGoal,
+  type BackupPlan,
+} from './planner'
 import {
   LIST_ID_PATTERN,
   LIST_MAX_PROBLEMS,
@@ -28,9 +35,9 @@ import {
   type BackupNote,
 } from './library'
 
-export const BACKUP_SCHEMA_VERSION = 2
-/** v1 (phase 2) files import unchanged; they carry no notes or lists. */
-export const SUPPORTED_BACKUP_SCHEMAS = [1, 2] as const
+export const BACKUP_SCHEMA_VERSION = 3
+/** v1 (phase 2) and v2 (phase 3) files import unchanged; they carry no plans. */
+export const SUPPORTED_BACKUP_SCHEMAS = [1, 2, 3] as const
 /** Room for many notes/snippets; each field is individually capped below. */
 const MAX_BACKUP_BYTES = 4_000_000
 
@@ -52,7 +59,7 @@ export type Backup = {
   progressByTopic: CloudProgressByTopic
   notes: BackupNote[]
   lists: BackupList[]
-  plans: unknown[]
+  plans: BackupPlan[]
   excluded: string[]
 }
 
@@ -70,6 +77,8 @@ export type BackupInput = {
   progressByTopic: CloudProgressByTopic
   notes?: BackupNote[]
   lists?: BackupList[]
+  plans?: BackupPlan[]
+  dailyGoal?: number
   exportedAt?: string
 }
 
@@ -99,13 +108,13 @@ export function createBackup(input: BackupInput): string {
       theme: input.settings.theme,
       largeText: input.settings.largeText,
       hideDone: input.settings.hideDone,
-      dailyGoal: 5,
+      dailyGoal: clampGoal(input.dailyGoal ?? DEFAULT_DAILY_GOAL),
       shareSummary: false,
     },
     progressByTopic: input.progressByTopic,
     notes: input.notes ?? [],
     lists: input.lists ?? [],
-    plans: [],
+    plans: input.plans ?? [],
     excluded: ['friends', 'public/summary'],
   }
   return JSON.stringify(backup, null, 2)
@@ -204,6 +213,58 @@ function parseLists(raw: unknown, schemaVersion: number): BackupList[] {
   })
 }
 
+const PLAN_KEYS = ['date', 'problemIds', 'doneIds', 'updatedAt']
+
+function parsePlans(raw: unknown, schemaVersion: number): BackupPlan[] {
+  if (raw === undefined) return []
+  if (!Array.isArray(raw)) fail('plans must be an array')
+  if (schemaVersion < 3 && raw.length > 0) {
+    // Phase 2/3 files always wrote this array empty; content there is not a
+    // shape we ever produced, so refuse it instead of guessing.
+    fail(`a schemaVersion ${schemaVersion} backup cannot contain plans`)
+  }
+  const seen = new Set<string>()
+  return raw.map((entry, index) => {
+    if (!isRecord(entry)) fail(`plans[${index}] must be an object`)
+    if (!Object.keys(entry).every((key) => PLAN_KEYS.includes(key))) {
+      fail(`plans[${index}] has unexpected fields`)
+    }
+    const date = entry.date
+    if (typeof date !== 'string' || !PLAN_ID_PATTERN.test(date)) {
+      fail(`plans[${index}] has an invalid date`)
+    }
+    if (seen.has(date)) fail(`duplicate plan for "${date}"`)
+    seen.add(date)
+    const readIds = (value: unknown, label: string): string[] => {
+      if (!Array.isArray(value)) fail(`${label} must be an array`)
+      if (value.length > PLAN_MAX_PROBLEMS) {
+        fail(`${label} holds more than ${PLAN_MAX_PROBLEMS} problems`)
+      }
+      const ids: string[] = []
+      for (const problemId of value) {
+        if (typeof problemId !== 'string' || !isKnownProblemId(problemId)) {
+          fail(`${label} contains a problem id that is not in this catalogue`)
+        }
+        if (!ids.includes(problemId)) ids.push(problemId)
+      }
+      return ids
+    }
+    const problemIds = readIds(entry.problemIds, `plans[${index}].problemIds`)
+    const doneIds = readIds(entry.doneIds, `plans[${index}].doneIds`)
+    for (const problemId of doneIds) {
+      if (!problemIds.includes(problemId)) {
+        fail(`plans[${index}].doneIds must be a subset of its problemIds`)
+      }
+    }
+    return {
+      date,
+      problemIds,
+      doneIds,
+      updatedAt: parseTimestamp(entry.updatedAt, `plans[${index}].updatedAt`),
+    }
+  })
+}
+
 export function parseBackup(text: string): { backup: Backup; counts: BackupCounts } {
   if (text.length > MAX_BACKUP_BYTES) {
     throw new BackupError('file is larger than the 4 MB backup limit')
@@ -260,17 +321,16 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
       if (!isValidCloudEntry(value)) {
         throw new BackupError(`invalid progress entry for "${problemId}"`)
       }
-      nextShard[problemId] = value
+      // v1/v2 entries predate the phase-4 revision counter; normalize so the
+      // restore writes documents the v3 rules accept.
+      nextShard[problemId] = { ...value, rc: value.rc ?? 0 }
     }
     if (Object.keys(nextShard).length > 0) progressByTopic[topicId] = nextShard
   }
 
   const notes = parseNotes(raw.notes, schemaVersion)
   const lists = parseLists(raw.lists, schemaVersion)
-
-  if (raw.plans !== undefined && !Array.isArray(raw.plans)) {
-    throw new BackupError('plans must be an array')
-  }
+  const plans = parsePlans(raw.plans, schemaVersion)
 
   const backup: Backup = {
     schemaVersion: BACKUP_SCHEMA_VERSION,
@@ -280,7 +340,7 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
     progressByTopic,
     notes,
     lists,
-    plans: Array.isArray(raw.plans) ? raw.plans : [],
+    plans,
     excluded: Array.isArray(raw.excluded) ? raw.excluded.filter((item): item is string => typeof item === 'string') : [],
   }
   return {
@@ -290,7 +350,7 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
       rows: countCloudRows(progressByTopic),
       notes: notes.length,
       lists: lists.length,
-      plans: backup.plans.length,
+      plans: plans.length,
     },
   }
 }
