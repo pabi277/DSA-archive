@@ -23,7 +23,8 @@ row positions, so reordering the sheet can't scramble anyone's data.
 ```jsonc
 {
   "schemaVersion": 1,
-  "generatedFrom": "manual-extraction + owner spot-check (phase 0)",
+  "generatedFrom": "one-time clean-room extraction from copy-web/index.html (phase 0)",
+  // Owner's 10-row live-sheet spot-check remains a content-accuracy task.
   "topics": [{
     "id": "arrays", "title": "Arrays", "order": 30,
     "subtopics": [{
@@ -31,7 +32,7 @@ row positions, so reordering the sheet can't scramble anyone's data.
       "problems": [{
         "id": "two-sum",                 // stable slug = Firestore key, never reused
         "title": "Two Sum", "order": 10,
-        "level": "core",                 // basic | core | pro (renameable at 0-D)
+        "level": "core",                 // basic | core | pro | null (source has no badge)
         "kind": "problem",               // problem | theory
         "links": {                       // outbound only; any may be absent
           "practice": "https://takeuforward.org/practice/dsa/…",
@@ -141,11 +142,15 @@ its phase record before it is built.
 1. Parse the copied `copy-web/index.html` DOM once (script in `tools/`, never
    shipped): topic → subtopic → title, level, links by type.
 2. Emit `data/problems.json` + count report reconciling `RESEARCH.md`
-   §1: **495 rows**, per-topic sums, unique links ≈ practice 453 /
-   articles 286 / LeetCode 273 / `youtu.be` 256, and the level split
-   (header 84/287/109 vs badges 85/288/110) explained line-by-line.
+   §1: **495 rows**, per-topic sums, and unique links (practice 453 /
+   articles 286 / LeetCode 273 / `youtu.be` 256). Phase 0's DOM
+   re-count found exact difficulty badge counts **84/287/109** and
+   **15 rows without a badge**; those levels stay `null`, not guessed.
+   The older 85/288/110 badge tally is not reproducible from this
+   snapshot. Extracted video URLs also include 65 unique `youtube.com`
+   URLs beyond the 256 unique `youtu.be` URLs.
 3. Owner spot-checks 10 random rows against the live sheet
-   (content accuracy is the owner's job).
+   (content accuracy is the owner's job; pending owner review).
 4. Schema/count validation becomes a permanent CI test.
 5. Copied tree already lives in `copy-web/` (moved 2026-11-02 by
    owner command); keep it there, outside every build, and never as

@@ -1,0 +1,51 @@
+name: Site CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: npm ci
+      - name: Validate extracted catalogue
+        run: npm run test:data
+      - name: Unit tests
+        run: npm test
+      - name: Production build
+        run: npm run build
+      - name: Confirm the copied STUDY site is excluded
+        run: npm run check:dist
+      - name: Check built-page asset links
+        run: npm run check:links
+      - name: Install browser for responsive and accessibility checks
+        run: npx playwright install --with-deps chromium
+      - name: Phone/desktop screenshot and accessibility checks
+        run: npm run test:e2e
+      - name: Package downloadable preview
+        if: always()
+        run: |
+          if [ -d dist ]; then
+            (cd dist && zip -qr ../site-preview.zip .)
+          fi
+      - name: Upload site-preview artifact
+        if: always() && hashFiles('site-preview.zip') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-preview
+          path: site-preview.zip
+          if-no-files-found: error
+          retention-days: 14
