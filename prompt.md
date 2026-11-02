@@ -48,12 +48,14 @@
   **Phase 1** ✅ merged (PR #3). **Phase 2** ✅ merged (PR #4). **Phase 3** ✅
   merged (PR #5, `457f811`): notes/snippets, notes overview + search, custom
   lists, rules v2, backup v2.
-- **Phase 4 — Planner & revision: ✅ complete on
-  `arena/08f229da-dsa-archive`, stopped at the merge gate.** Record:
+- **Phase 4 — Planner & revision: ✅ complete and merged to `main` through
+  PR #6** (owner command 2026-11-03: "Merge it to main"). Record:
   `docs/phases/04-planner-revision.md`. CI **run
   [#39](https://github.com/pabi277/DSA-archive/actions/runs/41524189110)
-  SUCCESS** (135 s) at `592c8fd`; `site-preview` **327,940 bytes**. Nothing
-  is deployed.
+  SUCCESS** (135 s) at `592c8fd` and run
+  [#40](https://github.com/pabi277/DSA-archive/actions/runs/41525296888) green
+  at docs tip `1190459`; `site-preview` **327,940 bytes**. Nothing is
+  deployed.
   - **4.1** `users/{uid}/plans/{yyyy-mm-dd}` = `problemIds` (≤200) +
     `doneIds` + server `updatedAt`; only **today's** document is subscribed
     (one read per open); the daily goal (1–100) now lives on the profile's

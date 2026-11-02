@@ -1,7 +1,7 @@
 # Phase 4 — Planner & revision
 
 - Date: 2026-11-03
-- Status: ✅ **complete on the session branch, CI green, stopped at the merge gate.** Site CI **run [#39](https://github.com/pabi277/DSA-archive/actions/runs/41524189110)** — **SUCCESS** (135 s) at `592c8fd`; `site-preview` artifact **327,940 bytes** (14-day retention). No PR, merge or deploy.
+- Status: ✅ **complete and merged to `main` through PR #6** on the owner's explicit command of 2026-11-03 (**"Merge it to main"**). Site CI **run [#39](https://github.com/pabi277/DSA-archive/actions/runs/41524189110)** — **SUCCESS** (135 s) at code tip `592c8fd` — and **run [#40](https://github.com/pabi277/DSA-archive/actions/runs/41525296888)** green at docs tip `1190459`; `site-preview` artifact **327,940 bytes** (14-day retention). The merge commit is visible in `main`'s history and is confirmed by the phase-5 chat. **No deploy.**
 - Scope: roadmap Phase 4 only — 4.1 daily goal + Today list · 4.2 spaced revision queue (3/7/21 days, computed client-side) + one-tap revised · 4.3 streak heatmap + weekly stats + continue-where-I-left · rules v3 (planner collection, `rc` on progress entries) with Emulator tests · backup schema v3 with the recorded backward-compatible reader. **Not** in this phase: friends (phase 5), PWA/perf/release prep (phase 6), any live Firebase change.
 - Prerequisites: phase 3 merged to `main` (PR #5, `457f811`); frozen 0-D tokens; repo-local Git identity reset from the fresh clone's `noreply` address to `pabi277 <chakraborttypabi2772006@gmail.com>` before any commit.
 
@@ -77,7 +77,7 @@ Reviewed `test-results/planner-phone.png` against the mock's `Today (planner) �
 
 ## Gate / next
 
-- **Stopped at the merge gate.** No PR, merge, `main` push, tag, release, deploy, Hosting channel, Firebase project or live rules deploy was made or is authorized by this phase. Green CI is evidence, not permission.
+- **Merged to `main` via PR #6** on the owner's explicit command (2026-11-03, verbatim "Merge it to main"), as recorded in `DECISIONS.md`. That command authorized the merge only: **no deploy**, Hosting channel, tag/release, Firebase project or live rules deploy was made.
 - **The 14-day use test (`docs/RESEARCH.md` §6) starts now** that phase 4 is complete — it is the owner's test to run (use the site as the only DSA tracker for 14 days; the pre-written verdict rule decides iterate-vs-stop and must not be rewritten afterwards). It runs in parallel with the merge decision; phase 5 (friends) is the agreed first cut if the budget or the test says so.
 - Phase 5 (friends) is **not** started. The next chat uses its own Arena-assigned branch, verifies branch/status/PRs/CI/Git identity first, and executes only roadmap phase 5 after the owner commands it.
 - Owner items unchanged: make the repo private while `copy-web/` holds the third-party snapshot; complete the 10-row live-sheet content spot-check; create the Spark project personally and perform the gated live check.

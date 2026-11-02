@@ -122,6 +122,19 @@
   history and is confirmed by the next phase chat; this repo never pushes
   `main` directly and every future merge stays separately gated.
 
+## Owner decisions — phase 4 merge (2026-11-03)
+
+- 2026-11-03 — **Phase 4 merge to `main`: AUTHORIZED** by the owner's
+  explicit command in chat, verbatim: **"Merge it to main"**. Recorded as
+  authorization to open **PR #6** (`arena/08f229da-dsa-archive` → `main`) and
+  merge it, covering the phase-4 commits (`4d7da26` implementation through
+  `1190459` docs) plus the commit that records this command. It authorizes
+  **the merge only**: no deploy, no Hosting channel/preview URL, no Firebase
+  project creation or link, no live rules deploy, no repo-visibility change,
+  no tag/release, and no phase 5. The merge-commit SHA lands in `main`'s
+  history and is confirmed by the next phase chat; this repo never pushes
+  `main` directly and every future merge stays separately gated.
+
 ## Agent decisions (reversible — object if wrong)
 
 - 2026-11-02 — Stack after the Firebase pivot: **Vite + React +
@@ -359,9 +372,11 @@
       [#30](https://github.com/pabi277/DSA-archive/actions/runs/41517643913)
       and [#31](https://github.com/pabi277/DSA-archive/actions/runs/41518256654)
       green). Phase 4 (daily goal + Today, 3/7/21-day revision queue, stats,
-      rules v3, backup schema v3) is complete on `arena/08f229da-dsa-archive`
-      with CI [#39](https://github.com/pabi277/DSA-archive/actions/runs/41524189110)
-      green, stopped at the merge gate. Nothing is deployed or published
+      rules v3, backup schema v3) is complete and **merged to `main` through
+      PR #6** on the owner's explicit command of 2026-11-03, with CI
+      [#39](https://github.com/pabi277/DSA-archive/actions/runs/41524189110)
+      and [#40](https://github.com/pabi277/DSA-archive/actions/runs/41525296888)
+      green. Nothing is deployed or published
       — there is no public URL and no live Firebase project. Living state and
       the next-chat prompt: `prompt.md`.
 
