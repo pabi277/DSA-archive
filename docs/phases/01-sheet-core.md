@@ -1,7 +1,7 @@
 # Phase 1 — Sheet core
 
 - Date: 2026-11-02
-- Status: ✅ implemented on session branch `arena/df11f576-dsa-archive`; **stops at the merge gate** — no PR, merge, deploy, Firebase project or Hosting change was authorized or made.
+- Status: ✅ **complete** on session branch `arena/df11f576-dsa-archive` — CI green (run #13, tip `baac7ac`), `site-preview` uploaded; **stops at the merge gate**: no PR, merge, deploy, Firebase project or Hosting change was authorized or made.
 - Scope: roadmap Phase 1 only — 1.1 accordions + all rows · 1.2 search/filters/random/weakest-topic · 1.3 outbound row actions. **Not** in this phase: Firebase, accounts, sync, notes, snippets, custom lists, planner, revision, stats, friends, PWA.
 - Prerequisite satisfied: Phase 0-D **approved by the owner 2026-11-02** and tokens frozen (`00d-design-prototype.md`, `docs/UI-REFERENCE.md`). Real UI code was blocked until that moment.
 
@@ -57,7 +57,8 @@
 - `npm run check:links` — **PASS**: built-page references resolve.
 - `npm run test:e2e` — **not runnable in this sandbox**: Playwright's Chromium download host is outside the configured network allowlist (same limitation recorded in `00d-design-prototype.md`). CI runs it on a real Chromium at 1280×900 and 390×844 with two axe audits. The jsdom mirror above is the local evidence; **CI remains the authority**.
 - `git diff --check` — **PASS** (no whitespace errors).
-- CI: **Site CI** on this branch — run and tip SHA recorded in `prompt.md` and in the report to the owner; the run uploads `site-preview` (built `dist/` zip) and, on failure only, `site-e2e-diagnostics`.
+- **CI: Site CI run [#13](https://github.com/pabi277/DSA-archive/actions/runs/41490242266) — SUCCESS on the first attempt** (1m11s) at tip `baac7acdb17301d5991116e962245ccdb492d3f4`. (Run #12 on this branch was the earlier push of the ported 0-D state, also green.) Every step green: catalogue validation · unit tests · production build · copied-site exclusion · built-page links · Chromium install · **phone/desktop screenshot + accessibility checks** (`e2e/sheet.spec.ts`: 3 tests, two axe audits, 1280×900 and 390×844). The failure-only `site-e2e-diagnostics` step was skipped, i.e. nothing failed in the browser.
+- Artifact: **`site-preview` uploaded, 129,574 bytes** (built `dist/` zip, 14-day retention) — the owner can open it on a phone. The only annotation on the run is GitHub's own `ubuntu-latest` → Ubuntu 26 migration notice, unrelated to this repo.
 
 ## What the preview shows
 

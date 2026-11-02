@@ -57,10 +57,18 @@
   `docs/UI-REFERENCE.md`; the mock `src/design-prototype.tsx` was folded
   into phase 1 and deleted (readable at `1791693`). Records:
   `docs/phases/00d-design-prototype.md` → "Approval outcome".
-- **Phase 1 — Sheet core: ✅ implemented, on branch
+- **Phase 1 — Sheet core: ✅ complete, on branch
   `arena/df11f576-dsa-archive`, stopped at the merge gate.** Record:
   `docs/phases/01-sheet-core.md`. No PR was opened and nothing was merged
   or deployed.
+  - CI **Site CI run #13 green on the first attempt** (1m11s) at tip
+    `baac7acdb17301d5991116e962245ccdb492d3f4`:
+    https://github.com/pabi277/DSA-archive/actions/runs/41490242266 —
+    catalogue, 50 unit/jsdom tests, build, dist/link checks and the
+    real-Chromium phone+desktop browser spec with two axe audits. The
+    failure-only diagnostics step was skipped. **`site-preview` artifact:
+    129,574 bytes** (14-day retention). Run #12 was the earlier push of
+    the ported 0-D state, also green.
   - Shipped: all 495 rows in 20 topic accordions (84 subtopics), browsable
     signed out · instant cross-topic search (row/subtopic/topic titles, `/`
     shortcut, auto-expanding matches) · filters: topic select, level chips
