@@ -1,10 +1,10 @@
 # DSA Archive — my own DSA sheet website
 
-> **Status: Phase 0 implementation is underway on the assigned session
-> branch.** Phase 0 adds the MIT licence, clean-room extracted catalogue,
-> a minimal Vite/React hello-sheet, quality checks and CI preview packaging.
-> Owner live-sheet spot-check is still pending. No Firebase project,
-> deploy, PR or merge is authorized. Gate record:
+> **Status: Phase 0 is complete on the assigned session branch.** It
+> adds the MIT licence, clean-room extracted catalogue, minimal
+> Vite/React hello-sheet, quality checks and green CI preview packaging.
+> The owner's 10-row live-sheet content spot-check remains pending. No
+> Firebase project, deploy, PR or merge is authorized. Gate record:
 > [`docs/DECISIONS.md`](docs/DECISIONS.md).**
 
 Planning adapted from AppFlow @ `57597b3332ad578614a0d9d5609f9cf8a278ee8a`

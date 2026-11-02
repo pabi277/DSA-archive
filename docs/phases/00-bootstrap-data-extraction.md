@@ -1,7 +1,7 @@
 # Phase 0 — Bootstrap + data extraction
 
 - Date: 2026-11-02
-- Status: 🚧 implementation is in place; awaiting GitHub CI's browser checks and the owner’s content spot-check before moving to Phase 0-D.
+- Status: ✅ complete (CI green; the owner's 10-row content-accuracy spot-check remains an explicit follow-up before relying on catalogue accuracy).
 - Scope: roadmap Phase 0 only (0.1–0.3). No product features, Firebase project, or deployment.
 
 ## Delivered
@@ -47,7 +47,7 @@ Local checks completed:
 - `npm run check:dist` — PASS (three built files, no copied-site paths/assets).
 - `npm run check:links` — PASS (both built HTML asset references resolve).
 - `git diff --check` — PASS.
-- Browser install / Playwright could not run in the sandbox because the browser download host is outside the configured network allowlist. The GitHub workflow installs Chromium on its runner and remains the CI acceptance check; its run and artifact are to be recorded after push.
+- Local browser install was blocked because the browser download host is outside the sandbox network allowlist. GitHub Actions installed Chromium and passed the phone/desktop screenshot + axe checks. Initial green run: [#1](https://github.com/pabi277/DSA-archive/actions/runs/41473226909), tip `58d5e3eafabd03d07d59ab8d9f1e9ac4d1f55f3d`; the `site-preview` zip uploaded successfully (122,163 bytes, retained 14 days). The workflow actions were then upgraded to current Node 24 releases after GitHub’s deprecation annotation; the latest run is reported in the phase chat.
 
 Preview content: one minimal page with the summary line “495 problems · 20 topics”, then 20 topic names with row counts. It contains no sign-in, progress, notes or planner UI.
 
@@ -55,4 +55,4 @@ Preview content: one minimal page with the summary line “495 problems · 20 to
 
 No PR, merge, deployment, Hosting channel, Firebase project, rules deploy, or visibility change was performed. Repo visibility remains the owner’s open setting in `docs/DECISIONS.md`.
 
-Do not start Phase 1. The next phase is **0-D — Design prototype + tokens freeze**. Owner approval in chat must be recorded in `docs/UI-REFERENCE.md` before real UI work; the owner’s catalogue spot-check should also be completed. Phase 0 remains in progress until the GitHub CI run (including phone/desktop screenshots and accessibility) is green and its `site-preview` artifact is available.
+Do not start Phase 1. The next phase is **0-D — Design prototype + tokens freeze**. Owner approval in chat must be recorded in `docs/UI-REFERENCE.md` before real UI work; the owner’s catalogue spot-check should also be completed. Phase 0's acceptance checks are complete. The owner spot-check is pending as the catalogue content-accuracy task; it is not represented as an agent verification.
