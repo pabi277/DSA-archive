@@ -470,12 +470,23 @@ export function sanitizePlans(raw: unknown): Record<string, Plan> {
   return plans
 }
 
-/** Add/remove a problem in a plan, keeping `doneIds` a subset of `problemIds`. */
+/** Add/remove problems in a plan, keeping `doneIds` a subset of `problemIds`. */
 export function withProblem(plan: Plan, problemId: string): Plan | null {
   if (!locateProblem(problemId)) return null
   if (plan.problemIds.includes(problemId)) return plan
   if (plan.problemIds.length >= PLAN_MAX_PROBLEMS) return null
   return { ...plan, problemIds: [...plan.problemIds, problemId] }
+}
+
+/** Add a batch of problems atomically so "Suggest 5" emits one write, not five. */
+export function withProblems(plan: Plan, problemIds: readonly string[]): Plan | null {
+  let current: Plan = plan
+  for (const problemId of problemIds) {
+    const next = withProblem(current, problemId)
+    if (!next) return null
+    current = next
+  }
+  return current
 }
 
 export function withoutProblem(plan: Plan, problemId: string): Plan {

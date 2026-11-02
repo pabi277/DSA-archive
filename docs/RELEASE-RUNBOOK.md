@@ -56,7 +56,7 @@ npm run check:dist && npm run check:links && npm run check:budgets
 # 1) Deploy security rules FIRST
 npx firebase deploy --only firestore:rules --project dsa-archive
 
-# 2) Deploy the PWA static bundle to Firebase Hosting
+# 2) Deploy the PWA static bundle to Firebase Hosting (hosting.predeploy runs `npm run build` automatically)
 npx firebase deploy --only hosting --project dsa-archive
 ```
 

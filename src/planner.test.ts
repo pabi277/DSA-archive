@@ -21,6 +21,7 @@ import {
   weeklyStats,
   withDone,
   withProblem,
+  withProblems,
   withoutProblem,
   streakInfo,
 } from './planner'
@@ -246,6 +247,11 @@ describe('plan documents', () => {
     const removed = withoutProblem(ticked, 'two-sum')
     expect(removed.problemIds).toEqual([])
     expect(removed.doneIds).toEqual([])
+
+    const batch = withProblems(ticked, ['two-sum', 'linear-search', 'breaking-the-myth'])!
+    expect(batch.problemIds).toEqual(['two-sum', 'linear-search', 'breaking-the-myth'])
+    expect(batch.doneIds).toEqual(['two-sum'])
+    expect(withProblems(ticked, ['two-sum', 'not-a-problem'])).toBeNull()
   })
 
   it('refuses to grow a day past the rules’ limit', () => {
