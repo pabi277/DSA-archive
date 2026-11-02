@@ -1,5 +1,6 @@
-@import "tailwindcss";
-@plugin "daisyui";
+@import "tailwindcss" source(none);
+@source "./";
+@source "../index.html";
 
 /* ---------------------------------------------------------------------------
    DSA Archive — design tokens FROZEN at phase 0-D approval (owner, 2026-11-02).
@@ -115,7 +116,7 @@ button, input, select, textarea { font: inherit; }
 .notice-error { align-items: flex-start; flex-direction: column; border-color: #805b5b; }
 .notice-warning { border-color: #716b54; }
 .empty-state { display: grid; justify-items: center; gap: 9px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); padding: 29px 15px; text-align: center; }
-.empty-state h2 { margin: 0; color: var(--ink); font-size: 16px; }
+.empty-state h1, .empty-state h2 { margin: 0; color: var(--ink); font-size: 16px; font-weight: 700; }
 .empty-state p { max-width: 380px; margin: 0 0 5px; color: var(--muted); font-size: 13px; }
 .empty-mark { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line); border-radius: 14px; color: var(--muted); font-size: 20px; }
 .completion-mark { display: grid; place-items: center; width: 46px; height: 46px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface-raised); color: var(--ink); font-size: 20px; }
@@ -341,6 +342,7 @@ button, input, select, textarea { font: inherit; }
 .list-problems .fine-print { flex: 0 1 auto; margin: 0; }
 .list-problems .button { min-height: 34px; padding: 4px 10px; font-size: 11px; }
 .list-create { margin-bottom: 6px; }
+.invite-code { margin: 8px 0 0; overflow-wrap: anywhere; }
 
 @media (max-width: 560px) {
   .note-editor, .list-picker { padding: 11px; }

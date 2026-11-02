@@ -135,6 +135,40 @@
   history and is confirmed by the next phase chat; this repo never pushes
   `main` directly and every future merge stays separately gated.
 
+## Owner decisions — phase 5 merge + phase 6 authorization (2026-11-02 UTC)
+
+- 2026-11-02 — **Phase 5 merged to `main` via PR #7** (`arena/49d9fa08-dsa-archive`
+  → `main`, merge commit `3303c8a8f965dbe50ef107de63e2fb81ab95c781`, verified in
+  git history). Covers the Phase 5 opt-in friends implementation (`3218933`
+  through `f342950`) only — no deploy, no Hosting channel, no Firebase project,
+  no live rules deploy, and no repo-visibility change.
+- 2026-11-02 — **Phase 6 authorized** by the owner's explicit command in chat:
+  **"Read prompt.md and start phase 6"**. Authorizes roadmap Phase 6 only (6.1
+  installable PWA + true offline open, 6.2 perf/a11y budgets in CI + rules/quota
+  audit + App Check evaluation, 6.3 release checklist + truthful docs/credits +
+  Hosting/rules deploy runbook) on `arena/991952b2-dsa-archive`.
+
+## Owner decisions — live Spark project link, Analytics, PR/merge & deploy prep (2026-11-02 UTC)
+
+- 2026-11-02 — **Link repository to live Spark project `dsa-archive` (`[GATE: Link repo to live Firebase project]`):**
+  owner supplied the personally created Spark web config (`projectId: "dsa-archive"`,
+  `authDomain: "dsa-archive.firebaseapp.com"`, `appId: "1:207824804845:web:cd4c13333793090b0425e4"`,
+  public `apiKey`, `messagingSenderId`, `storageBucket`) and explicitly approved
+  committing `.env.production` + `.firebaserc` (`"default": "dsa-archive"`) so
+  `npm run build` and `firebase deploy` work out of the box while CI/dev
+  emulator runs stay isolated on `demo-dsa-archive`.
+- 2026-11-02 — **Keep Firebase Analytics OFF (`[GATE: Analytics / trackers & Firebase whitelist]`):**
+  owner confirmed keeping `rule.md` §§3, 5 intact — `firebase/analytics` and
+  `measurementId` (`G-WMM90G1QJC`) from the Console boilerplate snippet are
+  intentionally omitted so zero trackers ship.
+- 2026-11-02 — **Open Phase 6 PR and merge to `main` (`[GATE: PR & Merge]`):**
+  owner explicitly authorized opening the pull request from
+  `arena/991952b2-dsa-archive` and merging it into `main` once `Site CI` is green.
+- 2026-11-02 — **Prepare live `dsa-archive` deploy commands (`[GATE: Live Firestore rules & Hosting deploy]`):**
+  owner confirmed preparing exact copy-paste `firestore:rules`-first then
+  `hosting` deploy steps for `dsa-archive` (laptop terminal + phone Google Cloud
+  Shell) without pasting or handling credentials in chat.
+
 ## Agent decisions (reversible — object if wrong)
 
 - 2026-11-02 — Stack after the Firebase pivot: **Vite + React +
@@ -407,3 +441,35 @@
   inaccessible summary is excluded rather than assumed to be zero.
 - Access is server-revocable, but data already seen or cached cannot be erased
   from another device; the app hides unconfirmed cached friend summaries.
+
+### Phase 6 agent implementation choices (2026-11-02 UTC)
+
+- **Zero-dependency PWA shell (`tools/build-sw.mjs`, `tools/generate-pwa-icons.mjs`, `src/pwa.ts`).**
+  Instead of pulling in `vite-plugin-pwa` / Workbox (~50 transitive packages),
+  a deterministic Vite `closeBundle` step hashes `dist/` into a versioned cache
+  bucket (`dsa-archive-shell-<sha>`) and emits `dist/sw.js`; clean-room `"DA"`
+  monogram PNG/SVG icons are generated with Node's `zlib` using frozen tokens.
+  `sw.js` intercepts same-origin `GET` only and explicitly skips `/__/*` so
+  Firebase Hosting's `/__/auth/*` OAuth helpers are never hijacked.
+- **CSS & JS performance budgets enforced in CI (`tools/check-budgets.mjs`).**
+  Tailwind v4 `@source` is restricted to `src/` and `index.html` (stopping
+  accidental scans of `copy-web/`) and unused `@plugin "daisyui"` CSS emission
+  is removed while keeping approved packages pinned in `package.json`, cutting
+  built CSS from **203.18 kB → 26.86 kB (6.30 kB gzip)**. Rolldown
+  `codeSplitting.groups` + lazy `import('./backup')` split JS into cacheable
+  chunks all strictly `<500 kB` (`index` **103.25 kB / 28.39 kB gzip**).
+- **Offline cold-boot & Spark quota hardening (`src/accountData.ts`, `src/friendsData.ts`).**
+  `accountData.ts` falls back to `getDocFromCache(profileRef)` when `getDoc`
+  rejects offline so signed-in Airplane-Mode cold opens boot cleanly without a
+  false `Sync error`. `friendsData.ts` deduplicates `public/summary` publishes
+  by canonical JSON within an active sharing session so app opens, metadata
+  echoes, and bookmark toggles cost 0 extra Firestore writes.
+- **Firebase App Check evaluated and NOT enabled in v1 (6.2).** Web App Check
+  requires Google reCAPTCHA v3 or Enterprise, which injects third-party Google
+  scripts/telemetry on page load (triggering the `rule.md` §3 analytics/tracker
+  GATE), falls outside the `rule.md` §5 Firebase v1 whitelist, carries
+  10k-assessment/Enterprise billing caveats, and uses 30–60m tokens that cannot
+  refresh in Airplane Mode — while `firestore.rules` v4 already enforces
+  authenticated owner/reciprocal-friend access and strict per-field caps for a
+  ≤6-person group. Revisit via an owner GATE only if the app becomes public.
+

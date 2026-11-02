@@ -19,8 +19,10 @@
     "test:data": "python3 tools/validate_data.py",
     "check:rules": "node tools/generate-firestore-rules.mjs --check",
     "rules:generate": "node tools/generate-firestore-rules.mjs",
+    "pwa:icons": "node tools/generate-pwa-icons.mjs",
     "check:dist": "node tools/check-dist.mjs",
-    "check:links": "node tools/check-links.mjs"
+    "check:links": "node tools/check-links.mjs",
+    "check:budgets": "node tools/check-budgets.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "4.3.3",

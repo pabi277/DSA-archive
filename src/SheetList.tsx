@@ -90,7 +90,11 @@ export function ProblemRow({
                 type="button"
                 className={openPanel === 'lists' ? 'row-tool is-on' : 'row-tool'}
                 aria-expanded={openPanel === 'lists'}
-                aria-label={`Lists for ${problem.title}`}
+                aria-label={
+                  listCount > 0
+                    ? `List ${listCount} for ${problem.title}`
+                    : `Add to list for ${problem.title}`
+                }
                 data-testid={`list-button-${problem.id}`}
                 onClick={() => onTogglePanel('lists')}
               >

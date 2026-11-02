@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101313" />
+    <title>Page not found · DSA Archive</title>
+    <style>
+      :root {
+        --font-ui: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        --canvas: #101313;
+        --surface: #171b1b;
+        --surface-raised: #1e2322;
+        --line: #343a38;
+        --ink: #edf0ed;
+        --muted: #a1aaa4;
+        --subtle: #858e88;
+        --accent: #c4d0ca;
+        --accent-ink: #121816;
+        color-scheme: dark;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --canvas: #f3f5f2;
+          --surface: #ffffff;
+          --surface-raised: #f8faf8;
+          --line: #d9dfda;
+          --ink: #202722;
+          --muted: #5b665f;
+          --subtle: #637067;
+          --accent: #33483d;
+          --accent-ink: #ffffff;
+          color-scheme: light;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-width: 320px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        background: var(--canvas);
+        color: var(--ink);
+        font-family: var(--font-ui);
+        font-size: 15px;
+        line-height: 1.5;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 68px;
+        padding: 10px clamp(18px, 4vw, 54px);
+        border-bottom: 1px solid var(--line);
+      }
+      .wordmark { font-size: 18px; font-weight: 750; letter-spacing: -0.035em; color: var(--ink); text-decoration: none; }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 34px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 5px 11px;
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 12px;
+      }
+      main {
+        flex: 1;
+        width: min(680px, 100%);
+        margin: 0 auto;
+        padding: 48px clamp(18px, 4vw, 54px);
+      }
+      .card {
+        display: grid;
+        justify-items: center;
+        gap: 11px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--surface);
+        padding: 32px 20px;
+        text-align: center;
+      }
+      .mark {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--surface-raised);
+        color: var(--muted);
+        font-size: 20px;
+      }
+      h1 { margin: 0; font-size: clamp(22px, 3vw, 28px); letter-spacing: -0.035em; color: var(--ink); }
+      p { max-width: 440px; margin: 0; color: var(--muted); font-size: 14px; }
+      .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        border: 1px solid var(--accent);
+        border-radius: 12px;
+        padding: 9px 16px;
+        background: var(--accent);
+        color: var(--accent-ink);
+        font-weight: 650;
+        text-decoration: none;
+      }
+      footer {
+        padding: 0 clamp(18px, 4vw, 54px) 26px;
+        color: var(--subtle);
+        font-size: 11px;
+        text-align: center;
+      }
+      :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <a class="wordmark" href="/">DSA Archive</a>
+      <span class="pill">404 · Not found</span>
+    </header>
+    <main>
+      <section class="card" aria-labelledby="not-found-heading" data-testid="not-found-view">
+        <span class="mark" aria-hidden="true">?</span>
+        <h1 id="not-found-heading">Page not found</h1>
+        <p>
+          DSA Archive lives on a single sheet page. Problem statements, articles and videos stay on their
+          original sites and are opened from each row.
+        </p>
+        <div class="actions">
+          <a class="button" href="/">Back to the sheet</a>
+        </div>
+      </section>
+    </main>
+    <footer>DSA Archive · clean-room personal study sheet</footer>
+  </body>
+</html>

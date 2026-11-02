@@ -9,6 +9,7 @@ import {
   deleteField,
   doc,
   getDoc,
+  getDocFromCache,
   getDocs,
   onSnapshot,
   serverTimestamp,
@@ -49,11 +50,11 @@ import {
   type CloudWrite,
   type MergePlan,
 } from './cloudProgress'
-import { createBackup, parseBackup, type Backup, type BackupCounts } from './backup'
+import type { Backup, BackupCounts } from './backup'
 import { DEFAULT_DAILY_GOAL, clampGoal } from './planner'
 import type { PlannerState } from './plannerData'
 
-export type SyncState = 'local' | 'syncing' | 'synced' | 'pending' | 'offline' | 'error'
+export type SyncState = 'local' | 'local-offline' | 'syncing' | 'synced' | 'pending' | 'offline' | 'error'
 export type MergeProposal = Omit<MergePlan, 'writes'>
 export type ImportPreview = { backup: Backup; counts: BackupCounts }
 
@@ -99,6 +100,8 @@ function syncLabelFor(state: SyncState) {
   switch (state) {
     case 'local':
       return 'Local only'
+    case 'local-offline':
+      return 'Offline — local only'
     case 'syncing':
       return 'Connecting…'
     case 'synced':
@@ -191,7 +194,17 @@ export function useAccountData(
 
     async function setup() {
       try {
-        const snapshot = await getDoc(profileRef)
+        let snapshot
+        try {
+          snapshot = await getDoc(profileRef)
+        } catch (getError) {
+          const text = messageFrom(getError).toLowerCase()
+          if (text.includes('offline') || text.includes('unavailable')) {
+            snapshot = await getDocFromCache(profileRef)
+          } else {
+            throw getError
+          }
+        }
         const local = getSettingsSnapshot()
         if (!snapshot.exists()) {
           await setDoc(profileRef, {
@@ -308,7 +321,9 @@ export function useAccountData(
   const syncState: SyncState = dataError
     ? 'error'
     : !signedIn
-      ? 'local'
+      ? online
+        ? 'local'
+        : 'local-offline'
       : !online
         ? 'offline'
         : pendingWrites
@@ -445,6 +460,7 @@ export function useAccountData(
     }
     setBusy(true)
     try {
+      const { createBackup } = await import('./backup')
       // Plan days are read on demand: the app subscribes to today only, and a
       // backup must still carry the whole planner history.
       const plans = await planner.collectPlansForBackup()
@@ -481,6 +497,7 @@ export function useAccountData(
     setNotice(null)
     setImportPreview(null)
     try {
+      const { parseBackup } = await import('./backup')
       const parsed = parseBackup(await file.text())
       setImportPreview(parsed)
     } catch (reason) {
