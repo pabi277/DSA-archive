@@ -72,6 +72,7 @@ export function App() {
   )
   const filterCount = activeFilterCount(query)
   const signedIn = account.status === 'signed-in'
+  const avatarInitials = account.user ? initials(account.user.displayName) : ''
   const progressDisabled = (signedIn && !data.cloudReady) || data.busy
   const errorTestId = data.error?.startsWith('Invalid backup:') ? 'backup-error' : 'account-error'
 
@@ -178,8 +179,8 @@ export function App() {
           </button>
           {account.user && (
             <details className="profile-menu">
-              <summary className="profile-button" aria-label="Open account menu">
-                {initials(account.user.displayName)}
+              <summary className="profile-button" aria-label={`Open ${avatarInitials} account menu`}>
+                {avatarInitials}
               </summary>
               <div className="profile-menu-panel">
                 <strong>{account.user.displayName}</strong>
