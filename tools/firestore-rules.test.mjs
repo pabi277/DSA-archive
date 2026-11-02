@@ -23,6 +23,7 @@ import {
   getDocs,
   serverTimestamp,
   setDoc,
+  writeBatch,
 } from 'firebase/firestore'
 
 const projectId = 'demo-dsa-archive'
@@ -146,11 +147,8 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
     )
     await assertFails(deleteDoc(ref(bob, 'alice')))
     // An allow rule on one path never opens an unspecified future collection.
-    // (Notes and lists became owner-only in phase 3, plans in phase 4; friends
-    // and summaries stay default-deny until phase 5 ships explicit rules.)
-    await assertFails(getDoc(doc(alice, 'users/alice/friends/bob')))
+    // Invalid social writes and unknown paths remain denied.
     await assertFails(setDoc(doc(alice, 'users/alice/friends/bob'), { addedAt: serverTimestamp() }))
-    await assertFails(getDoc(doc(alice, 'users/alice/public/summary')))
     await assertFails(setDoc(doc(alice, 'users/alice/public/summary'), { solvedCount: 1 }))
     await assertFails(getDoc(doc(alice, 'users/alice/not-a-collection/secret')))
   })
@@ -414,5 +412,60 @@ describe('Firestore rules v3 — phase-4 daily planner (4.1)', () => {
         { merge: true },
       ),
     )
+  })
+})
+
+
+describe('Firestore rules v4 — invitation and summary privacy', () => {
+  it('requires an invite and reciprocal atomic friendship; only friends see opted-in summaries', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const bob = env.authenticatedContext('bob').firestore()
+    const eve = env.authenticatedContext('eve').firestore()
+    const anon = env.unauthenticatedContext().firestore()
+    const code = 'a'.repeat(32)
+    const friend = { code, addedAt: serverTimestamp() }
+    const aliceFriend = doc(bob, 'users/alice/friends/bob')
+    const bobFriend = doc(bob, 'users/bob/friends/alice')
+    const summaryRef = doc(alice, 'users/alice/public/summary')
+    const counts = Object.fromEntries(catalogue.topics.map((t) => [t.id, 0]))
+    const summary = { displayName: 'Alice', solvedCount: 0, solvedByTopic: counts,
+      currentStreak: 0, lastActiveDate: null, weeklySolved: 0, asOf: '2026-11-03' }
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), profile('alice')))
+    await assertSucceeds(setDoc(doc(bob, 'users/bob'), profile('bob')))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), { theme: 'light', updatedAt: serverTimestamp() }, { merge: true }))
+    await assertSucceeds(setDoc(doc(alice, 'invites', code), { uid: 'alice', createdAt: serverTimestamp() }))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), { friendCode: code, updatedAt: serverTimestamp() }, { merge: true }))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), { hideDone: true, updatedAt: serverTimestamp() }, { merge: true }))
+    await assertFails(getDoc(doc(anon, 'invites', code)))
+    await assertFails(getDocs(collection(bob, 'invites')))
+    await assertFails(setDoc(bobFriend, friend))
+    const fake = writeBatch(eve)
+    fake.set(doc(eve, 'users/eve/friends/alice'), friend)
+    fake.set(doc(eve, 'users/alice/friends/eve'), { ...friend, code: 'b'.repeat(32) })
+    await assertFails(fake.commit())
+    await assertFails(setDoc(summaryRef, summary))
+    const batch = writeBatch(bob)
+    batch.set(aliceFriend, friend)
+    batch.set(bobFriend, friend)
+    await assertSucceeds(batch.commit())
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), { shareSummary: true, updatedAt: serverTimestamp() }, { merge: true }))
+    await assertSucceeds(setDoc(summaryRef, summary))
+    await assertFails(setDoc(summaryRef, { ...summary, notes: 'private' }))
+    await assertFails(setDoc(summaryRef, { ...summary, solvedCount: 5 }))
+    await assertSucceeds(getDoc(doc(bob, 'users/alice/public/summary')))
+    await assertFails(getDoc(doc(eve, 'users/alice/public/summary')))
+    await assertFails(getDoc(doc(anon, 'users/alice/public/summary')))
+    await assertFails(getDoc(doc(bob, 'users/alice')))
+    await assertFails(getDoc(noteRef(bob, 'alice')))
+    await assertFails(getDocs(collection(bob, 'users/alice/notes')))
+    await assertFails(getDoc(ref(bob, 'alice')))
+    await assertFails(getDocs(collection(bob, 'users/alice/progressByTopic')))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), { shareSummary: false, updatedAt: serverTimestamp() }, { merge: true }))
+    await assertFails(getDoc(doc(bob, 'users/alice/public/summary')))
+    await assertSucceeds(setDoc(doc(alice, 'users/alice'), { shareSummary: true, updatedAt: serverTimestamp() }, { merge: true }))
+    await assertSucceeds(deleteDoc(doc(alice, 'users/alice/friends/bob')))
+    await assertFails(getDoc(doc(bob, 'users/alice/public/summary')))
+    await assertSucceeds(deleteDoc(doc(alice, 'users/bob/friends/alice')))
+    await assertSucceeds(deleteDoc(doc(alice, 'invites', code)))
   })
 })

@@ -128,7 +128,9 @@ export function useAccount(): AccountState {
     setError(null)
     try {
       // The Auth Emulator accepts strict JSON as a fake google.com id_token.
-      const credential = GoogleAuthProvider.credential(JSON.stringify(TEST_GOOGLE_CLAIMS))
+      const testFriend = new URLSearchParams(window.location.search).get('test-user') === 'friend'
+      const claims = testFriend ? { ...TEST_GOOGLE_CLAIMS, sub: 'dsa-archive-ci-friend', email: 'ci.friend@example.test', name: 'CI Friend' } : TEST_GOOGLE_CLAIMS
+      const credential = GoogleAuthProvider.credential(JSON.stringify(claims))
       await signInWithCredential(auth, credential)
     } catch (reason) {
       setError(friendlyAuthError(reason))

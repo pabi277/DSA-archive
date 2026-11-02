@@ -90,9 +90,7 @@ export function generateRules(catalogue) {
   return `// GENERATED FILE — do not edit by hand.
 // Source: tools/generate-firestore-rules.mjs from data/problems.json.
 // ${topics.length} topics · ${allIds.length} unique problem ids.
-// Rules v3 (phase 4): progress entries gain the "rc" revision counter, and the
-// daily planner collection becomes own-data-only with field/size validation.
-// Phase-2 profile rules and phase-3 note/list rules are otherwise unchanged.
+// Rules v4 (phase 5): reciprocal invitation-based friendships and opt-in summaries.
 rules_version = '2';
 
 service cloud.firestore {
@@ -104,7 +102,7 @@ service cloud.firestore {
     function validProfile(data, uid) {
       return data.keys().hasOnly([
           'uid', 'displayName', 'photoURL', 'createdAt', 'updatedAt',
-          'dailyGoal', 'theme', 'hideDone', 'shareSummary'
+          'dailyGoal', 'theme', 'hideDone', 'shareSummary', 'friendCode'
         ])
         && data.keys().hasAll([
           'uid', 'displayName', 'photoURL', 'createdAt', 'updatedAt',
@@ -122,7 +120,8 @@ service cloud.firestore {
         && data.dailyGoal <= 100
         && data.theme in ['dark', 'light']
         && data.hideDone is bool
-        && data.shareSummary is bool;
+        && data.shareSummary is bool
+        && (!data.keys().hasAny(['friendCode']) || (data.friendCode is string && data.friendCode.matches('^[a-f0-9]{32}$')));
     }
 
     function validProfileCreate(data, uid) {
@@ -131,6 +130,43 @@ service cloud.firestore {
 
     function validProfileUpdate(data, old, uid) {
       return validProfile(data, uid) && data.createdAt == old.createdAt;
+    }
+
+    function validSummary(data) {
+      return data.keys().hasOnly(['displayName', 'solvedCount', 'solvedByTopic', 'currentStreak', 'lastActiveDate', 'weeklySolved', 'asOf'])
+        && data.keys().hasAll(['displayName', 'solvedCount', 'solvedByTopic', 'currentStreak', 'lastActiveDate', 'weeklySolved', 'asOf'])
+        && data.displayName is string && data.displayName.size() > 0 && data.displayName.size() <= 80
+        && data.solvedByTopic is map
+        && data.solvedByTopic.keys().hasOnly(${list(topics.map((topic) => topic.id))})
+        && data.solvedByTopic.keys().hasAll(${list(topics.map((topic) => topic.id))})
+${topics.map((topic) => `        && data.solvedByTopic[${literal(topic.id)}] is int && data.solvedByTopic[${literal(topic.id)}] >= 0 && data.solvedByTopic[${literal(topic.id)}] <= ${topic.problemIds.length}`).join('\n')}
+        && data.solvedCount is int && data.solvedCount == ${topics.map((topic) => `data.solvedByTopic[${literal(topic.id)}]`).join(' + ')}
+        && data.weeklySolved is int && data.weeklySolved >= 0 && data.weeklySolved <= data.solvedCount
+        && data.currentStreak is int && data.currentStreak >= 0 && data.currentStreak <= 100000
+        && data.asOf is string && data.asOf.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && (data.lastActiveDate == null || (data.lastActiveDate is string && data.lastActiveDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')));
+    }
+
+    // Both records must be created in the same atomic batch by the invitee.
+    // An owner cannot grant themselves access by inventing a friend record.
+    function validFriendCreate(uid, friendUid, data) {
+      let invite = get(/databases/$(database)/documents/invites/$(data.code));
+      let reciprocal = getAfter(/databases/$(database)/documents/users/$(friendUid)/friends/$(uid));
+      return request.auth != null && uid != friendUid
+        && (request.auth.uid == uid || request.auth.uid == friendUid)
+        && data.keys().hasOnly(['code', 'addedAt']) && data.keys().hasAll(['code', 'addedAt'])
+        && data.code is string && data.code.matches('^[a-f0-9]{32}$')
+        && data.addedAt == request.time
+        && invite.data.uid != request.auth.uid
+        && ((invite.data.uid == uid && request.auth.uid == friendUid) || (invite.data.uid == friendUid && request.auth.uid == uid))
+        && reciprocal.data.code == data.code && reciprocal.data.addedAt == request.time;
+    }
+
+    function canReadSummary(uid) {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)/friends/$(uid)) &&
+        exists(/databases/$(database)/documents/users/$(uid)/friends/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(uid)).data.shareSummary == true;
     }
 
     function validCloudEntry(entry) {
@@ -209,6 +245,20 @@ ${topics.map(progressValidator).join('\n')}
         && validProfileUpdate(request.resource.data, resource.data, uid);
       allow delete: if isOwner(uid);
 
+      match /friends/{friendUid} {
+        allow get, list: if isOwner(uid);
+        allow create: if validFriendCreate(uid, friendUid, request.resource.data);
+        allow delete: if request.auth != null && (request.auth.uid == uid || request.auth.uid == friendUid);
+      }
+
+      match /public/{summaryId} {
+        allow get: if summaryId == 'summary' && (isOwner(uid) || canReadSummary(uid));
+        allow create, update: if summaryId == 'summary' && isOwner(uid)
+          && get(/databases/$(database)/documents/users/$(uid)).data.shareSummary == true
+          && validSummary(request.resource.data);
+        allow delete: if summaryId == 'summary' && isOwner(uid);
+      }
+
       // A collection query must be provably readable for every possible topic
       // id, so get/list lives on the wildcard. Writes only exist for the 20
       // literal catalogue topic blocks below.
@@ -246,9 +296,19 @@ ${topics.map(topicBlock).join('\n')}
       }
     }
 
+    // Invite IDs are 128-bit bearer capabilities. Listing and updates are denied.
+    match /invites/{code} {
+      allow get: if request.auth != null && code.matches('^[a-f0-9]{32}$');
+      allow create: if request.auth != null && code.matches('^[a-f0-9]{32}$')
+        && request.resource.data.keys().hasOnly(['uid', 'createdAt'])
+        && request.resource.data.keys().hasAll(['uid', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.createdAt == request.time;
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
     // Default deny: no other collection/path has an allow rule. Friend
-    // summaries and friend documents stay private until phase 5 ships
-    // explicit, emulator-tested rules.
+    // paths without an explicit allow remain private.
   }
 }
 `
