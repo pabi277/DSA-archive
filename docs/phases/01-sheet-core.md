@@ -1,7 +1,7 @@
 # Phase 1 — Sheet core
 
 - Date: 2026-11-02
-- Status: ✅ **complete** on session branch `arena/df11f576-dsa-archive` — CI green (run #13, tip `baac7ac`), `site-preview` uploaded; **stops at the merge gate**: no PR, merge, deploy, Firebase project or Hosting change was authorized or made.
+- Status: ✅ **complete and merged to `main`** — CI green (run #13, tip `baac7ac`; run #14, tip `9cec8f0`), `site-preview` uploaded, then merged through **PR #3** on the owner's explicit command ("Merge it to main", 2026-11-02; recorded in `docs/DECISIONS.md`). Phases 0-D and 1 landed together. **No deploy, Hosting channel, Firebase project, rules deploy or visibility change** was authorized or made.
 - Scope: roadmap Phase 1 only — 1.1 accordions + all rows · 1.2 search/filters/random/weakest-topic · 1.3 outbound row actions. **Not** in this phase: Firebase, accounts, sync, notes, snippets, custom lists, planner, revision, stats, friends, PWA.
 - Prerequisite satisfied: Phase 0-D **approved by the owner 2026-11-02** and tokens frozen (`00d-design-prototype.md`, `docs/UI-REFERENCE.md`). Real UI code was blocked until that moment.
 
@@ -70,6 +70,15 @@ Reviewed phone + desktop, dark + light, against the mock's `Sheet · signed out`
 
 ## Gate / next
 
-- **Stop at the merge gate.** No PR, merge, `main` push, tag, release, deploy, Hosting channel, Firebase project, rules deploy or visibility change was made or is authorized by this phase.
+- **The merge gate was opened by the owner, and only the merge.** Work
+  stopped at the gate as `rule.md` §2 requires; the owner then explicitly
+  commanded "Merge it to main" (2026-11-02), so **PR #3** was opened from
+  the session branch and merged with a merge commit (matching PRs #1 and
+  #2). The agent never pushed `main` directly — the merge is GitHub's, and
+  its SHA is in `main`'s history.
+- **Everything else stays gated:** no tag, release, deploy, Hosting
+  preview channel, Firebase project, live rules deploy, or repo-visibility
+  change was made or is authorized by this phase. A merged phase is not a
+  published site: there is still no public URL.
 - Owner items still open (`docs/DECISIONS.md`): make the repo **private** while `copy-web/` holds the third-party snapshot; complete the **10-row live-sheet spot-check**; create the **Spark** Firebase project personally *before* Phase 2.
 - Next chat: **Phase 2 — Firebase Auth + cloud progress** on that chat's own assigned Arena branch, per `prompt.md`. Phase 2 must read the guest rows written by `src/progress.ts` and merge them visibly on first sign-in.

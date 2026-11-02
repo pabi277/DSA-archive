@@ -1,16 +1,18 @@
 # DSA Archive — my own DSA sheet website
 
-> **Status: Phases 0 and 0-D are complete, and Phase 1 (sheet core) is
-> implemented on the session branch.** The owner approved the 0-D design
-> prototype on 2026-11-02, so the design tokens are **frozen** in
+> **Status: Phases 0, 0-D and 1 are complete and merged to `main`.** The
+> owner approved the 0-D design prototype on 2026-11-02, so the design
+> tokens are **frozen** in
 > [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md) and the real sheet is
 > built to them: all 495 rows in topic accordions, instant search,
 > topic/level/link-type filters, random pick, weakest-topic hint and
 > outbound row links — browsable with no account. Progress is stored on
 > the device only; there is **no Firebase, no sign-in and no sync yet**
-> (Phase 2). The owner's 10-row live-sheet content spot-check remains
-> pending, and nothing is merged, deployed or published: this branch
-> stops at the merge gate. Gate record:
+> (Phase 2). Phases 0-D and 1 were merged together through **PR #3** on
+> the owner's explicit command (2026-11-02) — but **nothing is deployed or
+> published: there is still no public URL**, and no Firebase project
+> exists. The owner's 10-row live-sheet content spot-check remains
+> pending. Gate record:
 > [`docs/DECISIONS.md`](docs/DECISIONS.md).**
 
 Planning adapted from AppFlow @ `57597b3332ad578614a0d9d5609f9cf8a278ee8a`

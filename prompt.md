@@ -57,10 +57,15 @@
   `docs/UI-REFERENCE.md`; the mock `src/design-prototype.tsx` was folded
   into phase 1 and deleted (readable at `1791693`). Records:
   `docs/phases/00d-design-prototype.md` → "Approval outcome".
-- **Phase 1 — Sheet core: ✅ complete, on branch
-  `arena/df11f576-dsa-archive`, stopped at the merge gate.** Record:
-  `docs/phases/01-sheet-core.md`. No PR was opened and nothing was merged
-  or deployed.
+- **Phase 1 — Sheet core: ✅ complete and merged to `main`.** Record:
+  `docs/phases/01-sheet-core.md`. The work stopped at the merge gate as
+  `rule.md` §2 requires; the owner then commanded **"Merge it to main"**
+  (2026-11-02), so **PR #3** (`arena/df11f576-dsa-archive` → `main`) was
+  opened and merged with a merge commit, matching PRs #1 and #2. Phases
+  0-D and 1 landed together. `main` was never pushed directly by the
+  agent. **No deploy, Hosting channel, tag, release, Firebase project or
+  visibility change** was authorized or made — there is still no public
+  URL. Next chat: confirm the merge commit SHA from `main`'s history.
   - CI **Site CI run #13 green on the first attempt** (1m11s) at tip
     `baac7acdb17301d5991116e962245ccdb492d3f4`:
     https://github.com/pabi277/DSA-archive/actions/runs/41490242266 —

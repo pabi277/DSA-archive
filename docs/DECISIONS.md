@@ -95,6 +95,19 @@
   filters/random/weakest-topic, 1.3 outbound row actions). Phase 2 was
   **not** authorized: no Firebase project, no Auth, no Firestore, no
   Hosting, no deploy.
+- 2026-11-02 — **Merge to `main`: AUTHORIZED**, owner's explicit command
+  in chat, verbatim: **"Merge it to main."** Recorded as explicit merge
+  authorization for **PR #3** (`arena/df11f576-dsa-archive` → `main`),
+  covering the phase 0-D approval/token-freeze commit and the phase 1
+  sheet-core commits — i.e. phases 0-D and 1 land on `main` together.
+  This is the second merge the owner has commanded (the first was the
+  plan-docs + `copy-web/` move, above). It authorizes **the merge only**:
+  no deploy, no Hosting channel, no Firebase project, no rules deploy, no
+  repo-visibility change, and every future merge stays separately gated.
+  Note on ordering: the commit recording this command rides inside PR #3
+  itself, so the merge commit on `main` lands immediately after it; the
+  merge-commit SHA is visible in `main`'s history and is confirmed by the
+  next phase chat (this repo never pushes `main` directly).
 
 ## Agent decisions (reversible — object if wrong)
 
@@ -191,10 +204,12 @@
       item remains open, and none of them may be re-asked; changing
       any of them is a new GATE decision. Plan-docs commit +
       `copy-web/` move + merge to `main` were separately commanded
-      by the owner on 2026-11-02 (above). Phases 0 and 0-D are
-      complete (0-D approved and tokens frozen 2026-11-02); phase 1
-      (sheet core) is implemented on the current session branch and
-      stops at the merge gate — see `prompt.md`.
+      by the owner on 2026-11-02 (above). Phases 0, 0-D and 1 are
+      complete (0-D approved and tokens frozen 2026-11-02); phases 0-D
+      and 1 were merged to `main` through PR #3 on the owner's explicit
+      command of 2026-11-02 (above). Nothing is deployed or published —
+      there is no public URL and no Firebase project. Living state and
+      the next-chat prompt: `prompt.md`.
 
 ### Owner items (settings only you should change)
 
