@@ -1,7 +1,8 @@
 // GENERATED FILE — do not edit by hand.
 // Source: tools/generate-firestore-rules.mjs from data/problems.json.
 // 20 topics · 495 unique problem ids.
-// Rules v1 (phase 2): own-data-only, default deny, field/size validation.
+// Rules v2 (phase 3): phase-2 progress rules unchanged, plus own-data-only
+// notes (markdown + snippet) and custom lists with field/size validation.
 rules_version = '2';
 
 service cloud.firestore {
@@ -57,6 +58,36 @@ service cloud.firestore {
 
     function validEntryOrDeleted(data, id) {
       return !data.keys().hasAny([id]) || validCloudEntry(data.get(id, {}));
+    }
+
+    // Phase 3.1 — one note document per problem, created only when written.
+    // The doc id is a catalogue slug; the client only writes known ids and the
+    // backup parser re-checks them. Sizes are capped so a hostile client cannot
+    // bloat the free tier, and an all-empty note must be deleted instead.
+    function validNote(data) {
+      return data.keys().hasOnly(['markdown', 'snippet', 'updatedAt'])
+        && data.keys().hasAll(['markdown', 'snippet', 'updatedAt'])
+        && data.markdown is string
+        && data.markdown.size() <= 5000
+        && data.snippet is string
+        && data.snippet.size() <= 8000
+        && (data.markdown.size() + data.snippet.size()) > 0
+        && data.updatedAt == request.time;
+    }
+
+    // Phase 3.3 — a custom list: title + problem ids. Lists hold at most 200
+    // ids and the joined id text is capped, so one document stays small.
+    function validList(data, listId) {
+      return listId.matches('^[a-z0-9-]{8,40}$')
+        && data.keys().hasOnly(['title', 'problemIds', 'updatedAt'])
+        && data.keys().hasAll(['title', 'problemIds', 'updatedAt'])
+        && data.title is string
+        && data.title.size() > 0
+        && data.title.size() <= 60
+        && data.problemIds is list
+        && data.problemIds.size() <= 200
+        && data.problemIds.join('').size() <= 12000
+        && data.updatedAt == request.time;
     }
 
     function validChangedEntry_beginner_problems(data, keys) {
@@ -1105,6 +1136,24 @@ service cloud.firestore {
           && validProgressWrite_maths(request.resource.data, {});
         allow update: if isOwner(uid)
           && validProgressWrite_maths(request.resource.data, resource.data);
+        allow delete: if isOwner(uid);
+      }
+
+      // Notes and lists are personal data: own-data-only, one document per
+      // write. Note ids are catalogue problem slugs; list ids are generated
+      // lowercase UUIDs. Both collections are readable by their owner only.
+      match /notes/{problemId} {
+        allow get, list: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && problemId.matches('^[a-z0-9][a-z0-9-]{0,79}$')
+          && validNote(request.resource.data);
+        allow delete: if isOwner(uid);
+      }
+
+      match /lists/{listId} {
+        allow get, list: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && validList(request.resource.data, listId);
         allow delete: if isOwner(uid);
       }
     }

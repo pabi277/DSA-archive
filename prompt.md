@@ -19,10 +19,12 @@
 - Git author: `pabi277 <chakraborttypabi2772006@gmail.com>`. Before every
   commit verify `git var GIT_AUTHOR_IDENT` / `GIT_COMMITTER_IDENT`; a fresh
   clone may default to a `noreply` address, so set the repo-local identity
-  first. Phases 0/0-D/1 used earlier Arena branches and were merged to
-  `main`; phase 2 used `arena/62f988be-dsa-archive` and stopped at its
-  merge gate. The next chat must use **its own** Arena-assigned branch;
-  never rename, switch, reuse another chat's branch, or push `main`.
+  first (`git config user.name` / `user.email`). Phases 0/0-D/1 used earlier
+  Arena branches, phase 2 used `arena/62f988be-dsa-archive`, phase 3 used
+  `arena/0277d181-dsa-archive`; phases 0–3 are all merged to `main`, phase 3
+  through PR #5 on 2026-11-03. The next chat must use **its own**
+  Arena-assigned branch cut from the current `main`; never rename, switch,
+  reuse another chat's branch, or push `main`.
 
 ## Rules digest (full rules: `./rule.md`)
 
@@ -32,8 +34,6 @@
   visibility change, or bulk move/delete without explicit owner command.
 - Never re-ask recorded choices. Read `docs/DECISIONS.md` first.
 - Clean-room: `copy-web/` is STUDY-only. Do not ship its code/assets/text.
-  Factual topic/problem labels/order/levels/links live in our own data
-  file; learning content is reached by linking out.
 - No secrets in git/chat. The owner handles Firebase console steps and
   creates the Spark project personally. Security rules are the protection
   and must be Emulator-tested before any gated live deploy.
@@ -45,102 +45,105 @@
   are frozen in `docs/UI-REFERENCE.md`. Build UI to those tokens; changing
   a frozen value or the design direction re-opens the GATE.
 
-## Current state (2026-11-02)
+## Current state (2026-11-03)
 
-- **Phase 0 — Bootstrap + data extraction: ✅ complete and merged.**
-  PR #2 merged to `main` at `8638a91`. Data: **495 rows · 20 topics**
-  (Basic 84 · Core 287 · Pro 109 · 15 unbadged stored as `null`;
-  link rows practice 453, video 369, article 289, LeetCode 289).
+- **Phase 0 — Bootstrap + data extraction: ✅ complete and merged.** PR #2
+  at `8638a91`. Data: **495 rows · 20 topics** (Basic 84 · Core 287 · Pro 109
+  · 15 unbadged stored as `null`; link rows practice 453, video 369,
+  article 289, LeetCode 289).
 - **Phase 0-D — Design prototype + tokens freeze: ✅ approved 2026-11-02.**
-  Tokens frozen unchanged in `docs/UI-REFERENCE.md`; the mock was folded
-  into phase 1 and deleted (readable at `1791693`).
-- **Phase 1 — Sheet core: ✅ complete and merged to `main`.** PR #3
-  merged with merge commit
-  `dab3207c83953667d7af66b2cc127938d63862f3`; CI run #13 green at tip
-  `baac7ac`. All 495 rows, instant cross-topic search, filters, random
-  pick, weakest-topic hint, outbound links, guest progress and settings.
-- **Phase 2 — Firebase Auth + cloud progress: ✅ complete on
-  `arena/62f988be-dsa-archive`, stopped at the merge gate.** Record:
-  `docs/phases/02-firebase-auth-cloud-progress.md`. Final tip
-  `75a9d7e1fad9b5d11e037423ffe67f025e1a2943`.
-  - **CI: Site CI run [#23](https://github.com/pabi277/DSA-archive/actions/runs/41501878705)
-    SUCCESS** (1m46s): catalogue validation · generated-rules check ·
-    **60 unit tests** · emulator-configured build · dist/link checks ·
-    **4 Emulator Suite rules tests** · **4 real-Chromium Playwright tests**
-    (desktop + phone-light + signed-in phone sync/backup, three axe
-    audits). Failure-only diagnostics step skipped. **`site-preview`
-    artifact: 312,869 bytes** (14-day retention).
-  - **2.1** Google sign-in (`signInWithPopup`) + emulator-only deterministic
-    CI Google account, profile doc, avatar menu, sync pill, sign-out/error
-    states, `theme`/`hideDone` profile sync (`largeText` stays local-only).
-  - **2.2** `users/{uid}/progressByTopic/{topicId}` shards with
-    `s,b,a,fd,lr,updatedAt`, persistent Firestore local cache, pending/
-    offline metadata, and an **explicit, never-silent** guest merge using
-    `dsa-archive.progress.v1` plus backfilled per-topic
-    `dsa-archive.progress.updatedAt.v1`. Newest `updatedAt` wins per topic;
-    no write happens before the user chooses. Guest mode was kept, not cut.
-  - **2.3** versioned `firestore.rules`, generated from `data/problems.json`
-    by `tools/generate-firestore-rules.mjs`: default deny, own-data-only,
-    owner collection queries, exact profile/progress field types and size
-    caps, known topic/problem ids, one changed problem key per write,
-    `serverTimestamp` enforcement. `tools/firestore-rules.test.mjs` proves
-    stranger/unauthenticated denial, invalid fields, unknown ids,
-    oversized/bulk writes, owner deletion. No rule was weakened.
-  - **2.4** backup `schemaVersion: 1` (profile + all progress rows + empty
-    notes/lists/plans + excluded friends/summary), with invalid-file error,
-    count preview, explicit replace, and success state.
-  - `e2e/sync.spec.ts` covers solve → guest merge → relogin in a fresh
-    browser profile → offline mark → reconnect → second fresh profile →
-    export/import at 390×844 against Auth + Firestore emulators.
-  - Local checks green: `test:data`, `npm test` (**60 tests / 6 files**),
-    `check:rules`, emulator-configured `build`, `check:dist`, `check:links`,
-    Playwright spec discovery, `git diff --check`. Java/Chromium downloads
-    are unavailable in the agent sandbox, so **CI is the authority** for
-    emulator and real-browser checks.
-  - Dependencies: Firebase JS SDK **12.19.0** (Apache-2.0) shipped;
-    dev-only `@firebase/rules-unit-testing` **5.0.2** (Apache-2.0) and
-    `firebase-tools` **15.34.2** (MIT); Node-22-compatible overrides
-    `@firebase/app` 0.16.2, `@firebase/app-compat` 0.5.18,
-    `@grpc/grpc-js` 1.14.7. Java 21 is installed in CI for the emulator.
-    No dependency outside the Firebase whitelist.
-  - **No live Firebase project was created or linked. No rules deploy,
-    Hosting deploy, public URL, PR, merge, tag, release, or visibility
-    change was made.** The owner's live check remains gated.
-- Deliberate phase-2 adaptations (inline notices instead of dialogs,
-  account card instead of a second route, bottom nav still deferred,
-  emulator test button, retained guest mode, text sync pill) are listed in
-  `docs/UI-REFERENCE.md`; none is a token change.
+  Tokens frozen unchanged in `docs/UI-REFERENCE.md`.
+- **Phase 1 — Sheet core: ✅ complete and merged** (PR #3, merge commit
+  `dab3207c83953667d7af66b2cc127938d63862f3`; CI #13 green).
+- **Phase 2 — Firebase Auth + cloud progress: ✅ complete and merged**
+  (PR #4, `main` at `b3e8217`); record
+  `docs/phases/02-firebase-auth-cloud-progress.md`, CI #23 green at
+  `75a9d7e`. Google sign-in, profile/avatar menu, sync pill,
+  `users/{uid}/progressByTopic/{topicId}` shards with `s,b,a,fd,lr`, offline
+  cache, explicit guest merge, rules v1 + 4 emulator tests, backup schema v1.
+- **Phase 3 — Notes, snippets & custom lists: ✅ complete and merged to
+  `main` through PR #5** (owner command 2026-11-03: "Merge it."). Record:
+  `docs/phases/03-notes-snippets-custom-lists.md`; branch tip
+  `0d02c72` with CI runs #30 (code) and #31 (docs) green. The merge commit is
+  confirmed by this chat at its start. **Nothing is deployed.**
+  - **CI: Site CI run [#30](https://github.com/pabi277/DSA-archive/actions/runs/41517643913)
+    SUCCESS** (2m01s): catalogue validation · generated-rules check ·
+    **85 unit tests / 8 files** · emulator-configured build · dist/link
+    checks · **8 Emulator Suite rules tests** · **5 real-Chromium
+    Playwright tests** (sheet desktop + phone-light + phase-2 sync/backup +
+    the new 390×844 notes/lists/backup spec), three axe audits.
+    **`site-preview` artifact: 321,193 bytes** (14-day retention).
+  - **3.1** per-problem markdown note (≤5,000 chars) + code snippet
+    (≤8,000) at `users/{uid}/notes/{problemId}` with `markdown`, `snippet`,
+    `serverTimestamp`; inline row editor (`Write`/`Preview`, two-step
+    delete, empty note deletes the document), owned by `src/NoteEditor.tsx`
+    + `src/markdown.ts` (escaping-first, no dependency, http(s) links only).
+  - **3.2** Notes view: count, search over note text/snippet/problem/topic
+    titles, note cards with markdown excerpt + snippet, "Edit note"/"Open in
+    sheet" jumping back to the row.
+  - **3.3** custom lists at `users/{uid}/lists/{listId}` (`title` ≤60,
+    `problemIds` ≤200): create, rename, delete, add/remove from a row list
+    picker, and filter the sheet from a list chip.
+  - **Rules v2:** phase-2 rules untouched; notes and lists are owner-only
+    with exact field sets, size caps, doc-id patterns and
+    `updatedAt == request.time`. Catalogue membership is enforced
+    client-side and in the backup parser because of the 1,000-expression
+    rules limit (recorded in `DECISIONS.md`).
+  - **Backup schema v2** writes real `notes[]`/`lists[]`; `parseBackup`
+    still accepts **schema 1** (empty notes/lists) — the recorded
+    backward-compatible migration. File cap is now 4 MB.
+  - Test tooling: `playwright.config.ts` sets `workers: 1` (both emulator
+    specs share the deterministic CI user); `ci.yml` re-emits emulator
+    failures as check-run annotations because the agent sandbox cannot
+    download Actions logs.
+- Deliberate adaptations (inline notices instead of dialogs, account card
+  instead of a second route, bottom nav still deferred, Sheet/Notes/Lists
+  view tabs, inline row note editor, notes/lists require sign-in) are listed
+  in `docs/UI-REFERENCE.md`; none is a token change.
 - Open owner items (`docs/DECISIONS.md`): repo is still **PUBLIC** while
   `copy-web/` holds the third-party snapshot — make it private or command
   the change; the **10-row live-sheet spot-check** is pending; create the
   **Spark** Firebase project personally before the gated live check.
-- Known debt, deliberately deferred: the JS bundle is now ~1.03 MB
-  (283 kB gzipped) because Firebase Auth + Firestore are statically
-  imported; code-splitting and the still-unused Tailwind + daisyUI weight
-  are **phase 6 perf-budget** items.
+- Known debt, deliberately deferred: the JS bundle is ~1.06 MB (291 kB
+  gzipped) because Firebase Auth + Firestore are statically imported;
+  code-splitting and the still-unused Tailwind + daisyUI weight are
+  **phase 6 perf-budget** items.
 
-## Next: Phase 3 — Notes, snippets & custom lists
+## Next: Phase 4 — Planner & revision
 
 Read `rule.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`,
-`docs/DATA-MODEL.md` (§3 notes/lists shape and §6 backup),
-`docs/UI-REFERENCE.md` (frozen tokens + phase-2 adaptations),
-`docs/phases/02-firebase-auth-cloud-progress.md`, and the phase-2 source.
-Verify branch, `git status`, PRs, CI runs and Git author identity first;
-work only on the next chat's assigned Arena branch. Do not re-ask any
-recorded answer. Do not start phase 4.
+`docs/DATA-MODEL.md` (§3 progress/plans shape, §4 quota budget, §6 backup),
+`docs/UI-REFERENCE.md` (frozen tokens + phase-2/3 adaptations),
+`docs/phases/03-notes-snippets-custom-lists.md`, and the phase-3 source
+(`src/library*.ts`, `src/cloudProgress.ts`, `src/progress.ts`,
+`src/accountData.ts`, `src/App.tsx`, `src/sheet.ts`). Verify branch,
+`git status`, PRs, CI runs and Git author identity first; work only on the
+next chat's assigned Arena branch. Do not re-ask any recorded answer. Do not
+start phase 5.
 
-Phase 3 parts, exactly as the roadmap states them:
+Phase 4 parts, exactly as the roadmap states them:
 
-1. **3.1** per-problem note (markdown) + my-code snippet, synced. Extend
-   the own-data-only rules with note field/size validation and add
-   Emulator Suite rules tests; never weaken phase-2 rules.
-2. **3.2** notes overview + search.
-3. **3.3** custom lists/tags (create, add/remove, filter sheet by list).
-   Extend backup schema in a recorded, backward-compatible migration and
-   include the new data in export/import.
+1. **4.1** daily goal + Today list.
+2. **4.2** spaced revision queue (3/7/21 days, computed client-side) +
+   one-tap "revised".
+3. **4.3** streak heatmap + weekly stats + continue-where-I-left.
 
-"Done means": a note written on one device appears on the other; lists
-filter the sheet; all of it is covered by export/import and rules tests.
-Keep the sheet browsable signed-out, keep guest mode and explicit merge,
-keep the frozen tokens, stay within the Firebase whitelist, and end at
-the merge gate — no PR/merge/deploy without a fresh explicit command.
+Useful facts already in place: progress entries store `a` (attempts), `fd`
+(first done) and `lr` (last status change), and rules already allow
+`s: 'revision'`; `src/cloudProgress.ts` maps `revision` to `todo` for the
+binary row control (phase 4 can surface it). `users/{uid}/plans/{yyyy-mm-dd}`
+and `users/{uid}/public/summary` are sketched in `DATA-MODEL.md` §3 but are
+**not** in the rules yet — phase 4 must add `plans` rules with Emulator
+tests (own-data-only, field/size caps) and extend backup for plans in a
+recorded, backward-compatible migration (schema v3, still reading v1/v2).
+Keep `notes`/`lists`/`progress` rules intact; never weaken a rule to pass a
+test. The `/` search shortcut, hide-done and the weakest-topic hint already
+exist; stats must stay client-computed (no server jobs, Spark-only).
+
+"Done means": a solved problem resurfaces on schedule; a full study session
+runs Today → solve → revise. It also stays true that CI is green with the
+`site-preview` artifact showing the increment, rules tests run in the
+Emulator Suite, the sheet is browsable signed-out, guest mode and the
+explicit merge still work, frozen tokens are unchanged, no dependency
+outside the Firebase whitelist is added, and the phase ends at the merge
+gate — no PR/merge/deploy without a fresh explicit command.

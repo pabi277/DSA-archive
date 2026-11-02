@@ -143,7 +143,16 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
 - [ ] Bottom nav (phone: Sheet · Today · Revision · Friends · More) —
       **deferred, see adaptations**; returns in phase 2+.
 - [ ] Desktop rail navigation — **deferred** with the bottom nav.
-- [ ] Note editor (textarea, markdown preview, code block) — phase 3.
+- [x] Note editor (textarea, markdown preview, code block) — *phase 3*
+      (`src/NoteEditor.tsx`, inline in the problem row).
+- [x] Notes overview (searchable my-notes list, empty state) — *phase 3*
+      (`src/NotesView.tsx`).
+- [x] Custom lists (create, rename, delete, add/remove problems, filter the
+      sheet, empty states) — *phase 3* (`src/ListsView.tsx`,
+      `src/ListPicker.tsx`).
+- [x] View tabs (Sheet · Notes · Lists) using the approved `.list-tabs`
+      anatomy with `aria-pressed` — *phase 3*. Bottom nav and desktop rail
+      stay deferred (their destinations still do not exist).
 - [ ] Friend summary card + compare bars · invite-code block — phase 5.
 
 ## Comparison duty (per UI phase)
@@ -158,6 +167,15 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
   and `Sheet · filters on` states. Same tokens, same chrome, same row
   anatomy, same neutral badges. Every difference found is listed below;
   none of them is a token change.
+- **Phase 3 review (2026-11-02):** `test-results/library-phone.png` (notes
+  view at 390×844, captured by `e2e/library.spec.ts`) plus the existing
+  desktop/phone captures were compared against the approved mock's
+  `Problem detail — with my note`, `Notes overview — has notes / empty`,
+  `Custom lists — list / empty / editing` and `Sheet — filters on` states.
+  The note editor (markdown textarea + mono code field + Write/Preview),
+  note cards, list cards, list tabs and the extra filter chips reuse the
+  approved anatomy and frozen tokens. Every difference is listed below; none
+  changes a token or the approved direction.
 - **Phase 2 review (2026-11-02):** `test-results/sync-phone.png` plus the
   existing desktop/phone screenshots were compared against the approved
   mock's `Sheet — signed in`, `Sheet — syncing / offline`, `Sign-in`,
@@ -220,3 +238,24 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
 - **The sync pill uses a short text label, not a spinner or ring.** The
   frozen design has no separate hue story; state is always text plus the
   existing neutral dot. The progress ring and streak stay phase 4.
+- **Notes and lists need an account.** The mock showed a signed-in problem
+  detail; phase 3 keeps that. Signed out, the Notes and Lists views show a
+  short explainer instead of a dead editor, and rows hide their Note/+ List
+  actions — the same "no dead controls" rule phase 1 used for the sign-in
+  button.
+- **Problem detail is an inline row panel, not a route.** The app still has
+  one screen, so `Note` / `+ List` expand the row in place rather than
+  navigating. A router returns only when a real second destination (Today,
+  Stats, Friends) ships.
+- **View switching uses `.list-tabs` buttons, not ARIA tabs.** `Sheet ·
+  Notes · Lists` is a view filter with `aria-pressed`; claiming `role="tab"`
+  would promise a keyboard/tabpanel contract this switch does not implement.
+  The bottom nav stays deferred for the same reason as phases 1–2.
+- **The markdown preview is a deliberately small subset.** Fenced code,
+  `#`-headings, bullets, inline code, bold, italic and http(s) links only;
+  raw HTML is escaped and headings render as styled paragraphs so the page
+  heading order stays audit-clean. No markdown/editor/sanitiser dependency
+  ships.
+- **List membership is ticked, not dragged.** The row list picker is a
+  checkbox list plus a "create and add" field — the simplest control that
+  meets the 44px touch target and needs no drag-and-drop library.

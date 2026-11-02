@@ -116,6 +116,25 @@ describe('filters', () => {
     expect(rows(applySheetQuery({ ...emptyQuery, hideDone: true }, progress, fixture))).toEqual(['a2', 'a3', 'b1'])
   })
 
+  it('filters the sheet by a custom list and counts it as one filter', () => {
+    const sheet = applySheetQuery(
+      { ...emptyQuery, listProblemIds: new Set(['a1', 'b1']) },
+      noProgress,
+      fixture,
+    )
+    expect(rows(sheet).sort()).toEqual(['a1', 'b1'])
+    expect(sheet.filtering).toBe(true)
+    expect(isFiltering({ ...emptyQuery, listProblemIds: new Set(['a1']) })).toBe(true)
+    expect(activeFilterCount({ ...emptyQuery, listProblemIds: new Set(['a1']) })).toBe(1)
+
+    const combined = applySheetQuery(
+      { ...emptyQuery, listProblemIds: new Set(['a1', 'b1']), levels: ['core'] },
+      noProgress,
+      fixture,
+    )
+    expect(rows(combined)).toEqual(['a1'])
+  })
+
   it('combines search with filters', () => {
     const sheet = applySheetQuery({ ...emptyQuery, search: 'two', levels: ['core'] }, noProgress, fixture)
     expect(rows(sheet)).toEqual(['a1'])

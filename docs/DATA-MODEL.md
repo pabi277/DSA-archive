@@ -72,11 +72,15 @@ users/{uid}/progressByTopic/{topicId}        // ≤20 docs — the login read se
                  "lr": "2026-…" }, … }       // lastRevisedAt
   updatedAt
 
-users/{uid}/notes/{problemId}                // created only when a note exists
-  markdown, snippet, updatedAt
+users/{uid}/notes/{problemId}                // phase 3 — created only when a note exists
+  markdown: "…",                             // ≤ 5,000 chars
+  snippet: "…",                              // ≤ 8,000 chars
+  updatedAt                                  // serverTimestamp, enforced by rules
 
-users/{uid}/lists/{listId}                   // custom lists (phase 3)
-  title, problemIds: […], updatedAt
+users/{uid}/lists/{listId}                   // phase 3 — custom lists
+  title: "…",                                // 1–60 chars
+  problemIds: […],                           // ≤ 200 known catalogue ids
+  updatedAt                                  // serverTimestamp, enforced by rules
 
 users/{uid}/plans/{yyyy-mm-dd}               // daily planner (phase 4)
   problemIds: […], doneIds: […]
@@ -130,7 +134,7 @@ users/{uid}/public/summary                   // phase 5, ONLY if shareSummary = 
   `theme`/`hideDone`; `largeText` is local-only (an accessibility
   preference, not user data worth a Firestore field).
 
-### Rules v1 validation (generated from `data/problems.json`)
+### Rules validation (generated from `data/problems.json`)
 
 `tools/generate-firestore-rules.mjs` emits the versioned `firestore.rules`
 from the single validated catalogue: 20 topic whitelists, 495 unique
@@ -138,10 +142,28 @@ problem ids. Default deny; owner-only `get/list/create/update/delete`
 under `users/{uid}`; profile field types and size caps; progress entry
 fields `s` (`todo|done|revision`), `b`, `a` (0–10000), `fd`/`lr`
 (≤40 chars or null); one changed problem key per write; top-level shard
-size capped at the topic's row count + `updatedAt`. The emulator test
-covers stranger read/write, unauthenticated access, invalid profile
-fields, invalid progress fields, unknown ids, oversized writes and
-owner deletion.
+size capped at the topic's row count + `updatedAt`.
+
+**Rules v2 (phase 3)** adds two owner-only collections without touching the
+phase-2 rules above:
+
+- `notes/{problemId}` — readable/listed/deletable by the owner; writes need a
+  catalogue-shaped doc id (`^[a-z0-9][a-z0-9-]{0,79}$`), exactly
+  `markdown`/`snippet`/`updatedAt`, string types, 5,000/8,000 caps, a
+  non-empty note, and `updatedAt == request.time`.
+- `lists/{listId}` — readable/listed/deletable by the owner; writes need an id
+  matching `^[a-z0-9-]{8,40}$`, exactly `title`/`problemIds`/`updatedAt`, a
+  1–60 character title, a list of ≤200 ids whose joined text is ≤12,000
+  characters, and `updatedAt == request.time`.
+
+Rules have no loops and only 1,000 evaluated expressions per request, so
+catalogue membership for these two collections is enforced by the client and
+the backup parser (recorded in `DECISIONS.md`), while the rules bound every
+document's shape and size. The emulator suite (8 tests) covers stranger and
+unauthenticated denial on both collections, invalid/oversized fields, unknown
+extra keys, a non-server `updatedAt`, malformed note/list ids, over-long
+titles, >200 ids, oversized joined id text, plus owner create/update/delete,
+and proves `plans`/unknown collections stay denied until their phase ships.
 
 ## 4. Spark quota budget (official limits checked 2026-11-02)
 
@@ -153,7 +175,7 @@ Rough day for owner + 5 friends, cache misses only (cache hits = 0):
 
 | Action | Reads | Writes |
 |---|---|---|
-| Login / app open (profile + 20 topic docs + today plan) | ~22 | 0 |
+| Login / app open (profile + 20 topic docs + notes/lists collections + today plan) | ~24 | 0 |
 | Solve/revise 10 problems (same 2–3 topics, batched per topic doc) | 0 | ≤10 |
 | Notes: read 5, write 2 | 5 | 2 |
 | Friends screen (6 summaries) | 6 | 0 (summary write rides the progress write, +1) |
@@ -186,15 +208,22 @@ its phase record before it is built.
    owner command); keep it there, outside every build, and never as
    a runtime input.
 
-## 6. Export / import (anti-lock-in, phase 2)
+## 6. Export / import (anti-lock-in — schema v2 since phase 3)
 
-Export = one JSON file: `schemaVersion: 1`, `generatedBy`,
-`exportedAt`, profile settings, all `progressByTopic` rows (with
-`a`/`fd`/`lr`), empty `notes`/`lists`/`plans` arrays for phases 3–4,
-and an `excluded` list naming friends/summary (they're social, not
-study data). `src/backup.ts` validates schema version, catalogue ids,
-field types and a 1 MB size cap; the UI previews row/topic/note/list/plan
-counts and only then replaces. Invalid files show an explicit error.
-Import deletes existing topic shards, replays one-key writes, and
-restores profile settings. This is also the migration path off Firebase
-if the owner ever wants one — powerful must never mean trapped.
+Export = one JSON file: `schemaVersion: 2`, `generatedBy`, `exportedAt`,
+profile settings, all `progressByTopic` rows (with `a`/`fd`/`lr`), the real
+`notes[]` array (`problemId`, `markdown`, `snippet`, `updatedAt`), the real
+`lists[]` array (`listId`, `title`, `problemIds`, `updatedAt`), an empty
+`plans` array for phase 4, and an `excluded` list naming friends/summary
+(they're social, not study data). `src/backup.ts` validates schema version,
+catalogue ids, field types, per-note/per-list caps and a 4 MB file cap; the UI
+previews row/topic/note/list/plan counts and only then replaces. Invalid files
+show an explicit error. Import deletes existing topic shards, replays one-key
+writes, restores profile settings, then replaces notes and lists one document
+per item.
+
+**Recorded migration:** `parseBackup` accepts **schema 1 and 2**. Phase-2
+files wrote empty `notes`/`lists` arrays, so they import unchanged and simply
+restore no notes or lists; a v1 file that claims note/list content is refused
+rather than guessed. This is also the migration path off Firebase if the owner
+ever wants one — powerful must never mean trapped.

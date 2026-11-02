@@ -47,7 +47,16 @@ jobs:
         env:
           GCLOUD_PROJECT: demo-dsa-archive
           PLAYWRIGHT_EMULATOR: '1'
-        run: npm run test:emulator
+        run: |
+          set -o pipefail
+          npm run test:emulator 2>&1 | tee test-output.log
+      - name: Summarise emulator/browser failure as annotations
+        if: failure() && hashFiles('test-output.log') != ''
+        run: |
+          lines=$(grep -nEi '(^not ok|✘|✖|FAIL |AssertionError|Error:|expected|Timeout|error TS|Unhandled|playwright)' test-output.log | tail -n 40 || true)
+          if [ -z "$lines" ]; then lines=$(tail -n 40 test-output.log); fi
+          printf '%s\n' "$lines" | cut -c1-900 | sed 's/%/%25/g' | while IFS= read -r line; do echo "::error::$line"; done
+          exit 0
       - name: Upload browser diagnostics on failure
         if: failure() && hashFiles('test-results/**') != ''
         uses: actions/upload-artifact@v7.0.2
