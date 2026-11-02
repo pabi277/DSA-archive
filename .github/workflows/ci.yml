@@ -45,9 +45,7 @@ jobs:
             tail -n 80 test-results/e2e.log | while IFS= read -r line; do
               escaped="${line//'%'/'%25'}"
               escaped="${escaped//$'\r'/'%0D'}"
-              escaped="${escaped//':'/'%3A'}"
-              escaped="${escaped//','/'%2C'}"
-              printf '::error title=Playwright failure::%s\n' "$escaped"
+              printf '::error::%s\n' "$escaped"
             done
             echo "::endgroup::"
           fi
