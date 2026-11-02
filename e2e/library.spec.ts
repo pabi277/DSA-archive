@@ -79,12 +79,17 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     await page.getByTestId('list-button-two-sum').click()
     const picker = page.getByTestId('list-picker')
     await expect(picker).toBeVisible()
-    await picker.getByRole('checkbox', { name: /Interview warmup/ }).check()
+    // A click (not check(): the tick is driven by the Firestore snapshot, so it
+    // flips a moment after the optimistic write).
+    await picker.getByRole('checkbox', { name: /Interview warmup/ }).click()
     await expect(picker.getByRole('checkbox', { name: /Interview warmup/ })).toBeChecked()
     await picker.getByRole('button', { name: 'Close list picker' }).click()
 
     await page.getByTestId('list-button-linear-search').click()
-    await page.getByTestId('list-picker').getByRole('checkbox', { name: /Interview warmup/ }).check()
+    await page.getByTestId('list-picker').getByRole('checkbox', { name: /Interview warmup/ }).click()
+    await expect(
+      page.getByTestId('list-picker').getByRole('checkbox', { name: /Interview warmup/ }),
+    ).toBeChecked()
     await page.getByTestId('list-picker').getByRole('button', { name: 'Close list picker' }).click()
     await expect(page.getByTestId('list-button-two-sum')).toContainText('List · 1')
 
