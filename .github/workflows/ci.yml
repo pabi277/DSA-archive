@@ -51,11 +51,33 @@ jobs:
           set -o pipefail
           npm run test:emulator 2>&1 | tee test-output.log
       - name: Summarise emulator/browser failure as annotations
+        # The agent sandbox cannot download Actions logs or artifacts (the blob
+        # host is outside its allowlist), so each failure block is re-emitted as
+        # a check-run annotation: one annotation per failing step, with context.
         if: failure() && hashFiles('test-output.log') != ''
         run: |
-          lines=$(grep -nEi '(^not ok|✘|✖|FAIL |AssertionError|Error:|expected|Timeout|error TS|Unhandled|playwright)' test-output.log | tail -n 40 || true)
-          if [ -z "$lines" ]; then lines=$(tail -n 40 test-output.log); fi
-          printf '%s\n' "$lines" | cut -c1-900 | sed 's/%/%25/g' | while IFS= read -r line; do echo "::error::$line"; done
+          python3 - <<'PY'
+          import re
+          ansi = re.compile(r'\x1b\[[0-9;]*[A-Za-z]')
+          try:
+              raw = open('test-output.log', encoding='utf-8', errors='replace').read()
+          except OSError:
+              raise SystemExit(0)
+          lines = [ansi.sub('', line).rstrip() for line in raw.splitlines()]
+          triggers = re.compile(r'(^not ok |^\s*not ok |✘|Error:|AssertionError|Unhandled|error TS)')
+          blocks, seen = [], set()
+          for index, line in enumerate(lines):
+              if not triggers.search(line):
+                  continue
+              block = ' | '.join(part.strip() for part in lines[index:index + 14] if part.strip())
+              key = block[:120]
+              if key in seen:
+                  continue
+              seen.add(key)
+              blocks.append(block[:900])
+          for block in blocks[:8]:
+              print('::error::' + block.replace('%', '%25'))
+          PY
           exit 0
       - name: Upload browser diagnostics on failure
         if: failure() && hashFiles('test-results/**') != ''
