@@ -26,7 +26,7 @@
 
 - Added Vite + React + TypeScript, Tailwind CSS + daisyUI and a minimal, intentionally unstyled hello-sheet displaying **“495 problems · 20 topics”** and the 20 topic counts (`src/main.tsx:7-43`). No design tokens or feature UI were frozen; Phase 0-D approval is still a hard prerequisite for real UI work.
 - `firebase.json` contains only Auth/Firestore Emulator Suite endpoints. There is no Firebase SDK, project alias, Hosting config, live project, credential, or rules deployment. No emulator rules tests apply in this bootstrap-only phase.
-- CI (`.github/workflows/ci.yml`) runs catalogue validation, unit tests, production build, dist cleanliness, built-asset link checks, Chromium phone/desktop screenshots and axe accessibility scans; it packages the built `dist/` as the `site-preview` artifact.
+- CI (`.github/workflows/ci.yml`) runs catalogue validation, unit tests, production build, dist cleanliness, built-asset link checks, Chromium phone/desktop screenshots and axe accessibility scans; it packages the built `dist/` as the `site-preview` artifact. Vite explicitly permits Arena's `.e2b.app` preview hosts (`vite.config.ts`) while binding to `0.0.0.0`.
 - The build output is three files and contains no copied-site assets. `tools/check-dist.mjs` checks that invariant.
 
 ## Reuse scan (checked 2026-11-02)
