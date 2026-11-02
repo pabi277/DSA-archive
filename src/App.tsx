@@ -260,7 +260,7 @@ export function App() {
   }
 
   const addSuggested = () => {
-    for (const problemId of suggestions) planner.addToToday(problemId)
+    planner.addManyToToday(suggestions)
   }
 
   const toggleRowPanel = (problemId: string, kind: 'note' | 'lists') =>

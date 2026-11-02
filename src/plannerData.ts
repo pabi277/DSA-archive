@@ -30,6 +30,7 @@ import {
   todayKey,
   withDone,
   withProblem,
+  withProblems,
   withoutProblem,
   type BackupPlan,
   type Plan,
@@ -45,6 +46,7 @@ export type PlannerState = {
   error: string | null
   notice: string | null
   addToToday: (problemId: string) => void
+  addManyToToday: (problemIds: readonly string[]) => void
   removeFromToday: (problemId: string) => void
   markTodayDone: (problemId: string) => void
   /**
@@ -59,6 +61,18 @@ export type PlannerState = {
 
 function messageFrom(reason: unknown) {
   return reason instanceof Error ? reason.message : String(reason)
+}
+
+function samePlanItems(left: Plan | null, right: Plan | null): boolean {
+  if (left === right) return true
+  if (!left || !right) return false
+  if (left.date !== right.date) return false
+  if (left.problemIds.length !== right.problemIds.length) return false
+  if (left.doneIds.length !== right.doneIds.length) return false
+  return (
+    left.problemIds.every((id, index) => id === right.problemIds[index]) &&
+    left.doneIds.every((id, index) => id === right.doneIds[index])
+  )
 }
 
 /** The phone's calendar day, kept honest across midnight and tab wake-ups. */
@@ -93,10 +107,14 @@ export function usePlanner(account: AccountState): PlannerState {
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const planRef = useRef<Plan | null>(null)
+  const optimisticRef = useRef<Plan | null>(null)
+  const inFlightRef = useRef(0)
 
   // A different account (or a different day) is a different document.
   useEffect(() => {
     planRef.current = null
+    optimisticRef.current = null
+    inFlightRef.current = 0
     setPlan(null)
     setReady(false)
     setBusy(false)
@@ -114,6 +132,19 @@ export function usePlanner(account: AccountState): PlannerState {
       (snapshot) => {
         if (disposed) return
         const next = snapshot.exists() ? sanitizePlan(today, snapshot.data()) : null
+        if (optimisticRef.current) {
+          if (samePlanItems(next, optimisticRef.current)) {
+            optimisticRef.current = null
+          } else if (inFlightRef.current > 0 || snapshot.metadata.hasPendingWrites) {
+            // Ignore lagging intermediate snapshots from an earlier write so
+            // back-to-back actions (e.g. Suggest 5 -> Done -> Add) never lose
+            // `doneIds` or `problemIds` in `planRef.current`.
+            setReady(true)
+            return
+          } else {
+            optimisticRef.current = null
+          }
+        }
         planRef.current = next
         setPlan(next)
         setReady(true)
@@ -142,8 +173,9 @@ export function usePlanner(account: AccountState): PlannerState {
       }
       setError(null)
       planRef.current = next
+      optimisticRef.current = next
+      inFlightRef.current += 1
       setPlan(next)
-      setBusy(true)
       void setDoc(
         doc(firestore, 'users', uid, 'plans', next.date),
         {
@@ -153,8 +185,13 @@ export function usePlanner(account: AccountState): PlannerState {
         },
         { merge: true },
       )
-        .catch((reason) => setError(`Could not save today's plan: ${messageFrom(reason)}`))
-        .finally(() => setBusy(false))
+        .catch((reason) => {
+          optimisticRef.current = null
+          setError(`Could not save today's plan: ${messageFrom(reason)}`)
+        })
+        .finally(() => {
+          inFlightRef.current = Math.max(0, inFlightRef.current - 1)
+        })
     },
     [uid, firestore],
   )
@@ -165,6 +202,21 @@ export function usePlanner(account: AccountState): PlannerState {
       const next = withProblem(base, problemId)
       if (!next) {
         setError('That problem cannot be added — it is unknown or the day is full.')
+        return
+      }
+      if (next === base) return
+      save(next)
+    },
+    [save, today],
+  )
+
+  const addManyToToday = useCallback(
+    (problemIds: readonly string[]) => {
+      if (problemIds.length === 0) return
+      const base = planRef.current ?? emptyPlan(today)
+      const next = withProblems(base, problemIds)
+      if (!next) {
+        setError('Those problems cannot be added — one is unknown or the day is full.')
         return
       }
       if (next === base) return
@@ -204,6 +256,9 @@ export function usePlanner(account: AccountState): PlannerState {
       const plan = sanitizePlan(entry.id, entry.data())
       if (plan) plans[entry.id] = plan
     }
+    if (planRef.current && inFlightRef.current > 0) {
+      plans[planRef.current.date] = planRef.current
+    }
     return plansForBackup(plans)
   }, [uid, firestore])
 
@@ -214,20 +269,26 @@ export function usePlanner(account: AccountState): PlannerState {
   const applyPlanBackup = useCallback(
     async (backupPlans: BackupPlan[]) => {
       if (!uid || !firestore) throw new Error('sign in before importing a backup')
-      const all = await getDocs(collection(firestore, 'users', uid, 'plans'))
-      if (all.docs.length > 0) {
-        for (let index = 0; index < all.docs.length; index += 400) {
-          const batch = writeBatch(firestore)
-          for (const entry of all.docs.slice(index, index + 400)) batch.delete(entry.ref)
-          await batch.commit()
+      setBusy(true)
+      optimisticRef.current = null
+      try {
+        const all = await getDocs(collection(firestore, 'users', uid, 'plans'))
+        if (all.docs.length > 0) {
+          for (let index = 0; index < all.docs.length; index += 400) {
+            const batch = writeBatch(firestore)
+            for (const entry of all.docs.slice(index, index + 400)) batch.delete(entry.ref)
+            await batch.commit()
+          }
         }
-      }
-      for (const entry of backupPlans) {
-        await setDoc(doc(firestore, 'users', uid, 'plans', entry.date), {
-          problemIds: entry.problemIds.slice(0, PLAN_MAX_PROBLEMS),
-          doneIds: entry.doneIds.filter((id) => entry.problemIds.includes(id)).slice(0, PLAN_MAX_PROBLEMS),
-          updatedAt: serverTimestamp(),
-        })
+        for (const entry of backupPlans) {
+          await setDoc(doc(firestore, 'users', uid, 'plans', entry.date), {
+            problemIds: entry.problemIds.slice(0, PLAN_MAX_PROBLEMS),
+            doneIds: entry.doneIds.filter((id) => entry.problemIds.includes(id)).slice(0, PLAN_MAX_PROBLEMS),
+            updatedAt: serverTimestamp(),
+          })
+        }
+      } finally {
+        setBusy(false)
       }
     },
     [uid, firestore],
@@ -242,6 +303,7 @@ export function usePlanner(account: AccountState): PlannerState {
     error,
     notice,
     addToToday,
+    addManyToToday,
     removeFromToday,
     markTodayDone,
     collectPlansForBackup,
