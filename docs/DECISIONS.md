@@ -146,9 +146,28 @@
   **"Read prompt.md and start phase 6"**. Authorizes roadmap Phase 6 only (6.1
   installable PWA + true offline open, 6.2 perf/a11y budgets in CI + rules/quota
   audit + App Check evaluation, 6.3 release checklist + truthful docs/credits +
-  Hosting/rules deploy runbook) on `arena/991952b2-dsa-archive`. Does **not**
-  authorize a PR, merge, tag, release, live Firebase project creation, live
-  rules deploy, or Firebase Hosting deploy (including preview channels).
+  Hosting/rules deploy runbook) on `arena/991952b2-dsa-archive`.
+
+## Owner decisions — live Spark project link, Analytics, PR/merge & deploy prep (2026-11-02 UTC)
+
+- 2026-11-02 — **Link repository to live Spark project `dsa-archive` (`[GATE: Link repo to live Firebase project]`):**
+  owner supplied the personally created Spark web config (`projectId: "dsa-archive"`,
+  `authDomain: "dsa-archive.firebaseapp.com"`, `appId: "1:207824804845:web:cd4c13333793090b0425e4"`,
+  public `apiKey`, `messagingSenderId`, `storageBucket`) and explicitly approved
+  committing `.env.production` + `.firebaserc` (`"default": "dsa-archive"`) so
+  `npm run build` and `firebase deploy` work out of the box while CI/dev
+  emulator runs stay isolated on `demo-dsa-archive`.
+- 2026-11-02 — **Keep Firebase Analytics OFF (`[GATE: Analytics / trackers & Firebase whitelist]`):**
+  owner confirmed keeping `rule.md` §§3, 5 intact — `firebase/analytics` and
+  `measurementId` (`G-WMM90G1QJC`) from the Console boilerplate snippet are
+  intentionally omitted so zero trackers ship.
+- 2026-11-02 — **Open Phase 6 PR and merge to `main` (`[GATE: PR & Merge]`):**
+  owner explicitly authorized opening the pull request from
+  `arena/991952b2-dsa-archive` and merging it into `main` once `Site CI` is green.
+- 2026-11-02 — **Prepare live `dsa-archive` deploy commands (`[GATE: Live Firestore rules & Hosting deploy]`):**
+  owner confirmed preparing exact copy-paste `firestore:rules`-first then
+  `hosting` deploy steps for `dsa-archive` (laptop terminal + phone Google Cloud
+  Shell) without pasting or handling credentials in chat.
 
 ## Agent decisions (reversible — object if wrong)
 

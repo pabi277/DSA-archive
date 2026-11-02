@@ -1,15 +1,16 @@
 # DSA Archive — personal offline-first DSA sheet
 
-> **Status: Phases 0, 0-D, 1, 2, 3, 4 and 5 are complete and merged to `main`;
-> Phase 6 (Offline/PWA, hardening & release prep) is complete on its session
-> branch (`arena/991952b2-dsa-archive`) and STOPPED before merge and deploy.**
+> **Status: All v1 roadmap phases (0, 0-D, 1, 2, 3, 4, 5 and 6) are complete.**
 > Design tokens approved by the owner in Phase 0-D (2026-11-02) remain
-> **frozen** in [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md). All cloud,
-> security-rules, accessibility, bundle-budget, and Airplane-Mode PWA checks
-> run in CI against the **local Firebase Emulator Suite** and real Chromium.
-> **No live Firebase project has been created by the agent, no rules or
-> Hosting deploy has been made, and there is no public URL.** Exact owner-gated
-> release steps live in [`docs/RELEASE-RUNBOOK.md`](docs/RELEASE-RUNBOOK.md).
+> **frozen** in [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md). Public web
+> identifiers for the owner's Spark project **`dsa-archive`** live in
+> `.env.production` and `.firebaserc` (with Firebase Analytics omitted per
+> [`rule.md`](rule.md) §5), while CI runs all cloud, security-rules,
+> accessibility, bundle-budget, and Airplane-Mode PWA checks against the
+> isolated **local Firebase Emulator Suite** (`demo-dsa-archive`) and real
+> Chromium, then builds the production `dist/` bundle. Exact owner-executed
+> `firestore:rules` + `hosting` deploy commands live in
+> [`docs/RELEASE-RUNBOOK.md`](docs/RELEASE-RUNBOOK.md).
 
 Planning adapted from AppFlow @ `57597b3332ad578614a0d9d5609f9cf8a278ee8a`
 on 2026-11-02 (provenance only — this repo is self-contained; see

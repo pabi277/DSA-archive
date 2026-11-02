@@ -52,6 +52,12 @@ jobs:
         run: |
           set -o pipefail
           npm run test:emulator 2>&1 | tee test-output.log
+      - name: Production build (live dsa-archive public config) + budget verification
+        run: |
+          npm run build
+          npm run check:dist
+          npm run check:links
+          npm run check:budgets
       - name: Summarise emulator/browser failure as annotations
         # The agent sandbox cannot download Actions logs or artifacts (the blob
         # host is outside its allowlist), so each failure block is re-emitted as

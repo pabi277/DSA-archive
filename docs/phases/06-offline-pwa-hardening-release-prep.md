@@ -1,8 +1,8 @@
 # Phase 6 — Offline/PWA, hardening & release prep (STOP before deploy)
 
 - Date: 2026-11-02
-- Status: ✅ **complete on `arena/991952b2-dsa-archive`, CI green ([`#41534903775`](https://github.com/pabi277/DSA-archive/actions/runs/41534903775)), stopped before PR/merge/deploy.**
-- Scope: roadmap Phase 6 only — **6.1** installable PWA + true offline open + friendly offline / 404 states · **6.2** perf & a11y budgets in CI, Firestore rules + Spark quota audit, Firebase App Check evaluation · **6.3** release checklist, truthful `README.md`/licence/credits, `copy-web/` disposition re-confirmed, Firebase Hosting + rules deploy runbook (`docs/RELEASE-RUNBOOK.md`). **Nothing is deployed; no live Firebase project was created or touched.**
+- Status: ✅ **complete, linked to owner's Spark project `dsa-archive` (Analytics omitted), PR & merge to `main` authorized by owner; live `firebase deploy` remains owner-executed per `docs/RELEASE-RUNBOOK.md`.**
+- Scope: roadmap Phase 6 — **6.1** installable PWA + true offline open + friendly offline / 404 states · **6.2** perf & a11y budgets in CI, Firestore rules + Spark quota audit, Firebase App Check evaluation · **6.3** release checklist, truthful `README.md`/licence/credits, `copy-web/` disposition re-confirmed, owner-approved `.env.production` + `.firebaserc` link to `dsa-archive` (Analytics omitted), and Firebase Hosting + rules deploy runbook (`docs/RELEASE-RUNBOOK.md`).
 - Prerequisites: Phase 5 merged to `main` at `3303c8a8f965dbe50ef107de63e2fb81ab95c781` (PR #7); frozen 0-D tokens unchanged; repo-local Git identity set to and verified as `pabi277 <chakraborttypabi2772006@gmail.com>`.
 
 ## Delivered
@@ -58,7 +58,7 @@
 
 ### 6.3 — Release checklist, truthful docs/credits, `copy-web/` disposition & deploy runbook
 
-- **`firebase.json`:** added the `hosting` configuration pointing `public` at `dist`, explicitly ignoring `copy-web/**`, setting `immutable` 1-year caching on hashed `/assets/**` and `no-cache` on `index.html`, `offline.html`, `404.html`, `sw.js`, and `manifest.webmanifest`, plus `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and `X-Frame-Options: SAMEORIGIN` (`SAMEORIGIN` rather than `DENY` so Firebase Hosting's same-origin `/__/auth/iframe` Google sign-in helper works when deployed). No `.firebaserc` or live project ID was added.
+- **`firebase.json`, `.firebaserc` & `.env.production`:** added the `hosting` configuration pointing `public` at `dist`, explicitly ignoring `copy-web/**`, setting `immutable` 1-year caching on hashed `/assets/**` and `no-cache` on `index.html`, `offline.html`, `404.html`, `sw.js`, and `manifest.webmanifest`, plus `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and `X-Frame-Options: SAMEORIGIN`. Following the owner's explicit gate approval (2026-11-02), linked the public Spark web identifiers for **`dsa-archive`** in `.env.production` and `.firebaserc` while intentionally omitting `firebase/analytics` and `measurementId` (`G-WMM90G1QJC`) and keeping CI emulator tests isolated on `demo-dsa-archive`.
 - **`docs/RELEASE-RUNBOOK.md`:** written with the pre-deploy checklist, Spark-only console setup, `.env.local` setup, local verification commands, rules-first then Hosting deploy commands, post-deploy phone+laptop+airplane-mode checklist, and rollback/lock-down procedures.
 - **`README.md` & `src/App.tsx` footer:** updated from stale Phase 3/4 wording to truthful v1 state, MIT licence scope, open-source credits, clean-room attribution, and re-confirmed `copy-web/` disposition.
 

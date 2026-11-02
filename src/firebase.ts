@@ -1,10 +1,12 @@
 /**
- * Phase 2 Firebase wiring — Auth + Firestore only, Spark whitelist.
+ * Phase 2 / Phase 6 Firebase wiring — Auth + Firestore only, Spark whitelist.
  *
- * There is deliberately no live project identifier checked in. The emulator
- * build uses public demo identifiers; a live build needs the owner's web
- * config in a gitignored .env.local. Firebase web config is NOT a secret and
- * is NOT the protection: firestore.rules is. No Admin SDK or service key.
+ * Production builds read the owner's public Spark web identifiers for
+ * `dsa-archive` from `.env.production` (or a local `.env.local` override);
+ * `VITE_FIREBASE_USE_EMULATOR=true` forces isolated `demo-dsa-archive`
+ * emulator mode for dev/CI. Firebase Analytics (`getAnalytics` /
+ * `measurementId`) is intentionally omitted per `rule.md` §5. Firebase web
+ * config is NOT a secret and is NOT the protection: `firestore.rules` is.
  */
 import { getApps, initializeApp, type FirebaseApp } from 'firebase/app'
 import { connectAuthEmulator, getAuth, type Auth } from 'firebase/auth'
