@@ -60,7 +60,7 @@ import {
   SettingsScreen,
   TopicScreen,
 } from './app/placeholderScreens'
-import { Button, Card, Ring, Stat } from './design/primitives'
+import { Button, Card, Ring, Stat, ToastHost } from './design/primitives'
 import { IconArrowRight, IconCheck, IconSearch, IconSpark } from './design/icons'
 
 const summary = summarizeCatalogue()
@@ -817,6 +817,7 @@ function AppShell() {
         onSignIn={() => void account.signIn()}
       />
       <ShortcutsSheet open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      <ToastHost toasts={feedback.messages} onDismiss={feedback.dismiss} />
     </div>
   )
 }

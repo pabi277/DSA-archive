@@ -391,7 +391,6 @@ function TopicGroup({
       id={`topic-${topic.id}`}
       className="topic-card"
       open={open}
-      onToggle={(event) => onToggle(event.currentTarget.open)}
     >
       <summary
         onClick={(event) => {

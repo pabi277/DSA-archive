@@ -9,7 +9,7 @@
  * React state, the expiry tick and the rendering contract.
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { ToastHost, type ToastMessage } from '../design/primitives'
+import type { ToastMessage } from '../design/primitives'
 import { createUndoStack, pushUndo, pruneUndo, takeUndo, undoSecondsLeft, type UndoEntry, type UndoStack } from './undo'
 
 const NOTICE_MS = 4_000
@@ -134,7 +134,6 @@ export function FeedbackProvider({ children }: { children: ReactNode }) {
   return (
     <FeedbackContext.Provider value={api}>
       {children}
-      <ToastHost toasts={toasts} onDismiss={dismiss} />
     </FeedbackContext.Provider>
   )
 }

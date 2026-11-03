@@ -82,11 +82,7 @@ function mount() {
 }
 
 function openTopic(topicId: string) {
-  const details = q(`#topic-${topicId}`) as HTMLDetailsElement
-  act(() => {
-    details.open = true
-    details.dispatchEvent(new Event('toggle', { bubbles: false }))
-  })
+  click(q(`#topic-${topicId} > summary`))
 }
 
 beforeEach(() => {
