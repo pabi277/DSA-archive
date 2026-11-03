@@ -28,6 +28,10 @@ async function collectFiles(dir, base = dir) {
     } else {
       const rel = path.relative(base, full).replaceAll(path.sep, '/')
       if (rel === 'sw.js' || rel.endsWith('.map')) continue
+      // Runtime assets (phase v2-01): self-hosted font subsets are fetched on
+      // demand and cached by the browser's font cache, never precached — they
+      // live in the separate "runtime assets" budget bucket, not the shell.
+      if (rel.startsWith('fonts/')) continue
       out.push(rel)
     }
   }

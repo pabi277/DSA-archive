@@ -2,8 +2,8 @@
  * Clean-room PWA icon generator for DSA Archive (phase 6.1).
  *
  * Uses only Node built-ins (`node:zlib`, `node:fs/promises`) and our frozen
- * phase-0-D palette (`#101313` canvas, `#171b1b` surface, `#343a38` line,
- * `#edf0ed` ink, `#c4d0ca` accent) — zero external dependencies and zero
+ * tokens-v2 palette (`#0B0D0E` canvas, `#121516` surface, `#363d3e` line,
+ * `#EDF0ED` ink, `#7FE3B4` accent) — zero external dependencies and zero
  * assets from `copy-web/`.
  */
 import { deflateSync } from 'node:zlib'
@@ -182,13 +182,13 @@ function renderIcon(size, { maskable = false } = {}) {
 }
 
 const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="DSA Archive">
-  <rect width="128" height="128" rx="28" fill="#101313"/>
-  <rect x="8" y="8" width="112" height="112" rx="22" fill="#171b1b" stroke="#343a38" stroke-width="3"/>
+  <rect width="128" height="128" rx="28" fill="#0B0D0E"/>
+  <rect x="8" y="8" width="112" height="112" rx="22" fill="#121516" stroke="#363d3e" stroke-width="3"/>
   <text x="64" y="72" text-anchor="middle" font-family="ui-sans-serif, system-ui, -apple-system, sans-serif" font-size="44" font-weight="750" letter-spacing="-2">
-    <tspan fill="#edf0ed">D</tspan><tspan fill="#c4d0ca">A</tspan>
+    <tspan fill="#EDF0ED">D</tspan><tspan fill="#7FE3B4">A</tspan>
   </text>
-  <rect x="30" y="88" width="68" height="5" rx="2.5" fill="#343a38"/>
-  <rect x="30" y="88" width="44" height="5" rx="2.5" fill="#c4d0ca"/>
+  <rect x="30" y="88" width="68" height="5" rx="2.5" fill="#363d3e"/>
+  <rect x="30" y="88" width="44" height="5" rx="2.5" fill="#7FE3B4"/>
 </svg>
 `
 

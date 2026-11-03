@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
+import { open, openTopic } from './helpers'
 
 /**
  * Roadmap phase 2 "Done means" in CI: solve at phone width, merge guest rows,
@@ -34,12 +35,13 @@ test('cloud progress survives relogin, offline reconnect and backup restore', as
 
   try {
     const page = await firstContext.newPage()
-    await page.goto('/')
+    await open(page, '/')
     await expect(page.getByTestId('sign-in-banner')).toBeVisible()
 
     // A signed-out guest row must be shown before any merge is performed.
-    await page.locator('#topic-arrays summary').click()
-    await page.locator('#problem-two-sum .status-check').click()
+    await open(page, '/#/search?q=two+sum')
+    await openTopic(page)
+    await page.getByTestId('status-two-sum').click()
     await expect(page.getByTestId('progress-pill')).toHaveText('1/495 done')
 
     await page.getByTestId('emulator-sign-in').click()
@@ -53,24 +55,26 @@ test('cloud progress survives relogin, offline reconnect and backup restore', as
     await expect(page.getByTestId('sync-pill')).toContainText('Synced')
 
     // Relogin in the same browser, then in a genuinely fresh browser profile.
+    await open(page, '/#/settings')
     await page.getByTestId('sign-out').click()
     await expect(page.getByTestId('sign-in-banner')).toBeVisible()
     await page.getByTestId('emulator-sign-in').click()
     await expect(page.getByTestId('progress-pill')).toHaveText('1/495 done')
 
     const secondPage = await secondContext.newPage()
-    await secondPage.goto('/')
+    await open(secondPage, '/')
     await secondPage.getByTestId('emulator-sign-in').click()
     await expect(secondPage.getByTestId('signed-in-banner')).toContainText('CI Owner')
     await expect(secondPage.getByTestId('progress-pill')).toHaveText('1/495 done')
     await expect(secondPage.getByTestId('sync-pill')).toContainText('Synced')
 
     // Offline marking queues in Firestore's persistent local cache, then syncs.
-    await secondPage.locator('#topic-arrays summary').click()
+    await open(secondPage, '/#/search?q=linear+search')
+    await expect(secondPage.locator('#problem-linear-search')).toBeVisible()
     await secondContext.setOffline(true)
     await secondPage.evaluate(() => window.dispatchEvent(new Event('offline')))
     await expect(secondPage.getByTestId('sync-pill')).toContainText('Offline')
-    await secondPage.locator('#problem-linear-search .status-check').click()
+    await secondPage.getByTestId('status-linear-search').click()
     await expect(secondPage.getByTestId('progress-pill')).toHaveText('2/495 done')
     await secondContext.setOffline(false)
     await secondPage.evaluate(() => window.dispatchEvent(new Event('online')))
@@ -78,9 +82,10 @@ test('cloud progress survives relogin, offline reconnect and backup restore', as
 
     // A third fresh profile proves the queued write reached Firestore.
     const verifyPage = await verifyContext.newPage()
-    await verifyPage.goto('/')
+    await open(verifyPage, '/')
     await verifyPage.getByTestId('emulator-sign-in').click()
     await expect(verifyPage.getByTestId('progress-pill')).toHaveText('2/495 done')
+    await open(verifyPage, '/#/settings')
     await expect(verifyPage.getByTestId('account-panel')).toBeVisible()
 
     // Export a real backup, reject an invalid file, preview a valid file, and

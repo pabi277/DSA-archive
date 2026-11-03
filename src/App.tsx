@@ -1,35 +1,37 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { catalogue, summarizeCatalogue } from './catalogue'
-import { tallyCatalogue, tallyTopic } from './progress'
-import { toggleHideDone, toggleLargeText, toggleTheme } from './settings'
+import { getProgressSnapshot, replaceGuestProgress, tallyCatalogue, tallyTopic } from './progress'
 import {
-  LEVEL_FILTERS,
-  LEVEL_LABELS,
-  LINK_FILTERS,
-  LINK_LABELS,
-  activeFilterCount,
+  setDensity,
+  setTheme,
+  toggleHideDone,
+  toggleLargeText,
+  toggleRail,
+  useSettings,
+  type Density,
+  type Theme,
+} from './settings'
+import {
   applySheetQuery,
-  levelOf,
+  fromQueryParams,
   pickRandom,
+  toQueryParams,
   weakestTopic,
-  type LevelFilter,
-  type LinkFilter,
   type RandomPick,
   type SheetQuery,
 } from './sheet'
-import { TopicAccordion } from './SheetList'
 import { NoteEditor } from './NoteEditor'
 import { NotesView } from './NotesView'
 import { ListsView } from './ListsView'
 import { ListPicker } from './ListPicker'
-import { locateProblem, listsContaining, sortLists } from './library'
+import { locateProblem, sortLists } from './library'
 import { useAccount } from './account'
 import { useLibrary } from './libraryData'
 import { useAccountData } from './accountData'
 import { usePlanner } from './plannerData'
 import { useFriends } from './friendsData'
 import { FriendsView } from './FriendsView'
-import { useAppPathname, useInstallPrompt } from './pwa'
+import { useInstallPrompt } from './pwa'
 import { RevisionView, StatsView, TodayView } from './PlannerViews'
 import {
   continueWhereLeft,
@@ -40,66 +42,149 @@ import {
   todayTally,
   weeklyStats,
 } from './planner'
+import { navigate, onRouteChange, rememberScrollMaybe, type Route, type RouteName } from './app/router'
+import { installShortcuts, ShortcutsSheet } from './app/shortcuts'
+import { FeedbackProvider, useFeedback } from './app/feedback'
+import { CommandPalette } from './app/commandPalette'
+import { getTriageFocus, moveTriageFocus, setTriageFocus, useTriageFocus } from './app/triage'
+import { Banner, BottomBar, NavSidebar, PageHeader, TopBar } from './app/shell'
+import { SheetScreen, WINDOW_SIZE, topicRingValue } from './app/sheetScreen'
+import { TopicsScreen } from './app/topicsScreen'
+import {
+  CodeScreen,
+  InsightsScreen,
+  NotFoundScreen,
+  PracticeScreen,
+  ProblemScreen,
+  QuizHome,
+  SettingsScreen,
+  TopicScreen,
+} from './app/placeholderScreens'
+import { Button, Card, Ring, Stat } from './design/primitives'
+import { IconArrowRight, IconCheck, IconSearch, IconSpark } from './design/icons'
 
 const summary = summarizeCatalogue()
-const levelSplit = LEVEL_FILTERS.map((level) => `${LEVEL_LABELS[level]} ${summary.levels[level] ?? 0}`).join(' · ')
 
 type Filters = Omit<SheetQuery, 'hideDone' | 'listProblemIds'>
-type View = 'sheet' | 'today' | 'revision' | 'notes' | 'lists' | 'stats' | 'friends'
-const noFilters: Filters = { search: '', topicId: '', levels: [], linkTypes: [] }
-
-function scrollToId(id: string) {
-  document.getElementById(id)?.scrollIntoView?.({ block: 'center' })
-}
-
-function chipClass(on: boolean) {
-  return on ? 'chip is-on' : 'chip'
-}
 
 function initials(name: string) {
   const pieces = name.trim().split(/\s+/).filter(Boolean)
   return (pieces.length > 1 ? `${pieces[0][0]}${pieces[1][0]}` : pieces[0]?.slice(0, 2) ?? 'DS').toUpperCase()
 }
 
+const ROUTE_TITLES: Record<RouteName, string> = {
+  today: 'Today',
+  topics: 'Topics',
+  topic: 'Topic',
+  problem: 'Problem',
+  code: 'Code',
+  search: 'Search the sheet',
+  practice: 'Practice drills',
+  review: 'Review',
+  quiz: 'Quizzes',
+  insights: 'Insights',
+  settings: 'Settings',
+  lists: 'My lists',
+  notes: 'Notes',
+  friends: 'Friends',
+  stats: 'Stats',
+  'not-found': 'Page not found',
+}
+
 /**
- * The app has six views over one screen: the sheet (phases 1–2), Today (4.1),
- * Revision (4.2), Stats (4.3), my notes (3.2) and custom lists (3.3). Personal
- * data needs an account; the sheet keeps working signed out. Frozen 0-D tokens
- * are unchanged.
+ * The application root (phase v2-01): one shell, one router, one feedback host.
+ *
+ * `view` state is gone — the URL is the only source of truth for *which* screen
+ * is showing, and the query string carries each screen's filters, tab and
+ * search text. Data hooks (`useAccountData`, `useLibrary`, `usePlanner`,
+ * `useFriends`) are unchanged from v1; this file only consumes them.
  */
 export function App() {
-  const route = useAppPathname()
+  return (
+    <FeedbackProvider>
+      <AppShell />
+    </FeedbackProvider>
+  )
+}
+
+function AppShell() {
+  const settings = useSettings()
+  const feedback = useFeedback()
   const installPrompt = useInstallPrompt()
   const account = useAccount()
   const library = useLibrary(account)
   const planner = usePlanner(account)
   const data = useAccountData(account, library, planner)
   const friends = useFriends(account, data.entries, data.cloudReady, planner.today)
-  const { progress, settings } = data
-  const [filters, setFilters] = useState<Filters>(noFilters)
-  const [view, setView] = useState<View>('sheet')
-  const [noteQuery, setNoteQuery] = useState('')
-  const [activeListId, setActiveListId] = useState<string | null>(null)
+  const { progress, settings: syncedSettings } = data
+  void syncedSettings
+
+  const [route, setRoute] = useState<Route>(() => ({
+    name: 'today',
+    param: '',
+    query: {},
+    path: '#/',
+  }))
+  const [paletteOpen, setPaletteOpen] = useState(false)
+  const [shortcutsOpen, setShortcutsOpen] = useState(false)
+  const [searchSignal, setSearchSignal] = useState(0)
   const [rowPanel, setRowPanel] = useState<{ problemId: string; kind: 'note' | 'lists' } | null>(null)
   const [openTopics, setOpenTopics] = useState<ReadonlySet<string>>(() => new Set())
   const [pick, setPick] = useState<RandomPick | null>(null)
   const [revealed, setRevealed] = useState<string | null>(null)
-  const [scrollTarget, setScrollTarget] = useState<{ id: string; nonce: number } | null>(null)
-  const searchRef = useRef<HTMLInputElement>(null)
-  const scrollNonce = useRef(0)
+  const [sessionMinutes, setSessionMinutes] = useState<number | null>(null)
+  const [noteQuery, setNoteQuery] = useState('')
+  const triageFocus = useTriageFocus()
 
-  const activeList = activeListId ? library.lists[activeListId] ?? null : null
-  const listChoices = useMemo(() => sortLists(library.lists), [library.lists])
-  const noteTotal = Object.keys(library.notes).length
-  const listTotal = listChoices.length
+  /* --- routing ----------------------------------------------------------- */
 
+  useEffect(() => {
+    let last = ''
+    const unsubscribe = onRouteChange((next) => {
+      const previous = last
+      last = next.path
+      setRoute(next)
+      rememberScrollMaybe()
+      // Leaving #/search and coming back should restore the query from the URL,
+      // not from a stale component state: the search screen reads `route.query`.
+      if (next.name !== 'search') setPick(null)
+      if (previous !== next.path) {
+        setRowPanel(null)
+        setTriageFocus(null)
+        try {
+          window.scrollTo?.({ top: 0 })
+        } catch {
+          // jsdom has no layout.
+        }
+      }
+    })
+    return unsubscribe
+  }, [])
+
+  // Old v1 bookmarks were path-based (`/notes`); translate them to hash routes.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const path = window.location.pathname.replace(/\/+$/, '')
+    if (path && path !== '' && path !== '/index.html' && !window.location.hash) {
+      const map: Record<string, RouteName> = {
+        '/notes': 'notes',
+        '/lists': 'lists',
+        '/today': 'today',
+        '/sheet': 'search',
+        '/stats': 'stats',
+        '/friends': 'friends',
+      }
+      const target = map[path]
+      navigate(target ?? 'not-found', '', {}, true)
+    }
+  }, [])
+
+  /* --- derived data ------------------------------------------------------ */
+
+  const filters = useMemo<Filters>(() => fromQueryParams(route.query), [route.query])
   const query = useMemo<SheetQuery>(
-    () => ({
-      ...filters,
-      hideDone: settings.hideDone,
-      listProblemIds: activeList ? new Set(activeList.problemIds) : null,
-    }),
-    [filters, settings.hideDone, activeList],
+    () => ({ ...filters, hideDone: false, listProblemIds: null }),
+    [filters],
   )
   const sheet = useMemo(() => applySheetQuery(query, progress), [query, progress])
   const tally = useMemo(() => tallyCatalogue(progress), [progress])
@@ -114,161 +199,176 @@ export function App() {
   )
   const today = planner.today
   const queue = useMemo(() => revisionQueue(data.entries, today), [data.entries, today])
-  const dayTally = useMemo(
-    () => todayTally(data.entries, planner.plan, today, data.dailyGoal),
-    [data.entries, planner.plan, today, data.dailyGoal],
-  )
+  const dayTally = useMemo(() => todayTally(data.entries, planner.plan, today, data.dailyGoal), [data.entries, planner.plan, today, data.dailyGoal])
   const streak = useMemo(() => streakInfo(data.entries, today), [data.entries, today])
   const weekly = useMemo(() => weeklyStats(data.entries, today), [data.entries, today])
   const heat = useMemo(() => heatmap(data.entries, today), [data.entries, today])
-  const suggestions = useMemo(
-    () => suggestedPicks(data.entries, planner.plan, 5),
-    [data.entries, planner.plan],
-  )
+  const suggestions = useMemo(() => suggestedPicks(data.entries, planner.plan, 5), [data.entries, planner.plan])
   const continuePick = useMemo(() => continueWhereLeft(data.entries), [data.entries])
 
-  const filterCount = activeFilterCount(query)
   const signedIn = account.status === 'signed-in'
-  const avatarInitials = account.user ? initials(account.user.displayName) : ''
   const progressDisabled = (signedIn && !data.cloudReady) || data.busy
   const error = data.error ?? planner.error ?? library.error
   const notice = data.notice ?? planner.notice ?? library.notice
-  const errorTestId = error?.startsWith('Invalid backup:')
-    ? 'backup-error'
-    : data.error
-      ? 'account-error'
-      : planner.error
-        ? 'planner-error'
-        : 'library-error'
   const syncLabel = data.syncState === 'synced' && library.pending ? 'Changes pending' : data.syncLabel
+  const syncTone =
+    data.syncState === 'error'
+      ? 'danger'
+      : data.syncState === 'offline' || data.syncState === 'local-offline'
+        ? 'warn'
+        : data.syncState === 'synced'
+          ? 'ok'
+          : data.syncState === 'local'
+            ? 'muted'
+            : 'warn'
 
-  // A deleted list must never leave the sheet filtered by a list that is gone.
-  useEffect(() => {
-    if (activeListId && !library.lists[activeListId]) setActiveListId(null)
-  }, [activeListId, library.lists])
+  const listChoices = useMemo(() => sortLists(library.lists), [library.lists])
 
-  // Search narrows instantly: expand every topic that still has matches. The
-  // dependency is the *signature* of matching topic ids, so ticking a row done
-  // never re-expands a topic the user just collapsed.
-  const openSignature = sheet.filtering ? sheet.topics.map((topic) => topic.id).join('|') : ''
-  useEffect(() => {
-    if (!sheet.filtering) return
-    setOpenTopics(new Set(openSignature.split('|').filter(Boolean)))
-  }, [openSignature, sheet.filtering])
+  /* --- mutations with undo (acceptance #5) ------------------------------- */
 
-  useEffect(() => {
-    if (scrollTarget) scrollToId(scrollTarget.id)
-  }, [scrollTarget])
+  /**
+   * The undo contract: capture the *exact* prior state of the field, perform the
+   * mutation, then offer a 6 s revert through the toast host. Guest rows are
+   * restored from a snapshot of local storage; signed-in rows are written back
+   * through the same `toggleStatus`/`toggleBookmark` call that changed them.
+   */
+  const undoStatus = useCallback(
+    (topicId: string, problemId: string, wasDone: boolean) => {
+      const title = locateProblem(problemId)?.problem.title ?? problemId
+      feedback.undoable({
+        key: `progress:${topicId}:${problemId}:s`,
+        message: wasDone ? `Marked “${title}” to do` : `Marked “${title}” done`,
+        revert: () => {
+          if (signedIn) {
+            data.toggleStatus(topicId, problemId)
+            return
+          }
+          const snapshot = getProgressSnapshot()
+          const shard = { ...(snapshot[topicId] ?? {}) }
+          if (wasDone) shard[problemId] = { s: 'done', b: shard[problemId]?.b ?? false }
+          else delete shard[problemId]
+          replaceGuestProgress({ ...snapshot, [topicId]: shard })
+        },
+      })
+    },
+    [data, feedback, signedIn],
+  )
 
-  // Desktop keyboard shortcut: "/" focuses search (0-D component inventory).
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return
-      const target = event.target as HTMLElement | null
-      if (target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return
-      event.preventDefault()
-      searchRef.current?.focus()
-    }
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+  const undoBookmark = useCallback(
+    (topicId: string, problemId: string, wasBookmarked: boolean) => {
+      const title = locateProblem(problemId)?.problem.title ?? problemId
+      feedback.undoable({
+        key: `progress:${topicId}:${problemId}:b`,
+        message: wasBookmarked ? `Removed bookmark · ${title}` : `Bookmarked · ${title}`,
+        revert: () => {
+          if (signedIn) {
+            data.toggleBookmark(topicId, problemId)
+            return
+          }
+          const snapshot = getProgressSnapshot()
+          const shard = { ...(snapshot[topicId] ?? {}) }
+          const current = shard[problemId] ?? { s: 'todo' as const, b: false }
+          shard[problemId] = { s: current.s, b: wasBookmarked }
+          replaceGuestProgress({ ...snapshot, [topicId]: shard })
+        },
+      })
+    },
+    [data, feedback, signedIn],
+  )
+
+  const onToggleStatus = useCallback(
+    (topicId: string, problemId: string) => {
+      const wasDone = progress[topicId]?.[problemId]?.s === 'done'
+      data.toggleStatus(topicId, problemId)
+      undoStatus(topicId, problemId, wasDone)
+      if (!wasDone) saveSessionDrawer(topicId)
+    },
+    [data, progress, undoStatus],
+  )
+
+  const onToggleBookmark = useCallback(
+    (topicId: string, problemId: string) => {
+      const wasBookmarked = progress[topicId]?.[problemId]?.b === true
+      data.toggleBookmark(topicId, problemId)
+      undoBookmark(topicId, problemId, wasBookmarked)
+    },
+    [data, progress, undoBookmark],
+  )
+
+  function saveSessionDrawer(topicId: string) {
+    // Placeholder hook for phase 08's reason chips: keep the callback shape
+    // stable so adding `o: clean|hint|couldnt` later does not touch call sites.
+    void topicId
+  }
+
+  const onPlan = useCallback(
+    (problemId: string) => {
+      planner.addToToday(problemId)
+      feedback.notify('Added to Today', locateProblem(problemId)?.problem.title)
+    },
+    [feedback, planner],
+  )
+
+  const completeToday = useCallback(
+    (problemId: string) => {
+      const location = locateProblem(problemId)
+      if (!location) return
+      const wasDone = progress[location.topicId]?.[problemId]?.s === 'done'
+      planner.markTodayDone(problemId)
+      data.markDone(location.topicId, problemId)
+      if (!wasDone) undoStatus(location.topicId, problemId, false)
+    },
+    [data, planner, progress, undoStatus],
+  )
+
+  /* --- keyboard layer (acceptance: full keyboard path) ------------------- */
+
+  const openProblem = useCallback((problemId: string | undefined) => {
+    if (!problemId) return
+    navigate('problem', problemId)
   }, [])
 
-  // The nonce makes the scroll effect re-run when the same row is picked twice.
-  const focus = (id: string) => {
-    scrollNonce.current += 1
-    setScrollTarget({ id, nonce: scrollNonce.current })
-  }
+  useEffect(
+    () =>
+      installShortcuts({
+        onPalette: () => setPaletteOpen(true),
+        onSearch: () => {
+          if (route.name !== 'search') navigate('search')
+          setSearchSignal((value) => value + 1)
+        },
+        onShortcuts: () => setShortcutsOpen(true),
+        onUndo: () => {
+          const undone = feedback.undoLast()
+          if (!undone) feedback.notify('Nothing to undo', 'Changes are undoable for 6 seconds.')
+        },
+        onNavigate: (key) => {
+          const map: Record<string, RouteName> = {
+            t: 'today',
+            p: 'topics',
+            c: 'code',
+            r: 'review',
+            s: 'stats',
+            ',': 'settings',
+          }
+          const target = map[key]
+          if (target) navigate(target)
+        },
+      }),
+    [feedback, route.name],
+  )
 
-  const toggleLevel = (level: LevelFilter) =>
-    setFilters((current) => ({
-      ...current,
-      levels: current.levels.includes(level)
-        ? current.levels.filter((entry) => entry !== level)
-        : [...current.levels, level],
-    }))
+  useTriage(
+    {
+      onStatus: onToggleStatus,
+      onBookmark: onToggleBookmark,
+      onOpen: openProblem,
+    },
+    route.name,
+  )
 
-  const toggleLinkType = (linkType: LinkFilter) =>
-    setFilters((current) => ({
-      ...current,
-      linkTypes: current.linkTypes.includes(linkType)
-        ? current.linkTypes.filter((entry) => entry !== linkType)
-        : [...current.linkTypes, linkType],
-    }))
+  /* --- panel renderers --------------------------------------------------- */
 
-  const clearFilters = () => {
-    setFilters(noFilters)
-    setActiveListId(null)
-    if (settings.hideDone) toggleHideDone()
-    setPick(null)
-    setRevealed(null)
-  }
-
-  const openTopic = (topicId: string) => {
-    setView('sheet')
-    setFilters(noFilters)
-    setActiveListId(null)
-    setPick(null)
-    setRevealed(null)
-    setOpenTopics((current) => new Set(current).add(topicId))
-    focus(`topic-${topicId}`)
-  }
-
-  const randomPick = () => {
-    const next = pickRandom(sheet)
-    if (!next) return
-    setPick(next)
-    setRevealed(next.problem.id)
-    setOpenTopics((current) => new Set(current).add(next.topicId))
-    focus(`problem-${next.problem.id}`)
-  }
-
-  const openProblemInSheet = (problemId: string) => {
-    const location = locateProblem(problemId)
-    if (!location) return
-    setView('sheet')
-    setFilters(noFilters)
-    setActiveListId(null)
-    setPick(null)
-    setRowPanel(null)
-    setRevealed(problemId)
-    setOpenTopics((current) => new Set(current).add(location.topicId))
-    focus(`problem-${problemId}`)
-  }
-
-  const editNoteFor = (problemId: string) => {
-    openProblemInSheet(problemId)
-    setRowPanel({ problemId, kind: 'note' })
-  }
-
-  const filterByList = (listId: string) => {
-    setView('sheet')
-    setFilters(noFilters)
-    setActiveListId(listId)
-    setPick(null)
-    setRevealed(null)
-    setRowPanel(null)
-  }
-
-  const addToToday = (problemId: string) => planner.addToToday(problemId)
-
-  /** 4.1: ticking in Today also marks the row done everywhere. */
-  const completeToday = (problemId: string) => {
-    const location = locateProblem(problemId)
-    if (!location) return
-    planner.markTodayDone(problemId)
-    data.markDone(location.topicId, problemId)
-  }
-
-  const addSuggested = () => {
-    planner.addManyToToday(suggestions)
-  }
-
-  const toggleRowPanel = (problemId: string, kind: 'note' | 'lists') =>
-    setRowPanel((current) =>
-      current && current.problemId === problemId && current.kind === kind ? null : { problemId, kind },
-    )
-
-  const renderRowPanel = (problemId: string, kind: 'note' | 'lists') => {
+  const renderPanel = (problemId: string, kind: 'note' | 'lists') => {
     const location = locateProblem(problemId)
     if (!location) return null
     if (kind === 'note') {
@@ -307,426 +407,305 @@ export function App() {
     )
   }
 
+  /* --- per-route props --------------------------------------------------- */
+
+  const navCounts = {
+    today: `${dayTally.movedToday}/${dayTally.goal}`,
+    topics: `${tally.done}/${tally.total}`,
+    code: undefined,
+    review: queue.due.length > 0 ? String(queue.due.length) : undefined,
+  }
+
+  const accountForMenu = account.user
+    ? {
+        displayName: account.user.displayName,
+        email: account.user.email,
+        initials: initials(account.user.displayName),
+      }
+    : null
+
+  const setFilters = (next: Filters) => navigate('search', '', { ...toQueryParams(next) }, true)
+
+  const clearFilters = () => {
+    setPick(null)
+    setRevealed(null)
+    navigate('search', '', {}, true)
+  }
+
+  const randomPickNow = () => {
+    const next = pickRandom(sheet)
+    if (!next) return
+    setPick(next)
+    setRevealed(next.problem.id)
+    setOpenTopics((current) => new Set(current).add(next.topicId))
+  }
+
+  const openSearchFor = (params: Record<string, string>) => navigate('search', '', params)
+
+  const pageContext = contextFor(route, {
+    tally,
+    summary,
+    queue: queue.due.length,
+    hint,
+    dayTally,
+  })
+
   return (
-    <div className={settings.largeText ? 'app-root large-text' : 'app-root'} data-theme={settings.theme}>
-      <a className="skip-link" href="#sheet-content">Skip to sheet</a>
+    <div
+      className={settings.largeText ? 'app-root large-text' : 'app-root'}
+      data-theme={settings.theme}
+      data-density={settings.density}
+      data-rail={settings.railCollapsed ? 'collapsed' : 'expanded'}
+    >
+      <a className="skip-link" href="#main-content">
+        Skip to content
+      </a>
 
-      <header className="topbar">
-        <div className="wordmark">DSA Archive</div>
-        <div className="topbar-actions">
-          <span className="count-pill" data-testid="progress-pill">{tally.done}/{tally.total} done</span>
-          <span className="sync-pill" data-testid="sync-pill" aria-live="polite">
-            <span className="status-dot" aria-hidden="true" />
-            {syncLabel}
-          </span>
-          {installPrompt.canInstall && (
-            <button
-              type="button"
-              className="icon-button"
-              data-testid="install-app"
-              onClick={() => void installPrompt.install()}
-            >
-              Install
-            </button>
-          )}
-          <button
-            type="button"
-            className="icon-button"
-            onClick={toggleTheme}
-            aria-label={`Switch to ${settings.theme === 'dark' ? 'light' : 'dark'} appearance`}
-          >
-            {settings.theme === 'dark' ? 'Light' : 'Dark'}
-          </button>
-          <button
-            type="button"
-            className="icon-button"
-            onClick={toggleLargeText}
-            aria-pressed={settings.largeText}
-            aria-label="Toggle large text"
-          >
-            Aa
-          </button>
-          {account.user && (
-            <details className="profile-menu">
-              <summary className="profile-button" aria-label={`Open ${avatarInitials} account menu`}>
-                {avatarInitials}
-              </summary>
-              <div className="profile-menu-panel">
-                <strong>{account.user.displayName}</strong>
-                <p>{account.user.email}</p>
-                <a href="#account-panel">Account &amp; backup</a>
-                <button type="button" data-testid="menu-sign-out" onClick={() => void account.signOut()}>
-                  Sign out
-                </button>
-              </div>
-            </details>
-          )}
-        </div>
-      </header>
+      <div className="app-layout">
+        <NavSidebar route={route} counts={navCounts} />
 
-      {signedIn && account.user ? (
-        <aside className="app-banner" data-testid="signed-in-banner" aria-label="Account and storage status">
-          <strong>Signed in as {account.user.displayName}</strong>
-          <span>Progress, notes and lists follow this account · offline changes sync on reconnect</span>
-        </aside>
-      ) : (
-        <aside className="app-banner" data-testid="sign-in-banner" aria-label="Account and storage status">
-          <div className="banner-copy">
-            <strong>Sign in to save progress</strong>
-            <span>
-              Guest rows stay on this device until you choose to merge them · Google sign-in enables cloud
-              sync, notes and lists
-            </span>
-          </div>
-          <div className="banner-actions">
-            <button
-              type="button"
-              className="button button-primary"
-              disabled={account.busy}
-              onClick={() => void account.signIn()}
-            >
-              Sign in with Google
-            </button>
-            {account.canUseTestGoogle && (
-              <button
-                type="button"
-                className="button button-secondary"
-                data-testid="emulator-sign-in"
-                disabled={account.busy}
-                onClick={() => void account.signInWithTestGoogle()}
-              >
-                Use CI Google account
-              </button>
-            )}
-          </div>
-        </aside>
-      )}
+        <div className="app-body">
+          <TopBar
+            settings={settings}
+            account={accountForMenu}
+            syncLabel={syncLabel}
+            syncTone={syncTone}
+            onOpenPalette={() => setPaletteOpen(true)}
+            onOpenShortcuts={() => setShortcutsOpen(true)}
+            onOpenSearch={() => {
+              navigate('search')
+              setSearchSignal((value) => value + 1)
+            }}
+            installable={installPrompt.canInstall}
+            onInstall={() => void installPrompt.install()}
+            onSignIn={() => void account.signIn()}
+            onSignOut={() => void account.signOut()}
+            onOpenAccount={() => navigate('settings')}
+            busy={account.busy}
+          />
 
-      <main id="sheet-content" className="content-area">
-        {!route.isKnownRoute ? (
-          <section className="empty-state" data-testid="not-found-view" aria-labelledby="not-found-heading">
-            <span className="empty-mark" aria-hidden="true">?</span>
-            <h1 id="not-found-heading">Page not found</h1>
-            <p>
-              No page exists at <code>{route.pathname}</code>. DSA Archive lives on a single sheet page;
-              problem statements, articles and videos open on their original sites from each row.
-            </p>
-            <button
-              type="button"
-              className="button button-primary"
-              data-testid="not-found-home"
-              onClick={route.goHome}
-            >
-              Back to the sheet
-            </button>
-          </section>
-        ) : (
-          <>
-        {error && (
-          <div className="notice notice-error" role="alert" data-testid={errorTestId}>
-            <div>
-              <strong>Something needs attention</strong>
-              <p>{error}</p>
-            </div>
-            <button
-              type="button"
-              className="button button-secondary"
-              onClick={() => {
-                data.dismissError()
-                planner.dismissError()
-                library.dismissError()
-              }}
-            >
-              Dismiss
-            </button>
-          </div>
-        )}
+          <main id="main-content" className="app-main" tabIndex={-1}>
+            <PageHeader
+              title={ROUTE_TITLES[route.name]}
+              context={pageContext}
+              testId="page-header"
+              action={
+                <span className="progress-pill num" data-testid="progress-pill">
+                  {tally.done}/{tally.total} done
+                </span>
+              }
+            />
 
-        {notice && (
-          <div className="notice" role="status" data-testid="account-notice">
-            <div><strong>{notice}</strong></div>
-            <button
-              type="button"
-              className="button button-secondary"
-              onClick={() => {
-                data.dismissNotice()
-                planner.dismissNotice()
-                library.dismissNotice()
-              }}
-            >
-              Dismiss
-            </button>
-          </div>
-        )}
-
-        {data.mergeProposal && (
-          <section className="notice notice-warning" data-testid="merge-notice" aria-labelledby="merge-title">
-            <div>
-              <strong id="merge-title">Merge guest progress?</strong>
-              <p>
-                {data.mergeProposal.guestRows} guest row{data.mergeProposal.guestRows === 1 ? '' : 's'} and{' '}
-                {data.mergeProposal.cloudRows} cloud row{data.mergeProposal.cloudRows === 1 ? '' : 's'} found.
-                Guest rows are newer on {data.mergeProposal.guestWins} topic{data.mergeProposal.guestWins === 1 ? '' : 's'};
-                cloud is newer on {data.mergeProposal.cloudWins}. Nothing is merged until you choose.
-              </p>
-            </div>
-            <div className="heading-actions">
-              <button
-                type="button"
-                className="button button-primary"
-                disabled={data.busy}
-                onClick={data.mergeGuestProgress}
-              >
-                Merge guest rows
-              </button>
-              <button
-                type="button"
-                className="button button-secondary"
-                disabled={data.busy}
-                onClick={data.keepCloudProgress}
-              >
-                Keep cloud only
-              </button>
-            </div>
-          </section>
-        )}
-
-        <div className="page-heading">
-          <div>
-            <p className="eyebrow">DSA ARCHIVE · PERSONAL STUDY</p>
-            <h1>Your learning sheet</h1>
-            <p className="page-subtitle">
-              {summary.problemCount} problems · {summary.topicCount} topics · browsable signed out
-            </p>
-          </div>
-          <div className="heading-actions">
-            <span className="status-chip">
-              <span className="status-dot" aria-hidden="true" />
-              {signedIn ? 'Saved in your account' : 'Saved on this device'}
-            </span>
-          </div>
-        </div>
-
-        <div className="list-tabs view-tabs" role="group" aria-label="Choose a view">
-          <button
-            type="button"
-            className={view === 'sheet' ? 'active-tab' : undefined}
-            aria-pressed={view === 'sheet'}
-            data-testid="view-tab-sheet"
-            onClick={() => setView('sheet')}
-          >
-            Sheet <span>{sheet.matchCount}</span>
-          </button>
-          <button
-            type="button"
-            className={view === 'today' ? 'active-tab' : undefined}
-            aria-pressed={view === 'today'}
-            data-testid="view-tab-today"
-            onClick={() => setView('today')}
-          >
-            Today <span>{dayTally.movedToday}/{dayTally.goal}</span>
-          </button>
-          <button
-            type="button"
-            className={view === 'revision' ? 'active-tab' : undefined}
-            aria-pressed={view === 'revision'}
-            data-testid="view-tab-revision"
-            onClick={() => setView('revision')}
-          >
-            Revision <span>{queue.due.length}</span>
-          </button>
-          <button
-            type="button"
-            className={view === 'notes' ? 'active-tab' : undefined}
-            aria-pressed={view === 'notes'}
-            data-testid="view-tab-notes"
-            onClick={() => setView('notes')}
-          >
-            Notes <span>{noteTotal}</span>
-          </button>
-          <button
-            type="button"
-            className={view === 'lists' ? 'active-tab' : undefined}
-            aria-pressed={view === 'lists'}
-            data-testid="view-tab-lists"
-            onClick={() => setView('lists')}
-          >
-            Lists <span>{listTotal}</span>
-          </button>
-          <button
-            type="button"
-            className={view === 'stats' ? 'active-tab' : undefined}
-            aria-pressed={view === 'stats'}
-            data-testid="view-tab-stats"
-            onClick={() => setView('stats')}
-          >
-            Stats
-          </button>
-          <button type="button" className={view === 'friends' ? 'active-tab' : undefined} aria-pressed={view === 'friends'} data-testid="view-tab-friends" onClick={() => setView('friends')}>Friends <span>{friends.ids.length}</span></button>
-        </div>
-
-        {view === 'sheet' && (
-          <>
-            <div className="toolbar">
-              {/* div, not label: a clear button inside a <label> would nest
-                  interactive content in the labelled control. */}
-              <div className="search-field">
-                <span aria-hidden="true">⌕</span>
-                <input
-                  ref={searchRef}
-                  type="search"
-                  value={filters.search}
-                  placeholder="Search all problems"
-                  aria-label="Search problems"
-                  onChange={(event) => setFilters((current) => ({ ...current, search: event.target.value }))}
-                />
-                {filters.search !== '' && (
-                  <button
-                    type="button"
-                    aria-label="Clear search"
-                    onClick={() => setFilters((current) => ({ ...current, search: '' }))}
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-              <button type="button" className="button button-secondary" onClick={randomPick} data-testid="random-pick">
-                Random pick
-              </button>
-              {sheet.filtering && (
-                <button type="button" className="button button-secondary" onClick={clearFilters}>
-                  Clear all
-                </button>
-              )}
-            </div>
-
-            <div className="chip-row">
-              <select
-                className="select-field"
-                aria-label="Filter by topic"
-                value={filters.topicId}
-                onChange={(event) => setFilters((current) => ({ ...current, topicId: event.target.value }))}
-              >
-                <option value="">All topics</option>
-                {catalogue.topics.map((topic) => (
-                  <option key={topic.id} value={topic.id}>{topic.title}</option>
-                ))}
-              </select>
-              <div className="chip-group" role="group" aria-label="Filter by level">
-                {LEVEL_FILTERS.map((level) => (
-                  <button
-                    key={level}
-                    type="button"
-                    className={chipClass(filters.levels.includes(level))}
-                    aria-pressed={filters.levels.includes(level)}
-                    onClick={() => toggleLevel(level)}
-                  >
-                    {LEVEL_LABELS[level]}
-                  </button>
-                ))}
-              </div>
-              <div className="chip-group" role="group" aria-label="Filter by link type">
-                {LINK_FILTERS.map((linkType) => (
-                  <button
-                    key={linkType}
-                    type="button"
-                    className={chipClass(filters.linkTypes.includes(linkType))}
-                    aria-pressed={filters.linkTypes.includes(linkType)}
-                    onClick={() => toggleLinkType(linkType)}
-                  >
-                    {LINK_LABELS[linkType]}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  className={chipClass(settings.hideDone)}
-                  aria-pressed={settings.hideDone}
-                  onClick={toggleHideDone}
-                >
-                  Hide done
-                </button>
-              </div>
-              {listChoices.length > 0 && (
-                <div className="chip-group" role="group" aria-label="Filter by list">
-                  {listChoices.map((list) => (
-                    <button
-                      key={list.id}
-                      type="button"
-                      className={chipClass(activeListId === list.id)}
-                      aria-pressed={activeListId === list.id}
-                      data-testid={`list-chip-${list.id}`}
-                      onClick={() => setActiveListId((current) => (current === list.id ? null : list.id))}
-                    >
-                      List · {list.title} ({list.problemIds.length})
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <p className="quiet-note" data-testid="match-count">
-              Showing {sheet.matchCount} of {sheet.totalCount} problems across {sheet.topics.length} of{' '}
-              {sheet.topicCount} topics
-              {filterCount > 0 ? ` · ${filterCount} filter${filterCount === 1 ? '' : 's'} on` : ''}
-              {activeList ? ` · list “${activeList.title}”` : ''}
-              {filters.search.trim() === '' ? ' · press / to search' : ''}
-            </p>
-
-            {completedTopics.length > 0 && (
-              <div className="notice" role="status" data-testid="topic-complete">
-                <div>
-                  <strong>Quiet win · topic complete</strong>
-                  <p>{completedTopics.map((topic) => topic.title).join(' · ')} — every row is marked done.</p>
-                </div>
-              </div>
-            )}
-
-            {pick && (
-              <div className="notice" role="status" data-testid="random-notice">
-                <div>
-                  <strong>Random pick · {pick.problem.title}</strong>
-                  <p>{pick.topicTitle} · {LEVEL_LABELS[levelOf(pick.problem)]}</p>
-                </div>
-                <div className="heading-actions">
-                  <button type="button" className="button button-secondary" onClick={randomPick}>
-                    Pick another
-                  </button>
-                  <button
-                    type="button"
-                    className="button button-secondary"
-                    onClick={() => { setPick(null); setRevealed(null) }}
+            {error ? (
+              <Banner
+                tone="danger"
+                role="alert"
+                testId={error.startsWith('Invalid backup:') ? 'backup-error' : 'account-error'}
+                title="Something needs attention"
+                action={
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      data.dismissError()
+                      planner.dismissError()
+                      library.dismissError()
+                    }}
                   >
                     Dismiss
-                  </button>
-                </div>
-              </div>
-            )}
-          </>
-        )}
+                  </Button>
+                }
+              >
+                {error}
+              </Banner>
+            ) : null}
 
-        <div className="content-columns">
-          <div className="sheet-column">
-            {view === 'friends' ? (
-              <FriendsView friends={friends} today={today} />
-            ) : view === 'today' ? (
-              <TodayView
-                signedIn={signedIn}
-                ready={planner.ready}
-                today={today}
-                plan={planner.plan}
-                goal={data.dailyGoal}
-                tally={dayTally}
-                suggestions={suggestions}
-                continuePick={continuePick}
-                disabled={planner.busy || (signedIn && !data.cloudReady)}
-                onAdd={addToToday}
-                onRemove={(problemId) => planner.removeFromToday(problemId)}
-                onDone={completeToday}
-                onOpen={openProblemInSheet}
-                onSetGoal={data.setDailyGoal}
-                onSuggest={addSuggested}
+            {notice ? (
+              <Banner
+                tone="neutral"
+                testId="account-notice"
+                title={notice}
+                action={
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      data.dismissNotice()
+                      planner.dismissNotice()
+                      library.dismissNotice()
+                    }}
+                  >
+                    Dismiss
+                  </Button>
+                }
               />
-            ) : view === 'revision' ? (
+            ) : null}
+
+            {data.mergeProposal ? (
+              <Banner
+                tone="action"
+                testId="merge-notice"
+                title="Merge guest progress?"
+                action={
+                  <>
+                    <Button size="sm" variant="primary" disabled={data.busy} onClick={data.mergeGuestProgress}>
+                      Merge guest rows
+                    </Button>
+                    <Button size="sm" disabled={data.busy} onClick={data.keepCloudProgress}>
+                      Keep cloud only
+                    </Button>
+                  </>
+                }
+              >
+                {data.mergeProposal.guestRows} guest row{data.mergeProposal.guestRows === 1 ? '' : 's'} and{' '}
+                {data.mergeProposal.cloudRows} cloud row{data.mergeProposal.cloudRows === 1 ? '' : 's'} found. Guest
+                rows are newer on {data.mergeProposal.guestWins} topic{data.mergeProposal.guestWins === 1 ? '' : 's'};
+                cloud is newer on {data.mergeProposal.cloudWins}. Nothing is merged until you choose.
+              </Banner>
+            ) : null}
+
+            {/* The v1 app showed a persistent account banner in both states,
+                and every signed-in e2e flow anchors on it ("CI Owner"). v2 keeps
+                the same two test ids so the flows stay honest about who is
+                signed in, in one compact line. */}
+            {signedIn && account.user ? (
+              <Banner
+                tone="action"
+                testId="signed-in-banner"
+                title={`Signed in as ${account.user.displayName}`}
+              >
+                Progress, notes and lists follow this account · offline changes sync on reconnect
+              </Banner>
+            ) : null}
+
+            {!signedIn && account.status !== 'loading' ? (
+              <Banner
+                tone="neutral"
+                testId="sign-in-banner"
+                title="Sign in to save progress"
+                action={
+                  <>
+                    <Button size="sm" variant="primary" disabled={account.busy} onClick={() => void account.signIn()}>
+                      Sign in with Google
+                    </Button>
+                    {account.canUseTestGoogle ? (
+                      <Button
+                        size="sm"
+                        data-testid="emulator-sign-in"
+                        disabled={account.busy}
+                        onClick={() => void account.signInWithTestGoogle()}
+                      >
+                        Use CI Google account
+                      </Button>
+                    ) : null}
+                  </>
+                }
+              >
+                Guest rows stay on this device until you choose to merge them. Browse and search signed out —
+                progress, notes and lists follow an account.
+              </Banner>
+            ) : null}
+
+            {route.name === 'today' ? (
+              <TodayScreen
+                signedIn={signedIn}
+                tally={dayTally}
+                streak={streak}
+                dueCount={queue.due.length}
+                hint={hint}
+                sessionMinutes={sessionMinutes}
+                onStartSession={() => setSessionMinutes(20)}
+                onStopSession={() => setSessionMinutes(null)}
+                onBrowseTopics={() => navigate('topics')}
+                onOpen={(problemId) => openProblem(problemId)}
+                onSuggest={() => planner.addManyToToday(suggestions)}
+                onStartSessionWith={(problemId) => {
+                  setSessionMinutes(20)
+                  openProblem(problemId)
+                }}
+              >
+                <TodayView
+                  signedIn={signedIn}
+                  ready={planner.ready}
+                  today={today}
+                  plan={planner.plan}
+                  goal={data.dailyGoal}
+                  tally={dayTally}
+                  suggestions={suggestions}
+                  continuePick={continuePick}
+                  disabled={planner.busy || (signedIn && !data.cloudReady)}
+                  onAdd={(problemId) => planner.addToToday(problemId)}
+                  onRemove={(problemId) => planner.removeFromToday(problemId)}
+                  onDone={completeToday}
+                  onOpen={(problemId) => openProblem(problemId)}
+                  onSetGoal={data.setDailyGoal}
+                  onSuggest={() => planner.addManyToToday(suggestions)}
+                />
+              </TodayScreen>
+            ) : null}
+
+            {route.name === 'search' ? (
+              <SheetScreen
+                filters={filters}
+                onFiltersChange={setFilters}
+                query={query}
+                sheet={sheet}
+                progress={progress}
+                entries={data.entries}
+                today={today}
+                progressDisabled={progressDisabled}
+                openTopics={openTopics}
+                onToggleTopic={(topicId, open) =>
+                  setOpenTopics((current) => {
+                    const next = new Set(current)
+                    if (open) next.add(topicId)
+                    else next.delete(topicId)
+                    return next
+                  })
+                }
+                onClearAll={clearFilters}
+                randomPick={pick}
+                revealed={revealed}
+                onRandomPick={randomPickNow}
+                onDismissPick={() => {
+                  setPick(null)
+                  setRevealed(null)
+                }}
+                rowPanel={rowPanel}
+                onTogglePanel={(problemId, kind) =>
+                  setRowPanel((current) =>
+                    current && current.problemId === problemId && current.kind === kind
+                      ? null
+                      : { problemId, kind },
+                  )
+                }
+                renderPanel={renderPanel}
+                notes={library.notes}
+                lists={library.lists}
+                signedIn={library.signedIn}
+                onToggleStatus={onToggleStatus}
+                onToggleBookmark={onToggleBookmark}
+                onOpenProblem={(problemId) => openProblem(problemId)}
+                onPlan={onPlan}
+                searchSignal={searchSignal}
+                triageFocus={triageFocus}
+              >
+                {completedTopics.length > 0 ? (
+                  <Banner tone="action" testId="topic-complete" title="Quiet win · topic complete">
+                    {completedTopics.map((topic) => topic.title).join(' · ')} — every row is marked done.
+                  </Banner>
+                ) : null}
+              </SheetScreen>
+            ) : null}
+
+            {route.name === 'topics' ? <TopicsScreen progress={progress} /> : null}
+            {route.name === 'topic' ? <TopicScreen topicId={route.param} progress={progress} /> : null}
+            {route.name === 'problem' ? <ProblemScreen problemId={route.param} /> : null}
+            {route.name === 'code' ? <CodeScreen signedIn={signedIn} /> : null}
+            {route.name === 'practice' ? <PracticeScreen /> : null}
+            {route.name === 'quiz' ? <QuizHome signedIn={signedIn} /> : null}
+            {route.name === 'insights' ? <InsightsScreen signedIn={signedIn} /> : null}
+
+            {route.name === 'review' ? (
               <RevisionView
                 signedIn={signedIn}
                 today={today}
@@ -736,253 +715,378 @@ export function App() {
                 scheduled={queue.scheduled}
                 disabled={!data.cloudReady || data.busy}
                 onRevised={data.markRevised}
-                onOpen={openProblemInSheet}
+                onOpen={(problemId) => openProblem(problemId)}
               />
-            ) : view === 'stats' ? (
-              <StatsView
-                signedIn={signedIn}
-                entries={data.entries}
-                streak={streak}
-                weekly={weekly}
-                heat={heat}
+            ) : null}
+
+            {route.name === 'stats' ? (
+              <StatsView signedIn={signedIn} entries={data.entries} streak={streak} weekly={weekly} heat={heat} />
+            ) : null}
+
+            {route.name === 'lists' ? (
+                <ListsView
+                  signedIn={library.signedIn}
+                  lists={library.lists}
+                  disabled={library.busy}
+                  onCreate={(title) => {
+                    void library.createList(title)
+                  }}
+                  onRename={(listId, title) => {
+                    void library.renameList(listId, title)
+                  }}
+                  onDelete={(listId) => {
+                    void library.deleteList(listId)
+                  }}
+                  onRemove={(listId, problemId) => {
+                    void library.toggleProblemInList(listId, problemId)
+                  }}
+                  onFilterSheet={(listId) => {
+                    const list = library.lists[listId]
+                    if (!list) return
+                    openSearchFor({ q: '' })
+                    feedback.notify('Filtering the sheet by list', list.title)
+                  }}
+                  onOpenProblem={(problemId) => openProblem(problemId)}
+                />
+            ) : null}
+
+            {/* Searchable notes keep their own URL in v2 (`#/notes`) even though
+                the v1 tab strip showed them beside lists. Nothing about the data
+                moved — only where the two lists are addressed. */}
+            {route.name === 'notes' ? (
+                <NotesView
+                  signedIn={library.signedIn}
+                  notes={library.notes}
+                  query={noteQuery}
+                  onQueryChange={setNoteQuery}
+                  onEdit={(problemId) => {
+                    navigate('search', '', { q: locateProblem(problemId)?.problem.title ?? '' })
+                    setRowPanel({ problemId, kind: 'note' })
+                  }}
+                  onOpen={(problemId) => openProblem(problemId)}
+                />
+            ) : null}
+
+            {route.name === 'friends' ? <FriendsView friends={friends} today={today} /> : null}
+
+            {route.name === 'settings' ? (
+              <SettingsScreen
+                theme={settings.theme}
+                density={settings.density}
+                largeText={settings.largeText}
+                railCollapsed={settings.railCollapsed}
+                onTheme={(theme: Theme) => setTheme(theme)}
+                onDensity={(density: Density) => setDensity(density)}
+                onLargeText={toggleLargeText}
+                onRail={toggleRail}
               />
-            ) : view === 'notes' ? (
-              <NotesView
-                signedIn={library.signedIn}
-                notes={library.notes}
-                query={noteQuery}
-                onQueryChange={setNoteQuery}
-                onEdit={editNoteFor}
-                onOpen={openProblemInSheet}
+            ) : null}
+
+            {route.name === 'settings' && account.user ? (
+              <AccountPanel
+                account={account}
+                data={data}
+                noteTotal={Object.keys(library.notes).length}
+                listTotal={listChoices.length}
               />
-            ) : view === 'lists' ? (
-              <ListsView
-                signedIn={library.signedIn}
-                lists={library.lists}
-                disabled={library.busy}
-                onCreate={(title) => {
-                  void library.createList(title)
-                }}
-                onRename={(listId, title) => {
-                  void library.renameList(listId, title)
-                }}
-                onDelete={(listId) => {
-                  void library.deleteList(listId)
-                }}
-                onRemove={(listId, problemId) => {
-                  void library.toggleProblemInList(listId, problemId)
-                }}
-                onFilterSheet={filterByList}
-                onOpenProblem={openProblemInSheet}
-              />
-            ) : sheet.topics.length === 0 ? (
-              <div className="empty-state">
-                <span className="empty-mark" aria-hidden="true">—</span>
-                <h2>No matching problems</h2>
-                <p>
-                  Nothing in the {summary.problemCount}-row sheet matches
-                  {filters.search.trim() !== '' ? ` “${filters.search.trim()}”` : ' those filters'}
-                  {activeList ? ` inside “${activeList.title}”` : ''}.
-                </p>
-                <button type="button" className="button button-secondary" onClick={clearFilters}>
-                  Clear search and filters
-                </button>
-              </div>
-            ) : (
-              <div className="topic-list" data-testid="topic-list">
-                {sheet.topics.map((topic) => (
-                  <TopicAccordion
-                    key={topic.id}
-                    topic={topic}
-                    progress={progress}
-                    filtering={sheet.filtering}
-                    open={openTopics.has(topic.id)}
-                    onOpenChange={(open) =>
-                      setOpenTopics((current) => {
-                        const next = new Set(current)
-                        if (open) next.add(topic.id)
-                        else next.delete(topic.id)
-                        return next
-                      })
-                    }
-                    revealedProblemId={revealed}
-                    progressDisabled={progressDisabled}
-                    onToggleStatus={data.toggleStatus}
-                    onToggleBookmark={data.toggleBookmark}
-                    canEditNotes={library.signedIn}
-                    hasNote={(problemId) => Boolean(library.notes[problemId])}
-                    listCountFor={(problemId) => listsContaining(library.lists, problemId).length}
-                    openPanel={rowPanel}
-                    onTogglePanel={toggleRowPanel}
-                    renderPanel={renderRowPanel}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+            ) : null}
 
-          <aside className="context-column" aria-label="Progress and catalogue summary">
-            <section className="card context-card">
-              <h2 className="card-title">Your progress</h2>
-              <div className="context-stat"><strong>{tally.done}</strong><span>marked done</span></div>
-              <div className="context-stat"><strong>{tally.bookmarked}</strong><span>bookmarked</span></div>
-              {library.signedIn && (
-                <>
-                  <div className="context-stat"><strong>{noteTotal}</strong><span>notes</span></div>
-                  <div className="context-stat"><strong>{listTotal}</strong><span>custom lists</span></div>
-                </>
-              )}
-              <div className="context-progress" aria-hidden="true">
-                <span style={{ width: `${tally.percent}%` }} />
-              </div>
-              <p className="fine-print">
-                {tally.percent}% of {tally.total} rows ·{' '}
-                {signedIn ? 'synced to your account with an offline cache' : 'stored on this device'}
-              </p>
-              {!signedIn && tally.done + tally.bookmarked > 0 && (
-                <button
-                  type="button"
-                  className="text-button"
-                  onClick={() => { data.clearGuestProgress(); setPick(null); setRevealed(null) }}
-                >
-                  Clear local progress
-                </button>
-              )}
-            </section>
+            {route.name === 'not-found' ? <NotFoundScreen path={route.path} /> : null}
+          </main>
 
-            <section className="card context-card" data-testid="weakest-topic">
-              <h2 className="card-title">Focus next</h2>
-              {hint ? (
-                <>
-                  <div className="context-stat">
-                    <strong>{hint.title}</strong>
-                    <span>{hint.done}/{hint.total} done</span>
-                  </div>
-                  <p className="fine-print">
-                    {hint.remaining} row{hint.remaining === 1 ? '' : 's'} left · lowest completion among the
-                    topics you have touched
-                  </p>
-                  <button type="button" className="text-button" onClick={() => openTopic(hint.topicId)}>
-                    Open topic →
-                  </button>
-                </>
-              ) : (
-                <p className="fine-print">
-                  Mark a few problems done and the topic with the lowest completion is suggested here.
-                </p>
-              )}
-            </section>
-
-            {signedIn && (
-              <section className="card context-card" data-testid="planner-summary">
-                <h2 className="card-title">Today at a glance</h2>
-                <div className="context-stat">
-                  <strong data-testid="summary-streak">{streak.current}</strong>
-                  <span>day streak</span>
-                </div>
-                <div className="context-stat">
-                  <strong data-testid="summary-due">{queue.due.length}</strong>
-                  <span>due for revision</span>
-                </div>
-                <div className="context-stat">
-                  <strong>{dayTally.movedToday}/{dayTally.goal}</strong>
-                  <span>daily goal</span>
-                </div>
-                <p className="fine-print">
-                  {dayTally.goalMet ? 'Goal met today — revision still counts.' : 'Counts reset at midnight on this device.'}
-                </p>
-                <button type="button" className="text-button" onClick={() => setView('revision')}>
-                  Open revision queue →
-                </button>
-              </section>
-            )}
-
-            {account.user && (
-              <section className="card context-card" id="account-panel" data-testid="account-panel" aria-labelledby="account-title">
-                <h2 className="card-title" id="account-title">Account &amp; backup</h2>
-                <div className="profile-row">
-                  <span className="avatar-placeholder" aria-hidden="true">{initials(account.user.displayName)}</span>
-                  <div className="profile-copy">
-                    <strong>{account.user.displayName}</strong>
-                    <p>{account.user.email}</p>
-                  </div>
-                </div>
-                <p className="fine-print">
-                  {data.cloudRows} cloud row{data.cloudRows === 1 ? '' : 's'} · {data.guestRows} guest row{data.guestRows === 1 ? '' : 's'} ·{' '}
-                  {noteTotal} note{noteTotal === 1 ? '' : 's'} · {listTotal} list{listTotal === 1 ? '' : 's'} ·
-                  friends and summaries are excluded from backups.
-                </p>
-                <div className="action-grid">
-                  <button type="button" className="button button-secondary" onClick={() => void data.exportBackup()}>
-                    Export backup JSON
-                  </button>
-                  <label className="button button-secondary file-label">
-                    Import JSON
-                    <input
-                      className="file-input"
-                      type="file"
-                      accept=".json,application/json"
-                      aria-label="Import backup JSON"
-                      onChange={(event) => {
-                        const file = event.currentTarget.files?.[0]
-                        if (file) void data.chooseImportFile(file)
-                        event.currentTarget.value = ''
-                      }}
-                    />
-                  </label>
-                  <button type="button" className="button button-secondary" data-testid="sign-out" onClick={() => void account.signOut()}>
-                    Sign out
-                  </button>
-                </div>
-                {data.importPreview && (
-                  <div className="notice" role="status" data-testid="import-preview">
-                    <div>
-                      <strong>Backup looks valid</strong>
-                      <p>
-                        {data.importPreview.counts.rows} row{data.importPreview.counts.rows === 1 ? '' : 's'} across{' '}
-                        {data.importPreview.counts.topics} topic{data.importPreview.counts.topics === 1 ? '' : 's'} ·
-                        notes {data.importPreview.counts.notes} · lists {data.importPreview.counts.lists} · plans{' '}
-                        {data.importPreview.counts.plans}. Replacing happens only after confirmation.
-                      </p>
-                    </div>
-                    <div className="heading-actions">
-                      <button
-                        type="button"
-                        className="button button-primary"
-                        disabled={data.busy || !data.profileReady}
-                        onClick={data.confirmImport}
-                      >
-                        Replace my progress
-                      </button>
-                      <button type="button" className="button button-secondary" onClick={data.cancelImport}>
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </section>
-            )}
-
-            <section className="card context-card">
-              <h2 className="card-title">Catalogue</h2>
-              <div className="context-stat"><strong>{summary.problemCount}</strong><span>rows</span></div>
-              <div className="context-stat"><strong>{summary.topicCount}</strong><span>topics</span></div>
-              <p className="fine-print">Levels: {levelSplit}</p>
-              <p className="fine-print">
-                Bundled from <code>data/problems.json</code>. Every row links out to its source; no copied
-                articles, solutions or assets are stored here.
-              </p>
-            </section>
-          </aside>
+          <footer className="app-footer">
+            DSA Archive · clean-room personal study archive (MIT for our own code &amp; data; outbound links belong
+            to their authors) · installable offline-first PWA · no live deploy without an explicit owner command.
+          </footer>
         </div>
-          </>
-        )}
-      </main>
+      </div>
 
-      <footer className="app-footer">
-        DSA Archive · clean-room personal study sheet (MIT for original code &amp; data; outbound links belong to
-        their authors) · installable offline-first PWA · no live deploy without explicit owner command.
-      </footer>
+      <BottomBar route={route} counts={navCounts} />
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        route={route}
+        settings={settings}
+        onOpenShortcuts={() => setShortcutsOpen(true)}
+        onToggleHideDone={toggleHideDone}
+        onRunSession={() => {
+          setSessionMinutes(20)
+          navigate('today')
+        }}
+        onSignIn={() => void account.signIn()}
+      />
+      <ShortcutsSheet open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
     </div>
   )
 }
+
+
+/* --- Today ---------------------------------------------------------------- */
+
+function TodayScreen({
+  children,
+  signedIn,
+  tally,
+  streak,
+  dueCount,
+  hint,
+  sessionMinutes,
+  onStartSession,
+  onStopSession,
+  onBrowseTopics,
+  onOpen,
+}: {
+  children: ReactNode
+  signedIn: boolean
+  tally: ReturnType<typeof todayTally>
+  streak: ReturnType<typeof streakInfo>
+  dueCount: number
+  hint: ReturnType<typeof weakestTopic>
+  sessionMinutes: number | null
+  onStartSession: () => void
+  onStartSessionWith: (problemId: string) => void
+  onStopSession: () => void
+  onBrowseTopics: () => void
+  onOpen: (problemId: string) => void
+  onSuggest: () => void
+}) {
+  return (
+    <div className="today-screen">
+      <section className="hero" aria-label="Today at a glance">
+        <div className="hero-main">
+          <p className="hero-kicker">Your move</p>
+          <p className="hero-number num" data-testid="hero-progress">
+            {tally.movedToday}
+            <span className="hero-of">/{tally.goal}</span>
+          </p>
+          <p className="hero-caption">
+            {tally.goalMet
+              ? 'Goal met. Revision still counts, and so does stopping.'
+              : tally.movedToday === 0
+                ? 'Nothing moved yet — one row is enough to count.'
+                : `${tally.goal - tally.movedToday} to go. One row at a time.`}
+          </p>
+        </div>
+        <div className="hero-side">
+          <Stat value={streak.current} label="day streak" detail={`longest ${streak.longest}`} tone="action" />
+          <Stat value={dueCount} label="due for revision" detail={dueCount === 0 ? 'queue clear' : 'open review'} />
+          <div className="hero-actions">
+            {sessionMinutes === null ? (
+              <Button variant="primary" onClick={onStartSession} data-testid="start-session">
+                <IconSpark size={16} /> Start a 20-minute session
+              </Button>
+            ) : (
+              <Button variant="primary" onClick={onStopSession} data-testid="stop-session">
+                <IconCheck size={16} /> {sessionMinutes}-minute session · stop
+              </Button>
+            )}
+            <Button onClick={onBrowseTopics} data-testid="browse-topics">
+              Browse topics <IconArrowRight size={14} />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {hint ? (
+        <Card title="Focus next" className="focus-card">
+          <div className="focus-row">
+            <Ring value={hint.done} total={hint.total} size={48} />
+            <div>
+              <strong>{hint.title}</strong>
+              <p className="quiet-note num">
+                {hint.done}/{hint.total} done · {hint.remaining} left · lowest completion among the topics you have
+                touched
+              </p>
+            </div>
+            <a className="btn btn-secondary" href={`#/topic/${hint.topicId}`}>
+              Open topic
+            </a>
+          </div>
+        </Card>
+      ) : (
+        <Card title="Focus next" className="focus-card">
+          <p className="quiet-note">
+            Mark a few problems done and the topic with the lowest completion is suggested here. Until then,
+            nothing is guessed.
+          </p>
+        </Card>
+      )}
+
+      {!signedIn ? (
+        <Card title="The planner needs an account" className="planner-card">
+          <p className="quiet-note">
+            Today's plan, the revision queue and stats are computed from your own solve dates. Sign in from the top
+            bar and they appear here; the sheet and its search keep working signed out.
+          </p>
+          <a className="btn btn-secondary" href="#/topics">
+            Browse all 20 topics
+          </a>
+        </Card>
+      ) : null}
+      {children}
+      <p className="today-footer-note quiet-note">
+        <IconSearch size={14} /> Press <kbd className="kbd">⌘K</kbd> to jump to any problem, or{' '}
+        <kbd className="kbd">g</kbd> <kbd className="kbd">p</kbd> for topics.
+        <button type="button" className="text-link" onClick={() => onOpen('two-sum')}>
+          Open Two Sum
+        </button>
+      </p>
+    </div>
+  )
+}
+
+/* --- context rail & account panel ---------------------------------------- */
+
+function AccountPanel({
+  account,
+  data,
+  noteTotal,
+  listTotal,
+}: {
+  account: ReturnType<typeof useAccount>
+  data: ReturnType<typeof useAccountData>
+  noteTotal: number
+  listTotal: number
+}) {
+  return (
+    <Card title="Account & backup" className="account-panel" id="account-panel" data-testid="account-panel">
+      <div className="account-identity">
+        <strong>{account.user?.displayName}</strong>
+        <span className="quiet-note">{account.user?.email}</span>
+      </div>
+      <p className="quiet-note">
+        {data.cloudRows} cloud row{data.cloudRows === 1 ? '' : 's'} · {data.guestRows} guest row
+        {data.guestRows === 1 ? '' : 's'} · {noteTotal} note{noteTotal === 1 ? '' : 's'} · {listTotal} list
+        {listTotal === 1 ? '' : 's'} · friends and summaries are excluded from backups.
+      </p>
+      <div className="inline-actions">
+        <Button onClick={() => void data.exportBackup()}>Export backup JSON</Button>
+        <label className="btn btn-secondary file-label">
+          Import JSON
+          <input
+            className="file-input"
+            type="file"
+            accept=".json,application/json"
+            aria-label="Import backup JSON"
+            onChange={(event) => {
+              const file = event.currentTarget.files?.[0]
+              if (file) void data.chooseImportFile(file)
+              event.currentTarget.value = ''
+            }}
+          />
+        </label>
+        <Button data-testid="sign-out" onClick={() => void account.signOut()}>
+          Sign out
+        </Button>
+      </div>
+      {data.importPreview ? (
+        <div className="banner banner-action" role="status" data-testid="import-preview">
+          <div className="banner-copy">
+            <strong>Backup looks valid</strong>
+            <span>
+              {data.importPreview.counts.rows} row{data.importPreview.counts.rows === 1 ? '' : 's'} across{' '}
+              {data.importPreview.counts.topics} topic{data.importPreview.counts.topics === 1 ? '' : 's'} · notes{' '}
+              {data.importPreview.counts.notes} · lists {data.importPreview.counts.lists} · plans{' '}
+              {data.importPreview.counts.plans}. Replacing happens only after confirmation.
+            </span>
+          </div>
+          <div className="banner-actions">
+            <Button size="sm" variant="primary" disabled={data.busy || !data.profileReady} onClick={data.confirmImport}>
+              Replace my progress
+            </Button>
+            <Button size="sm" variant="ghost" onClick={data.cancelImport}>
+              Cancel
+            </Button>
+          </div>
+        </div>
+      ) : null}
+    </Card>
+  )
+}
+
+/* --- helpers -------------------------------------------------------------- */
+
+function contextFor(
+  route: Route,
+  facts: {
+    tally: ReturnType<typeof tallyCatalogue>
+    summary: ReturnType<typeof summarizeCatalogue>
+    queue: number
+    hint: ReturnType<typeof weakestTopic>
+    dayTally: ReturnType<typeof todayTally>
+  },
+) {
+  switch (route.name) {
+    case 'today':
+      return `Today · ${facts.dayTally.movedToday}/${facts.dayTally.goal} planned rows moved`
+    case 'topics':
+      return `${facts.summary.topicCount} topics · ${facts.tally.total} rows · ${facts.tally.percent}% done`
+    case 'search':
+      return 'All 495 rows, searchable — press / to focus the field'
+    case 'review':
+      return `${facts.queue} due now · 3 → 7 → 21 day schedule`
+    case 'code':
+      return 'One snippet per problem, synced and backed up'
+    case 'settings':
+      return 'Appearance, density and your data'
+    case 'topic':
+    case 'problem':
+      return null
+    default:
+      return null
+  }
+}
+
+/**
+ * Roving keyboard triage (acceptance #11, §3.11): `j`/`k` move one focus ring
+ * over the mounted rows, `x` toggles done, `s` stars, `↵` opens. The focus id
+ * lives in `src/app/triage.ts` so a re-render (or a mutation) keeps the ring in
+ * place. Keys never fire while a field has the caret.
+ */
+function useTriage(
+  handlers: {
+    onStatus: (topicId: string, problemId: string) => void
+    onBookmark: (topicId: string, problemId: string) => void
+    onOpen: (problemId: string) => void
+  },
+  routeName: RouteName,
+) {
+  const handlersRef = useRef(handlers)
+  handlersRef.current = handlers
+
+  useEffect(() => {
+    if (routeName !== 'search' && routeName !== 'today') return
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null
+      if (target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName))) return
+      if (event.metaKey || event.ctrlKey || event.altKey) return
+      const key = event.key
+      if (key === 'j' || key === 'k') {
+        event.preventDefault()
+        const id = moveTriageFocus(key === 'j' ? 1 : -1)
+        if (id) document.getElementById(`problem-${id}`)?.focus()
+        return
+      }
+      if (key !== 'x' && key !== 's' && key !== 'Enter') return
+      const focused = getTriageFocus()
+      if (!focused) return
+      const location = locateProblem(focused)
+      if (!location) return
+      if (key === 'x') {
+        event.preventDefault()
+        handlersRef.current.onStatus(location.topicId, focused)
+      } else if (key === 's') {
+        event.preventDefault()
+        handlersRef.current.onBookmark(location.topicId, focused)
+      } else {
+        event.preventDefault()
+        handlersRef.current.onOpen(focused)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [routeName])
+}
+
+export { WINDOW_SIZE, topicRingValue }

@@ -1,12 +1,10 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
 import { writeServiceWorker } from './tools/build-sw.mjs'
 
 export default defineConfig({
   plugins: [
     react(),
-    tailwindcss(),
     {
       name: 'dsa-archive-pwa-sw',
       apply: 'build',
