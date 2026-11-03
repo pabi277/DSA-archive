@@ -1,22 +1,38 @@
-# DSA Archive — personal offline-first DSA sheet
+# DSA Archive — personal offline-first DSA workspace
 
-> **Status: All v1 roadmap phases (0, 0-D, 1, 2, 3, 4, 5 and 6) are complete.**
-> Design tokens approved by the owner in Phase 0-D (2026-11-02) remain
-> **frozen** in [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md). Public web
-> identifiers for the owner's Spark project **`dsa-archive`** live in
-> `.env.production` and `.firebaserc` (with Firebase Analytics omitted per
-> [`rule.md`](rule.md) §5), while CI runs all cloud, security-rules,
-> accessibility, bundle-budget, and Airplane-Mode PWA checks against the
-> isolated **local Firebase Emulator Suite** (`demo-dsa-archive`) and real
-> Chromium, then builds the production `dist/` bundle. Exact owner-executed
-> `firestore:rules` + `hosting` deploy commands live in
-> [`docs/RELEASE-RUNBOOK.md`](docs/RELEASE-RUNBOOK.md).
+> **Status: v1 is complete and deployed-ready; v2 is fully planned and not started.**
+> v2 turns this from a 495-row sheet tracker into a **beginner-first workspace**:
+> a routed shell with a real design system, all 20 topics as pages, in-app problem
+> statements and quizzes, a **Code** section replacing Notes, an **in-app video
+> theatre** (official YouTube IFrame player — the app never touches the player),
+> and a **local in-browser C++/Python/JS runner**. Phase contracts live in
+> [`docs/phases-v2/`](docs/phases-v2/README.md) (one folder per phase); the
+> handoff prompt is [`prompt.md`](prompt.md); owner answers are in
+> [`docs/DECISIONS.md`](docs/DECISIONS.md); CI keeps running all cloud, rules,
+> accessibility, bundle-budget and PWA checks against the local Emulator Suite
+> (`demo-dsa-archive`) and real Chromium. Deploy stays owner-executed
+> ([`docs/RELEASE-RUNBOOK.md`](docs/RELEASE-RUNBOOK.md)).
+
+## v2 at a glance (planned 2026-11-03)
+
+| # | Phase | What it delivers |
+|---|---|---|
+| 01 | Router, shell, **design tokens v2** | Every screen has a URL · sidebar/bottom bar · Inter + JetBrains Mono · one accent / five semantic roles · density · motion · undo · `⌘K` · keyboard triage |
+| 02 | Topic spine | `#/topics` (all 20 always visible) · topic pages with Learn/Practice/Quiz · learning order · 3-way outcome (clean/hint/couldn't) |
+| 03 | Content pipeline | Our own statements, hints, mistakes, primers · **ranked multi-source resources** (no single publisher) · **+120–140 LeetCode drills** by pattern · 42 theory MCQs · validator + coverage report |
+| 04 | Notes → **Code** | `snippets` in Firestore, rules v5, backup v4, `#/code`, peek-for-recall editor |
+| 05 | Quiz engine | Theory MCQ cards with an always-available solution · 12-item topic quizzes, 80% pass, synced results |
+| 06 | Theatre | Video plays inside our screen: our chrome, mini player, timeline stamps, speed memory, dead-link badge |
+| 07 | Browser runner | Compile + run C++/Python/JS locally in a Web Worker · authored tests with first-diff · runaway loops stopped · code never leaves the device |
+| 08 | Light insights | Reason chips, momentum (no punitive streak), one-line pace, "How this plan was made" |
+| 09 | Hardening | Budgets re-baselined with numbers, CSP, a11y + offline matrices, network assertion |
+| 10 | Release v2 | Truthful README, generated screenshots, DATA-MODEL v5, changelog, runbook |
 
 Planning adapted from AppFlow @ `57597b3332ad578614a0d9d5609f9cf8a278ee8a`
 on 2026-11-02 (provenance only — this repo is self-contained; see
 [`rule.md`](rule.md)).
 
-## What DSA Archive ships (v1 — Phases 0 → 6)
+## What DSA Archive ships today (v1 — Phases 0 → 6, complete)
 
 A **clean-room, Firebase-backed DSA web app** inspired by the factual topic and
 problem structure of the A2Z sheet (20 topics → subtopics → 495 problems),
@@ -67,7 +83,10 @@ Android project remains open as a separate repo.
 | [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md) | Screen inventory, **frozen** tokens, and deliberate adaptations |
 | [`docs/RESEARCH.md`](docs/RESEARCH.md) | Specimen audit, reuse scorecard, and pre-written 14-day use test |
 | [`docs/RELEASE-RUNBOOK.md`](docs/RELEASE-RUNBOOK.md) | Pre-deploy checklist + owner-gated Firestore rules & Hosting deploy steps |
-| `docs/phases/` | Phase records `00` through `06` |
+| [`docs/phases-v2/`](docs/phases-v2/README.md) | **v2 phase contracts** `00`–`10`, one folder each (`PLAN.md`), plus `RESOURCE-POLICY.md`, `PRACTICE-SETS.md`, `THEORY-MCQ.md`, `AUTHORING.md` |
+| [`docs/FEEDBACK-v2-REPORT.md`](docs/FEEDBACK-v2-REPORT.md) | Why v1 feels weak: craft + power audit with `file:line` evidence, and the research behind the redesign |
+| [`docs/PLAN-in-browser-code-runner.md`](docs/PLAN-in-browser-code-runner.md) | C++-in-the-browser feasibility: measured sizes/timings, why no remote judge |
+| `docs/phases/` | v1 phase records `00` through `06` |
 | `data/problems.json` | Validated 495-problem / 20-topic catalogue (bundled at build) |
 | `src/` | React + TypeScript application, styles, PWA shell, and Vitest suite |
 | `public/` | `manifest.webmanifest`, clean-room `icons/`, `offline.html`, `404.html` |
