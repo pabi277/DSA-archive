@@ -19,6 +19,7 @@ import {
   useEffect,
   useId,
   useRef,
+  useState,
   type ButtonHTMLAttributes,
   type HTMLAttributes,
   type ReactNode,
@@ -403,9 +404,8 @@ const MenuContext = createContext<{ close: () => void } | null>(null)
 
 export function Menu({ label, trigger, children }: { label: string; trigger: ReactNode; children: ReactNode }) {
   const ref = useRef<HTMLDetailsElement>(null)
-  const close = useCallback(() => {
-    if (ref.current) ref.current.open = false
-  }, [])
+  const [open, setOpen] = useState(false)
+  const close = useCallback(() => setOpen(false), [])
   useEffect(() => {
     function onPointerDown(event: PointerEvent) {
       const node = ref.current
@@ -423,8 +423,17 @@ export function Menu({ label, trigger, children }: { label: string; trigger: Rea
     }
   }, [close])
   return (
-    <details className="menu" ref={ref}>
-      <summary className="menu-trigger" aria-label={label}>
+    <details className="menu" ref={ref} open={open}>
+      <summary
+        className="menu-trigger"
+        role="button"
+        aria-label={label}
+        aria-expanded={open}
+        onClick={(event) => {
+          event.preventDefault()
+          setOpen((current) => !current)
+        }}
+      >
         {trigger}
       </summary>
       <div className="menu-panel" role="group" aria-label={label}>

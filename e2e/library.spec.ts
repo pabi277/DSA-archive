@@ -39,6 +39,9 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
     await expect(page.getByTestId('sync-pill')).toContainText('Synced')
 
+    // Topic rows are on the search route; the app now lands on Today at `/`.
+    await open(page, '/#/search')
+
     // --- 3.1: a markdown note plus a code snippet on a problem row ----------
     await openTopic(page)
     await page.getByRole('button', { name: /More actions for Two Sum/ }).click()

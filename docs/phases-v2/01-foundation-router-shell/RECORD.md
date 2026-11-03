@@ -167,18 +167,17 @@
   phone top bar exceeded 390 px. Toasts now render in a body-level portal so the fixed
   undo action is not clipped by app layout ancestors.
 - Playwright cannot run in this sandbox: the Chromium download endpoint resets the TLS
-  connection. The next CI annotation pass also exposed a light-theme `--subtle` contrast
-  ratio of 4.47:1 (updated to a measured 4.73:1 in the app and standalone 404/offline
-  fallbacks), the topic disclosure's controlled-open race (the summary now updates both the
-  the E2E disclosure helper's boolean-attribute check: `getAttribute('open')` returns an
-  empty string when a native `<details>` is open, so a truthiness check clicked it shut on
-  repeated calls. The helper now checks specifically for `null`; app disclosure state is
-  React-controlled. CI then exposed row-action text contrast loss from 55% opacity on the
-  entire control cluster; that opacity was removed. Toast placement (inside `.app-root`)
-  and dark-theme toast timer contrast (muted rather than subtle text) were also corrected.
-  Local unit/build checks pass after
-  but another CI run must prove them and expose any remaining failures; the phase is not
-  CI-green yet.
+  connection. CI exposed a light-theme `--subtle` contrast ratio of 4.47:1 (updated to a
+  measured 4.73:1 in the app and standalone 404/offline fallbacks). Repeated disclosure
+  failures came from the E2E helper treating the empty-string value of an open boolean
+  `open` attribute as false; it now checks specifically for `null`. The library E2E was
+  also calling `openTopic()` from the Today route, where no topic exists; it now navigates
+  to search first. The PWA timeout trace stopped at `getByRole('button')` for a menu
+  trigger that was a `<summary>` exposed only as a group; the menu trigger now has button
+  semantics and controlled expanded state. Row-action text failed contrast because the
+  whole control cluster used 55% opacity; that opacity was removed. Toast placement and
+  dark-theme timer contrast were corrected as well. Local unit/build checks pass, but CI
+  must still confirm these changes and expose any remaining failures; phase is not green.
 
 ## Content added
 
