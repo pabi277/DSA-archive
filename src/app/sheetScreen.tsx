@@ -400,8 +400,12 @@ function TopicGroup({
           event.preventDefault()
           const nextOpen = !expanded
           setExpanded(nextOpen)
-          if (detailsRef.current) detailsRef.current.open = nextOpen
           onToggle(nextOpen)
+          // The browser's native <summary> default action can run after React's
+          // click handler; reassert the requested state in the next task.
+          window.setTimeout(() => {
+            if (detailsRef.current) detailsRef.current.open = nextOpen
+          }, 0)
         }}
       >
         <span className="topic-chevron" aria-hidden="true">
