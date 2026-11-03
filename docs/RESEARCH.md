@@ -154,3 +154,27 @@ actually returning in week 2 = friends features earn their keep.
   "Not applicable" on Spark, quoted in §4). Secondary 2026 pricing
   summaries agreed on the same Spark numbers (50K reads / 20K writes
   per day, 1 GiB).
+
+## 8. v2 research trail (2026-11-03)
+
+Every v2 decision is evidence-backed; the source notes live next to the phase that uses
+them.
+
+| Topic | Finding that changed the plan | Doc |
+|---|---|---|
+| Why v1 reads as a template | One accent doing four roles, system fonts, zero routing, 7 equal tabs, 1 animation in 355 CSS lines — audited against `file:line` | [`FEEDBACK-v2-REPORT.md`](FEEDBACK-v2-REPORT.md) |
+| 2026 UI consensus | Quiet chrome + density + colour-as-meaning + command palette (Linear/Vercel/Stripe patterns); dark-first | [`FEEDBACK-v2-REPORT.md`](FEEDBACK-v2-REPORT.md) §3, [`FEEDBACK-smart-layer.md`](FEEDBACK-smart-layer.md) §11 |
+| Spaced repetition | FSRS beats SM-2 by ~20–30% fewer reviews (5.3% vs 16.2% RMSE) — **rejected anyway** as too expensive for this scope; the 3/7/21 ladder stays | [`FEEDBACK-v2-REPORT.md`](FEEDBACK-v2-REPORT.md) §4 (parked) |
+| In-app video | Official IFrame Player API is the supported path; blocking/modifying it is ToS §4.13 and technically impossible from our origin; ads are the browser's business (owner uses Brave) | [`FEEDBACK-video-theatre.md`](FEEDBACK-video-theatre.md), [`FEEDBACK-ytpro-review.md`](FEEDBACK-ytpro-review.md) |
+| Transcripts | Dead: `timedtext` is CORS-closed, needs a video-bound PoToken only a non-browser client can mint, ToS forbids non-player access. **Dropped by the owner** | [`FEEDBACK-ytpro-review.md`](FEEDBACK-ytpro-review.md) §2.2 |
+| C++ in the browser | Clang/wasm in a Worker: ~14.2 MB cold, 0 bytes warm, ~1.2 s compile+run, no COOP/COEP, runaway loops stopped in ms. Piston's public API stopped being free (15 Feb 2026); Judge0 needs a VPS | [`PLAN-in-browser-code-runner.md`](PLAN-in-browser-code-runner.md) |
+| Multi-source resources | v1 has 289/289 articles from one publisher and 453/453 practice links from one host; 206 rows have no LeetCode mapping | [`phases-v2/03-content-pipeline/RESOURCE-POLICY.md`](phases-v2/03-content-pipeline/RESOURCE-POLICY.md) |
+| More practice | 273 unique LeetCode URLs today; drills add +120–140 by pattern without a schema change | [`phases-v2/03-content-pipeline/PRACTICE-SETS.md`](phases-v2/03-content-pipeline/PRACTICE-SETS.md) |
+| Theory rows | 42 `kind:"theory"` rows had only a checkbox; they become MCQ cards with an always-available solution | [`phases-v2/05-quiz-engine/THEORY-MCQ.md`](phases-v2/05-quiz-engine/THEORY-MCQ.md) |
+
+Audit of the copied snapshot (2026-11-03, read-only): the **369 stored video URLs are
+verbatim from `copy-web/index.html`** — identical sequence, 0 ids added, 0 missing,
+369/369 positional match (75 of them resolve only after JSON-unescaping the ampersand).
+No link was rewritten.
+Video links stay **single-source by owner decision**; multi-sourcing applies to
+articles/resources only.

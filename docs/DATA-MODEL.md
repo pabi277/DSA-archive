@@ -1,5 +1,18 @@
 # Data model — DSA Archive website (Firebase-backed)
 
+> ⚠️ **v2 changes this model (planned 2026-11-03, not yet implemented).**
+> Phase 04 removes `users/{uid}/notes/{problemId}` and adds
+> `users/{uid}/snippets/{problemId}` `{ language, code, notes?, verdict?, updatedAt }`;
+> phase 05 adds `users/{uid}/quizResults/{topicId}` `{ bestScore, bestTotal, attempts,
+> lastScore, lastAt, passed }`; phase 02 adds the optional `o` field
+> (`clean|hint|couldnt`) to every progress entry; phase 06 adds `moments[]` (≤30 stamps)
+> to the snippet document; phase 08 adds `targetDate` / `targetListId` to profile
+> settings. Rules move to **v5**, backup to **v4** (v1–v3 still import; v3 notes migrate
+> into `snippets.notes`). Contracts: [`phases-v2/04-code-notebooks/PLAN.md`](phases-v2/04-code-notebooks/PLAN.md),
+> [`phases-v2/05-quiz-engine/PLAN.md`](phases-v2/05-quiz-engine/PLAN.md). The v4 schema
+> below remains accurate for the code that exists today.
+
+
 > Plan-stage sketch (revised 2026-11-02 for the owner's Firebase
 > direction). Frozen piece-by-piece as phases land; later changes are
 > migrations recorded in phase records. Three worlds stay separate:

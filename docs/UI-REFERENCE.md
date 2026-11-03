@@ -5,6 +5,17 @@
 
 # UI reference — DSA Archive website
 
+> ⚠️ **v2 supersedes the screen inventory and tokens below (planned 2026-11-03).**
+> The v2 design system (Inter + JetBrains Mono subsets, one accent with five semantic
+> roles, density compaction, motion, routed shell with sidebar/bottom bar) is specified in
+> [`phases-v2/01-foundation-router-shell/PLAN.md`](phases-v2/01-foundation-router-shell/PLAN.md) §4
+> and the cross-cutting rules in [`phases-v2/00-overview/PLAN.md`](phases-v2/00-overview/PLAN.md) §A3.
+> The v1 tokens below stay **in force until phase 01 lands**, then this file keeps the v1
+> table as history and gains a frozen **Tokens v2** table. Screens added in v2:
+> `#/topics`, `#/topic/<id>` (Learn · Practice · Quiz), `#/problem/<id>` (theatre),
+> `#/code`, `#/quiz`, `#/practice`, `#/insights`, `#/search`, `#/not-found`,
+> and the command palette. Retired: the Notes view/editor.
+
 > The design specification. **No real UI code before phase 0-D is
 > owner-approved and the tokens below are frozen** (`../rule.md` §§4–5).
 > Nothing visual is copied from the specimen page (clean-room) — what

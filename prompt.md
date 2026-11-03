@@ -1,63 +1,193 @@
 <!-- This file is the continuation prompt: paste it into the next chat. -->
 
-# DSA Archive (website) — continuation prompt
+# DSA Archive — continuation prompt (v2 programme, one phase per chat)
 
-> **Self-contained handoff.** Repo authority: `rule.md`; owner answers:
-> `docs/DECISIONS.md`; roadmap: `docs/ROADMAP.md`; design inventory and
-> **frozen** tokens: `docs/UI-REFERENCE.md`; data/Firestore shape:
-> `docs/DATA-MODEL.md`; release checklist & deploy steps:
-> `docs/RELEASE-RUNBOOK.md`; living state: this file. AppFlow @
-> `57597b3332ad578614a0d9d5609f9cf8a278ee8a` is provenance only. Update
-> this file at each phase end in the same commit as that phase record.
+> **Self-contained handoff.** v1 is complete; **v2 is planned and not started.**
+> Authority order: `rule.md` → `docs/DECISIONS.md` (owner answers) →
+> `docs/phases-v2/` (phase contracts) → `docs/ROADMAP.md` (status) →
+> `docs/DATA-MODEL.md` (Firestore/backup shapes) → `docs/UI-REFERENCE.md`
+> (design tokens) → this file (living state). Update **this file** whenever a
+> phase closes, in the same commit as that phase's `RECORD.md`.
 
-## Identity (fixed — exit gate complete 2026-11-02)
+---
 
-- Site: `DSA Archive` · repo: `pabi277/DSA-archive` · MIT applies to
-  original code/data only; `LICENSE` is present.
-- Audience: owner + a few invited friends. Backend: **Firebase Spark only**
-  (`projectId: dsa-archive`, linked via `.env.production` + `.firebaserc` on
-  2026-11-02; Analytics omitted) — Google Auth + Firestore + Hosting; no
-  Functions, Storage or Blaze. Website first; any Android app is separate.
-- Git author: `pabi277 <chakraborttypabi2772006@gmail.com>`. Before every
-  commit verify `git var GIT_AUTHOR_IDENT` / `GIT_COMMITTER_IDENT`; a fresh
-  clone defaults to a `noreply` address, so set the repo-local identity
-  first (`git config user.name` / `user.email`). Each chat must use **its
-  own** Arena-assigned branch cut from the current `main`; never rename,
-  switch, reuse another chat's branch, or push `main`.
+## 1. Read these first (in order, ~15 minutes)
 
-## Rules digest (full rules: `./rule.md`)
+1. `rule.md` — laws, gates, clean-room, Spark-only, work cycle.
+2. `docs/DECISIONS.md` — every owner answer, including the **2026-11-03 v2 batch**
+   (two batches: direction + content policy). Never re-ask a recorded answer.
+3. `docs/phases-v2/README.md` — the phase index.
+4. `docs/phases-v2/00-overview/PLAN.md` — architecture, cross-cutting rules, dependency graph.
+5. The folder for the phase you were told to run (`docs/phases-v2/NN-slug/PLAN.md`).
+6. `docs/ROADMAP.md` → the v2 table (statuses).
 
-- No PR, merge, release, deployment (including Hosting preview channels),
-  live Firebase change, project upgrade, visibility change, or bulk
-  move/delete without a fresh explicit owner command.
-- Never re-ask recorded choices. Read `docs/DECISIONS.md` first.
-- Clean-room: `copy-web/` is STUDY-only; never ship its code/assets/text.
-- No secrets or tokens in git/chat. Public web identifiers in
-  `.env.production` are client identifiers, not protection — `firestore.rules`
-  is the protection and must pass Emulator tests in CI before any live deploy.
-- CI green + downloadable `site-preview` per change; every Firebase change
-  needs Emulator-Suite rules tests in CI. Docs ride with the code commit.
-- **The design gate stays closed:** 0-D approved 2026-11-02, tokens frozen in
-  `docs/UI-REFERENCE.md`. Changing a frozen value re-opens the GATE.
+Do **not** start coding before step 5 is read end-to-end.
 
-## Current state (2026-11-02 UTC)
+---
 
-- **All v1 roadmap phases (`0`, `0-D`, `1`, `2`, `3`, `4`, `5` and `6`) are ✅ complete:**
-  - **Phase 0** (PR #2): 495 rows · 20 topics (`Basic 84 · Core 287 · Pro 109 · 15 null`).
-  - **Phase 0-D + Phase 1** (PR #3): tokens frozen; full sheet browsable signed-out, search/filters/random/weakest-topic, outbound links.
-  - **Phase 2** (PR #4): Google Auth, topic-sharded Firestore progress sync + persistent local cache, explicit guest→cloud merge, rules v1, JSON backup v1.
-  - **Phase 3** (PR #5): synced markdown notes + code snippets, searchable notes overview, custom lists filtering the sheet, rules v2, backup v2.
-  - **Phase 4** (PR #6): daily goal + Today plan, 3/7/21-day spaced revision queue (`rc`), 8-week heatmap + streak + weekly stats, rules v3, backup v3; **14-day owner use test (`docs/RESEARCH.md` §6)** active.
-  - **Phase 5** (PR #7, `3303c8a`): rotatable 128-bit invite codes, atomic reciprocal friendships, opt-in summary-only sharing, topic compare, rolling 7-day leaderboard, viewer-local group goal, rules v4.
-  - **Phase 6** (PR #8, `387ae81`, + post-merge hardening on `arena/66cea8c2-dsa-archive`): installable PWA (`manifest.webmanifest`, clean-room `"DA"` monogram icons, deterministic `sw.js` precache), friendly `404` & `offline.html`, offline `getDocFromCache` cold-boot fallback, CSS `26.86 kB` (`6.30 kB` gz) + `<500 kB` JS chunks enforced by `npm run check:budgets` (`317.85 kB` gz total shell), 12 Emulator rules tests, `public/summary` write deduplication, atomic `addManyToToday` planner race fix, `hosting.predeploy` build hook, App Check & Analytics omitted, public Spark web config linked for `dsa-archive` (`.env.production` + `.firebaserc`), and deploy runbook in `docs/RELEASE-RUNBOOK.md`.
-- **Live deploy is owner-executed:** run `npx firebase deploy --only firestore:rules --project dsa-archive` then `npx firebase deploy --only hosting --project dsa-archive` from your terminal or Google Cloud Shell per `docs/RELEASE-RUNBOOK.md`.
+## 2. Identity & environment (fixed)
 
-## Next-chat handoff (post-v1 maintenance / 14-day use test)
+- Site `DSA Archive` · repo `pabi277/DSA-archive` · MIT for original code/data only.
+- Audience: the owner + a few invited friends. Backend: **Firebase Spark only**
+  (`projectId: dsa-archive`, `.env.production` + `.firebaserc`). Whitelist:
+  Auth (Google) + Firestore + Hosting + Emulator Suite. **No** Functions, Storage,
+  Realtime DB, Analytics, FCM, AI.
+- Git author: `pabi277 <chakraborttypabi2772006@gmail.com>` — set repo-local
+  identity, verify `git var GIT_AUTHOR_IDENT` / `GIT_COMMITTER_IDENT` before committing.
+- Each chat uses **its own** Arena-assigned branch cut from current `main`; never
+  rename, switch, reuse another chat's branch, or push `main`.
 
-Read `rule.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md`,
-`docs/RELEASE-RUNBOOK.md`, and `docs/RESEARCH.md` §6, and verify branch,
-`git status`, open PRs, CI runs and Git identity
-(`pabi277 <chakraborttypabi2772006@gmail.com>`) first.
+## 3. Rules digest (full text: `rule.md`)
 
-1. **14-day owner use test (`docs/RESEARCH.md` §6):** implement only targeted fixes or friction improvements requested by the owner on the session's assigned branch, keeping all 126+ unit tests, 12+ Emulator rules tests, 10+ Playwright specs, and `npm run check:budgets` green, then stop at the merge gate.
-2. **Never handle Firebase tokens/credentials in chat or git**, and never deploy or alter `copy-web/` / repo visibility without an explicit owner command.
+- **GATES — ask, never act:** PR · merge · `main` push · deploy (incl. preview
+  channels) · live Firebase/rules deploy · Spark→Blaze · new Firebase products ·
+  repo visibility · money · analytics/trackers · AI · publishing anything derived
+  from the copied page · changing a recorded owner answer.
+- **Clean-room:** `copy-web/` is STUDY-only; never ship its code, fonts, logos, text.
+  Topic/problem titles + outbound links may be reused as facts; **learning content is
+  reached by linking out** and all statements/primers/quizzes we ship are written by us.
+- **No-secrets:** never handle Firebase tokens or credentials in chat or git.
+- **CI per phase:** unit + Playwright (390×844 and 1440×900) + axe (0 violations) +
+  `check:budgets` + `check:link`/`check:dist` + data validation; Firebase-touching phases
+  also run **Emulator rules tests**. Every run uploads the `site-preview` artifact.
+- Docs ride with the code commit: phase `RECORD.md`, `docs/ROADMAP.md` status, this file.
+
+---
+
+## 4. Where we are (2026-11-03)
+
+- **v1 complete** (`docs/phases/00…06`): 495 problems / 20 topics, Google Auth +
+  Firestore progress sync, notes+snippets+lists, planner + 3/7/21 revision, friends,
+  PWA offline. Rules **v4**, backup **v3**. Nothing deployed.
+- **v2 fully planned, zero code written:** 10 phase contracts in `docs/phases-v2/`,
+  plus three policy docs (`RESOURCE-POLICY.md`, `PRACTICE-SETS.md`, `THEORY-MCQ.md`)
+  and the authoring guide (`AUTHORING.md`). The planning commits are docs-only;
+  `data/`, `src/`, `tools/`, `firebase.json` are **byte-identical to `main`**.
+- **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
+  topics (Basic 84 · Core 287 · Pro 109 · 15 null; 453 `problem` + 42 `theory`).
+  **369 video links** (321 unique: 256 `youtu.be` + 65 `youtube.com`) — **single source
+  by owner decision, keep them**; they are copied verbatim from the snapshot (no
+  rewrite, no repair). 289 rows have LeetCode links (**273 unique**, 13 duplicated
+  slugs). **206 rows have no LeetCode mapping.**
+- Tokens v1 (2026-11-02) are **still in force** until phase 01 lands tokens v2.
+
+---
+
+## 5. The v2 phases (execute one per chat, in this order)
+
+| # | Folder | Scope in one line | Est | Deps |
+|---|---|---|---|---|
+| 01 | `01-foundation-router-shell/` | Hash router + sidebar/bottom-bar shell + **design tokens v2** (Inter + JetBrains Mono, one accent / five semantic roles, density, motion, undo, skeletons, `⌘K`, `j/k/x`, sheet windowing) | 9–11 d | — |
+| 02 | `02-topics-browse/` | `#/topics` (all 20 always visible with rings) + `#/topic/<id>` Learn/Practice/Quiz + learning order + **3-way outcome** (`o: clean\|hint\|couldnt`) + `#/search` | 5–6 d | 01 |
+| 03 | `03-content-pipeline/` | Content schema + safe renderers + validator/CI + **`resources[]` multi-source** + **`data/practice-sets/` drills (+120–140 LeetCode)** + 42 theory MCQs schema + coverage report | 7–9 d + authoring | 01 |
+| 04 | `04-code-notebooks/` | **Delete notes** end-to-end; add `snippets` collection, rules **v5**, backup **v4** (+v3 notes migration), `#/code`, small editor, peek/reveal | 5–6 d | 01 |
+| 05 | `05-quiz-engine/` | **Theory MCQ cards** (4 options, per-option explanations, always-available `Show solution`, `[Solve]` vs `[Check]`) + 12-item topic quiz, 80% pass, `quizResults`, guest merge | 6–7 d | 02, 03 |
+| 06 | `06-theatre-player/` | In-app YouTube theatre (official IFrame API, our chrome), mini player surviving routes, timeline **stamps**, speed memory, oEmbed metadata + dead-link badge | 7–9 d | 01–03 |
+| 07 | `07-browser-runner/` | Local wasm C++/Python/JS runner in a Worker: Run, Stop, diagnostics, authored tests with first-diff, predict-the-output, 14 MB cache control, copy-out for Java/C# | 5–7 d | 04, 03 |
+| 08 | `08-insights-light/` | Reason vocabulary + chips, **momentum** (no punitive streak), one-line trajectory, "How this plan was made", 2 detectors, target date/list | 4–5 d | 01, 02, 05 |
+| 09 | `09-pwa-accessibility-hardening/` | Budgets re-baselined with published numbers, SW v2 exclusions, CSP (report-only → enforce), a11y × offline matrices, network assertion, dead-dependency decision | 4–5 d | 01–08 |
+| 10 | `10-release-v2/` | README v2, generated screenshots, DATA-MODEL v5, CHANGELOG, runbook, honest content-coverage table | 2–3 d | 09 |
+
+**Sequential ≈57–69 build days.** 02 ∥ 03 once 01 merges; 04–07 are independent after 03.
+
+Each `PLAN.md` already contains: charter · current-state evidence (`file:line`) · scope in ·
+scope **out with reasons** · design spec/wireframes · file plan (`NEW`/`EDIT`/`DELETE`) ·
+data model · a11y + performance targets · test table · risk table · acceptance criteria ·
+exit gate. **The acceptance list is the contract** — do not add features outside it.
+
+---
+
+## 6. Approved gate re-openings (2026-11-03 — use them, don't re-litigate)
+
+- **Design tokens v1 → v2**: one-time re-freeze in phase 01 after the owner reviews
+  tokens v2. `UI-REFERENCE.md` keeps v1 as history.
+- **"System fonts only" lifted**: two self-hosted subsets (~45 kB), budgeted.
+- **CI budgets re-baselined once**, in phase 09, with published numbers + rationale:
+  CSS 60 kB raw / 18 kB gz · entry JS 180 kB raw / 55 kB gz · single chunk 520 kB raw ·
+  shell 380 kB gz · runtime assets in a **separate** bucket (never precached).
+- **Tailwind/daisyUI**: decide (use them or remove them) — no third state.
+- **CSP**: adopt (report-only first), including `frame-src` for YouTube and `worker-src`.
+
+## 7. Owner decisions that shape the work (2026-11-03 — full text in `DECISIONS.md`)
+
+1. **UI craft first**; it must be excellent, not polished later.
+2. **Expensive analytics dropped**: no FSRS, attempt-history engine, readiness score,
+   calibration, per-pattern "par", weak-pattern radar, workload forecast, ETA model.
+   Cheap survivors only (reason chips, one `o` field, momentum, one-line pace).
+3. **Videos play inside our screen** via the official IFrame player. **Never modify,
+   overlay or block the player** (ToS §4.13). The owner uses **Brave**, so ads are the
+   browser's business — this is a permanent limit, not a TODO.
+4. **Video links stay single-source** (takeuforward sheet) — do not multi-source or
+   bulk-rewrite them. Multi-source applies to **articles/resources** only.
+5. **Transcripts dropped** (auto-fetch *and* paste-your-own). Do not reintroduce.
+6. **Notes section removed → Code section** in Firestore.
+7. **Beginner audience**: all 20 topics visible, in-app statements, primers, hints,
+   mistakes, quizzes. Copy readable by a first-year student.
+8. **Code execution is local** (wasm in a Worker). **No** server, **no** Judge0/Piston,
+   no hidden suites, no judge verdicts.
+9. **Coding stays coding, theory becomes MCQ** — one action per row: `[Solve]` or
+   `[Check]`. No quiz spam: checks only where they are checkable, follow the material,
+   and change behaviour (≤3 per topic beside the quiz, ≤1 inline per primer section).
+10. **No single source of truth for articles**: ranked `resources[]`, ≥2 publishers per
+    non-theory row, publisher names always visible, `verified` dates re-checked.
+11. **More LeetCode problems**: pattern drills (+120–140) in `data/practice-sets/`,
+    reusing `progressByTopic` with `lc-<n>` ids — **no schema change**.
+
+## 8. Hard no list
+
+Notes · transcripts/scraping · ad-blocking or touching the YouTube player · remote judge ·
+AI of any kind · Cloud Functions/Storage/Realtime DB/Analytics · public signup or
+leaderboards · copying third-party prose · bulk link rewrites · multi-sourcing the video
+links · code judge/IDE beyond the local runner · changing a recorded answer without a gate.
+
+---
+
+## 9. How to execute one phase (checklist)
+
+1. Verify: branch, `git status`, open PRs, CI, Git identity. Read the phase `PLAN.md`.
+2. Scan for reuse first (DEPEND/ADAPT/STUDY/BUILD/REJECT) and record the decision.
+3. Implement **only** that phase's acceptance criteria, in 2–4 parts.
+4. Land tests: unit + Playwright (phone/desktop) + axe 0 + visual snapshots; rules tests
+   if Firestore changed; budgets if bundles changed.
+5. Update in the same commit: `docs/phases-v2/NN-slug/RECORD.md` (CI run id, tip sha,
+   `site-preview` bytes, what is now visible, deviations, content added),
+   `docs/ROADMAP.md` status, `docs/DECISIONS.md` if anything was decided, **and this file**.
+6. Report to the owner, print the next-chat prompt (template in §10), then **stop at the
+   merge gate**. Never merge, never deploy, never push `main`.
+
+## 10. Copy-paste prompt for the next chat
+
+> **Next chat prompt (fill `{NN}` / `{slug}`):**
+>
+> Run v2 phase **{NN} — {slug}** for `pabi277/DSA-archive`.
+> Read, in order: `rule.md`, `docs/DECISIONS.md` (v2 batches, 2026-11-03),
+> `docs/phases-v2/README.md`, `docs/phases-v2/00-overview/PLAN.md`, then
+> `docs/phases-v2/{NN}-{slug}/PLAN.md` in full — its acceptance list is the contract.
+> Verify branch/`git status`/open PRs/CI/Git identity first, then implement only that
+> phase, land its tests (unit + Playwright phone & desktop + axe 0 + snapshots;
+> emulator rules tests if Firestore changed), and update the phase `RECORD.md`,
+> `docs/ROADMAP.md` status and `prompt.md` in the same commit. Stop at the merge gate —
+> no PR merge, no deploy, no `main` push without my explicit command.
+
+> **Ready-made first one:**
+>
+> Run v2 phase **01 — foundation-router-shell** for `pabi277/DSA-archive`.
+> Read `rule.md`, `docs/DECISIONS.md` (v2 batches), `docs/phases-v2/README.md`,
+> `docs/phases-v2/00-overview/PLAN.md`, then
+> `docs/phases-v2/01-foundation-router-shell/PLAN.md` in full — its acceptance list is
+> the contract. Verify branch/CI/identity, implement router + shell + tokens v2 +
+> undo/skeletons + `⌘K` + keyboard triage + sheet windowing only, land unit/Playwright/
+> axe/visual-snapshot tests and the re-baselined budgets, update the phase `RECORD.md`,
+> `ROADMAP.md` and `prompt.md` in the same commit, then stop at the merge gate.
+
+---
+
+## 11. Content track (runs in parallel from phase 02; the real long pole)
+
+`docs/phases-v2/03-content-pipeline/AUTHORING.md` — templates + review workflow.
+Volumes: 20 primers (600–900 words) · 120 beginner statements (then ~375) · 495 hints ·
+495 common mistakes · **42 theory MCQs** · 240 topic-quiz items · ~300 runner test cases ·
+~34 pattern files (drills). Order: **P0** = primers, beginner statements, hints/mistakes
+for beginner rows, quizzes, theory MCQs, first 10 pattern files. Everything is our own
+writing, verified by the owner in small batches, and every screen renders a designed
+"content coming" state so code never waits on content.
