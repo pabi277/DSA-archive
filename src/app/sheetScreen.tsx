@@ -350,13 +350,7 @@ function TopicGroup({
   triageFocus: string | null
 }) {
   const total = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.problems.length, 0)
-  const [expanded, setExpanded] = useState(open)
-  const detailsRef = useRef<HTMLDetailsElement>(null)
 
-  useEffect(() => {
-    setExpanded(open)
-    if (detailsRef.current) detailsRef.current.open = open
-  }, [open])
 
   const revealedIndex = useMemo(() => {
     if (!revealed) return -1
@@ -394,18 +388,17 @@ function TopicGroup({
   const remaining = Math.max(0, total - windowSize)
 
   return (
-    <details ref={detailsRef} id={`topic-${topic.id}`} className="topic-card">
+    <details
+      id={`topic-${topic.id}`}
+      className="topic-card"
+      open={open}
+    >
       <summary
         onClick={(event) => {
+          // React owns the controlled open state; cancel the native toggle so it
+          // cannot race the state update and close the disclosure again.
           event.preventDefault()
-          const nextOpen = !expanded
-          setExpanded(nextOpen)
-          onToggle(nextOpen)
-          // The browser's native <summary> default action can run after React's
-          // click handler; reassert the requested state in the next task.
-          window.setTimeout(() => {
-            if (detailsRef.current) detailsRef.current.open = nextOpen
-          }, 0)
+          onToggle(!open)
         }}
       >
         <span className="topic-chevron" aria-hidden="true">
@@ -422,7 +415,7 @@ function TopicGroup({
       </summary>
       {/* Rows mount only while the topic is open: 495 rows never sit in the DOM
           behind a closed <details>, which is the whole point of §3.12. */}
-      {expanded ? (
+      {open ? (
       <div className="topic-body">
         {visible.map((subtopic) => (
           <section key={subtopic.id} aria-labelledby={`subtopic-${subtopic.id}`}>

@@ -62,7 +62,9 @@ export const ALL_ROUTES = [
 /** Open a topic accordion on `#/search` and make sure its rows are mounted. */
 export async function openTopic(page: Page, topicId = 'arrays') {
   const details = page.locator(`#topic-${topicId}`)
-  if (!(await details.getAttribute('open'))) {
+  // Boolean HTML attributes are present with the empty string as their value;
+  // test for absence explicitly so a second call does not close an open topic.
+  if ((await details.getAttribute('open')) === null) {
     await page.locator(`#topic-${topicId} > summary`).click()
   }
   await expect(details).toHaveAttribute('open', '')

@@ -170,10 +170,12 @@
   connection. The next CI annotation pass also exposed a light-theme `--subtle` contrast
   ratio of 4.47:1 (updated to a measured 4.73:1 in the app and standalone 404/offline
   fallbacks), the topic disclosure's controlled-open race (the summary now updates both the
-  disclosure state (topic open state is explicit React state synced with external open
-  requests), toast placement (the host now renders inside `.app-root` to inherit theme and
-  spacing tokens), and dark-theme toast timer contrast (uses the muted text token instead
-  of the low-contrast subtle token). Local unit/build checks pass after
+  the E2E disclosure helper's boolean-attribute check: `getAttribute('open')` returns an
+  empty string when a native `<details>` is open, so a truthiness check clicked it shut on
+  repeated calls. The helper now checks specifically for `null`; the app disclosure is
+  back to native `<details>` with React-controlled state. Toast placement (the host now
+  renders inside `.app-root` to inherit theme and spacing tokens) and dark-theme toast
+  timer contrast (muted rather than subtle text) were corrected too. Local unit/build checks pass after
   but another CI run must prove them and expose any remaining failures; the phase is not
   CI-green yet.
 
