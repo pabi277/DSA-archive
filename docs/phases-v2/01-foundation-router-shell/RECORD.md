@@ -187,6 +187,13 @@
   and asserts the account panel is visible before exporting, matching the planner E2E.
   Local unit/build checks pass; CI must verify this correction and any remaining failures.
 
+
+- Follow-up on CI run `41633213412`: the export and first restore succeeded. The trace
+  showed the test then navigated to Notes to verify the restore and tried the phase-2
+  import while still on Notes, where the Settings-only import control is absent. The
+  library E2E now returns to `/#/settings` and asserts the account panel is visible before
+  performing that backward-compatible import.
+
 ## Content added
 
 None. No statement, hint, primer, quiz or resource text shipped in this phase; every pending

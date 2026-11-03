@@ -152,8 +152,11 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
 
     // A phase-2 (schemaVersion 1) file still imports — and clears lists, as
     // its own preview states. This is the recorded backward-compatible path.
+    // Return to Settings: that route owns the account panel and its file input.
+    await open(secondPage, '/#/settings')
+    await expect(secondPage.getByTestId('account-panel')).toBeVisible()
     const phaseTwo = { ...backup, schemaVersion: 1, notes: [], lists: [], plans: [] }
-    await fileInput.setInputFiles({
+    await secondPage.getByLabel('Import backup JSON').setInputFiles({
       name: 'phase-2-backup.json',
       mimeType: 'application/json',
       buffer: Buffer.from(JSON.stringify(phaseTwo), 'utf8'),
