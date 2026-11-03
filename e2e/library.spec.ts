@@ -85,8 +85,7 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     await expect(listCard).toBeVisible()
 
     await open(page, '/#/search?q=two+sum')
-    await page.getByRole('button', { name: /More actions for Two Sum/ }).click()
-    await page.getByTestId('menu-lists-two-sum').click()
+    await page.getByTestId('list-button-two-sum').click()
     const picker = page.getByTestId('list-picker')
     await expect(picker).toBeVisible()
     // A click (not check(): the tick is driven by the Firestore snapshot, so it
@@ -96,8 +95,7 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     await picker.getByRole('button', { name: 'Close list picker' }).click()
 
     await open(page, '/#/search?q=linear+search')
-    await page.getByRole('button', { name: /More actions for Linear Search/ }).click()
-    await page.getByTestId('menu-lists-linear-search').click()
+    await page.getByTestId('list-button-linear-search').click()
     await page.getByTestId('list-picker').getByRole('checkbox', { name: /Interview warmup/ }).click()
     await expect(
       page.getByTestId('list-picker').getByRole('checkbox', { name: /Interview warmup/ }),

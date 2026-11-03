@@ -174,8 +174,9 @@
   also calling `openTopic()` from the Today route, where no topic exists; it now navigates
   to search first. The PWA timeout trace stopped at `getByRole('button')` for a menu
   trigger that was a `<summary>` exposed only as a group; the menu trigger now has button
-  semantics and controlled expanded state. Row-action text failed contrast because the
-  whole control cluster used 55% opacity; that opacity was removed. Toast placement and
+  semantics and controlled expanded state. The library flow also expected a list picker
+  from the note editor menu; it now uses the row's dedicated list control. Row-action text
+  failed contrast because the whole control cluster used 55% opacity; that opacity was removed. Toast placement and
   dark-theme timer contrast were corrected as well. Local unit/build checks pass, but CI
   must still confirm these changes and expose any remaining failures; phase is not green.
 
