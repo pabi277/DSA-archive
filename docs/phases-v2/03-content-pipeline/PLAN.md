@@ -28,6 +28,17 @@ content.
 ## 3. Scope
 
 ### In
+0. **Resource policy (multi-source) and practice sets** — two companion documents in this
+   folder, both executed here:
+   - [`RESOURCE-POLICY.md`](RESOURCE-POLICY.md): replace the single-publisher situation
+     (289/289 articles from takeuforward, 453 practice links from the same host) with a
+     ranked `resources[]` array per problem across an approved registry (LeetCode,
+     NeetCode, cp-algorithms, USACO, GfG, Programiz, YouTube channels, cppreference).
+     Every non-theory row must have ≥1 practice + ≥1 learning resource and ≥2 distinct
+     sources; UI shows publisher names under `⋯ More sources`.
+   - [`PRACTICE-SETS.md`](PRACTICE-SETS.md): ~34 patterns × 3–4 rungs, **+120–140 extra
+     LeetCode problems** in `data/practice-sets/*.json`, `#/practice` route, drills toggle
+     on the topic Practice tab, `lc-<n>` synthetic ids so progress needs no schema change.
 1. **Schema (v1) for content**, one JSON file per topic and per problem
    (`data/content/...`, see §5). Every field optional except `problemId` so content can
    land incrementally.
@@ -45,7 +56,12 @@ content.
    bullets, inline code, one code block, one callout ("3 mistakes"). A ~150-line safe
    renderer replaces the deleted `markdown.ts` concepts: escape first, whitelist
    constructs, no raw HTML, no external images.
-6. **Quiz bank schema + authoring** (execution in phase 05): 5 kinds —
+6. **Theory-as-MCQ schema** (execution + UI in phase 05, data here): the 42 `kind:"theory"`
+   rows become MCQ cards with 4 options, per-option explanations, a `reveal` solution
+   (always available per the owner's rule) and a reference link. Coding rows never carry
+   MCQs; theory rows never carry coding tests. See
+   [`../05-quiz-engine/THEORY-MCQ.md`](../05-quiz-engine/THEORY-MCQ.md).
+7. **Quiz bank schema + authoring** (execution in phase 05): 5 kinds —
    `pattern` (recognise), `dryrun` (what does this print), `complexity`, `bug` (spot the
    mistake), `edge` (edge case). 12 items per topic, 4 options each, each option carries
    an explanation; `answerIndex`, optional `codeSnippet` (monospace block).
@@ -57,6 +73,11 @@ content.
      present, ≥12 items/topic where the bank exists, kinds balanced;
    - statements: ≤700 chars, example includes input+output;
    - tests: ≤6 cases, ≤2 KB per case, no tabs beyond the first line;
+- resources: allow-listed `source`, unique URL per row, ≥1 practice + ≥1 learning source,
+  `verified` ISO day, `rank` unique per type;
+- practice sets: contiguous `set` numbers per pattern, unique `lc/slug` app-wide (duplicates
+  link to `coveredBy` instead of duplicating), `why` ≤90 chars;
+- theory parity: every `kind:"theory"` row has exactly one MCQ, and vice versa;
    - coverage report printed and stored for the UI (`contentCoverage()`).
 9. **CI**: `npm run test:data` extended; a coverage summary in the PR body; build fails
    on schema breaks, not on missing content.
@@ -148,6 +169,8 @@ plain text with `\n`.
 | Hints + common mistakes | 495 + 495 (1 line each) | P0 for beginners, P1 rest |
 | Quiz bank | 240 items (12 × 20) | P0 |
 | Runner test cases | 2–3 per beginner problem (~300) | P1 (phase 07) |
+| Theory MCQs | 42 | **P0** (replaces checkbox-only rows) |
+| Drill practice sets | ~34 patterns × 3–4 = 120–140 | **P0** for the first 10 patterns, P1 rest |
 | Remaining statements | ~375 | P2 |
 | Topic patterns | 20 × 3 | P0 |
 
@@ -178,7 +201,10 @@ Splitting P0/P1/P2 lets the product ship a complete beginner path before the lon
 | JSON bloat | Per-file split + gzip budget + P0-only initial bundle |
 
 ## 11. Acceptance
-Schema + loader + renderers shipped · extended validator green in CI · coverage report
+`resources[]` live on ≥80 % of rows with ≥2 distinct publishers · LeetCode coverage
+≥420/495 (exact or near) with the rest labelled theory · ~120 drills in
+`data/practice-sets/` with unique slugs and `#/practice` rendering · 42 theory MCQs
+authored with parity enforced · schema + loader + renderers shipped · extended validator green in CI · coverage report
 printed · at least one fully authored topic (primer + 6 statements + 12 quiz items +
 hints) renders end-to-end · every missing-content state designed and tested · no
 third-party prose in the repo.

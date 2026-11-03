@@ -66,6 +66,7 @@ and survive the existing Service Worker. Routes:
 #/topic/<topicId>         topic page  (?tab=learn|practice|quiz)
 #/problem/<problemId>     problem page (?t=<seconds>&lang=<code-lang>)
 #/code                    saved solutions (?lang=&topic=&q=)
+#/practice                pattern × practice-set drills (phase 03 data)
 #/review                  revision queue
 #/quiz                    quiz home (all topics, progress)
 #/insights                light insight screen (phase 08)
@@ -121,10 +122,12 @@ emulator rules tests via `npm run test:rules`.
 All learner content lives in `data/` as JSON validated by `tools/validate_data.py`:
 
 ```
-data/problems.json          (existing) + level/kind/links
-data/content/topics/<topicId>.json      primer, patterns, quiz bank
+data/problems.json                      (existing) + level/kind/links + resources[]
+data/content/topics/<topicId>.json      primer, patterns, theory MCQs, quiz bank
 data/content/problems/<problemId>.json  statement, hint, mistake, tests[]
-data/content/patterns.json              20 × ~3 pattern labels
+data/content/patterns.json              ~34 pattern labels (taxonomy)
+data/practice-sets/<pattern>.json       drills: +120–140 extra LeetCode problems
+data/media/<videoId>.json               oEmbed metadata (title/author/thumb/dead)
 ```
 Split-per-file keeps diffs reviewable and lets phases 02/03 ship before content is
 complete (every screen has a "content coming" state).
@@ -136,6 +139,18 @@ judge · code IDE with full language support · public signup/leaderboards ·
 Cloud Functions/Storage/Realtime DB.
 
 ---
+
+## Owner additions 2026-11-03 (batch 2) — folded into this programme
+
+| Ask | Where it lands | Detail doc |
+|---|---|---|
+| **Add more LeetCode problems** | Phase 03 — `data/practice-sets/*.json`, `#/practice` route, drills toggle on the topic Practice tab | [`03-content-pipeline/PRACTICE-SETS.md`](../03-content-pipeline/PRACTICE-SETS.md) |
+| **No single source of truth for articles/videos** | Phase 03 — `resources[]` per problem, ranked, multi-publisher, verified dates; UI shows publisher names under `⋯ More sources` | [`03-content-pipeline/RESOURCE-POLICY.md`](../03-content-pipeline/RESOURCE-POLICY.md) |
+| **Don't jam learning into Q&A; tasks only where a check earns its place; coding = code, theory = MCQ with revealable solution** | Phase 03 (schema) + Phase 05 (runner) — `theory[]` MCQ cards for the 42 theory rows, the placement rule, `[Solve]` vs `[Check]` | [`05-quiz-engine/THEORY-MCQ.md`](../05-quiz-engine/THEORY-MCQ.md) |
+
+Resulting catalogue targets: **≈400 distinct LeetCode problems** (273 now + drills),
+**≥2 publishers per row**, **42 theory MCQs**, **240 topic-quiz items**, zero question
+spam. These are acceptance criteria in phases 03 and 05, not aspirations.
 
 ## Records & gates
 

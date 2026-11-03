@@ -511,3 +511,24 @@
 - **Tailwind/daisyUI** must be decided (use them, or remove them) — no third state.
 - **CSP**: adopting one (with `frame-src` for YouTube and `worker-src`) is approved in
   principle; report-only first, then enforce.
+
+## Owner decisions — v2 content policy (answered 2026-11-03, batch 2)
+
+- 2026-11-03 — **More problems?** — **Yes: add more LeetCode problems.** Implemented as
+  pattern "drills" (3–4 rungs per pattern, **+120–140 problems**, `data/practice-sets/`),
+  not by inflating the sheet. Progress reuses the existing `progressByTopic` shape with
+  `lc-<n>` ids — no new collection, no rules change. Target ≈400 distinct LeetCode
+  problems overall. Doc: `docs/phases-v2/03-content-pipeline/PRACTICE-SETS.md`.
+- 2026-11-03 — **Sources?** — **No single source of truth.** Articles/videos become a
+  ranked, multi-publisher `resources[]` per problem (LeetCode, NeetCode, cp-algorithms,
+  USACO Guide, GfG, Programiz, YouTube channels, cppreference), every non-theory row with
+  ≥1 practice + ≥1 learning source and **≥2 distinct publishers**, publisher name always
+  visible, `verified` dates re-checked by `check:links`. takeuforward is demoted to one
+  source among several. Doc: `docs/phases-v2/03-content-pipeline/RESOURCE-POLICY.md`.
+- 2026-11-03 — **Questions/tasks?** — **No quiz spam.** A check appears only where it is
+  checkable, follows the material, and changes behaviour; ≤3 checks per topic beside the
+  topic quiz, ≤1 inline check per primer section. **Coding stays coding** (run + authored
+  tests, phase 07) and **theory becomes MCQ** (4 options, per-option explanations, and a
+  solution the learner can always reveal). Never both on one row:
+  `[Solve]` for coding, `[Check]` for theory. Doc:
+  `docs/phases-v2/05-quiz-engine/THEORY-MCQ.md`.

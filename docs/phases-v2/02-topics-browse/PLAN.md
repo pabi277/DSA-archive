@@ -39,7 +39,10 @@ merge before the content track finishes.
      Practice" when absent.
    - **Practice**: subtopic groups in **learning order** (curated `learnOrder`, then
      difficulty ramp, then source order), the phase-01 row anatomy, filters
-     (`all / not started / shaky / done`), and 3-way outcome control.
+     (`all / not started / shaky / done`), and 3-way outcome control. A toggle
+     `Core sheet (46) · Drills (+38)` switches to the extra LeetCode problems from
+     `data/practice-sets/` (phase 03 data), grouped by pattern rung. **Theory rows show
+     `[Check]` (MCQ) instead of `[Solve]`** — one action per row, never both.
    - **Quiz**: placeholder in this phase (engine lands in 05) showing the quiz count and
      a disabled CTA so the shape is visible and testable.
 3. **3-way outcome on solve** (replaces the checkbox action when marking done):

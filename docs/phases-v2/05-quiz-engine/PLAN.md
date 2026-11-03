@@ -9,6 +9,11 @@ quiz is the cheapest, most beginner-appropriate proof of understanding.
 
 ## 1. Charter
 
+Two surfaces, one engine: **(a) theory MCQs** — the 42 `kind:"theory"` rows become cards
+with 4 options, per-option explanations and an always-available `Show solution`
+([`THEORY-MCQ.md`](THEORY-MCQ.md)); **(b) the 12-item topic quiz** — pattern/dryrun/
+complexity/bug/edge. Coding rows never get a quiz; theory rows never get a coding test.
+
 Run the phase-03 quiz banks: a clean one-question-at-a-time runner, instant explanations,
 pass/fail at 80%, per-topic results stored in Firestore (best score only), offline-capable,
 and honest about missing content. No timers, no leaderboards, no anti-cheat.
@@ -20,6 +25,11 @@ phase 03 ships the data schema and validator.
 ## 3. Scope
 
 ### In
+0. **Theory MCQ cards** (the placement rule): inline accordion under the row on the topic
+   Practice tab and in the Learn primer sections (≤1 check per section), `[Check]` instead
+   of `[Solve]` for theory rows, `Show solution` always visible, wrong answer points at the
+   exact section to re-read, correct answer marks the row done with outcome `clean`,
+   `Show solution → Mark as read` is the honest escape hatch. No new stored data.
 1. **`#/quiz`** — quiz home: 20 topics with `Quiz ✓ 11/12` / `Not taken` / `Coming soon`,
    a "Start a 4-minute check" primary action (weakest topic first, simple heuristic:
    lowest take-count or lowest score).
@@ -130,7 +140,10 @@ NEW  src/quiz/*.test.ts
 | Bank incompleteness at merge | Incomplete-bank mode designed and tested |
 
 ## 10. Acceptance
-A learner can run a 12-question quiz end-to-end offline, pass at ≥10, see per-kind
+All 42 theory rows render as MCQ cards with a revealable solution and a source link, and
+no coding row ever shows a quiz · inline checks appear at most once per primer section ·
+the placement budget (≤3 checks per topic beyond the quiz) is enforced by a validator test ·
+a learner can run a 12-question quiz end-to-end offline, pass at ≥10, see per-kind
 breakdown, and find the best score persisted in a second browser profile · guest results
 merge once on sign-in · rules tests green · 0 axe violations · snapshots committed.
 

@@ -55,9 +55,9 @@ analytics dropped. Full contracts live in [`docs/phases-v2/`](phases-v2/README.m
 |---|---|---|---|
 | v2-01 | Router, shell, design system v2 | every screen has a URL · back button works · one accent/5 roles · density · ⌘K · undo · snapshots + budgets | 📋 planned |
 | v2-02 | 20-topic spine, topic pages, 3-way outcome | `#/topics` shows all 20 with rings · Learn/Practice/Quiz tabs · outcome persists via emulator | 📋 planned |
-| v2-03 | Content pipeline (statements, hints, primers, quiz bank, tests) | schema + validator green in CI · one topic fully authored end-to-end · coverage report | 📋 planned |
+| v2-03 | Content pipeline + **resource policy** + **practice sets** | ranked multi-source `resources[]` on every row (≥2 publishers) · LeetCode coverage ≥420/495 · +120–140 drills in `data/practice-sets/` with `#/practice` · 42 theory MCQs · schema + validator green · coverage report | 📋 planned |
 | v2-04 | Notes → Code | notes gone from code/rules/backup · snippet syncs across profiles · rules v5 · backup v4 migration | 📋 planned |
-| v2-05 | Quiz engine | 12-question run passes at 80% · results sync · guest merge · rules tests | 📋 planned |
+| v2-05 | Quiz engine + theory MCQs | 42 theory rows are MCQ cards with always-available `Show solution` · `[Solve]` vs `[Check]`, one action per row · inline checks ≤1 per primer section (budget enforced) · 12-question topic quiz passes at 80% · results sync · guest merge · rules tests | 📋 planned |
 | v2-06 | Theatre (in-app YouTube) | 40-min session inside the app · mini player survives navigation · stamps seek · dead-link fallback | 📋 planned |
 | v2-07 | Browser runner (C++/Py/JS) | compile+run warm ≤2.5 s · test cases pass/fail with diff · runaway loop stops · no code leaves the device | 📋 planned |
 | v2-08 | Light insights | ≤2 reason chips per row · momentum (no punitive streak) · one-line trajectory · "how this plan was made" | 📋 planned |
