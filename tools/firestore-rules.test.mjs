@@ -7,7 +7,7 @@
  * supplies signed-in/stranger/anonymous client contexts against the emulator.
  */
 import { after, before, beforeEach, describe, it } from 'node:test'
-import { readFile } from 'node:fs/promises'
+import { readFile, readdir } from 'node:fs/promises'
 import assert from 'node:assert/strict'
 import {
   assertFails,
@@ -35,6 +35,14 @@ const arraysIds = catalogue.topics
 const beginnerIds = catalogue.topics
   .find((topic) => topic.id === 'beginner-problems')
   .subtopics.flatMap((subtopic) => subtopic.problems.map((problem) => problem.id))
+const practiceDir = new URL('../data/practice-sets/', import.meta.url)
+const practiceSets = await Promise.all(
+  (await readdir(practiceDir)).filter((name) => name.endsWith('.json')).map(async (name) =>
+    JSON.parse(await readFile(new URL(name, practiceDir), 'utf8')),
+  ),
+)
+const arraysDrill = practiceSets.find((set) => set.topicId === 'arrays')?.problems[0]
+const arraysDrillId = arraysDrill ? `lc-${arraysDrill.lc}` : null
 
 let env
 
@@ -531,3 +539,19 @@ describe('Firestore rules audit — phase 6.2 enumeration & tampering hardening'
   })
 })
 
+
+describe('Firestore rules — Phase 03 synthetic drill ids', () => {
+  it('lets a known lc-<n> drill ride the existing topic shard and rejects an unknown one', async () => {
+    assert.ok(arraysDrillId, 'an arrays practice drill must exist')
+    const alice = env.authenticatedContext('alice').firestore()
+    const shard = ref(alice, 'alice', 'arrays')
+    await assertSucceeds(
+      setDoc(shard, progressWrite(arraysDrillId, entry()), { merge: true }),
+    )
+    const snap = await assertSucceeds(getDoc(shard))
+    assert.equal(snap.data()[arraysDrillId].s, 'done')
+    await assertFails(
+      setDoc(shard, progressWrite('lc-999999', entry()), { merge: true }),
+    )
+  })
+})

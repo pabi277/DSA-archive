@@ -1,0 +1,11 @@
+{
+  "topicId": "greedy-algorithms",
+  "patterns": [
+    "greedy",
+    "two-pointers",
+    "sliding-window"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

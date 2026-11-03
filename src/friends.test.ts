@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { catalogue } from './catalogue'
 import type { CloudProgressEntry } from './cloudProgress'
-import { makeFriendSummary } from './friends'
+import { makeFriendSummary, parseFriendSummary } from './friends'
+import { DRILLS_BY_TOPIC } from './content/practice'
 
 const done: CloudProgressEntry = {
   s: 'done', b: true, a: 4,
@@ -32,6 +33,15 @@ describe('friend summary derivation', () => {
     expect(JSON.stringify(summary)).not.toContain('bookmark')
   })
 
+  it('counts a completed synthetic drill in its owning topic shard', () => {
+    const drill = DRILLS_BY_TOPIC.get('arrays')?.[0]
+    expect(drill).toBeTruthy()
+    const summary = makeFriendSummary('Ada', { arrays: { [drill!.id]: done } }, '2026-11-20')
+    expect(summary.solvedCount).toBe(1)
+    expect(summary.solvedByTopic.arrays).toBe(1)
+    expect(parseFriendSummary(summary)).toEqual(summary)
+  })
+
   it('provides zero counts for an empty account', () => {
     const summary = makeFriendSummary('Ada', {}, '2026-11-20')
     expect(summary.solvedCount).toBe(0)
@@ -42,7 +52,7 @@ describe('friend summary derivation', () => {
   })
 })
 
-import { groupWeeklyProgress, parseFriendSummary, rankFriends } from './friends'
+import { groupWeeklyProgress, rankFriends } from './friends'
 
 describe('untrusted friend summaries', () => {
   const summary = makeFriendSummary('Ada', {}, '2026-11-20')

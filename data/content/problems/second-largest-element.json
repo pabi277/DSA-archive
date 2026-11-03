@@ -1,0 +1,33 @@
+{
+  "problemId": "second-largest-element",
+  "statement": "Read a row of integers and return its second largest distinct value. Equal copies count once. If the row has fewer than two distinct values, return -1. The original row stays unchanged.",
+  "constraints": [
+    "2 ≤ n ≤ 1000",
+    "-10000 ≤ each value ≤ 10000",
+    "Duplicates are allowed."
+  ],
+  "example": {
+    "input": "6\n8 3 8 10 4 10\n",
+    "output": "8",
+    "why": "The distinct values are 3, 4, 8 and 10; 8 is second."
+  },
+  "hint": "Track the largest and the next distinct value you have seen, and ignore copies of either.",
+  "mistake": "Treating two copies of the maximum as two different ranks.",
+  "tests": [
+    {
+      "input": "6\n8 3 8 10 4 10\n",
+      "expected": "8",
+      "note": "duplicates near the top"
+    },
+    {
+      "input": "4\n5 5 5 5\n",
+      "expected": "-1",
+      "note": "one distinct value"
+    },
+    {
+      "input": "3\n-4 -9 -1\n",
+      "expected": "-4",
+      "note": "negative values"
+    }
+  ]
+}

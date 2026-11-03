@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "bit-prerequisites-for-trie-problems-mcq",
+  "problemId": "bit-prerequisites-for-trie-problems",
+  "topicId": "tries",
+  "kind": "theory",
+  "prompt": "Bit PreRequisites for TRIE Problems: Why are bits useful when building a binary trie?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "Each level can branch on one bit of a fixed-width number.",
+      "explain": "The path represents a prefix of bits, so common prefixes share nodes."
+    },
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 0,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "The path represents a prefix of bits, so common prefixes share nodes.",
+    "reference": {
+      "source": "cp-algorithms",
+      "url": "https://cp-algorithms.com/#bit-prerequisites-for-trie-problems",
+      "label": "Reference · Cp Algorithms",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

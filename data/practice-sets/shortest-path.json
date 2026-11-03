@@ -1,0 +1,50 @@
+{
+  "patternId": "shortest-path",
+  "topicId": "graphs",
+  "title": "Shortest Path",
+  "summary": "Four rungs that move Shortest Path from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 399,
+      "slug": "evaluate-division",
+      "title": "Evaluate Division",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 997,
+      "slug": "find-the-town-judge",
+      "title": "Find the Town Judge",
+      "level": "basic",
+      "set": 2,
+      "estMinutes": 20,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 1293,
+      "slug": "shortest-path-in-a-grid-with-obstacles-elimination",
+      "title": "Shortest Path in a Grid with Obstacles Elimination",
+      "level": "pro",
+      "set": 3,
+      "estMinutes": 50,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 1654,
+      "slug": "minimum-jumps-to-reach-home",
+      "title": "Minimum Jumps to Reach Home",
+      "level": "pro",
+      "set": 4,
+      "estMinutes": 55,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "insertion-in-dll-mcq",
+  "problemId": "insertion-in-dll",
+  "topicId": "linked-list",
+  "kind": "theory",
+  "prompt": "Insertion in DLL: Why is the order of pointer updates important in a doubly linked insertion?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "Overwriting a link too early can lose access to one of the neighbours.",
+      "explain": "A safe sequence keeps every node reachable until all four links are consistent."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 2,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "A safe sequence keeps every node reachable until all four links are consistent.",
+    "reference": {
+      "source": "geeksforgeeks",
+      "url": "https://www.geeksforgeeks.org/dsa/data-structures/#insertion-in-dll",
+      "label": "Reference · Geeksforgeeks",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

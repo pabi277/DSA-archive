@@ -1,0 +1,50 @@
+{
+  "patternId": "sliding-window",
+  "topicId": "sliding-window-2-pointer",
+  "title": "Sliding Window",
+  "summary": "Four rungs that move Sliding Window from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 209,
+      "slug": "minimum-size-subarray-sum",
+      "title": "Minimum Size Subarray Sum",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 438,
+      "slug": "find-all-anagrams-in-a-string",
+      "title": "Find All Anagrams in a String",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 567,
+      "slug": "permutation-in-string",
+      "title": "Permutation in String",
+      "level": "core",
+      "set": 3,
+      "estMinutes": 35,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 713,
+      "slug": "subarray-product-less-than-k",
+      "title": "Subarray Product Less Than K",
+      "level": "core",
+      "set": 4,
+      "estMinutes": 40,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

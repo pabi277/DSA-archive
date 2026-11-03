@@ -7,6 +7,7 @@
  * and legacy solved rows default to a clean outcome. Friends/summaries stay excluded.
  */
 import { catalogue } from './catalogue'
+import { DRILLS_BY_TOPIC } from './content/practice'
 import {
   countCloudRows,
   isValidCloudEntry,
@@ -130,7 +131,10 @@ export function createBackup(input: BackupInput): string {
 const knownIds = new Map(
   catalogue.topics.map((topic) => [
     topic.id,
-    new Set(topic.subtopics.flatMap((subtopic) => subtopic.problems.map((problem) => problem.id))),
+    new Set([
+      ...topic.subtopics.flatMap((subtopic) => subtopic.problems.map((problem) => problem.id)),
+      ...(DRILLS_BY_TOPIC.get(topic.id) ?? []).map((drill) => drill.id),
+    ]),
   ]),
 )
 

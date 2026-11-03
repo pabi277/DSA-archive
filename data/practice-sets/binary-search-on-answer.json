@@ -1,0 +1,50 @@
+{
+  "patternId": "binary-search-on-answer",
+  "topicId": "binary-search",
+  "title": "Binary Search On Answer",
+  "summary": "Four rungs that move Binary Search On Answer from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 1552,
+      "slug": "magnetic-force-between-two-balls",
+      "title": "Magnetic Force Between Two Balls",
+      "level": "pro",
+      "set": 1,
+      "estMinutes": 40,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 2226,
+      "slug": "maximum-candies-allocated-to-k-children",
+      "title": "Maximum Candies Allocated to K Children",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 2187,
+      "slug": "minimum-time-to-complete-trips",
+      "title": "Minimum Time to Complete Trips",
+      "level": "pro",
+      "set": 3,
+      "estMinutes": 50,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 1898,
+      "slug": "maximum-number-of-removable-characters",
+      "title": "Maximum Number of Removable Characters",
+      "level": "pro",
+      "set": 4,
+      "estMinutes": 55,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

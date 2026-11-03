@@ -1,0 +1,11 @@
+{
+  "topicId": "graphs",
+  "patterns": [
+    "union-find",
+    "graph-traversal",
+    "topological-sort"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

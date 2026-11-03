@@ -1,0 +1,33 @@
+{
+  "problemId": "maximum-consecutive-ones",
+  "statement": "A row contains only 0 and 1. Find the longest unbroken run of 1 values and return its length. A 0 ends the current run. The answer is a count of positions, not a position.",
+  "constraints": [
+    "1 ≤ n ≤ 1000",
+    "Each value is 0 or 1",
+    "The row may start or end with 0."
+  ],
+  "example": {
+    "input": "8\n1 1 0 1 1 1 0 1\n",
+    "output": "3",
+    "why": "The middle run has three 1 values; no longer run appears."
+  },
+  "hint": "Keep a current run length and a best length; reset the current length when a 0 appears.",
+  "mistake": "Forgetting to compare the final run with the best after the loop ends.",
+  "tests": [
+    {
+      "input": "8\n1 1 0 1 1 1 0 1\n",
+      "expected": "3",
+      "note": "middle run wins"
+    },
+    {
+      "input": "5\n0 0 0 0 0\n",
+      "expected": "0",
+      "note": "no 1 values"
+    },
+    {
+      "input": "4\n1 1 1 1\n",
+      "expected": "4",
+      "note": "run reaches the end"
+    }
+  ]
+}

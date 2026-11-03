@@ -1,0 +1,50 @@
+{
+  "patternId": "hashing",
+  "topicId": "hashing",
+  "title": "Hashing",
+  "summary": "Four rungs that move Hashing from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 49,
+      "slug": "group-anagrams",
+      "title": "Group Anagrams",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 350,
+      "slug": "intersection-of-two-arrays-ii",
+      "title": "Intersection of Two Arrays II",
+      "level": "basic",
+      "set": 2,
+      "estMinutes": 20,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 409,
+      "slug": "longest-palindrome",
+      "title": "Longest Palindrome",
+      "level": "basic",
+      "set": 3,
+      "estMinutes": 25,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 290,
+      "slug": "word-pattern",
+      "title": "Word Pattern",
+      "level": "basic",
+      "set": 4,
+      "estMinutes": 30,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

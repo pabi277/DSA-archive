@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "learn-java-mcq",
+  "problemId": "learn-java",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Learn Java: Which Java structure stores key-value pairs with average constant-time lookup?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "HashMap.",
+      "explain": "Hashing the key selects a bucket; collisions are handled inside the map."
+    },
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 0,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Hashing the key selects a bucket; collisions are handled inside the map.",
+    "reference": {
+      "source": "programiz",
+      "url": "https://www.programiz.com/dsa#learn-java",
+      "label": "Reference · Programiz",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

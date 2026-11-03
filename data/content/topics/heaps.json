@@ -1,0 +1,11 @@
+{
+  "topicId": "heaps",
+  "patterns": [
+    "heap-topk",
+    "two-pointers",
+    "sliding-window"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

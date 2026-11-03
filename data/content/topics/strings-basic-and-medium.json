@@ -1,0 +1,11 @@
+{
+  "topicId": "strings-basic-and-medium",
+  "patterns": [
+    "two-pointers",
+    "sliding-window",
+    "prefix-sum"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

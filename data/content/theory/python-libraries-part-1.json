@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "python-libraries-part-1-mcq",
+  "problemId": "python-libraries-part-1",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Python Libraries Part 1: Which Python module gives counting and defaultdict helpers?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    },
+    {
+      "text": "collections.",
+      "explain": "The module supplies container datatypes that simplify common bookkeeping tasks."
+    }
+  ],
+  "answerIndex": 3,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "The module supplies container datatypes that simplify common bookkeeping tasks.",
+    "reference": {
+      "source": "python-docs",
+      "url": "https://docs.python.org/3/#python-libraries-part-1",
+      "label": "Reference · Python Docs",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

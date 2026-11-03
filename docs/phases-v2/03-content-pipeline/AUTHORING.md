@@ -4,6 +4,10 @@
 **Rule:** everything here is **our own writing**. No copied prose, no copied examples, no
 paraphrase-close-to-source. Topic/problem *titles* and *outbound links* are the only
 things that come from the sheet's structure (`rule.md` clean-room law).
+**Phase 03 status (2026-11-03):** the pipeline, coverage report and one fully authored
+topic are implemented. Use [`docs/content/AUTHORING.md`](../../content/AUTHORING.md) for
+the live per-topic checklist and [`docs/content/coverage.md`](../../content/coverage.md)
+for current counts. Owner sample-batch accuracy review remains pending.
 
 ---
 

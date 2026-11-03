@@ -1,0 +1,11 @@
+{
+  "topicId": "binary-search",
+  "patterns": [
+    "binary-search",
+    "binary-search-on-answer",
+    "two-pointers"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

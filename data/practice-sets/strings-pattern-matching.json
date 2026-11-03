@@ -1,0 +1,50 @@
+{
+  "patternId": "strings-pattern-matching",
+  "topicId": "strings-advanced-algo",
+  "title": "Strings Pattern Matching",
+  "summary": "Four rungs that move Strings Pattern Matching from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 28,
+      "slug": "find-the-index-of-the-first-occurrence-in-a-string",
+      "title": "Find the Index of the First Occurrence in a String",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 459,
+      "slug": "repeated-substring-pattern",
+      "title": "Repeated Substring Pattern",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 67,
+      "slug": "add-binary",
+      "title": "Add Binary",
+      "level": "basic",
+      "set": 3,
+      "estMinutes": 25,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 43,
+      "slug": "multiply-strings",
+      "title": "Multiply Strings",
+      "level": "core",
+      "set": 4,
+      "estMinutes": 40,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

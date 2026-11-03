@@ -20,7 +20,13 @@ export default defineConfig({
       output: {
         codeSplitting: {
           groups: [
-            { name: 'catalogue', test: /data[\\/]problems\.json/ },
+            { name: 'catalogue-a', test: /data[\\/]catalogue[\\/]catalogue-a\.json/ },
+            { name: 'catalogue-b', test: /data[\\/]catalogue[\\/]catalogue-b\.json/ },
+            { name: 'catalogue-c', test: /data[\\/]catalogue[\\/]catalogue-c\.json/ },
+            { name: 'catalogue-d', test: /data[\\/]catalogue[\\/]catalogue-d\.json/ },
+            { name: 'content-data', test: /data[\\/]content[\\/](?:topics|problems)[\\/]|data[\\/]content[\\/]coverage\.json/ },
+            { name: 'practice-data', test: /data[\\/]practice-sets[\\/]/ },
+            { name: 'content-ui', test: /src[\\/](?:content[\\/]|app[\\/](?:problemScreen|practiceScreen)\.tsx|topics[\\/]topicPage\.tsx)/ },
             { name: 'firebase-transport', test: /node_modules[\\/]@firebase[\\/]webchannel-wrapper/ },
             { name: 'firebase-firestore', test: /node_modules[\\/]@firebase[\\/]firestore/ },
             { name: 'firebase-auth', test: /node_modules[\\/]@firebase[\\/]auth/ },

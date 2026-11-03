@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "recursion-concepts-with-parameters-mcq",
+  "problemId": "recursion-concepts-with-parameters",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Recursion Concepts with Parameters: Why pass changing state as recursion parameters?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "Each call then owns the values needed for its own decision.",
+      "explain": "Explicit parameters make the call tree and its stopping condition visible."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 2,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Explicit parameters make the call tree and its stopping condition visible.",
+    "reference": {
+      "source": "programiz",
+      "url": "https://www.programiz.com/dsa#recursion-concepts-with-parameters",
+      "label": "Reference · Programiz",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

@@ -23,7 +23,7 @@ performance targets, tests, risks, acceptance criteria, and exit gate.
 parallel from phase 02 onwards.
 
 
-**Execution status (2026-11-03):** Phase 01 is merged to `main` via PR #12; Phase 02 is implemented on PR #13 with CI run `41647413508` green. Its generated visual-baseline artifact awaits owner review before merge. Phase 03 is next after that merge. Rule and backup schema versions advance from the latest merged baseline; the listed sequence assumes phases 02 → 04 → 05 → 06 → 08.
+**Execution status (2026-11-03):** Phase 01 is merged to `main` via PR #12; Phase 02 is merged to `main` via PR #13 (`bd9350b`, CI run `41647413508` green). Phase 03 is implemented on `arena/cae52fb6-dsa-archive` with local validation green and CI/owner-review metadata recorded in [`03-content-pipeline/RECORD.md`](03-content-pipeline/RECORD.md); PR [#14](https://github.com/pabi277/DSA-archive/pull/14) is open on the owner's explicit command, with merging still gated. Its generated visual baselines and sample-batch content accuracy await owner review. Rule and backup schema versions still advance from the latest merged baseline (rules v5 / backup v4); the listed sequence assumes phases 02 → 04 → 05 → 06 → 08.
 
 ## Owner additions 2026-11-03 (batch 2)
 

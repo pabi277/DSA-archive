@@ -1,0 +1,11 @@
+{
+  "topicId": "dynamic-programming",
+  "patterns": [
+    "dp-1d",
+    "dp-knapsack",
+    "dp-lis"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

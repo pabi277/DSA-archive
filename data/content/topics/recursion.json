@@ -1,0 +1,11 @@
+{
+  "topicId": "recursion",
+  "patterns": [
+    "backtracking",
+    "recursion-subsets",
+    "two-pointers"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

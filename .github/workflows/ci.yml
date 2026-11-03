@@ -7,13 +7,15 @@ on:
 
 permissions:
   contents: read
-  # Only used to publish the browser-failure digest as a PR comment (the agent
-  # sandbox cannot fetch Actions logs or artifacts, and annotations are capped).
+  # Used for the coverage PR comment/body and the browser-failure digest (the
+  # agent sandbox cannot fetch Actions logs or artifacts, and annotations are capped).
   pull-requests: write
 
 jobs:
   verify:
     runs-on: ubuntu-latest
+    env:
+      CONTENT_AS_OF: '2026-11-03'
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
@@ -30,6 +32,64 @@ jobs:
       - run: npm ci
       - name: Validate extracted catalogue
         run: npm run test:data
+      - name: Validate Phase 03 content coverage report
+        run: npm run check:content
+      - name: Publish content coverage to the run summary
+        if: always()
+        run: cat docs/content/coverage.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Publish content coverage on the pull request
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          REPO="${{ github.repository }}"
+          NUM="${{ github.event.pull_request.number }}"
+          COMMENT_ID=$(gh api "repos/$REPO/issues/$NUM/comments?per_page=100" \
+            --jq '.[] | select(.body | startswith("<!-- content-coverage -->")) | .id' 2>/dev/null | tail -1)
+          if [ -n "$COMMENT_ID" ]; then
+            gh api -X PATCH "repos/$REPO/issues/comments/$COMMENT_ID" -F body=@docs/content/coverage.md > /dev/null 2>&1
+          else
+            gh pr comment "$NUM" --body-file docs/content/coverage.md > /dev/null 2>&1
+          fi
+          exit 0
+      - name: Put content coverage summary in the PR body
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          REPO="${{ github.repository }}"
+          NUM="${{ github.event.pull_request.number }}"
+          gh pr view "$NUM" --repo "$REPO" --json body --jq '.body // ""' > /tmp/pr-body.md 2>/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          body = Path('/tmp/pr-body.md').read_text(encoding='utf-8', errors='replace')
+          coverage = Path('docs/content/coverage.md').read_text(encoding='utf-8').strip()
+          start = '<!-- content-coverage -->'
+          end = '<!-- /content-coverage -->'
+          block = f'{start}\n\n{coverage}\n\n{end}'
+          if start in body and end in body:
+              before, remainder = body.split(start, 1)
+              _, after = remainder.split(end, 1)
+              body = f'{before}{block}{after}'
+          else:
+              body = f'{body.rstrip()}\n\n{block}\n'
+          Path('/tmp/pr-body-updated.md').write_text(body, encoding='utf-8')
+          PY
+          gh pr edit "$NUM" --repo "$REPO" --body-file /tmp/pr-body-updated.md > /dev/null 2>&1
+          echo "coverage summary published to PR body"
+          # Publishing is non-blocking; the checked-in report is authoritative.
+          exit 0
+      - name: Upload content coverage report
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: content-coverage
+          path: |
+            data/content/coverage.json
+            docs/content/coverage.md
+          if-no-files-found: error
+          retention-days: 14
       - name: Confirm generated Firestore rules match the catalogue
         run: npm run check:rules
       - name: Unit tests

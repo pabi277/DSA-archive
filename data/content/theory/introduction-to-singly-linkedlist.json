@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "introduction-to-singly-linkedlist-mcq",
+  "problemId": "introduction-to-singly-linkedlist",
+  "topicId": "linked-list",
+  "kind": "theory",
+  "prompt": "Introduction to Singly LinkedList: What does each node in a singly linked list carry?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "A value and one link to the next node.",
+      "explain": "Traversal follows the single forward link until it reaches null."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 1,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Traversal follows the single forward link until it reaches null.",
+    "reference": {
+      "source": "geeksforgeeks",
+      "url": "https://www.geeksforgeeks.org/dsa/data-structures/#introduction-to-singly-linkedlist",
+      "label": "Reference · Geeksforgeeks",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

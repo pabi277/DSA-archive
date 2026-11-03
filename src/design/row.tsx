@@ -14,7 +14,8 @@
  * focus without putting 500 rows in the tab order.
  */
 import type { ReactNode } from 'react'
-import type { Problem } from '../catalogue'
+import type { Problem, Resource } from '../catalogue'
+import { rankedResources, publisherName, resourceActionLabel } from '../content/resources'
 import { LEVEL_LABELS, levelOf, type LinkFilter } from '../sheet'
 import { isBookmarked, isDone, type Outcome, type ProgressByTopic } from '../progress'
 import { IconCheck, IconClock, IconExternal, IconMore, IconStar, IconStarFilled } from './icons'
@@ -40,10 +41,52 @@ export function ageLabel(lastTouched: string | null | undefined, today: string):
   return `${Math.round(days / 30)}mo`
 }
 
-export function linkEntries(problem: Problem) {
+export type RowLinkEntry = {
+  linkType: LinkFilter
+  href: string
+  publisher: string
+  label: string
+  rank: number
+}
+
+/** Top-ranked resource per legacy link category, with a publisher name attached. */
+export function linkEntries(problem: Problem): RowLinkEntry[] {
+  const byType = new Map<LinkFilter, RowLinkEntry>()
+  const add = (linkType: LinkFilter, resource: Resource) => {
+    if (byType.has(linkType)) return
+    byType.set(linkType, {
+      linkType,
+      href: resource.url,
+      publisher: publisherName(resource.source),
+      label: resource.label,
+      rank: resource.rank,
+    })
+  }
+  for (const resource of rankedResources(problem)) {
+    const linkType: LinkFilter = resource.source === 'leetcode'
+      ? 'leetcode'
+      : resource.type === 'article' || resource.type === 'reference' || resource.type === 'docs'
+        ? 'article'
+        : resource.type === 'video'
+          ? 'video'
+          : 'practice'
+    add(linkType, resource)
+  }
+  // Video links stay single-source by owner decision and are never rewritten.
+  const video = problem.links.video
+  if (video && video.startsWith('https://') && !byType.has('video')) {
+    add('video', {
+      type: 'video',
+      source: 'youtube',
+      url: video,
+      label: 'Single-source video · YouTube',
+      rank: 100,
+      verified: '2026-11-03',
+    })
+  }
   return (['practice', 'article', 'video', 'leetcode'] as LinkFilter[])
-    .map((linkType) => ({ linkType, href: problem.links[linkType] }))
-    .filter((entry): entry is { linkType: LinkFilter; href: string } => Boolean(entry.href))
+    .map((linkType) => byType.get(linkType))
+    .filter((entry): entry is RowLinkEntry => Boolean(entry))
 }
 
 export function LeetCodeBadge({ problem }: { problem: Problem }) {
@@ -81,7 +124,12 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
   const outcome = progress[topicId]?.[problem.id]?.o ?? 'clean'
   const level = levelOf(problem)
   const links = linkEntries(problem)
-  const primaryLink = links.find((entry) => entry.linkType === 'practice') ?? links[0]
+  const topResource = rankedResources(problem)[0]
+  const primaryLink = topResource
+    ? { href: topResource.url, label: resourceActionLabel(topResource) }
+    : links[0]
+      ? { href: links[0].href, label: `${LINK_LABELS_FOR_ROW[links[0].linkType]} · ${links[0].publisher}` }
+      : null
 
   return (
     <div
@@ -199,7 +247,7 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
             href={primaryLink.href}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={`Open ${LINK_LABELS_FOR_ROW[primaryLink.linkType]} for ${problem.title} in a new tab`}
+            aria-label={`Open ${primaryLink.label} for ${problem.title} in a new tab`}
             data-testid={`link-${problem.id}`}
             onClick={(event) => event.stopPropagation()}
           >
@@ -210,7 +258,7 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
         <Menu label={`More actions for ${problem.title}`} trigger={<IconMore size={16} />}>
           {links.map((entry) => (
             <MenuItem key={entry.linkType} href={entry.href} testId={`menu-link-${entry.linkType}-${problem.id}`}>
-              {LINK_LABELS_FOR_ROW[entry.linkType]} · {problem.title}
+              {LINK_LABELS_FOR_ROW[entry.linkType]} · {entry.publisher} · {problem.title}
             </MenuItem>
           ))}
           {canEditNotes ? (
@@ -223,6 +271,9 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
               </MenuItem>
             </>
           ) : null}
+          <MenuItem onClick={() => onOpen(problem.id, 'problem')} testId={`menu-sources-${problem.id}`}>
+            ⋯ More sources · publisher names
+          </MenuItem>
           <MenuItem onClick={() => onOpen(problem.id, 'sheet')} testId={`menu-sheet-${problem.id}`}>
             Show in sheet
           </MenuItem>

@@ -1,0 +1,33 @@
+{
+  "problemId": "largest-element",
+  "statement": "A row contains at least two integers. Return the largest value stored in the row. Do not change the order of the values. The answer is a value from the row, not an index.",
+  "constraints": [
+    "2 ≤ n ≤ 1000",
+    "-10000 ≤ each value ≤ 10000",
+    "All values may be negative."
+  ],
+  "example": {
+    "input": "5\n-8 -3 -11 -2 -7\n",
+    "output": "-2",
+    "why": "-2 is greater than every other value in the row."
+  },
+  "hint": "Keep one candidate from the row and compare each later value against that candidate.",
+  "mistake": "Starting the candidate at 0 hides the answer when every stored value is negative.",
+  "tests": [
+    {
+      "input": "5\n-8 -3 -11 -2 -7\n",
+      "expected": "-2",
+      "note": "all negative"
+    },
+    {
+      "input": "4\n3 12 6 12\n",
+      "expected": "12",
+      "note": "repeated maximum"
+    },
+    {
+      "input": "2\n0 -1\n",
+      "expected": "0",
+      "note": "short row"
+    }
+  ]
+}

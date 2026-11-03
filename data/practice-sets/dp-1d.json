@@ -1,0 +1,50 @@
+{
+  "patternId": "dp-1d",
+  "topicId": "dynamic-programming",
+  "title": "1D DP",
+  "summary": "Four rungs that move 1D DP from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 746,
+      "slug": "min-cost-climbing-stairs",
+      "title": "Min Cost Climbing Stairs",
+      "level": "basic",
+      "set": 1,
+      "estMinutes": 15,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 213,
+      "slug": "house-robber-ii",
+      "title": "House Robber II",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 91,
+      "slug": "decode-ways",
+      "title": "Decode Ways",
+      "level": "core",
+      "set": 3,
+      "estMinutes": 35,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 639,
+      "slug": "decode-ways-ii",
+      "title": "Decode Ways II",
+      "level": "pro",
+      "set": 4,
+      "estMinutes": 55,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "theory-mcq",
+  "problemId": "theory",
+  "topicId": "sliding-window-2-pointer",
+  "kind": "theory",
+  "prompt": "Theory: When does a sliding window usually replace repeated recomputation?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "When the next answer can be updated from the previous window's boundary changes.",
+      "explain": "The saved aggregate avoids scanning the whole window again."
+    },
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 0,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "The saved aggregate avoids scanning the whole window again.",
+    "reference": {
+      "source": "usaco",
+      "url": "https://usaco.guide/#theory",
+      "label": "Reference · Usaco",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

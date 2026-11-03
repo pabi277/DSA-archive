@@ -17,11 +17,14 @@
     "test:rules": "node --test tools/firestore-rules.test.mjs",
     "test:emulator": "PLAYWRIGHT_EMULATOR=1 firebase emulators:exec --only auth,firestore --project demo-dsa-archive \"npm run test:rules && npm run test:e2e\"",
     "test:data": "python3 tools/validate_data.py",
+    "check:content": "node tools/content-coverage.mjs --check",
+    "content:coverage": "node tools/content-coverage.mjs --write",
+    "content:seed": "python3 tools/seed_content_phase3.py",
     "check:rules": "node tools/generate-firestore-rules.mjs --check",
     "rules:generate": "node tools/generate-firestore-rules.mjs",
     "pwa:icons": "node tools/generate-pwa-icons.mjs",
     "check:dist": "node tools/check-dist.mjs",
-    "check:links": "node tools/check-links.mjs",
+    "check:links": "node tools/check-links.mjs && node tools/check-resource-links.mjs",
     "check:budgets": "node tools/check-budgets.mjs"
   },
   "dependencies": {

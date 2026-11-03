@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "how-to-think-like-a-programmer-mcq",
+  "problemId": "how-to-think-like-a-programmer",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "How to Think Like a Programmer: Which habit best describes turning a word problem into code?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "Name the inputs, output and intermediate state before choosing syntax.",
+      "explain": "A precise model of state makes the algorithm easier to test and explain."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 2,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "A precise model of state makes the algorithm easier to test and explain.",
+    "reference": {
+      "source": "usaco",
+      "url": "https://usaco.guide/#how-to-think-like-a-programmer",
+      "label": "Reference · Usaco",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "mst-theory-mcq",
+  "problemId": "mst-theory",
+  "topicId": "graphs",
+  "kind": "theory",
+  "prompt": "MST theory: What does a minimum spanning tree connect?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "All vertices of a weighted connected graph with minimum total edge weight.",
+      "explain": "It uses exactly enough edges to stay connected without a cycle."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 2,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "It uses exactly enough edges to stay connected without a cycle.",
+    "reference": {
+      "source": "cp-algorithms",
+      "url": "https://cp-algorithms.com/#mst-theory",
+      "label": "Reference · Cp Algorithms",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

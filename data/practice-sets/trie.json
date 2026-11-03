@@ -1,0 +1,50 @@
+{
+  "patternId": "trie",
+  "topicId": "tries",
+  "title": "Trie",
+  "summary": "Four rungs that move Trie from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 211,
+      "slug": "design-add-and-search-words-data-structure",
+      "title": "Design Add and Search Words Data Structure",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 648,
+      "slug": "replace-words",
+      "title": "Replace Words",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 720,
+      "slug": "longest-word-in-dictionary",
+      "title": "Longest Word in Dictionary",
+      "level": "core",
+      "set": 3,
+      "estMinutes": 35,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 212,
+      "slug": "word-search-ii",
+      "title": "Word Search II",
+      "level": "pro",
+      "set": 4,
+      "estMinutes": 55,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

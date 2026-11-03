@@ -1,0 +1,50 @@
+{
+  "patternId": "fast-slow-pointers",
+  "topicId": "linked-list",
+  "title": "Fast Slow Pointers",
+  "summary": "Four rungs that move Fast Slow Pointers from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 457,
+      "slug": "circular-array-loop",
+      "title": "Circular Array Loop",
+      "level": "pro",
+      "set": 1,
+      "estMinutes": 40,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 202,
+      "slug": "happy-number",
+      "title": "Happy Number",
+      "level": "basic",
+      "set": 2,
+      "estMinutes": 20,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 287,
+      "slug": "find-the-duplicate-number",
+      "title": "Find the Duplicate Number",
+      "level": "core",
+      "set": 3,
+      "estMinutes": 35,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 2130,
+      "slug": "maximum-twin-sum-of-a-linked-list",
+      "title": "Maximum Twin Sum of a Linked List",
+      "level": "core",
+      "set": 4,
+      "estMinutes": 40,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

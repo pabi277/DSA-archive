@@ -1,0 +1,50 @@
+{
+  "patternId": "intervals",
+  "topicId": "arrays",
+  "title": "Intervals",
+  "summary": "Four rungs that move Intervals from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 452,
+      "slug": "minimum-number-of-arrows-to-burst-balloons",
+      "title": "Minimum Number of Arrows to Burst Balloons",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 252,
+      "slug": "meeting-rooms",
+      "title": "Meeting Rooms",
+      "level": "basic",
+      "set": 2,
+      "estMinutes": 20,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 253,
+      "slug": "meeting-rooms-ii",
+      "title": "Meeting Rooms II",
+      "level": "pro",
+      "set": 3,
+      "estMinutes": 50,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 228,
+      "slug": "summary-ranges",
+      "title": "Summary Ranges",
+      "level": "basic",
+      "set": 4,
+      "estMinutes": 30,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

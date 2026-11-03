@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "recursion-theory-mcq",
+  "problemId": "recursion-theory",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Recursion Theory: What must every terminating recursive function have?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "A base case that returns without another self-call.",
+      "explain": "The base case stops the call chain; the recursive step must move toward it."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 1,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "The base case stops the call chain; the recursive step must move toward it.",
+    "reference": {
+      "source": "programiz",
+      "url": "https://www.programiz.com/dsa#recursion-theory",
+      "label": "Reference · Programiz",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

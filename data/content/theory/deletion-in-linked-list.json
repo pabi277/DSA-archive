@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "deletion-in-linked-list-mcq",
+  "problemId": "deletion-in-linked-list",
+  "topicId": "linked-list",
+  "kind": "theory",
+  "prompt": "Deletion in Linked List: Why save the predecessor before deleting a linked-list node?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "The predecessor's next pointer must be rewired around the removed node.",
+      "explain": "Without that link, the earlier part of the chain cannot reconnect to the tail."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 2,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Without that link, the earlier part of the chain cannot reconnect to the tail.",
+    "reference": {
+      "source": "geeksforgeeks",
+      "url": "https://www.geeksforgeeks.org/dsa/data-structures/#deletion-in-linked-list",
+      "label": "Reference · Geeksforgeeks",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

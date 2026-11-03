@@ -1,0 +1,50 @@
+{
+  "patternId": "bst-invariant",
+  "topicId": "binary-search-trees",
+  "title": "BST Invariant",
+  "summary": "Four rungs that move BST Invariant from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 938,
+      "slug": "range-sum-of-bst",
+      "title": "Range Sum of BST",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 530,
+      "slug": "minimum-absolute-difference-in-bst",
+      "title": "Minimum Absolute Difference in BST",
+      "level": "basic",
+      "set": 2,
+      "estMinutes": 20,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 501,
+      "slug": "find-mode-in-binary-search-tree",
+      "title": "Find Mode in Binary Search Tree",
+      "level": "core",
+      "set": 3,
+      "estMinutes": 35,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 108,
+      "slug": "convert-sorted-array-to-binary-search-tree",
+      "title": "Convert Sorted Array to Binary Search Tree",
+      "level": "basic",
+      "set": 4,
+      "estMinutes": 30,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

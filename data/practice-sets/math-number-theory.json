@@ -1,0 +1,50 @@
+{
+  "patternId": "math-number-theory",
+  "topicId": "maths",
+  "title": "Math Number Theory",
+  "summary": "Four rungs that move Math Number Theory from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 172,
+      "slug": "factorial-trailing-zeroes",
+      "title": "Factorial Trailing Zeroes",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 258,
+      "slug": "add-digits",
+      "title": "Add Digits",
+      "level": "basic",
+      "set": 2,
+      "estMinutes": 20,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 441,
+      "slug": "arrange-coins",
+      "title": "Arrange Coins",
+      "level": "basic",
+      "set": 3,
+      "estMinutes": 25,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 367,
+      "slug": "valid-perfect-square",
+      "title": "Valid Perfect Square",
+      "level": "basic",
+      "set": 4,
+      "estMinutes": 30,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "topicId": "linked-list",
+  "patterns": [
+    "linked-list-reversal",
+    "fast-slow-pointers",
+    "two-pointers"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "introduction-to-graph-mcq",
+  "problemId": "introduction-to-graph",
+  "topicId": "graphs",
+  "kind": "theory",
+  "prompt": "Introduction to Graph: What do vertices and edges represent in a graph?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "Objects and the relationships between pairs of objects.",
+      "explain": "A traversal follows edges to move from one vertex to another."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 1,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "A traversal follows edges to move from one vertex to another.",
+    "reference": {
+      "source": "usaco",
+      "url": "https://usaco.guide/#introduction-to-graph",
+      "label": "Reference · Usaco",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

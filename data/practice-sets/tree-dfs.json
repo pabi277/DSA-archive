@@ -1,0 +1,50 @@
+{
+  "patternId": "tree-dfs",
+  "topicId": "binary-trees",
+  "title": "Tree Dfs",
+  "summary": "Four rungs that move Tree Dfs from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 226,
+      "slug": "invert-binary-tree",
+      "title": "Invert Binary Tree",
+      "level": "basic",
+      "set": 1,
+      "estMinutes": 15,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 112,
+      "slug": "path-sum",
+      "title": "Path Sum",
+      "level": "basic",
+      "set": 2,
+      "estMinutes": 20,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 113,
+      "slug": "path-sum-ii",
+      "title": "Path Sum II",
+      "level": "core",
+      "set": 3,
+      "estMinutes": 35,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 437,
+      "slug": "path-sum-iii",
+      "title": "Path Sum III",
+      "level": "pro",
+      "set": 4,
+      "estMinutes": 55,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "patternId": "recursion-subsets",
+  "topicId": "recursion",
+  "title": "Recursion Subsets",
+  "summary": "Four rungs that move Recursion Subsets from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 52,
+      "slug": "n-queens-ii",
+      "title": "N-Queens II",
+      "level": "pro",
+      "set": 1,
+      "estMinutes": 40,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 77,
+      "slug": "combinations",
+      "title": "Combinations",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 784,
+      "slug": "letter-case-permutation",
+      "title": "Letter Case Permutation",
+      "level": "basic",
+      "set": 3,
+      "estMinutes": 25,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 996,
+      "slug": "number-of-squareful-arrays",
+      "title": "Number of Squareful Arrays",
+      "level": "pro",
+      "set": 4,
+      "estMinutes": 55,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

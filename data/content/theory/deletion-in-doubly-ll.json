@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "deletion-in-doubly-ll-mcq",
+  "problemId": "deletion-in-doubly-ll",
+  "topicId": "linked-list",
+  "kind": "theory",
+  "prompt": "Deletion in Doubly LL: Which pointers change when an interior doubly linked node is removed?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "The next link of its predecessor and the previous link of its successor.",
+      "explain": "Both neighbours must agree on the new adjacency."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 1,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Both neighbours must agree on the new adjacency.",
+    "reference": {
+      "source": "geeksforgeeks",
+      "url": "https://www.geeksforgeeks.org/dsa/data-structures/#deletion-in-doubly-ll",
+      "label": "Reference · Geeksforgeeks",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "stl-mcq",
+  "problemId": "stl",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "STL: Which idea best describes the C++ Standard Template Library?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "Reusable containers and algorithms with consistent iterator interfaces.",
+      "explain": "Separating data layout from algorithms lets the same operation work on several containers."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 1,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Separating data layout from algorithms lets the same operation work on several containers.",
+    "reference": {
+      "source": "cppreference",
+      "url": "https://en.cppreference.com/w/#stl",
+      "label": "Reference · Cppreference",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

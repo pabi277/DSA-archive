@@ -2,11 +2,14 @@ import { useMemo, useState, type KeyboardEvent } from 'react'
 import { catalogue, type Problem, type Topic } from '../catalogue'
 import type { CloudProgressByTopic } from '../cloudProgress'
 import { ProblemRow, ageLabel } from '../design/row'
-import { Button, Card, Empty, Ring, Tag } from '../design/primitives'
+import { Button, Card, Empty, Ring, SegmentedControl, Tag } from '../design/primitives'
 import { revisionQueue } from '../planner'
 import { IconArrowLeft, IconArrowRight, IconSpark } from '../design/icons'
+import { contentCoverage, getQuiz, getTheoryMcqCount, getTopicPatterns } from '../content/load'
+import { PrimerView } from '../content/primer'
+import { drillsForTopic, type Drill } from '../content/practice'
 import { levelOf } from '../sheet'
-import type { Outcome, ProgressByTopic } from '../progress'
+import { isDone, type Outcome, type ProgressByTopic } from '../progress'
 import { buildPath, navigate } from '../app/router'
 import { learningOrderedSubtopics } from './learnOrder'
 
@@ -100,8 +103,7 @@ export function TopicPage(props: TopicPageProps) {
             {counts.outcomes.clean} clean · {counts.outcomes.hint} hints · {counts.outcomes.couldnt} couldn’t · {dueCount} due
           </p>
           <div className="topic-patterns topic-page-patterns" aria-label="Patterns">
-            {topic.subtopics.slice(0, 3).map((subtopic) => <Tag key={subtopic.id} tone="neutral">{subtopic.title}</Tag>)}
-            {topic.subtopics.length > 3 ? <span className="quiet-note">+{topic.subtopics.length - 3}</span> : null}
+            {getTopicPatterns(topic.id).map((pattern) => <Tag key={pattern} tone="neutral">{pattern}</Tag>)}
           </div>
         </div>
         <Ring value={counts.learned} total={counts.total} size={56} thickness={5} label={`${topic.title}: ${counts.learned} confidently learned of ${counts.total}`} />
@@ -143,6 +145,7 @@ export function TopicPage(props: TopicPageProps) {
 function LearnPanel({ topic, onPractice }: { topic: Topic; onPractice: () => void }) {
   return (
     <div className="topic-learn-panel">
+      <PrimerView topicId={topic.id} topicTitle={topic.title} />
       <Card title="Your learning path">
         <ol className="topic-order">
           {learningOrderedSubtopics(topic).map((subtopic, index) => (
@@ -153,11 +156,7 @@ function LearnPanel({ topic, onPractice }: { topic: Topic; onPractice: () => voi
           ))}
         </ol>
       </Card>
-      <Empty title="The primer is being prepared" mark={<IconSpark size={20} />} testId="topic-primer-pending" action={
-        <Button variant="primary" onClick={onPractice}>Start with Practice</Button>
-      }>
-        This topic’s beginner-friendly primer will explain what the idea is, when to use it, a mental model, common mistakes, and a worked example. Until then, you can explore the problems in learning order.
-      </Empty>
+      <Button variant="primary" onClick={onPractice} data-testid="topic-practice-cta">Start with Practice</Button>
     </div>
   )
 }
@@ -170,77 +169,163 @@ function passesFilter(problem: Problem, topicId: string, progress: ProgressByTop
   return row?.s === 'done' && (row.o ?? 'clean') !== 'clean'
 }
 
+type PracticeView = 'core' | 'drills'
+
 function PracticePanel(props: TopicPageProps & { topic: Topic }) {
   const [filter, setFilter] = useState<PracticeFilter>('all')
+  const [view, setView] = useState<PracticeView>('core')
   const subtopics = useMemo(() => learningOrderedSubtopics(props.topic), [props.topic])
+  const total = props.topic.subtopics.reduce((sum, subtopic) => sum + subtopic.problems.length, 0)
   const visibleCount = subtopics.reduce((sum, subtopic) => sum + subtopic.problems.filter((problem) => passesFilter(problem, props.topic.id, props.progress, filter)).length, 0)
+  const drills = drillsForTopic(props.topic.id)
 
   return (
     <div className="topic-practice-panel">
       <div className="practice-toolbar">
         <p className="quiet-note">Problems are ordered from fundamentals toward harder ideas.</p>
-        <div className="segmented" role="group" aria-label="Filter practice problems">
-          {(['all', 'not-started', 'shaky', 'done'] as const).map((item) => (
-            <button key={item} type="button" className={filter === item ? 'segmented-item is-on' : 'segmented-item'} aria-pressed={filter === item} onClick={() => setFilter(item)}>
-              {item === 'not-started' ? 'Not started' : item === 'shaky' ? 'Shaky' : item === 'all' ? 'All' : 'Done'}
-            </button>
-          ))}
-        </div>
+        <SegmentedControl
+          label="Practice source"
+          value={view}
+          options={[
+            { value: 'core', label: 'Core sheet', testId: 'practice-view-core' },
+            { value: 'drills', label: `Drills (${drills.length})`, testId: 'practice-view-drills' },
+          ]}
+          onChange={setView}
+        />
+        {view === 'core' ? (
+          <div className="segmented" role="group" aria-label="Filter practice problems">
+            {(['all', 'not-started', 'shaky', 'done'] as const).map((item) => (
+              <button key={item} type="button" className={filter === item ? 'segmented-item is-on' : 'segmented-item'} aria-pressed={filter === item} onClick={() => setFilter(item)}>
+                {item === 'not-started' ? 'Not started' : item === 'shaky' ? 'Shaky' : item === 'all' ? 'All' : 'Done'}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
-      <p className="quiet-note num" data-testid="practice-match-count">{visibleCount} of {props.topic.subtopics.reduce((sum, subtopic) => sum + subtopic.problems.length, 0)} problems</p>
-      {visibleCount === 0 ? <Empty title="No problems in this filter">Try another practice filter.</Empty> : null}
-      <div className="topic-practice-list">
-        {subtopics.map((subtopic) => {
-          const problems = subtopic.problems.filter((problem) => passesFilter(problem, props.topic.id, props.progress, filter))
-          if (problems.length === 0) return null
+
+      {view === 'core' ? (
+        <>
+          <p className="quiet-note num" data-testid="practice-match-count">{visibleCount} of {total} problems</p>
+          {visibleCount === 0 ? <Empty title="No problems in this filter">Try another practice filter.</Empty> : null}
+          <div className="topic-practice-list">
+            {subtopics.map((subtopic) => {
+              const problems = subtopic.problems.filter((problem) => passesFilter(problem, props.topic.id, props.progress, filter))
+              if (problems.length === 0) return null
+              return (
+                <section key={subtopic.id} aria-label={subtopic.title}>
+                  <h3 className="subtopic-title">{subtopic.title}</h3>
+                  <div role="list" aria-label={`${subtopic.title} practice problems`}>
+                    {problems.map((problem, index) => {
+                      const entry = props.entries[props.topic.id]?.[problem.id]
+                      return (
+                        <ProblemRow
+                          key={problem.id}
+                          topicId={props.topic.id}
+                          topicTitle={props.topic.title}
+                          problem={problem}
+                          progress={props.progress}
+                          disabled={props.disabled}
+                          revealed={false}
+                          focused={false}
+                          age={ageLabel(entry?.lr ?? entry?.fd, props.today)}
+                          canEditNotes={false}
+                          hasNote={false}
+                          listCount={0}
+                          onToggleStatus={props.onToggleStatus}
+                          onToggleBookmark={props.onToggleBookmark}
+                          onSetOutcome={props.onSetOutcome}
+                          onOpen={(problemId) => props.onOpenProblem(problemId)}
+                          onOpenPanel={() => {}}
+                          onPlan={props.onPlan}
+                          onFocus={() => {}}
+                          listPosition={index + 1}
+                          listSize={problems.length}
+                          panel={null}
+                        />
+                      )
+                    })}
+                  </div>
+                </section>
+              )
+            })}
+          </div>
+        </>
+      ) : (
+        <DrillsPanel
+          drills={drills}
+          progress={props.progress}
+          topicId={props.topic.id}
+          disabled={props.disabled}
+          onToggle={(drill) => props.onToggleStatus(props.topic.id, drill.id)}
+          onPlan={(drill) => props.onPlan(drill.id)}
+          onOpen={(drill) => props.onOpenProblem(drill.id)}
+        />
+      )}
+    </div>
+  )
+}
+
+function DrillsPanel({
+  drills,
+  progress,
+  topicId,
+  disabled,
+  onToggle,
+  onPlan,
+  onOpen,
+}: {
+  drills: Drill[]
+  progress: ProgressByTopic
+  topicId: string
+  disabled: boolean
+  onToggle: (drill: Drill) => void
+  onPlan: (drill: Drill) => void
+  onOpen: (drill: Drill) => void
+}) {
+  if (drills.length === 0) {
+    return (
+      <Empty title="No drills for this topic yet" mark="?" testId="topic-drills-empty">
+        The pattern grid on <code>#/practice</code> lists every authored drill. Core sheet rows remain available.
+      </Empty>
+    )
+  }
+  return (
+    <div className="drill-panel" data-testid="topic-drills-panel">
+      <p className="quiet-note num" data-testid="topic-drill-count">{drills.length} synthetic drills · lc-&lt;n&gt; · no new collection</p>
+      <ol className="drill-list">
+        {drills.map((drill) => {
+          const done = isDone(progress, topicId, drill.id)
           return (
-            <section key={subtopic.id} aria-label={subtopic.title}>
-              <h3 className="subtopic-title">{subtopic.title}</h3>
-              <div role="list" aria-label={`${subtopic.title} practice problems`}>
-                {problems.map((problem, index) => {
-                  const entry = props.entries[props.topic.id]?.[problem.id]
-                  return (
-                    <ProblemRow
-                      key={problem.id}
-                      topicId={props.topic.id}
-                      topicTitle={props.topic.title}
-                      problem={problem}
-                      progress={props.progress}
-                      disabled={props.disabled}
-                      revealed={false}
-                      focused={false}
-                      age={ageLabel(entry?.lr ?? entry?.fd, props.today)}
-                      canEditNotes={false}
-                      hasNote={false}
-                      listCount={0}
-                      onToggleStatus={props.onToggleStatus}
-                      onToggleBookmark={props.onToggleBookmark}
-                      onSetOutcome={props.onSetOutcome}
-                      onOpen={(problemId) => props.onOpenProblem(problemId)}
-                      onOpenPanel={() => {}}
-                      onPlan={props.onPlan}
-                      onFocus={() => {}}
-                      listPosition={index + 1}
-                      listSize={problems.length}
-                      panel={null}
-                    />
-                  )
-                })}
+            <li key={drill.id} className="drill-row" data-testid={`topic-drill-${drill.id}`}>
+              <div className="drill-row-main">
+                <strong>{drill.patternTitle} · set {drill.set} · {drill.title}</strong>
+                <span className="quiet-note">{drill.why} · ~{drill.estMinutes} min · LeetCode {drill.lc}</span>
               </div>
-            </section>
+              <div className="drill-actions">
+                <Button size="sm" disabled={disabled} aria-pressed={done} onClick={() => onToggle(drill)}>
+                  {done ? 'Done ✓' : 'Mark done'}
+                </Button>
+                <a className="btn btn-secondary btn-sm" href={drill.url} target="_blank" rel="noopener noreferrer">↗ LeetCode</a>
+                <Button size="sm" disabled={disabled} onClick={() => onPlan(drill)}>+ Today</Button>
+                <Button size="sm" onClick={() => onOpen(drill)}>Detail</Button>
+              </div>
+            </li>
           )
         })}
-      </div>
+      </ol>
     </div>
   )
 }
 
 function QuizPanel({ topic }: { topic: Topic }) {
+  const authored = getQuiz(topic.id).length
+  const theory = getTheoryMcqCount(topic.id)
+  const bank = contentCoverage().content.quizItems
   return (
-    <Empty title="Topic quizzes arrive in Phase 05" mark={<IconSpark size={20} />} testId="topic-quiz-pending" action={
+    <Empty title="Quiz bank is authored; engine arrives in Phase 05" mark={<IconSpark size={20} />} testId="topic-quiz-pending" action={
       <Button disabled data-testid="topic-quiz-start">Start {topic.title} quiz</Button>
     }>
-      No quiz questions have been authored for {topic.title} yet. The quiz engine arrives in Phase 05; this start button stays disabled until questions are ready.
+      <span data-testid="topic-quiz-count">{authored}/12 topic quiz items · {theory} theory MCQs · {bank}/240 bank items</span>. Execution, reveal and pass marks stay in Phase 05; this start button stays disabled.
     </Empty>
   )
 }
