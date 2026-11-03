@@ -2,7 +2,11 @@
 
 # DSA Archive — continuation prompt (v2 programme, one phase per chat)
 
-> **Self-contained handoff.** v1 is complete; **v2 is planned and not started.**
+> **Self-contained handoff.** v1 is complete. **v2 phase 01 implementation has been copied
+> to this session's branch `arena/07ecf93c-dsa-archive`; the accessibility/search and CI
+> digest fixes are applied, but browser CI must pass before phase 01 is considered closed.**
+> The original PR #11 remains on a different head branch and is not updated by this branch.
+> Phases 02–10 are planned and not started.
 > Authority order: `rule.md` → `docs/DECISIONS.md` (owner answers) →
 > `docs/phases-v2/` (phase contracts) → `docs/ROADMAP.md` (status) →
 > `docs/DATA-MODEL.md` (Firestore/backup shapes) → `docs/UI-REFERENCE.md`
@@ -59,17 +63,18 @@ Do **not** start coding before step 5 is read end-to-end.
 - **v1 complete** (`docs/phases/00…06`): 495 problems / 20 topics, Google Auth +
   Firestore progress sync, notes+snippets+lists, planner + 3/7/21 revision, friends,
   PWA offline. Rules **v4**, backup **v3**. Nothing deployed.
-- **v2 fully planned, zero code written:** 10 phase contracts in `docs/phases-v2/`,
-  plus three policy docs (`RESOURCE-POLICY.md`, `PRACTICE-SETS.md`, `THEORY-MCQ.md`)
-  and the authoring guide (`AUTHORING.md`). The planning commits are docs-only;
-  `data/`, `src/`, `tools/`, `firebase.json` are **byte-identical to `main`**.
+- **v2-01 implementation present; browser CI fix follow-up pending** (`docs/phases-v2/01-foundation-router-shell/RECORD.md`): hash router (16 routes, `#/notes` included), sidebar/rail/bottom-bar shell, **tokens v2 frozen**, Tailwind + daisyUI **removed**, density 38/48/62, undo toast, `⌘K` palette, triage, and windowed sheet. The retrieved failing log identified an axe visible-label mismatch and collapsed search results; both are fixed. The PR digest script's Python `NameError` is fixed too. Local unit/build/data/rule/budget checks pass; a CI rerun is still needed because this sandbox cannot download Chromium. **Do not merge until CI passes and owner reviews.**
+- **v2-02 … v2-10 fully planned, zero code written:** nine remaining phase contracts plus
+  three policy docs (`RESOURCE-POLICY.md`, `PRACTICE-SETS.md`, `THEORY-MCQ.md`) and the
+  authoring guide (`AUTHORING.md`). `data/` is **byte-identical to `main`**.
 - **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
   topics (Basic 84 · Core 287 · Pro 109 · 15 null; 453 `problem` + 42 `theory`).
   **369 video links** (321 unique: 256 `youtu.be` + 65 `youtube.com`) — **single source
   by owner decision, keep them**; they are copied verbatim from the snapshot (no
   rewrite, no repair). 289 rows have LeetCode links (**273 unique**, 13 duplicated
   slugs). **206 rows have no LeetCode mapping.**
-- Tokens v1 (2026-11-02) are **still in force** until phase 01 lands tokens v2.
+- Tokens **v2 are frozen** (2026-11-03, `src/design/tokens.css` + `UI-REFERENCE.md`
+  "Tokens v2"); v1 is history and the one-time re-freeze is spent.
 
 ---
 
@@ -77,7 +82,7 @@ Do **not** start coding before step 5 is read end-to-end.
 
 | # | Folder | Scope in one line | Est | Deps |
 |---|---|---|---|---|
-| 01 | `01-foundation-router-shell/` | Hash router + sidebar/bottom-bar shell + **design tokens v2** (Inter + JetBrains Mono, one accent / five semantic roles, density, motion, undo, skeletons, `⌘K`, `j/k/x`, sheet windowing) | 9–11 d | — |
+| 01 | `01-foundation-router-shell/` | 🟡 **done, at the merge gate** — hash router + sidebar/bottom-bar shell + tokens v2 (Inter + JetBrains Mono, one accent / five semantic roles, density, motion, undo, skeletons, `⌘K`, `j/k/x`, sheet windowing) | 9–11 d | — |
 | 02 | `02-topics-browse/` | `#/topics` (all 20 always visible with rings) + `#/topic/<id>` Learn/Practice/Quiz + learning order + **3-way outcome** (`o: clean\|hint\|couldnt`) + `#/search` | 5–6 d | 01 |
 | 03 | `03-content-pipeline/` | Content schema + safe renderers + validator/CI + **`resources[]` multi-source** + **`data/practice-sets/` drills (+120–140 LeetCode)** + 42 theory MCQs schema + coverage report | 7–9 d + authoring | 01 |
 | 04 | `04-code-notebooks/` | **Delete notes** end-to-end; add `snippets` collection, rules **v5**, backup **v4** (+v3 notes migration), `#/code`, small editor, peek/reveal | 5–6 d | 01 |
@@ -150,7 +155,8 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 4. Land tests: unit + Playwright (phone/desktop) + axe 0 + visual snapshots; rules tests
    if Firestore changed; budgets if bundles changed.
 5. Update in the same commit: `docs/phases-v2/NN-slug/RECORD.md` (CI run id, tip sha,
-   `site-preview` bytes, what is now visible, deviations, content added),
+   `site-preview` bytes, what is now visible, deviations, content added; for v2-01 the
+   RECORD is written and the CI run id / preview bytes are the open blanks),
    `docs/ROADMAP.md` status, `docs/DECISIONS.md` if anything was decided, **and this file**.
 6. Report to the owner, print the next-chat prompt (template in §10), then **stop at the
    merge gate**. Never merge, never deploy, never push `main`.
@@ -169,16 +175,19 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 > `docs/ROADMAP.md` status and `prompt.md` in the same commit. Stop at the merge gate —
 > no PR merge, no deploy, no `main` push without my explicit command.
 
-> **Ready-made first one:**
+> **Ready-made next one (02, once v2-01 is merged):**
 >
-> Run v2 phase **01 — foundation-router-shell** for `pabi277/DSA-archive`.
-> Read `rule.md`, `docs/DECISIONS.md` (v2 batches), `docs/phases-v2/README.md`,
-> `docs/phases-v2/00-overview/PLAN.md`, then
-> `docs/phases-v2/01-foundation-router-shell/PLAN.md` in full — its acceptance list is
-> the contract. Verify branch/CI/identity, implement router + shell + tokens v2 +
-> undo/skeletons + `⌘K` + keyboard triage + sheet windowing only, land unit/Playwright/
-> axe/visual-snapshot tests and the re-baselined budgets, update the phase `RECORD.md`,
-> `ROADMAP.md` and `prompt.md` in the same commit, then stop at the merge gate.
+> Run v2 phase **02 — topics-browse** for `pabi277/DSA-archive`.
+> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches, plus the
+> phase v2-01 implementation notes), `docs/phases-v2/README.md`,
+> `docs/phases-v2/00-overview/PLAN.md`, then `docs/phases-v2/02-topics-browse/PLAN.md`
+> in full — its acceptance list is the contract. Start from `main` **after** v2-01 is
+> merged (the router, shell, tokens v2, palette and triage already exist; reuse them,
+> do not rebuild them). Verify branch/CI/identity first, implement only that phase,
+> land unit + Playwright (phone & desktop) + axe 0 + visual snapshots (extend the 24-name
+> baseline set only where a screen genuinely changed), and update the phase `RECORD.md`,
+> `docs/ROADMAP.md` status and `prompt.md` in the same commit. Stop at the merge gate —
+> no PR, no merge, no deploy, no `main` push without my explicit command.
 
 ---
 

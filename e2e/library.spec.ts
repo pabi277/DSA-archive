@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
+import { open, openTopic } from './helpers'
 
 /**
  * Roadmap phase 3 "Done means" in CI, at phone width against the Auth +
@@ -33,14 +34,18 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
 
   try {
     const page = await firstContext.newPage()
-    await page.goto('/')
+    await open(page, '/')
     await page.getByTestId('emulator-sign-in').click()
     await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
     await expect(page.getByTestId('sync-pill')).toContainText('Synced')
 
+    // Topic rows are on the search route; the app now lands on Today at `/`.
+    await open(page, '/#/search')
+
     // --- 3.1: a markdown note plus a code snippet on a problem row ----------
-    await page.locator('#topic-arrays summary').click()
-    await page.getByTestId('note-button-two-sum').click()
+    await openTopic(page)
+    await page.getByRole('button', { name: /More actions for Two Sum/ }).click()
+    await page.getByTestId('menu-note-two-sum').click()
     const editor = page.getByTestId('note-editor')
     await expect(editor).toBeVisible()
     await page.getByTestId('note-markdown').fill('# Two sum\nUse a **hash map** for O(n) time.')
@@ -53,10 +58,13 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
 
     await page.getByTestId('note-save').click()
     await expect(page.getByTestId('account-notice')).toContainText('Note saved')
-    await expect(page.getByTestId('note-button-two-sum')).toHaveText('Note ✓')
+    // The `⋯` menu exposes the saved note action for this row.
+    await page.getByRole('button', { name: /More actions for Two Sum/ }).click()
+    await expect(page.getByTestId('menu-note-two-sum')).toContainText('Edit note')
+    await page.keyboard.press('Escape')
 
     // --- 3.2: notes overview + search ---------------------------------------
-    await page.getByTestId('view-tab-notes').click()
+    await open(page, '/#/notes')
     const noteCard = page.getByTestId('note-card-two-sum')
     await expect(noteCard).toContainText('Two Sum')
     await expect(noteCard).toContainText('hash map')
@@ -69,14 +77,15 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     await expect(noteCard).toBeVisible()
 
     // --- 3.3: custom lists create / add / filter ----------------------------
-    await page.getByTestId('view-tab-lists').click()
+    await open(page, '/#/lists')
     await page.getByTestId('new-list-title').fill('Interview warmup')
     await page.getByTestId('create-list').click()
     const listCard = page.locator('.list-card', { hasText: 'Interview warmup' })
     await expect(listCard).toBeVisible()
 
-    await page.getByTestId('view-tab-sheet').click()
-    await page.getByTestId('list-button-two-sum').click()
+    await open(page, '/#/search?q=two+sum')
+    await page.getByRole('button', { name: /More actions for Two Sum/ }).click()
+    await page.getByTestId('menu-lists-two-sum').click()
     const picker = page.getByTestId('list-picker')
     await expect(picker).toBeVisible()
     // A click (not check(): the tick is driven by the Firestore snapshot, so it
@@ -85,30 +94,34 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     await expect(picker.getByRole('checkbox', { name: /Interview warmup/ })).toBeChecked()
     await picker.getByRole('button', { name: 'Close list picker' }).click()
 
-    await page.getByTestId('list-button-linear-search').click()
+    await open(page, '/#/search?q=linear+search')
+    await page.getByRole('button', { name: /More actions for Linear Search/ }).click()
+    await page.getByTestId('menu-lists-linear-search').click()
     await page.getByTestId('list-picker').getByRole('checkbox', { name: /Interview warmup/ }).click()
     await expect(
       page.getByTestId('list-picker').getByRole('checkbox', { name: /Interview warmup/ }),
     ).toBeChecked()
     await page.getByTestId('list-picker').getByRole('button', { name: 'Close list picker' }).click()
-    await expect(page.getByTestId('list-button-two-sum')).toContainText('List · 1')
-
+    await open(page, '/#/search')
     await page.locator('[data-testid^="list-chip-"]').click()
     await expect(page.getByTestId('match-count')).toContainText('Showing 2 of 495')
     await expect(page.getByTestId('match-count')).toContainText('Interview warmup')
 
     // --- the other device: a genuinely fresh browser profile ----------------
     const secondPage = await secondContext.newPage()
-    await secondPage.goto('/')
+    await open(secondPage, '/')
     await secondPage.getByTestId('emulator-sign-in').click()
     await expect(secondPage.getByTestId('signed-in-banner')).toContainText('CI Owner')
 
-    await secondPage.getByTestId('view-tab-notes').click()
+    await open(secondPage, '/#/notes')
     await expect(secondPage.getByTestId('note-card-two-sum')).toContainText('hash map')
-    await secondPage.getByTestId('view-tab-lists').click()
+    await open(secondPage, '/#/lists')
     await expect(secondPage.locator('.list-card', { hasText: 'Interview warmup' })).toContainText('2 problems')
 
     // --- backup: schema v2 carries notes and lists --------------------------
+    // Export/import are on the account panel, which is mounted on Settings.
+    await open(secondPage, '/#/settings')
+    await expect(secondPage.getByTestId('account-panel')).toBeVisible()
     const downloadPromise = secondPage.waitForEvent('download')
     await secondPage.getByRole('button', { name: 'Export backup JSON' }).click()
     const download = await downloadPromise
@@ -134,13 +147,16 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     await expect(preview).toContainText('lists 1')
     await preview.getByRole('button', { name: 'Replace my progress' }).click()
     await expect(secondPage.getByTestId('account-notice')).toContainText('0 notes')
-    await secondPage.getByTestId('view-tab-notes').click()
+    await open(secondPage, '/#/notes')
     await expect(secondPage.getByTestId('notes-empty')).toBeVisible()
 
     // A phase-2 (schemaVersion 1) file still imports — and clears lists, as
     // its own preview states. This is the recorded backward-compatible path.
+    // Return to Settings: that route owns the account panel and its file input.
+    await open(secondPage, '/#/settings')
+    await expect(secondPage.getByTestId('account-panel')).toBeVisible()
     const phaseTwo = { ...backup, schemaVersion: 1, notes: [], lists: [], plans: [] }
-    await fileInput.setInputFiles({
+    await secondPage.getByLabel('Import backup JSON').setInputFiles({
       name: 'phase-2-backup.json',
       mimeType: 'application/json',
       buffer: Buffer.from(JSON.stringify(phaseTwo), 'utf8'),
@@ -148,10 +164,10 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     await expect(secondPage.getByTestId('import-preview')).toContainText('notes 0 · lists 0')
     await secondPage.getByTestId('import-preview').getByRole('button', { name: 'Replace my progress' }).click()
     await expect(secondPage.getByTestId('account-notice')).toContainText('Imported')
-    await secondPage.getByTestId('view-tab-lists').click()
+    await open(secondPage, '/#/lists')
     await expect(secondPage.getByTestId('lists-empty')).toBeVisible()
 
-    await secondPage.getByTestId('view-tab-notes').click()
+    await open(secondPage, '/#/notes')
     await secondPage.screenshot({ path: 'test-results/library-phone.png', fullPage: true })
     const phoneAudit = await new AxeBuilder({ page: secondPage }).analyze()
     expect(phoneAudit.violations).toEqual([])

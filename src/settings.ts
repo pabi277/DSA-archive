@@ -5,17 +5,56 @@ import { useSyncExternalStore } from 'react'
  * `theme` / `hideDone` map to `users/{uid}` in DATA-MODEL §3; `largeText`
  * stays a local accessibility preference. A change source lets the cloud
  * listener distinguish a local toggle from a profile snapshot applied here.
+ *
+ * Phase v2-01 adds two shell preferences — `density` (row height) and
+ * `railCollapsed` (desktop sidebar rail). They are **local only** on purpose:
+ * they describe the device you are holding, not your study record, so they are
+ * never written to Firestore and never change the profile/rules shape. Both are
+ * sanitised on read (malformed → default) and older backups that lack them keep
+ * importing unchanged.
  */
 
 export type Theme = 'dark' | 'light'
-export type Settings = { theme: Theme; largeText: boolean; hideDone: boolean }
+export type Density = 'compact' | 'comfortable' | 'roomy'
+export type Settings = {
+  theme: Theme
+  largeText: boolean
+  hideDone: boolean
+  density: Density
+  railCollapsed: boolean
+}
 export type SettingsChangeSource = 'local' | 'cloud'
 
 const STORAGE_KEY = 'dsa-archive.settings.v1'
-export const defaultSettings: Settings = { theme: 'dark', largeText: false, hideDone: false }
+export const DENSITIES: Density[] = ['compact', 'comfortable', 'roomy']
+export const DENSITY_LABELS: Record<Density, string> = {
+  compact: 'Compact',
+  comfortable: 'Comfortable',
+  roomy: 'Roomy',
+}
+/** Row heights frozen in tokens v2 (`--row-height`). */
+export const DENSITY_ROW_HEIGHT: Record<Density, number> = {
+  compact: 38,
+  comfortable: 48,
+  roomy: 62,
+}
+
+export const defaultSettings: Settings = {
+  theme: 'dark',
+  largeText: false,
+  hideDone: false,
+  density: 'comfortable',
+  railCollapsed: false,
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+export function clampDensity(value: unknown): Density {
+  return typeof value === 'string' && (DENSITIES as string[]).includes(value)
+    ? (value as Density)
+    : defaultSettings.density
 }
 
 function sanitize(raw: unknown): Settings {
@@ -24,6 +63,8 @@ function sanitize(raw: unknown): Settings {
     theme: raw.theme === 'light' ? 'light' : 'dark',
     largeText: raw.largeText === true,
     hideDone: raw.hideDone === true,
+    density: clampDensity(raw.density),
+    railCollapsed: raw.railCollapsed === true,
   }
 }
 
@@ -77,6 +118,12 @@ export function toggleTheme() {
   commit({ ...settings, theme: settings.theme === 'dark' ? 'light' : 'dark' }, 'local')
 }
 
+export function setTheme(theme: Theme) {
+  const settings = current()
+  if (settings.theme === theme) return
+  commit({ ...settings, theme }, 'local')
+}
+
 export function toggleLargeText() {
   const settings = current()
   commit({ ...settings, largeText: !settings.largeText }, 'local')
@@ -87,10 +134,39 @@ export function toggleHideDone() {
   commit({ ...settings, hideDone: !settings.hideDone }, 'local')
 }
 
-/** Apply a Firestore profile or backup without echoing a cloud write. */
+export function setDensity(density: Density) {
+  const settings = current()
+  const next = clampDensity(density)
+  if (next === settings.density) return
+  commit({ ...settings, density: next }, 'local')
+}
+
+export function cycleDensity() {
+  const settings = current()
+  const index = DENSITIES.indexOf(settings.density)
+  setDensity(DENSITIES[(index + 1) % DENSITIES.length])
+}
+
+export function toggleRail() {
+  const settings = current()
+  commit({ ...settings, railCollapsed: !settings.railCollapsed }, 'local')
+}
+
+export function setRailCollapsed(railCollapsed: boolean) {
+  const settings = current()
+  if (settings.railCollapsed === railCollapsed) return
+  commit({ ...settings, railCollapsed }, 'local')
+}
+
+/**
+ * Apply a Firestore profile or backup without echoing a cloud write. Local-only
+ * preferences (density, rail) are preserved — a phone and a laptop keep their
+ * own row height even while sharing one study record.
+ */
 export function applyProfileSettings(theme: Theme, hideDone: boolean, largeText?: boolean) {
   const settings = current()
   const next: Settings = {
+    ...settings,
     theme,
     hideDone,
     largeText: typeof largeText === 'boolean' ? largeText : settings.largeText,

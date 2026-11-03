@@ -11,14 +11,25 @@ import path from 'node:path'
 
 const root = path.resolve('dist')
 
+/**
+ * v2 budgets, re-baselined once in phase v2-01 with the numbers approved in
+ * docs/DECISIONS.md (2026-11-03, "CI budgets"): CSS 60 kB raw / 18 kB gzip,
+ * entry JS 180 kB raw / 55 kB gzip, one 520 kB raw chunk cap, shell 380 kB gzip.
+ * Runtime assets that are fetched on demand (the phase-07 wasm compiler, ~14 MB,
+ * and the two font subsets, ~45 kB) live in their OWN bucket below and are never
+ * counted as shell transfer — and the Service Worker must never precache them.
+ */
 export const BUDGETS = {
-  maxCssRawBytes: 36_000,
-  maxCssGzipBytes: 8_500,
-  maxEntryJsRawBytes: 130_000,
-  maxEntryJsGzipBytes: 36_000,
-  maxSingleJsRawBytes: 500_000,
-  maxSingleJsGzipBytes: 155_000,
-  maxShellGzipBytes: 335_000,
+  maxCssRawBytes: 60_000,
+  maxCssGzipBytes: 18_000,
+  maxEntryJsRawBytes: 180_000,
+  maxEntryJsGzipBytes: 55_000,
+  maxSingleJsRawBytes: 520_000,
+  maxSingleJsGzipBytes: 165_000,
+  maxShellGzipBytes: 380_000,
+  /** Runtime bucket: fonts + future compiler payload, never precached. */
+  maxRuntimeAssetRawBytes: 15_000_000,
+  maxFontRawBytes: 60_000,
 }
 
 async function walk(dir) {
@@ -51,7 +62,12 @@ const totalCssRaw = cssFiles.reduce((sum, item) => sum + item.raw, 0)
 const totalCssGzip = cssFiles.reduce((sum, item) => sum + item.gzip, 0)
 const largestJsRaw = jsAssets.reduce((max, item) => (item.raw > max.raw ? item : max), jsAssets[0])
 const largestJsGzip = jsAssets.reduce((max, item) => (item.gzip > max.gzip ? item : max), jsAssets[0])
-const totalShellGzip = stats.reduce((sum, item) => sum + item.gzip, 0)
+// The shell bucket is everything the Service Worker precaches: HTML, CSS, JS,
+// manifest and icons. Runtime assets (font subsets, the future wasm compiler)
+// are deliberately in their own bucket below and are never precached.
+const totalShellGzip = stats
+  .filter((item) => !item.rel.startsWith('fonts/'))
+  .reduce((sum, item) => sum + item.gzip, 0)
 
 const failures = []
 if (totalCssRaw > BUDGETS.maxCssRawBytes) {
@@ -84,8 +100,9 @@ for (const required of ['manifest.webmanifest', 'sw.js', 'offline.html', '404.ht
 const manifest = JSON.parse(await readFile(path.join(root, 'manifest.webmanifest'), 'utf8'))
 if (manifest.display !== 'standalone') failures.push('manifest.webmanifest must set display: "standalone"')
 if (manifest.start_url !== '/') failures.push('manifest.webmanifest must set start_url: "/"')
-if (manifest.theme_color !== '#101313' || manifest.background_color !== '#101313') {
-  failures.push('manifest.webmanifest colours must match frozen dark canvas #101313')
+// Tokens v2 canvas (phase v2-01 re-freeze): #0B0D0E.
+if (manifest.theme_color !== '#0B0D0E' || manifest.background_color !== '#0B0D0E') {
+  failures.push('manifest.webmanifest colours must match the tokens-v2 dark canvas #0B0D0E')
 }
 const icons = Array.isArray(manifest.icons) ? manifest.icons : []
 if (!icons.some((icon) => icon.sizes === '192x192' && icon.type === 'image/png')) {
@@ -115,6 +132,19 @@ for (const standalonePage of ['offline.html', '404.html']) {
   }
 }
 
+// Runtime-asset bucket: fonts ship from `public/fonts/` and are fetched on demand
+// (font-display: swap), so they must never enter the shell precache list.
+const runtimeAssets = stats.filter((item) => item.rel.startsWith('fonts/'))
+const fontRaw = runtimeAssets.reduce((sum, item) => sum + item.raw, 0)
+if (fontRaw > BUDGETS.maxFontRawBytes) {
+  failures.push(`Font subsets raw ${fontRaw} B > budget ${BUDGETS.maxFontRawBytes} B (two Latin subsets, ~45 kB)`)
+}
+for (const asset of runtimeAssets) {
+  if (swSource.includes(`"/${asset.rel}"`)) {
+    failures.push(`dist/sw.js must not precache runtime asset /${asset.rel}`)
+  }
+}
+
 // Spark Hosting transfer headroom: 360 MB/day free transfer vs full cold shell.
 const sparkDailyBytes = 360 * 1000 * 1000
 const coldInstallsPerDay = Math.floor(sparkDailyBytes / totalShellGzip)
@@ -126,6 +156,13 @@ console.log(
     `  Entry JS:     ${(entryJs.raw / 1000).toFixed(2)} kB raw / ${(entryJs.gzip / 1000).toFixed(2)} kB gzip (cap ${BUDGETS.maxEntryJsRawBytes / 1000} / ${BUDGETS.maxEntryJsGzipBytes / 1000} kB)`,
     `  Largest JS:   ${largestJsRaw.rel} ${(largestJsRaw.raw / 1000).toFixed(2)} kB raw / ${(largestJsGzip.gzip / 1000).toFixed(2)} kB gzip (cap ${BUDGETS.maxSingleJsRawBytes / 1000} / ${BUDGETS.maxSingleJsGzipBytes / 1000} kB)`,
     `  Total shell:  ${(totalShellGzip / 1000).toFixed(2)} kB gzip (cap ${BUDGETS.maxShellGzipBytes / 1000} kB · ~${coldInstallsPerDay} cold installs/day inside 360 MB Spark Hosting cap)`,
+    `  Runtime:      ${(fontRaw / 1000).toFixed(2)} kB font subsets raw (cap ${BUDGETS.maxFontRawBytes / 1000} kB · separate bucket, never precached)`,
+    `  Shell parts:  CSS ${(totalCssGzip / 1000).toFixed(1)} · entry ${(entryJs.gzip / 1000).toFixed(1)} · ` +
+      stats
+        .filter((item) => item.rel.startsWith('assets/') && item.rel.endsWith('.js') && item !== entryJs)
+        .map((item) => `${item.rel.replace(/^assets\//, '').replace(/-[\w-]{8}\.js$/, '')} ${(item.gzip / 1000).toFixed(1)}`)
+        .join(' · ') +
+      ` · other ${((totalShellGzip - totalCssGzip - stats.filter((item) => item.rel.endsWith('.js')).reduce((sum, item) => sum + item.gzip, 0)) / 1000).toFixed(1)} kB gzip`,
   ].join('\n'),
 )
 

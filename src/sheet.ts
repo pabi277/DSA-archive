@@ -3,8 +3,12 @@ import { tallyTopic, type ProgressByTopic } from './progress'
 
 /**
  * Sheet query logic for phase 1 (roadmap 1.2): search + topic/level/link-type
- * filters + random pick + weakest-topic hint. Pure and unit-tested; the UI in
- * `App.tsx` only renders what these functions return.
+ * filters + random pick + weakest-topic hint. Pure and unit-tested; the screens
+ * only render what these functions return.
+ *
+ * v2-01: the query is also expressed in the URL (`#/search?q=&level=&topic=`)
+ * so a search survives a reload, a bookmark and the back button. `toQueryParams`
+ * / `fromQueryParams` are the only place that mapping exists.
  */
 
 export const LEVEL_LABELS = {
@@ -102,22 +106,48 @@ export function isFiltering(query: SheetQuery) {
 
 export function activeFilterCount(query: SheetQuery) {
   return (
-    (query.topicId === '' ? 0 : 1) + query.levels.length + query.linkTypes.length +
-    (query.hideDone ? 1 : 0) + (query.listProblemIds === null ? 0 : 1)
+    (query.search.trim() !== '' ? 1 : 0) +
+    (query.topicId !== '' ? 1 : 0) +
+    query.levels.length +
+    query.linkTypes.length +
+    (query.hideDone ? 1 : 0) +
+    (query.listProblemIds !== null ? 1 : 0)
   )
 }
 
-export function applySheetQuery(
-  query: SheetQuery,
-  progress: ProgressByTopic,
-  topics: Topic[] = catalogue.topics,
-): FilteredSheet {
+/** URL ⇄ query. Only real filters are written, so URLs stay short and shareable. */
+export function toQueryParams(filters: Omit<SheetQuery, 'hideDone' | 'listProblemIds'>) {
+  return {
+    q: filters.search.trim(),
+    topic: filters.topicId,
+    level: filters.levels.join(','),
+    link: filters.linkTypes.join(','),
+  }
+}
+
+export function fromQueryParams(params: Record<string, string>): Omit<SheetQuery, 'hideDone' | 'listProblemIds'> {
+  const levels = (params.level ?? '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter((value): value is LevelFilter => (LEVEL_FILTERS as string[]).includes(value))
+  const linkTypes = (params.link ?? '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter((value): value is LinkFilter => (LINK_FILTERS as string[]).includes(value))
+  return {
+    search: params.q ?? '',
+    topicId: catalogue.topics.some((topic) => topic.id === params.topic) ? (params.topic ?? '') : '',
+    levels,
+    linkTypes,
+  }
+}
+
+export function applySheetQuery(query: SheetQuery, progress: ProgressByTopic, data: Topic[] = catalogue.topics): FilteredSheet {
   const needle = normalize(query.search)
-  const filtering = isFiltering(query)
-  const filteredTopics: FilteredTopic[] = []
+  const topics: FilteredTopic[] = []
   let matchCount = 0
 
-  for (const topic of topics) {
+  for (const topic of data) {
     if (query.topicId !== '' && topic.id !== query.topicId) continue
     const tally = tallyTopic(progress, topic)
     const subtopics: FilteredSubtopic[] = []
@@ -126,20 +156,20 @@ export function applySheetQuery(
     for (const subtopic of topic.subtopics) {
       const problems = subtopic.problems.filter((problem) => {
         if (query.listProblemIds && !query.listProblemIds.has(problem.id)) return false
+        if (query.hideDone && progress[topic.id]?.[problem.id]?.s === 'done') return false
         if (query.levels.length > 0 && !query.levels.includes(levelOf(problem))) return false
         if (!matchesLinkTypes(problem, query.linkTypes)) return false
-        if (query.hideDone && progress[topic.id]?.[problem.id]?.s === 'done') return false
         if (needle !== '' && !matchesSearch(needle, problem, subtopic.title, topic.title)) return false
         return true
       })
       if (problems.length === 0) continue
-      subtopics.push({ id: subtopic.id, title: subtopic.title, problems })
       topicMatches += problems.length
+      subtopics.push({ id: subtopic.id, title: subtopic.title, problems })
     }
 
-    if (topicMatches === 0) continue
+    if (subtopics.length === 0) continue
     matchCount += topicMatches
-    filteredTopics.push({
+    topics.push({
       id: topic.id,
       title: topic.title,
       order: topic.order,
@@ -151,32 +181,40 @@ export function applySheetQuery(
     })
   }
 
-  const totalCount = topics.reduce(
+  const totalCount = data.reduce(
     (sum, topic) => sum + topic.subtopics.reduce((inner, subtopic) => inner + subtopic.problems.length, 0),
     0,
   )
 
-  return { topics: filteredTopics, matchCount, totalCount, topicCount: topics.length, filtering }
+  return {
+    topics,
+    matchCount,
+    totalCount,
+    topicCount: data.length,
+    filtering: isFiltering(query),
+  }
 }
 
 export type RandomPick = { topicId: string; topicTitle: string; problem: Problem }
 
-/** Uniform pick over the currently visible rows; `rng` is injectable for tests. */
+/**
+ * Uniformly random over the *visible* rows, then localised back to its topic.
+ * `rng` is injectable so the pick is deterministic under test.
+ */
 export function pickRandom(sheet: FilteredSheet, rng: () => number = Math.random): RandomPick | null {
-  const pool: Array<{ topicId: string; topicTitle: string; problem: Problem }> = []
+  const rows: { topicId: string; topicTitle: string; problem: Problem }[] = []
   for (const topic of sheet.topics) {
     for (const subtopic of topic.subtopics) {
       for (const problem of subtopic.problems) {
-        pool.push({ topicId: topic.id, topicTitle: topic.title, problem })
+        rows.push({ topicId: topic.id, topicTitle: topic.title, problem })
       }
     }
   }
-  if (pool.length === 0) return null
-  const index = Math.min(pool.length - 1, Math.max(0, Math.floor(rng() * pool.length)))
-  return pool[index]
+  if (rows.length === 0) return null
+  return rows[Math.min(rows.length - 1, Math.floor(rng() * rows.length))]
 }
 
-export type WeakestHint = {
+export type WeakestTopic = {
   topicId: string
   title: string
   done: number
@@ -186,36 +224,32 @@ export type WeakestHint = {
 }
 
 /**
- * Weakest-topic hint (roadmap 1.2).
- *
- * Rule, recorded in the phase-1 record: consider only topics the user has
- * touched (a row done or bookmarked), rank by the lowest done ratio, break
- * ties by the most rows remaining and then by sheet order. With nothing
- * touched yet there is no evidence to rank, so it returns `null` and the UI
- * says so instead of guessing. Phase 2 can refine this with attempts and
- * revision dates without changing the call site.
+ * The weakest topic is the one with the lowest completion **among the topics
+ * that have been touched at all** — suggesting Arrays to somebody who has only
+ * opened Graphs would be noise, not a hint. Rows without any progress return
+ * `null` rather than guessing (the approved 0-D empty state).
  */
-export function weakestTopic(progress: ProgressByTopic, topics: Topic[] = catalogue.topics): WeakestHint | null {
-  let best: WeakestHint | null = null
-  let bestRatio = Number.POSITIVE_INFINITY
-  let bestOrder = Number.POSITIVE_INFINITY
-
-  for (const topic of topics) {
+export function weakestTopic(progress: ProgressByTopic, data: Topic[] = catalogue.topics): WeakestTopic | null {
+  let best: WeakestTopic | null = null
+  for (const topic of data) {
     const tally = tallyTopic(progress, topic)
+    if (tally.done + tally.bookmarked === 0) continue
     if (tally.total === 0) continue
-    if (tally.done === 0 && tally.bookmarked === 0) continue
-    const ratio = tally.done / tally.total
-    const remaining = tally.total - tally.done
+    const candidate: WeakestTopic = {
+      topicId: topic.id,
+      title: topic.title,
+      done: tally.done,
+      total: tally.total,
+      remaining: tally.total - tally.done,
+      percent: tally.percent,
+    }
     if (
-      ratio < bestRatio ||
-      (ratio === bestRatio && best !== null && (remaining > best.remaining ||
-        (remaining === best.remaining && topic.order < bestOrder)))
+      best === null ||
+      candidate.percent < best.percent ||
+      (candidate.percent === best.percent && candidate.remaining > best.remaining)
     ) {
-      best = { topicId: topic.id, title: topic.title, done: tally.done, total: tally.total, remaining, percent: tally.percent }
-      bestRatio = ratio
-      bestOrder = topic.order
+      best = candidate
     }
   }
-
   return best
 }

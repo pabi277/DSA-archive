@@ -11,3 +11,4 @@ coverage/
 !.env.example
 !.env.production
 .firebase/
+.tmp-fonts/

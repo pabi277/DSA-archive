@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
+import { ALL_ROUTES, open, openTopic } from './helpers'
 
 /**
  * Roadmap phase 6 acceptance in real Chromium:
@@ -60,7 +61,7 @@ test('manifest, icons and true airplane-mode cold open work signed out with gues
   const context = await browser.newContext({ viewport: phone })
   try {
     const page = await context.newPage()
-    await page.goto('/')
+    await open(page, '/')
 
     // Verify installable Web App Manifest and clean-room icons.
     const manifestHref = await page.locator('link[rel="manifest"]').getAttribute('href')
@@ -79,8 +80,9 @@ test('manifest, icons and true airplane-mode cold open work signed out with gues
     expect(manifest.name).toBe('DSA Archive')
     expect(manifest.display).toBe('standalone')
     expect(manifest.start_url).toBe('/')
-    expect(manifest.theme_color).toBe('#101313')
-    expect(manifest.background_color).toBe('#101313')
+    // Tokens v2 (phase v2-01 re-freeze) canvas.
+    expect(manifest.theme_color).toBe('#0B0D0E')
+    expect(manifest.background_color).toBe('#0B0D0E')
     expect(manifest.icons.length).toBeGreaterThanOrEqual(4)
     for (const icon of manifest.icons) {
       const iconRes = await page.request.get(icon.src)
@@ -91,15 +93,16 @@ test('manifest, icons and true airplane-mode cold open work signed out with gues
     await waitForServiceWorkerControl(page)
 
     // Record guest progress online, then close the tab before entering airplane mode.
-    await page.locator('#topic-arrays summary').click()
-    await page.locator('#problem-two-sum .status-check').click()
+    await open(page, '/#/search')
+    await openTopic(page)
+    await page.getByTestId('status-two-sum').click()
     await expect(page.getByTestId('progress-pill')).toHaveText('1/495 done')
     await page.close()
 
     // Enter Airplane Mode and cold-open `/` in a brand-new tab.
     await context.setOffline(true)
     const offlinePage = await context.newPage()
-    await offlinePage.goto('/')
+    await open(offlinePage, '/')
 
     // Prove the network is genuinely unreachable while the precached app shell works.
     const uncachedBlocked = await offlinePage.evaluate(async () => {
@@ -112,18 +115,25 @@ test('manifest, icons and true airplane-mode cold open work signed out with gues
     })
     expect(uncachedBlocked).toBe(true)
 
-    await expect(offlinePage.getByRole('heading', { level: 1, name: 'Your learning sheet' })).toBeVisible()
-    await expect(offlinePage.locator('details.topic-card')).toHaveCount(20)
+    await expect(offlinePage.getByRole('heading', { level: 1, name: 'Today' })).toBeVisible()
     await expect(offlinePage.getByTestId('progress-pill')).toHaveText('1/495 done')
 
+    // Every route opens offline from the precached shell (hash routing needs no
+    // server rewrite), and a deep link to a row still reveals that row.
+    for (const route of ALL_ROUTES) {
+      await open(offlinePage, route)
+      await expect(offlinePage.getByTestId('page-header')).toBeVisible()
+    }
+
     // Search and mark another problem done while still in airplane mode.
-    await offlinePage.getByLabel('Search problems').fill('linear search')
-    await offlinePage.locator('#problem-linear-search .status-check').click()
+    await open(offlinePage, '/#/search?q=linear+search')
+    await expect(offlinePage.locator('#problem-linear-search')).toBeVisible()
+    await offlinePage.getByTestId('status-linear-search').click()
     await expect(offlinePage.getByTestId('progress-pill')).toHaveText('2/495 done')
     await expectFitsAndAccessible(offlinePage)
 
     // Unknown route renders the friendly 404 screen even offline, and returns home.
-    await offlinePage.goto('/missing-offline-route')
+    await open(offlinePage, '/#/missing-offline-route')
     await expect(offlinePage.getByTestId('not-found-view')).toContainText('Page not found')
     await expectFitsAndAccessible(offlinePage)
     await offlinePage.getByTestId('not-found-home').click()
@@ -149,39 +159,38 @@ test('dark, light, phone, desktop, large-text and 404/offline variants pass a11y
   await expect(page.getByRole('heading', { level: 1, name: 'Page not found' })).toBeVisible()
   await expectFitsAndAccessible(page)
 
-  // Phone (390×844) + large-text across dark and light across all views.
-  await page.goto('/')
-  await page.getByRole('button', { name: 'Toggle large text' }).click()
+  // Phone (390×844) + large-text across dark and light across every route.
+  await open(page, '/#/settings')
+  await page.getByTestId('large-text-toggle').click()
   await expect(page.locator('.app-root')).toHaveClass(/large-text/)
 
   for (const theme of ['dark', 'light'] as const) {
     if (theme === 'light') {
-      await page.getByRole('button', { name: 'Switch to light appearance' }).click()
+      await page.getByTestId('theme-toggle').click()
       await expect(page.locator('.app-root')).toHaveAttribute('data-theme', 'light')
     }
-    for (const tab of ['sheet', 'today', 'revision', 'notes', 'lists', 'stats', 'friends']) {
-      await page.getByTestId(`view-tab-${tab}`).click()
-      if (tab === 'sheet') {
-        await page.evaluate(() => {
-          const topic = document.querySelector('#topic-arrays') as HTMLDetailsElement
-          if (topic && !topic.open) topic.open = true
-        })
+    for (const route of ALL_ROUTES) {
+      await open(page, route)
+      // Rows are windowed and mount on open: audit an open topic too.
+      if (route === '/#/search') {
+        await openTopic(page)
+        await expect(page.locator('#topic-arrays .row').first()).toBeVisible()
       }
       await expectFitsAndAccessible(page)
     }
   }
 
-  // Desktop (1280×900) + large-text + light, then back to dark.
+  // Desktop (1440×900) + large-text + light, then back to dark.
   await page.setViewportSize(desktop)
-  await page.getByTestId('view-tab-sheet').click()
+  await open(page, '/#/search?q=two+sum')
   await expectFitsAndAccessible(page)
-  await page.getByRole('button', { name: 'Switch to dark appearance' }).click()
+  await page.getByTestId('theme-toggle').click()
   await expect(page.locator('.app-root')).toHaveAttribute('data-theme', 'dark')
   await expectFitsAndAccessible(page)
 
   // In-app 404 state in large-text mode.
   await page.setViewportSize(phone)
-  await page.goto('/not-found-check')
+  await open(page, '/#/not-found-check')
   await expect(page.getByTestId('not-found-view')).toBeVisible()
   await expectFitsAndAccessible(page)
 })
@@ -207,37 +216,41 @@ test('signed-in airplane-mode cold open preserves cloud progress and notes and s
   const verifyContext = await browser.newContext({ viewport: phone })
   try {
     const page = await context.newPage()
-    await page.goto('/')
+    await open(page, '/')
     await waitForServiceWorkerControl(page)
 
     await page.getByTestId('emulator-sign-in').click()
     await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
     await expect(page.getByTestId('sync-pill')).toContainText('Synced')
 
-    await page.locator('#topic-arrays summary').click()
-    await page.locator('#problem-two-sum .status-check').click()
+    await open(page, '/#/search')
+    await openTopic(page)
+    await page.getByTestId('status-two-sum').click()
     await expect(page.getByTestId('progress-pill')).toHaveText('1/495 done')
 
-    await page.getByTestId('note-button-two-sum').click()
+    await page.getByRole('button', { name: /More actions for Two Sum/ }).click()
+    await page.getByTestId('menu-note-two-sum').click()
     await page.getByTestId('note-markdown').fill('Saved before airplane mode.')
     await page.getByTestId('note-save').click()
     await expect(page.getByTestId('account-notice')).toContainText('Note saved')
     await expect(page.getByTestId('sync-pill')).toContainText('Synced')
 
     // Audit signed-in Friends & Today views in large-text mode on phone width.
-    await page.getByRole('button', { name: 'Toggle large text' }).click()
-    await page.getByTestId('view-tab-friends').click()
+    await open(page, '/#/settings')
+    await page.getByTestId('large-text-toggle').click()
+    await open(page, '/#/friends')
     await expectFitsAndAccessible(page)
-    await page.getByTestId('view-tab-today').click()
+    await open(page, '/#/today')
     await expectFitsAndAccessible(page)
-    await page.getByRole('button', { name: 'Toggle large text' }).click()
+    await open(page, '/#/settings')
+    await page.getByTestId('large-text-toggle').click()
 
     await page.close()
 
     // Enter Airplane Mode and cold-open `/` in a fresh tab of the signed-in profile.
     await context.setOffline(true)
     const coldPage = await context.newPage()
-    await coldPage.goto('/')
+    await open(coldPage, '/')
     await coldPage.evaluate(() => window.dispatchEvent(new Event('offline')))
 
     await expect(coldPage.getByTestId('signed-in-banner')).toContainText('CI Owner')
@@ -245,13 +258,13 @@ test('signed-in airplane-mode cold open preserves cloud progress and notes and s
     await expect(coldPage.getByTestId('sync-pill')).toContainText('Offline')
 
     // Saved note is readable from IndexedDB persistent cache while completely offline.
-    await coldPage.getByTestId('view-tab-notes').click()
+    await open(coldPage, '/#/notes')
     await expect(coldPage.getByTestId('note-card-two-sum')).toContainText('Saved before airplane mode.')
 
     // Solve another problem while in airplane mode, then reconnect and verify sync.
-    await coldPage.getByTestId('view-tab-sheet').click()
-    await coldPage.locator('#topic-arrays summary').click()
-    await coldPage.locator('#problem-linear-search .status-check').click()
+    await open(coldPage, '/#/search?q=linear+search')
+    await expect(coldPage.locator('#problem-linear-search')).toBeVisible()
+    await coldPage.getByTestId('status-linear-search').click()
     await expect(coldPage.getByTestId('progress-pill')).toHaveText('2/495 done')
     await coldPage.screenshot({ path: 'test-results/pwa-offline-phone.png', fullPage: true })
     await expectFitsAndAccessible(coldPage)
@@ -261,10 +274,10 @@ test('signed-in airplane-mode cold open preserves cloud progress and notes and s
     await expect(coldPage.getByTestId('sync-pill')).toContainText('Synced')
 
     const verifyPage = await verifyContext.newPage()
-    await verifyPage.goto('/')
+    await open(verifyPage, '/')
     await verifyPage.getByTestId('emulator-sign-in').click()
     await expect(verifyPage.getByTestId('progress-pill')).toHaveText('2/495 done')
-    await verifyPage.getByTestId('view-tab-notes').click()
+    await open(verifyPage, '/#/notes')
     await expect(verifyPage.getByTestId('note-card-two-sum')).toContainText('Saved before airplane mode.')
   } finally {
     await context.close()

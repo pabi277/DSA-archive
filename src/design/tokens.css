@@ -1,0 +1,277 @@
+/* ---------------------------------------------------------------------------
+   DSA Archive — design tokens v2 (phase v2-01).
+   Re-freeze of the 2026-11-02 v1 set, authorised in docs/DECISIONS.md
+   ("GATE re-openings approved for v2"). Every later v2 phase consumes these
+   values; changing one is a GATE again. Plan: docs/phases-v2/01-foundation-router-shell/PLAN.md §4,
+   documentation: docs/UI-REFERENCE.md → "Tokens v2".
+
+   Rules carried by the token set itself:
+   · one accent  (--action) reserved for the primary action / current nav item
+   · five semantic roles (--success --caution --danger --info --action)
+   · colour is never the only signal (labels always travel with the colour)
+   · tabular numerals wherever a number changes
+   · 4px spacing base, 8/12/16/24/32/48 steps
+   · motion 120 / 180 / 240 ms ease-out, all disabled by prefers-reduced-motion
+   · density drives row height through --row-height (compact 38 / comfortable 48 /
+     roomy 62) plus --control-height (32 / 40 / 44)
+   --------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('/fonts/inter-latin-var.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin-700.woff2') format('woff2');
+}
+
+/* --- colour roles --------------------------------------------------------- */
+
+.app-root {
+  /* surfaces & lines */
+  --bg: #0B0D0E;
+  --surface: #121516;
+  --surface-2: #171b1c;
+  --line: #262b2c;
+  --line-strong: #363d3e;
+  /* ink */
+  --ink: #edf0ed;
+  --muted: #9ba6a2;
+  --subtle: #7e8a85;
+  /* the single action accent */
+  --action: #7fe3b4;
+  --action-ink: #06231a;
+  --action-soft: #12352a;
+  /* five semantic roles (label always present; colour is secondary) */
+  --success: #6fd3a2;
+  --caution: #e3c07f;
+  --danger: #ef9a8f;
+  --info: #9fc4e8;
+  --info-soft: #16232e;
+  /* data series — level bars and charts only */
+  --chart-1: #9fc4e8;
+  --chart-2: #7fe3b4;
+  --chart-3: #e3c07f;
+  /* elevation */
+  --shadow-1: 0 1px 0 rgb(0 0 0 / 0.28);
+  --shadow-2: 0 10px 26px rgb(0 0 0 / 0.36);
+  --overlay: rgb(4 6 6 / 0.62);
+  /* focus */
+  --focus: var(--action);
+  color-scheme: dark;
+}
+
+.app-root[data-theme='light'] {
+  --bg: #f7f8f7;
+  --surface: #ffffff;
+  --surface-2: #f1f3f1;
+  --line: #dce1dd;
+  --line-strong: #c2cac4;
+  --ink: #141817;
+  --muted: #55605a;
+  --subtle: #68716c;
+  --action: #14603f;
+  --action-ink: #ffffff;
+  --action-soft: #e4efe9;
+  --success: #14603f;
+  --caution: #7a5714;
+  --danger: #96382c;
+  --info: #1f4f78;
+  --info-soft: #e8eef5;
+  --chart-1: #2f6b96;
+  --chart-2: #14603f;
+  --chart-3: #8a6a18;
+  --shadow-1: 0 1px 0 rgb(20 24 23 / 0.06);
+  --shadow-2: 0 12px 28px rgb(20 24 23 / 0.12);
+  --overlay: rgb(20 24 23 / 0.34);
+  color-scheme: light;
+}
+
+/* --- type, space, radius, motion, density --------------------------------- */
+
+.app-root {
+  --font-ui: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 20px;
+  --text-2xl: 28px;
+  --text-3xl: 40px;
+  --leading-display: 1.2;
+  --leading-body: 1.5;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-pill: 999px;
+
+  --motion-micro: 120ms;
+  --motion-transition: 180ms;
+  --motion-view: 240ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* density (comfortable is the default) */
+  --row-height: 48px;
+  --control-height: 40px;
+  --control-height-lg: 44px;
+  --gutter: 24px;
+  --sidebar-width: 240px;
+  --rail-width: 64px;
+  --bottom-bar-height: 56px;
+  --topbar-height: 56px;
+}
+
+.app-root[data-density='compact'] {
+  --row-height: 38px;
+  --control-height: 32px;
+  --control-height-lg: 36px;
+}
+
+.app-root[data-density='roomy'] {
+  --row-height: 62px;
+  --control-height: 44px;
+  --control-height-lg: 48px;
+}
+
+.app-root.large-text {
+  --text-2xs: 12px;
+  --text-xs: 13px;
+  --text-sm: 15px;
+  --text-base: 17px;
+  --text-lg: 19px;
+  --text-xl: 23px;
+  --text-2xl: 32px;
+  --text-3xl: 44px;
+}
+
+@media (max-width: 820px) {
+  .app-root {
+    --gutter: 16px;
+    --topbar-height: 52px;
+    /* Touch targets stay ≥44px on phones whatever the density setting says. */
+    --control-height: 44px;
+    --control-height-lg: 44px;
+  }
+}
+
+/* --- base ----------------------------------------------------------------- */
+
+/* The element reset is scoped to the shell: public/404.html and
+   public/offline.html are standalone documents with their own reset. */
+.app-root {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app-root *,
+.app-root *::before,
+.app-root *::after {
+  box-sizing: border-box;
+}
+
+.app-root :where(h1, h2, h3, h4) {
+  margin: 0;
+  color: var(--ink);
+  line-height: var(--leading-display);
+  letter-spacing: -0.02em;
+}
+
+.app-root :where(p) {
+  margin: 0;
+}
+
+.app-root :where(a) {
+  color: var(--ink);
+}
+
+.app-root :where(button, input, select, textarea) {
+  font: inherit;
+  color: inherit;
+}
+
+.app-root :where(code, kbd, samp, pre, .num) {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+.app-root code {
+  font-family: var(--font-mono);
+  font-size: 0.94em;
+}
+
+/* Focus: one 2px action ring, 2px offset, on every control. */
+.app-root :focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-control);
+}
+
+.skip-link {
+  position: absolute;
+  z-index: 60;
+  top: -80px;
+  left: 12px;
+  border-radius: var(--radius-control);
+  padding: 10px 14px;
+  background: var(--action);
+  color: var(--action-ink);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
