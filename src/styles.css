@@ -1575,6 +1575,8 @@ body {
   align-items: center;
   justify-content: center;
   gap: 4px;
+  /* 24px is the WCAG 2.5.8 AA target-size floor; the row is 38–62 px tall, so
+     this never forces a larger row. Phones go to 32–44 px below. */
   min-width: 28px;
   height: 28px;
   border: 0;

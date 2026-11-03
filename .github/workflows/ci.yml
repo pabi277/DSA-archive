@@ -137,7 +137,17 @@ jobs:
           print('\n'.join(out))
           PY
           if [ -s failure-digest.md ]; then
-            gh pr comment "${{ github.event.pull_request.number }}" --body-file failure-digest.md --edit-last --create-if-none || true
+            # `--edit-last` flags are not accepted on every gh release and made
+            # this step fail on its own; editing the existing comment is done
+            # explicitly through the API instead.
+            COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+              --paginate --jq '.[] | select(.body | contains("<!-- failure-digest -->")) | .id' | tail -1)
+            if [ -n "$COMMENT_ID" ]; then
+              gh api -X PATCH "repos/${{ github.repository }}/issues/comments/$COMMENT_ID" \
+                -f body="$(cat failure-digest.md)" > /dev/null
+            else
+              gh pr comment "${{ github.event.pull_request.number }}" --body-file failure-digest.md
+            fi
           fi
       - name: Upload generated visual baselines for review
         if: always() && hashFiles('e2e/__screenshots__/**') != ''
