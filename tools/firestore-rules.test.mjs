@@ -173,6 +173,26 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
     )
   })
 
+  it('accepts only the three done outcomes and rejects outcomes on todo rows', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const shard = ref(alice, 'alice')
+
+    await assertSucceeds(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ o: 'clean' })), { merge: true }),
+    )
+    for (const outcome of ['hint', 'couldnt']) {
+      await assertSucceeds(
+        setDoc(shard, progressWrite(arraysIds[0], entry({ o: outcome })), { merge: true }),
+      )
+    }
+    await assertFails(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ o: 'lucky-guess' })), { merge: true }),
+    )
+    await assertFails(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ s: 'todo', o: 'clean' })), { merge: true }),
+    )
+  })
+
   it('validates progress fields, known ids, one-entry writes and oversized values', async () => {
     const alice = env.authenticatedContext('alice').firestore()
     const shard = ref(alice, 'alice')
@@ -188,15 +208,6 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
     )
     await assertFails(
       setDoc(shard, progressWrite(arraysIds[0], entry({ fd: 'x'.repeat(41) })), { merge: true }),
-    )
-    await assertSucceeds(
-      setDoc(shard, progressWrite(arraysIds[0], entry({ o: 'hint' })), { merge: true }),
-    )
-    await assertFails(
-      setDoc(shard, progressWrite(arraysIds[0], entry({ o: 'lucky-guess' })), { merge: true }),
-    )
-    await assertFails(
-      setDoc(shard, progressWrite(arraysIds[0], entry({ s: 'todo', o: 'clean' })), { merge: true }),
     )
     await assertFails(
       setDoc(shard, progressWrite('not-a-problem', entry()), { merge: true }),
@@ -229,10 +240,7 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
       setDoc(
         shard,
         {
-          // Change the existing first row too: merge writes retain optional
-          // fields that are omitted, so re-sending `entry()` would only add one
-          // effective key after the prior outcome assertion.
-          [arraysIds[0]]: entry({ o: 'couldnt' }),
+          [arraysIds[0]]: entry(),
           [arraysIds[1]]: entry(),
           updatedAt: serverTimestamp(),
         },
