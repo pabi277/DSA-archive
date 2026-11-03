@@ -351,9 +351,11 @@ function TopicGroup({
 }) {
   const total = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.problems.length, 0)
   const [expanded, setExpanded] = useState(open)
+  const detailsRef = useRef<HTMLDetailsElement>(null)
 
   useEffect(() => {
     setExpanded(open)
+    if (detailsRef.current) detailsRef.current.open = open
   }, [open])
 
   const revealedIndex = useMemo(() => {
@@ -392,12 +394,13 @@ function TopicGroup({
   const remaining = Math.max(0, total - windowSize)
 
   return (
-    <details id={`topic-${topic.id}`} className="topic-card" open={expanded}>
+    <details ref={detailsRef} id={`topic-${topic.id}`} className="topic-card">
       <summary
         onClick={(event) => {
           event.preventDefault()
           const nextOpen = !expanded
           setExpanded(nextOpen)
+          if (detailsRef.current) detailsRef.current.open = nextOpen
           onToggle(nextOpen)
         }}
       >
