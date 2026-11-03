@@ -10,95 +10,10 @@
  * single-source by owner decision and are never re-hosted here).
  */
 import { catalogue } from '../catalogue'
-import { tallyTopic, type ProgressByTopic } from '../progress'
+import { tallyTopic } from '../progress'
 import { buildPath } from './router'
-import { Button, Card, Empty, Ring, Stat } from '../design/primitives'
+import { Button, Card, Empty, Stat } from '../design/primitives'
 import { IconArrowLeft, IconCheck, IconCode, IconSpark, IconToday } from '../design/icons'
-
-const topicById = (topicId: string) => catalogue.topics.find((topic) => topic.id === topicId) ?? null
-
-export function topicScreenValue(topicId: string, progress: ProgressByTopic) {
-  const topic = topicById(topicId)
-  if (!topic) return null
-  const tally = tallyTopic(progress, topic)
-  return { topic, tally }
-}
-
-export function TopicScreen({ topicId, progress }: { topicId: string; progress: ProgressByTopic }) {
-  const value = topicScreenValue(topicId, progress)
-  if (value === null) {
-    return (
-      <Empty
-        title="That topic does not exist"
-        mark="?"
-        testId="topic-missing"
-        action={
-          <a className="btn btn-primary" href={buildPath('topics')}>
-            Browse all 20 topics
-          </a>
-        }
-      >
-        <code>{topicId}</code> is not one of the 20 topics in this archive.
-      </Empty>
-    )
-  }
-  const { topic, tally } = value
-  return (
-    <div className="topic-screen">
-      <div className="topic-screen-head">
-        <div>
-          <a className="back-link" href={buildPath('topics')}>
-            <IconArrowLeft size={14} /> All topics
-          </a>
-          <p className="quiet-note num">
-            {tally.done}/{tally.total} done · {tally.total - tally.done} left
-          </p>
-        </div>
-        <Ring value={tally.done} total={tally.total} size={64} thickness={5} label={`${topic.title}: ${tally.done} of ${tally.total} rows done`} />
-      </div>
-
-      <nav className="segmented topic-tabs" aria-label="Topic sections">
-        <a className="segmented-item is-on" href={buildPath('topic', topic.id, { tab: 'learn' })} aria-current="page">
-          Learn
-        </a>
-        <a className="segmented-item" href={buildPath('topic', topic.id, { tab: 'practice' })}>
-          Practice
-        </a>
-        <a className="segmented-item" href={buildPath('topic', topic.id, { tab: 'quiz' })}>
-          Quiz
-        </a>
-      </nav>
-
-      <Card title="Learning order">
-        <ol className="topic-order">
-          {topic.subtopics.map((subtopic, index) => (
-            <li key={subtopic.id}>
-              <span className="num topic-order-rank">{index + 1}</span>
-              <span>
-                <strong>{subtopic.title}</strong>
-                <span className="quiet-note"> · {subtopic.problems.length} rows</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-      </Card>
-
-      <Empty
-        title="The primer arrives in the content phase"
-        mark={<IconSpark size={20} />}
-        testId="topic-primer-pending"
-        action={
-          <a className="btn btn-primary" href={buildPath('search', '', { topic: topic.id })}>
-            Browse this topic's rows now
-          </a>
-        }
-      >
-        Phase 02 wires the Learn · Practice · Quiz tabs and phase 03 fills them with our own
-        primer, statements, hints and checks. The rows are already here and already trackable.
-      </Empty>
-    </div>
-  )
-}
 
 export function ProblemScreen({ problemId }: { problemId: string }) {
   const rows = catalogue.topics.flatMap((topic) =>

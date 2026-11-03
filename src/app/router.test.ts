@@ -64,6 +64,13 @@ describe('query strings', () => {
     const route = parseRoute(path)
     expect(route.name).toBe('search')
     expect(route.query).toEqual({ q: 'binary search', level: 'core,pro', link: 'article' })
+    expect(route.path).toBe(path)
+    expect(parseRoute('#/topic/arrays?tab=practice')).toMatchObject({
+      name: 'topic',
+      param: 'arrays',
+      query: { tab: 'practice' },
+      path: '#/topic/arrays?tab=practice',
+    })
   })
 
   it('canonicalises Today to `#/` and encodes topic ids', () => {

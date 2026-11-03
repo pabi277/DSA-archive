@@ -1603,6 +1603,33 @@ body {
   color: var(--info);
 }
 
+.row-outcome-control {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 0 0 var(--space-1);
+}
+
+.row-outcome-option {
+  min-height: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  padding: 2px 9px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: var(--text-2xs);
+  cursor: pointer;
+}
+
+.row-outcome-option[aria-pressed='true'] {
+  border-color: var(--action);
+  background: var(--action-soft);
+  color: var(--action-ink);
+  font-weight: 700;
+}
+
 .row-panel {
   grid-column: 1 / -1;
   padding: var(--space-2) 0 var(--space-1);
@@ -1773,6 +1800,29 @@ body {
   .topic-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .topic-tile {
+    align-items: start;
+    grid-template-columns: 22px minmax(0, 1fr) auto;
+    gap: var(--space-2);
+  }
+
+  .topic-tile-arrow {
+    display: none;
+  }
+
+  .topic-page-heading {
+    align-items: flex-start;
+  }
+
+  .topic-page-title {
+    font-size: var(--text-xl);
+  }
+
+  .topic-neighbours .btn {
+    max-width: 48%;
+    white-space: normal;
+  }
 }
 
 /* --- today --------------------------------------------------------------- */
@@ -1902,6 +1952,7 @@ body {
 /* --- topic / problem / settings screens --------------------------------- */
 
 .topic-screen,
+.topic-page,
 .problem-screen,
 .settings-screen,
 .code-screen,
@@ -1912,15 +1963,96 @@ body {
   gap: var(--space-3);
 }
 
-.topic-screen-head {
+.topic-screen-head,
+.topic-page-heading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-4);
 }
 
+.topic-page-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+}
+
+.topic-page-title {
+  margin: var(--space-2) 0 3px;
+  font-size: var(--text-2xl);
+  font-weight: 720;
+  letter-spacing: -0.035em;
+}
+
 .topic-tabs {
+  display: flex;
+  gap: 3px;
   justify-self: start;
+  border-bottom: 1px solid var(--line);
+}
+
+.topic-tab {
+  min-height: 42px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 0 var(--space-3);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.topic-tab[aria-selected='true'] {
+  border-bottom-color: var(--action);
+  color: var(--ink);
+}
+
+.topic-tab-panel {
+  min-width: 0;
+  outline: none;
+}
+
+.topic-learn-panel,
+.topic-practice-panel {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.practice-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.topic-practice-list {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.topic-neighbours {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.topic-patterns {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+
+.topic-quiz-status {
+  margin-top: 2px;
+  font-size: 10px;
 }
 
 .topic-order {

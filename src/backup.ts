@@ -1,12 +1,10 @@
 /**
  * Anti-lock-in JSON backup.
  *
- * Schema v1 shipped in phase 2 with `notes`/`lists` present but always empty.
- * Phase 3 wrote **schema v2** (real notes and custom lists). Phase 4 writes
- * **schema v3**: the same payload plus the daily plans and the `rc` revision
- * counter on every progress entry. v1 and v2 files still import — that is the
- * recorded, backward-compatible migration — they simply carry no plans, and
- * their entries default `rc` to 0. Friends/summaries stay excluded.
+ * Schema v1 shipped with empty notes/lists, v2 added library data, v3 added
+ * plans and revision counts, and v4 adds the optional self-assessed outcome.
+ * All prior schemas remain importable; missing revision counts default to 0
+ * and legacy solved rows default to a clean outcome. Friends/summaries stay excluded.
  */
 import { catalogue } from './catalogue'
 import {
@@ -35,9 +33,9 @@ import {
   type BackupNote,
 } from './library'
 
-export const BACKUP_SCHEMA_VERSION = 3
-/** v1 (phase 2) and v2 (phase 3) files import unchanged; they carry no plans. */
-export const SUPPORTED_BACKUP_SCHEMAS = [1, 2, 3] as const
+export const BACKUP_SCHEMA_VERSION = 4
+/** Schemas 1–3 import unchanged; missing outcome and revision fields are normalized. */
+export const SUPPORTED_BACKUP_SCHEMAS = [1, 2, 3, 4] as const
 /** Room for many notes/snippets; each field is individually capped below. */
 const MAX_BACKUP_BYTES = 4_000_000
 
@@ -334,9 +332,13 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
       if (!isValidCloudEntry(value)) {
         throw new BackupError(`invalid progress entry for "${problemId}"`)
       }
-      // v1/v2 entries predate the phase-4 revision counter; normalize so the
-      // restore writes documents the v3 rules accept.
-      nextShard[problemId] = { ...value, rc: value.rc ?? 0 }
+      // Earlier schemas predate revision counts and outcomes. Normalize legacy
+      // solved rows to `clean`; todo rows must never carry an outcome.
+      nextShard[problemId] = {
+        ...value,
+        rc: value.rc ?? 0,
+        ...(value.s === 'todo' ? {} : { o: value.o ?? 'clean' }),
+      }
     }
     if (Object.keys(nextShard).length > 0) progressByTopic[topicId] = nextShard
   }

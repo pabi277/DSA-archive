@@ -189,6 +189,15 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
     await assertFails(
       setDoc(shard, progressWrite(arraysIds[0], entry({ fd: 'x'.repeat(41) })), { merge: true }),
     )
+    await assertSucceeds(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ o: 'hint' })), { merge: true }),
+    )
+    await assertFails(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ o: 'lucky-guess' })), { merge: true }),
+    )
+    await assertFails(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ s: 'todo', o: 'clean' })), { merge: true }),
+    )
     await assertFails(
       setDoc(shard, progressWrite('not-a-problem', entry()), { merge: true }),
     )

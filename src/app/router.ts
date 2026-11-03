@@ -151,10 +151,12 @@ export function parseRoute(hash: string): Route {
   if (rest.length > 0) return notFound('#/not-found')
   if (SEGMENT_PARAM[name]) {
     if (!second) return notFound('#/not-found')
-    return { name, param: second, query: parseQuery(searchPart), path: buildPath(name, second) }
+    const query = parseQuery(searchPart)
+    return { name, param: second, query, path: buildPath(name, second, query) }
   }
   if (second) return notFound('#/not-found')
-  return { name, param: '', query: parseQuery(searchPart), path: buildPath(name) }
+  const query = parseQuery(searchPart)
+  return { name, param: '', query, path: buildPath(name, '', query) }
 }
 
 /** Current hash, normalised to a `#/…` string ('' when absent). */

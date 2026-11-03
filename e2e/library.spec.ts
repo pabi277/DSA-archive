@@ -128,7 +128,7 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     const path = await download.path()
     expect(path).toBeTruthy()
     const backup = JSON.parse(await readFile(path!, 'utf8'))
-    expect(backup.schemaVersion).toBe(3)
+    expect(backup.schemaVersion).toBe(4)
     expect(backup.notes).toHaveLength(1)
     expect(backup.notes[0]).toMatchObject({ problemId: 'two-sum' })
     expect(backup.notes[0].snippet).toContain('new Map()')

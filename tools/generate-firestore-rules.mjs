@@ -90,7 +90,7 @@ export function generateRules(catalogue) {
   return `// GENERATED FILE — do not edit by hand.
 // Source: tools/generate-firestore-rules.mjs from data/problems.json.
 // ${topics.length} topics · ${allIds.length} unique problem ids.
-// Rules v4 (phase 5): reciprocal invitation-based friendships and opt-in summaries.
+// Rules v5 (phase 02): self-assessed progress outcomes; prior rules remain backward compatible.
 rules_version = '2';
 
 service cloud.firestore {
@@ -171,7 +171,7 @@ ${topics.map((topic) => `        && data.solvedByTopic[${literal(topic.id)}] is 
 
     function validCloudEntry(entry) {
       return entry is map
-        && entry.keys().hasOnly(['s', 'b', 'a', 'fd', 'lr', 'rc'])
+        && entry.keys().hasOnly(['s', 'b', 'a', 'fd', 'lr', 'rc', 'o'])
         && entry.keys().hasAll(['s', 'b', 'a', 'fd', 'lr', 'rc'])
         && entry.s in ['todo', 'done', 'revision']
         && entry.b is bool
@@ -181,6 +181,7 @@ ${topics.map((topic) => `        && data.solvedByTopic[${literal(topic.id)}] is 
         && entry.rc is int
         && entry.rc >= 0
         && entry.rc <= 100
+        && (!entry.keys().hasAny(['o']) || (entry.o in ['clean', 'hint', 'couldnt'] && entry.s != 'todo'))
         && (entry.fd == null || (entry.fd is string && entry.fd.size() <= 40))
         && (entry.lr == null || (entry.lr is string && entry.lr.size() <= 40));
     }

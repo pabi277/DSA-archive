@@ -50,6 +50,7 @@ import { getTriageFocus, moveTriageFocus, setTriageFocus, useTriageFocus } from 
 import { Banner, BottomBar, NavSidebar, PageHeader, TopBar } from './app/shell'
 import { SheetScreen, WINDOW_SIZE, topicRingValue } from './app/sheetScreen'
 import { TopicsScreen } from './app/topicsScreen'
+import { TopicPage } from './topics/topicPage'
 import {
   CodeScreen,
   InsightsScreen,
@@ -58,7 +59,6 @@ import {
   ProblemScreen,
   QuizHome,
   SettingsScreen,
-  TopicScreen,
 } from './app/placeholderScreens'
 import { Button, Card, Ring, Stat, ToastHost } from './design/primitives'
 import { IconArrowRight, IconCheck, IconSearch, IconSpark } from './design/icons'
@@ -204,6 +204,27 @@ function AppShell() {
   const weekly = useMemo(() => weeklyStats(data.entries, today), [data.entries, today])
   const heat = useMemo(() => heatmap(data.entries, today), [data.entries, today])
   const suggestions = useMemo(() => suggestedPicks(data.entries, planner.plan, 5), [data.entries, planner.plan])
+  const todayReasons = useMemo(() => {
+    const ids = new Set([...(planner.plan?.problemIds ?? []), ...suggestions])
+    const reasons: Record<string, string[]> = {}
+    for (const problemId of ids) {
+      const location = locateProblem(problemId)
+      if (!location) continue
+      const entry = data.entries[location.topicId]?.[problemId]
+      const due = queue.due.some((item) => item.problemId === problemId)
+      const why = due
+        ? 'due today'
+        : entry?.s === 'done' && entry.o === 'couldnt'
+          ? 'shaky — couldn’t last time'
+          : hint?.topicId === location.topicId
+            ? 'weakest topic'
+            : !entry
+              ? 'first solve'
+              : null
+      reasons[problemId] = why ? [why] : []
+    }
+    return reasons
+  }, [data.entries, hint, planner.plan, queue.due, suggestions])
   const continuePick = useMemo(() => continueWhereLeft(data.entries), [data.entries])
 
   const signedIn = account.status === 'signed-in'
@@ -631,6 +652,7 @@ function AppShell() {
                   goal={data.dailyGoal}
                   tally={dayTally}
                   suggestions={suggestions}
+                  todayReasons={todayReasons}
                   continuePick={continuePick}
                   disabled={planner.busy || (signedIn && !data.cloudReady)}
                   onAdd={(problemId) => planner.addToToday(problemId)}
@@ -684,6 +706,7 @@ function AppShell() {
                 signedIn={library.signedIn}
                 onToggleStatus={onToggleStatus}
                 onToggleBookmark={onToggleBookmark}
+                onSetOutcome={data.setOutcome}
                 onOpenProblem={(problemId) => openProblem(problemId)}
                 onPlan={onPlan}
                 searchSignal={searchSignal}
@@ -697,8 +720,23 @@ function AppShell() {
               </SheetScreen>
             ) : null}
 
-            {route.name === 'topics' ? <TopicsScreen progress={progress} /> : null}
-            {route.name === 'topic' ? <TopicScreen topicId={route.param} progress={progress} /> : null}
+            {route.name === 'topics' ? <TopicsScreen progress={progress} entries={data.entries} today={today} /> : null}
+            {route.name === 'topic' ? (
+              <TopicPage
+                topicId={route.param}
+                tabQuery={route.query.tab}
+                progress={progress}
+                entries={data.entries}
+                today={today}
+                dueCount={queue.due.filter((item) => item.topicId === route.param).length}
+                disabled={progressDisabled}
+                onToggleStatus={data.toggleStatus}
+                onToggleBookmark={data.toggleBookmark}
+                onSetOutcome={data.setOutcome}
+                onOpenProblem={(problemId) => openProblem(problemId)}
+                onPlan={onPlan}
+              />
+            ) : null}
             {route.name === 'problem' ? <ProblemScreen problemId={route.param} /> : null}
             {route.name === 'code' ? <CodeScreen signedIn={signedIn} /> : null}
             {route.name === 'practice' ? <PracticeScreen /> : null}
@@ -889,8 +927,21 @@ function TodayScreen({
         </div>
       </section>
 
+      {!signedIn ? (
+        <Card title="The planner needs an account" className="planner-card">
+          <p className="quiet-note">
+            Today's plan, the revision queue and stats are computed from your own solve dates. Sign in from the top
+            bar and they appear here; the sheet and its search keep working signed out.
+          </p>
+          <a className="btn btn-secondary" href="#/topics">
+            Browse all 20 topics
+          </a>
+        </Card>
+      ) : null}
+      {children}
+
       {hint ? (
-        <Card title="Focus next" className="focus-card">
+        <Card title="Weakest topic" className="focus-card">
           <div className="focus-row">
             <Ring value={hint.done} total={hint.total} size={48} />
             <div>
@@ -906,26 +957,13 @@ function TodayScreen({
           </div>
         </Card>
       ) : (
-        <Card title="Focus next" className="focus-card">
+        <Card title="Weakest topic" className="focus-card">
           <p className="quiet-note">
             Mark a few problems done and the topic with the lowest completion is suggested here. Until then,
             nothing is guessed.
           </p>
         </Card>
       )}
-
-      {!signedIn ? (
-        <Card title="The planner needs an account" className="planner-card">
-          <p className="quiet-note">
-            Today's plan, the revision queue and stats are computed from your own solve dates. Sign in from the top
-            bar and they appear here; the sheet and its search keep working signed out.
-          </p>
-          <a className="btn btn-secondary" href="#/topics">
-            Browse all 20 topics
-          </a>
-        </Card>
-      ) : null}
-      {children}
       <p className="today-footer-note quiet-note">
         <IconSearch size={14} /> Press <kbd className="kbd">⌘K</kbd> to jump to any problem, or{' '}
         <kbd className="kbd">g</kbd> <kbd className="kbd">p</kbd> for topics.

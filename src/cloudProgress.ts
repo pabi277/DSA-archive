@@ -5,7 +5,7 @@
  * Firestore's `progressByTopic/{topicId}` doc adds a/fd/lr to the phase-1
  * {s,b} row shape; `updatedAt` is a serverTimestamp on the doc, not the row.
  */
-import type { ProblemProgress, ProgressByTopic, TopicProgress } from './progress'
+import type { Outcome, ProblemProgress, ProgressByTopic, TopicProgress } from './progress'
 
 export type CloudStatus = 'todo' | 'done' | 'revision'
 export type CloudProgressEntry = {
@@ -21,6 +21,8 @@ export type CloudProgressEntry = {
    * schema-v1/v2 backups still load unchanged.
    */
   rc: number
+  /** Phase 02 self-assessed result; absent on old rows and while not done. */
+  o?: Outcome
 }
 export type CloudTopicProgress = Record<string, CloudProgressEntry>
 export type CloudProgressByTopic = Record<string, CloudTopicProgress>
@@ -60,7 +62,9 @@ export function isValidCloudEntry(raw: unknown): raw is CloudProgressEntry {
     (raw.lr === null || isIsoLike(raw.lr)) &&
     (raw.rc === undefined ||
       (typeof raw.rc === 'number' && Number.isInteger(raw.rc) && raw.rc >= 0 && raw.rc <= 100)) &&
-    Object.keys(raw).every((key) => ['s', 'b', 'a', 'fd', 'lr', 'rc'].includes(key))
+    (raw.o === undefined ||
+      (raw.o === 'clean' || raw.o === 'hint' || raw.o === 'couldnt') && raw.s !== 'todo') &&
+    Object.keys(raw).every((key) => ['s', 'b', 'a', 'fd', 'lr', 'rc', 'o'].includes(key))
   )
 }
 
@@ -84,6 +88,7 @@ export function sanitizeCloudEntry(raw: unknown): CloudProgressEntry | null {
     fd: isIsoLike(raw.fd) ? raw.fd : null,
     lr: isIsoLike(raw.lr) ? raw.lr : null,
     rc,
+    ...(s === 'todo' ? {} : { o: raw.o === 'hint' || raw.o === 'couldnt' ? raw.o : 'clean' }),
   }
 }
 
@@ -104,7 +109,9 @@ export function toUiProgress(cloud: CloudProgressByTopic): ProgressByTopic {
     for (const [problemId, entry] of Object.entries(shard)) {
       // `revision` is stored for phase 4 but phase 2's row control is binary.
       const status: ProblemProgress['s'] = entry.s === 'done' ? 'done' : 'todo'
-      uiShard[problemId] = { s: status, b: entry.b }
+      uiShard[problemId] = status === 'done'
+        ? { s: status, b: entry.b, o: entry.o ?? 'clean' }
+        : { s: status, b: entry.b }
     }
     result[topicId] = uiShard
   }
@@ -119,10 +126,13 @@ export function countCloudRows(cloud: CloudProgressByTopic) {
 export function nextCloudEntry(
   old: CloudProgressEntry | undefined,
   next: ProblemProgress,
-  field: 's' | 'b',
+  field: 's' | 'b' | 'o',
   now: string,
 ): CloudProgressEntry {
   const becameDone = field === 's' && next.s === 'done' && old?.s !== 'done'
+  const outcome = next.s === 'done'
+    ? (field === 'o' ? next.o : old?.o ?? next.o ?? 'clean')
+    : undefined
   return {
     s: next.s,
     b: next.b,
@@ -130,6 +140,7 @@ export function nextCloudEntry(
     fd: old?.fd ?? (next.s === 'done' ? now : null),
     lr: field === 's' ? now : (old?.lr ?? null),
     rc: old?.rc ?? 0,
+    ...(outcome ? { o: outcome } : {}),
   }
 }
 
@@ -146,6 +157,7 @@ export function nextRevisionEntry(old: CloudProgressEntry | undefined, now: stri
     fd: old?.fd ?? now,
     lr: now,
     rc: Math.min(100, (old?.rc ?? 0) + 1),
+    o: old?.o ?? 'clean',
   }
 }
 
@@ -161,6 +173,7 @@ function guestEntryToCloud(
     fd: old?.fd ?? (guest.s === 'done' ? now : null),
     lr: old?.lr ?? null,
     rc: old?.rc ?? 0,
+    ...(guest.s === 'done' ? { o: guest.o ?? old?.o ?? 'clean' } : {}),
   }
 }
 

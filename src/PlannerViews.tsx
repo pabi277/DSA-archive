@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { catalogue, type Problem } from './catalogue'
 import { LEVEL_LABELS, levelOf } from './sheet'
 import { locateProblem } from './library'
+import { Tag } from './design/primitives'
 import type { CloudProgressByTopic } from './cloudProgress'
 import {
   DAILY_GOAL_MAX,
@@ -30,6 +31,7 @@ export function TodayView({
   goal,
   tally,
   suggestions,
+  todayReasons,
   continuePick,
   disabled,
   onAdd,
@@ -46,6 +48,7 @@ export function TodayView({
   goal: number
   tally: TodayTally
   suggestions: string[]
+  todayReasons: Record<string, string[]>
   continuePick: { problemId: string; day: string } | null
   disabled: boolean
   onAdd: (problemId: string) => void
@@ -107,6 +110,24 @@ export function TodayView({
 
   return (
     <section className="library-view" data-testid="today-view" aria-label="Today">
+      {continuePick && (
+        <div className="card context-card" data-testid="continue-card">
+          <h2 className="card-title">Continue where you left off</h2>
+          <div className="context-stat">
+            <strong>{locateProblem(continuePick.problemId)?.problem.title ?? continuePick.problemId}</strong>
+            <span>last touched {continuePick.day}</span>
+          </div>
+          <button
+            type="button"
+            className="text-button"
+            data-testid="continue-open"
+            onClick={() => onOpen(continuePick.problemId)}
+          >
+            Open in the sheet →
+          </button>
+        </div>
+      )}
+
       <div className="library-head">
         <h2 className="card-title">Today</h2>
         <p className="quiet-note">
@@ -190,6 +211,7 @@ export function TodayView({
                   <span className="fine-print" data-testid={`today-state-${problemId}`}>
                     {done ? 'Done today' : 'Planned'}
                   </span>
+                  {(todayReasons[problemId] ?? []).map((reason) => <Tag key={reason} tone="neutral">{reason}</Tag>)}
                   <button
                     type="button"
                     className="button button-secondary"
@@ -238,6 +260,7 @@ export function TodayView({
                     {location?.problem.title ?? problemId}
                   </button>
                   <span className="fine-print">{location?.topicTitle ?? ''}</span>
+                  {(todayReasons[problemId] ?? []).map((reason) => <Tag key={reason} tone="neutral">{reason}</Tag>)}
                   <button
                     type="button"
                     className="button button-secondary"
@@ -297,24 +320,6 @@ export function TodayView({
           </ul>
         )}
       </div>
-
-      {continuePick && (
-        <div className="card context-card" data-testid="continue-card">
-          <h2 className="card-title">Continue where you left off</h2>
-          <div className="context-stat">
-            <strong>{locateProblem(continuePick.problemId)?.problem.title ?? continuePick.problemId}</strong>
-            <span>last touched {continuePick.day}</span>
-          </div>
-          <button
-            type="button"
-            className="text-button"
-            data-testid="continue-open"
-            onClick={() => onOpen(continuePick.problemId)}
-          >
-            Open in the sheet →
-          </button>
-        </div>
-      )}
 
     </section>
   )

@@ -55,7 +55,7 @@ describe('local guest progress', () => {
     markDone('arrays', 'two-sum')
     markBookmarked('arrays', 'two-sum')
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({
-      arrays: { 'two-sum': { s: 'done', b: true } },
+      arrays: { 'two-sum': { s: 'done', b: true, o: 'clean' } },
     })
     // A fresh store instance reads the same rows back.
     resetProgressStoreForTests()
@@ -88,7 +88,7 @@ describe('local guest progress', () => {
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ arrays: { 'two-sum': { s: 'done', b: 'yes' } } }))
     resetProgressStoreForTests()
-    expect(getProgressSnapshot()).toEqual({ arrays: { 'two-sum': { s: 'done', b: false } } })
+    expect(getProgressSnapshot()).toEqual({ arrays: { 'two-sum': { s: 'done', b: false, o: 'clean' } } })
   })
 
   it('clears everything on request', () => {
@@ -105,7 +105,7 @@ describe('local guest progress', () => {
     expect(countProgressRows(getProgressSnapshot())).toBe(1)
 
     // A phase-1 install has rows but no timestamp key: backfill once.
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ arrays: { 'two-sum': { s: 'done', b: false } } }))
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ arrays: { 'two-sum': { s: 'done', b: false, o: 'clean' } } }))
     localStorage.removeItem('dsa-archive.progress.updatedAt.v1')
     resetProgressStoreForTests()
     expect(Number.isFinite(getGuestTimestamps().arrays)).toBe(true)

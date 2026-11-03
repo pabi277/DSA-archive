@@ -44,6 +44,8 @@ export const ALL_ROUTES = [
   '/#/today',
   '/#/topics',
   '/#/topic/arrays',
+  '/#/topic/arrays?tab=practice',
+  '/#/topic/arrays?tab=quiz',
   '/#/problem/two-sum',
   '/#/search',
   '/#/code',

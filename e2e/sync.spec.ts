@@ -53,6 +53,9 @@ test('cloud progress survives relogin, offline reconnect and backup restore', as
     await expect(mergeNotice).toHaveCount(0)
     await expect(page.getByTestId('progress-pill')).toHaveText('1/495 done')
     await expect(page.getByTestId('sync-pill')).toContainText('Synced')
+    await page.getByTestId('outcome-two-sum-hint').click()
+    await expect(page.getByTestId('outcome-two-sum-hint')).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByTestId('sync-pill')).toContainText('Synced')
 
     // Relogin in the same browser, then in a genuinely fresh browser profile.
     await open(page, '/#/settings')
@@ -67,6 +70,8 @@ test('cloud progress survives relogin, offline reconnect and backup restore', as
     await expect(secondPage.getByTestId('signed-in-banner')).toContainText('CI Owner')
     await expect(secondPage.getByTestId('progress-pill')).toHaveText('1/495 done')
     await expect(secondPage.getByTestId('sync-pill')).toContainText('Synced')
+    await open(secondPage, '/#/topic/arrays?tab=practice')
+    await expect(secondPage.getByTestId('outcome-two-sum-hint')).toHaveAttribute('aria-pressed', 'true')
 
     // Offline marking queues in Firestore's persistent local cache, then syncs.
     await open(secondPage, '/#/search?q=linear+search')
@@ -97,7 +102,7 @@ test('cloud progress survives relogin, offline reconnect and backup restore', as
     expect(downloadPath).toBeTruthy()
     const exported = await readFile(downloadPath!, 'utf8')
     // Phase 3 bumped the writer to schema v2 (notes and lists included).
-    expect(JSON.parse(exported).schemaVersion).toBe(3)
+    expect(JSON.parse(exported).schemaVersion).toBe(4)
 
     const fileInput = verifyPage.getByLabel('Import backup JSON')
     await fileInput.setInputFiles({

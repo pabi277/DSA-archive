@@ -5,7 +5,7 @@ import type { BackupList, BackupNote } from './library'
 import type { BackupPlan } from './planner'
 
 const now = '2026-11-02T12:00:00.000Z'
-const cloudEntry: CloudProgressEntry = { s: 'done', b: true, a: 2, fd: now, lr: null, rc: 0 }
+const cloudEntry: CloudProgressEntry = { s: 'done', b: true, a: 2, fd: now, lr: null, rc: 0, o: 'clean' }
 const notes: BackupNote[] = [
   {
     problemId: 'two-sum',
@@ -69,11 +69,11 @@ function v2Copy() {
   return backup
 }
 
-describe('JSON backup (schema v3, phases 2–4)', () => {
+describe('JSON backup (schema v4, phases 2–4)', () => {
   it('round-trips profile, progress, notes, lists and plans with preview counts', () => {
     const parsed = parseBackup(createBackup(input))
     expect(parsed.counts).toEqual({ topics: 1, rows: 1, notes: 1, lists: 1, plans: 1 })
-    expect(parsed.backup.schemaVersion).toBe(3)
+    expect(parsed.backup.schemaVersion).toBe(4)
     expect(parsed.backup.profile).toMatchObject({
       theme: 'dark',
       largeText: false,
@@ -104,18 +104,19 @@ describe('JSON backup (schema v3, phases 2–4)', () => {
     })
   })
 
-  it('imports a phase-3 schemaVersion 2 file and defaults the missing revision counter', () => {
+  it('imports a schemaVersion 2 file and defaults the missing revision and outcome fields', () => {
     const parsed = parseBackup(JSON.stringify(v2Copy()))
-    expect(parsed.backup.schemaVersion).toBe(3)
+    expect(parsed.backup.schemaVersion).toBe(4)
     expect(parsed.counts).toEqual({ topics: 1, rows: 1, notes: 1, lists: 1, plans: 0 })
     expect(parsed.backup.progressByTopic.arrays['two-sum'].rc).toBe(0)
+    expect(parsed.backup.progressByTopic.arrays['two-sum'].o).toBe('clean')
     expect(parsed.backup.plans).toEqual([])
   })
 
   it('still imports a phase-2 schemaVersion 1 file — the recorded migration', () => {
     const parsed = parseBackup(JSON.stringify(v1Copy()))
     expect(parsed.counts).toEqual({ topics: 1, rows: 1, notes: 0, lists: 0, plans: 0 })
-    expect(parsed.backup.schemaVersion).toBe(3)
+    expect(parsed.backup.schemaVersion).toBe(4)
     expect(parsed.backup.notes).toEqual([])
     expect(parsed.backup.lists).toEqual([])
     expect(parsed.backup.plans).toEqual([])
