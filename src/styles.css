@@ -2655,6 +2655,25 @@ body {
 }
 
 @media (max-width: 560px) {
+  .topbar {
+    gap: var(--space-2);
+  }
+
+  .topbar-actions {
+    gap: 4px;
+  }
+
+  .topbar-actions .sync-pill {
+    max-width: 80px;
+    padding-inline: 6px;
+  }
+
+  /* Keep the wordmark, sync state, search, appearance and account/sign-in
+     reachable; the keyboard-only shortcut sheet has no phone-width affordance. */
+  .topbar-actions [data-testid='shortcuts-button'] {
+    display: none;
+  }
+
   .topbar-actions .icon-button:not(.icon-button-square) {
     padding-inline: 6px;
   }

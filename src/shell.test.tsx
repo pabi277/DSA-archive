@@ -42,6 +42,12 @@ function qa(selector: string) {
   return [...container.querySelectorAll(selector)] as HTMLElement[]
 }
 
+function outside(selector: string) {
+  const found = document.querySelector(selector)
+  if (!found) throw new Error(`missing element outside app root: ${selector}`)
+  return found as HTMLElement
+}
+
 function click(element: HTMLElement) {
   act(() => {
     element.dispatchEvent(new MouseEvent('click', { bubbles: true }))
@@ -278,9 +284,9 @@ describe('undo (acceptance 5)', () => {
     openTopic('arrays')
     click(q('[data-testid="status-two-sum"]'))
     expect(q('[data-testid="progress-pill"]').textContent).toBe('1/495 done')
-    const toast = q('[data-testid="toast"]')
+    const toast = outside('[data-testid="toast"]')
     expect(toast.textContent).toContain('Marked “Two Sum” done')
-    click(q('[data-testid="toast-action"]'))
+    click(outside('[data-testid="toast-action"]'))
     expect(q('[data-testid="progress-pill"]').textContent).toBe('0/495 done')
 
     click(q('[data-testid="status-two-sum"]'))
@@ -294,7 +300,7 @@ describe('undo (acceptance 5)', () => {
     openTopic('arrays')
     click(q('[data-testid="star-two-sum"]'))
     expect(q('[data-testid="star-two-sum"]').getAttribute('aria-pressed')).toBe('true')
-    click(q('[data-testid="toast-action"]'))
+    click(outside('[data-testid="toast-action"]'))
     expect(q('[data-testid="star-two-sum"]').getAttribute('aria-pressed')).toBe('false')
   })
 })

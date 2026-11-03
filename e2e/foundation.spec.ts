@@ -122,6 +122,7 @@ test('⌘K reaches every route, every topic, any problem and 10+ actions (accept
   // Keyboard-only from the palette to a route.
   await open(page, '/#/today')
   await page.keyboard.press('ControlOrMeta+k')
+  await expect(page.getByTestId('palette-input')).toBeFocused()
   await page.keyboard.type('settings')
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/#\/settings$/)
@@ -150,7 +151,11 @@ test('keyboard triage j/k/x/s/enter works and never fires while typing (acceptan
   await page.getByLabel('Search problems').fill('xks')
   await expect(page.getByTestId('progress-pill')).toHaveText('1/495 done')
 
-  // `?` opens the shortcuts sheet.
+  // Shortcuts are suppressed while the search input owns focus, then available
+  // globally once focus leaves editable controls.
+  await page.keyboard.press('?')
+  await expect(page.locator('dialog.shortcuts')).toBeHidden()
+  await page.getByLabel('Search problems').blur()
   await page.keyboard.press('?')
   await expect(page.locator('dialog.shortcuts')).toBeVisible()
   await page.keyboard.press('Escape')
@@ -161,12 +166,14 @@ test('windowing keeps the DOM small: 495 rows never mount at once (acceptance 12
   await page.setViewportSize(desktop)
   await open(page, '/#/search')
   await expect(page.locator('.row')).toHaveCount(0)
-  await openTopic(page)
+  // Arrays has only 32 rows; linked-list (49) exercises the next-window
+  // control while staying inside the same rendered topic-card path.
+  await openTopic(page, 'linked-list')
   const mounted = await page.locator('.row').count()
   expect(mounted).toBeGreaterThan(0)
   expect(mounted).toBeLessThanOrEqual(40)
-  await expect(page.getByTestId('window-more-arrays')).toBeVisible()
-  await page.getByTestId('window-more-arrays').click()
+  await expect(page.getByTestId('window-more-linked-list')).toBeVisible()
+  await page.getByTestId('window-more-linked-list').click()
   expect(await page.locator('.row').count()).toBeGreaterThan(mounted)
 })
 

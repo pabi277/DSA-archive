@@ -224,7 +224,7 @@ export function TopBar({
 
         {account ? (
           <Menu
-            label={`Account menu for ${account.displayName}`}
+            label={`${account.initials} account menu for ${account.displayName}`}
             trigger={<Avatar initials={account.initials} size={30} />}
           >
             <div className="menu-identity">

@@ -158,9 +158,17 @@
 
 - `npm test`: **154/154 passing**; `npm run build`, `check:budgets`, `check:dist`,
   `check:links`, `test:data` (495 rows / 20 topics) and `check:rules`: passing.
-- Playwright could not be rerun in this sandbox: the Chromium download endpoint reset the
-  TLS connection. This is an environment limitation, not a passing browser result; CI must
-  verify axe/search regressions and the remaining browser checks.
+- A CI rerun exposed additional concrete failures, now corrected on the session branch:
+  account menu's aria-label omitted the visible avatar initials; the shared topic helper
+  selected every nested `<summary>` instead of the topic's direct summary; the windowing
+  test used Arrays (32 rows) despite expecting a second window; the palette test typed
+  before its focus effect; the shortcuts test expected `?` to fire while the search input
+  was focused (the keyboard handler correctly suppresses shortcuts while typing); and the
+  phone top bar exceeded 390 px. Toasts now render in a body-level portal so the fixed
+  undo action is not clipped by app layout ancestors.
+- Playwright cannot run in this sandbox: the Chromium download endpoint resets the TLS
+  connection. These CI-derived fixes have local unit/build checks, but another CI run must
+  prove them and expose any remaining failures; the phase is not CI-green yet.
 
 ## Content added
 

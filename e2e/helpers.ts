@@ -63,7 +63,7 @@ export const ALL_ROUTES = [
 export async function openTopic(page: Page, topicId = 'arrays') {
   const details = page.locator(`#topic-${topicId}`)
   if (!(await details.getAttribute('open'))) {
-    await page.locator(`#topic-${topicId} summary`).click()
+    await page.locator(`#topic-${topicId} > summary`).click()
   }
   await expect(details).toHaveAttribute('open', '')
 }
