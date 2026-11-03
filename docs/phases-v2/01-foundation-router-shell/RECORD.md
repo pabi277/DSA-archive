@@ -172,10 +172,11 @@
   fallbacks), the topic disclosure's controlled-open race (the summary now updates both the
   the E2E disclosure helper's boolean-attribute check: `getAttribute('open')` returns an
   empty string when a native `<details>` is open, so a truthiness check clicked it shut on
-  repeated calls. The helper now checks specifically for `null`; the app disclosure is
-  back to native `<details>` with React-controlled state. Toast placement (the host now
-  renders inside `.app-root` to inherit theme and spacing tokens) and dark-theme toast
-  timer contrast (muted rather than subtle text) were corrected too. Local unit/build checks pass after
+  repeated calls. The helper now checks specifically for `null`; app disclosure state is
+  React-controlled. CI then exposed row-action text contrast loss from 55% opacity on the
+  entire control cluster; that opacity was removed. Toast placement (inside `.app-root`)
+  and dark-theme toast timer contrast (muted rather than subtle text) were also corrected.
+  Local unit/build checks pass after
   but another CI run must prove them and expose any remaining failures; the phase is not
   CI-green yet.
 

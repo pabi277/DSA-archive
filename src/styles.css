@@ -1556,14 +1556,6 @@ body {
   display: flex;
   align-items: center;
   gap: 2px;
-  opacity: 0.55;
-  transition: opacity var(--motion-micro) var(--ease-out);
-}
-
-.row:hover .row-cluster,
-.row:focus-within .row-cluster,
-.row.is-focused .row-cluster {
-  opacity: 1;
 }
 
 .row-tool {
