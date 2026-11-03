@@ -10,7 +10,7 @@ performance targets, tests, risks, acceptance criteria, and exit gate.
 | 01 | [`01-foundation-router-shell/`](01-foundation-router-shell/PLAN.md) — router, shell, design system v2 | 9–11 d | — |
 | 02 | [`02-topics-browse/`](02-topics-browse/PLAN.md) — the 20-topic spine, topic pages, outcomes | 5–6 d | 01 |
 | 03 | [`03-content-pipeline/`](03-content-pipeline/PLAN.md) — statements, hints, primers, quiz bank, tests · [`RESOURCE-POLICY.md`](03-content-pipeline/RESOURCE-POLICY.md) (multi-source, no single truth) · [`PRACTICE-SETS.md`](03-content-pipeline/PRACTICE-SETS.md) (+120–140 LeetCode drills) · [`AUTHORING.md`](03-content-pipeline/AUTHORING.md) | 7–9 d + authoring | 01 |
-| 04 | [`04-code-notebooks/`](04-code-notebooks/PLAN.md) — notes → code, `snippets`, rules v5, backup v4 | 5–6 d | 01 |
+| 04 | [`04-code-notebooks/`](04-code-notebooks/PLAN.md) — notes → code, `snippets`, rules v6, backup v5 (after the Phase 02 v5/v4 baseline) | 5–6 d | 01 |
 | 05 | [`05-quiz-engine/`](05-quiz-engine/PLAN.md) — theory MCQs with revealable solutions ([`THEORY-MCQ.md`](05-quiz-engine/THEORY-MCQ.md)), quiz runner, scoring, results | 6–7 d | 02, 03 |
 | 06 | [`06-theatre-player/`](06-theatre-player/PLAN.md) — in-app YouTube theatre, mini player, stamps | 7–9 d | 01, 02, 03 |
 | 07 | [`07-browser-runner/`](07-browser-runner/PLAN.md) — run C++/Python/JS locally in the browser | 5–7 d | 04, 03 |
@@ -21,6 +21,9 @@ performance targets, tests, risks, acceptance criteria, and exit gate.
 **Sequential total:** ~57–69 build days, plus the content track in
 [`03-content-pipeline/AUTHORING.md`](03-content-pipeline/AUTHORING.md) which runs in
 parallel from phase 02 onwards.
+
+
+**Execution status (2026-11-03):** Phase 01 is merged to `main` via PR #12; Phase 02 is implemented on PR #13 with CI run `41647413508` green. Its generated visual-baseline artifact awaits owner review before merge. Phase 03 is next after that merge. Rule and backup schema versions advance from the latest merged baseline; the listed sequence assumes phases 02 → 04 → 05 → 06 → 08.
 
 ## Owner additions 2026-11-03 (batch 2)
 

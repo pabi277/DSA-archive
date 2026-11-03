@@ -14,7 +14,7 @@
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { catalogue, summarizeCatalogue } from '../catalogue'
-import { tallyCatalogue, tallyTopic, type ProgressByTopic } from '../progress'
+import { tallyCatalogue, tallyTopic, type Outcome, type ProgressByTopic } from '../progress'
 import {
   LEVEL_FILTERS,
   LEVEL_LABELS,
@@ -65,6 +65,7 @@ export function SheetScreen({
   signedIn,
   onToggleStatus,
   onToggleBookmark,
+  onSetOutcome,
   onOpenProblem,
   onPlan,
   searchSignal,
@@ -94,6 +95,7 @@ export function SheetScreen({
   signedIn: boolean
   onToggleStatus: (topicId: string, problemId: string) => void
   onToggleBookmark: (topicId: string, problemId: string) => void
+  onSetOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
   onOpenProblem: (problemId: string) => void
   onPlan: (problemId: string) => void
   searchSignal: number
@@ -304,6 +306,7 @@ export function SheetScreen({
               signedIn={signedIn}
               onToggleStatus={onToggleStatus}
               onToggleBookmark={onToggleBookmark}
+              onSetOutcome={onSetOutcome}
               onOpenProblem={onOpenProblem}
               onPlan={onPlan}
               triageFocus={triageFocus}
@@ -333,6 +336,7 @@ function TopicGroup({
   signedIn,
   onToggleStatus,
   onToggleBookmark,
+  onSetOutcome,
   onOpenProblem,
   onPlan,
   triageFocus,
@@ -353,6 +357,7 @@ function TopicGroup({
   signedIn: boolean
   onToggleStatus: (topicId: string, problemId: string) => void
   onToggleBookmark: (topicId: string, problemId: string) => void
+  onSetOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
   onOpenProblem: (problemId: string) => void
   onPlan: (problemId: string) => void
   triageFocus: string | null
@@ -449,6 +454,7 @@ function TopicGroup({
                   listCount={Object.values(lists).filter((list) => list.problemIds.includes(problem.id)).length}
                   onToggleStatus={onToggleStatus}
                   onToggleBookmark={onToggleBookmark}
+                  onSetOutcome={onSetOutcome}
                   onOpen={(problemId, mode) => (mode === 'problem' ? onOpenProblem(problemId) : onOpenProblem(problemId))}
                   onOpenPanel={(problemId, kind) => onTogglePanel(problemId, kind)}
                   onPlan={onPlan}

@@ -12,7 +12,8 @@ import { catalogue, type Topic } from './catalogue'
  */
 
 export type Status = 'todo' | 'done'
-export type ProblemProgress = { s: Status; b: boolean }
+export type Outcome = 'clean' | 'hint' | 'couldnt'
+export type ProblemProgress = { s: Status; b: boolean; o?: Outcome }
 export type TopicProgress = Record<string, ProblemProgress>
 export type ProgressByTopic = Record<string, TopicProgress>
 export type GuestTimestamps = Record<string, number>
@@ -36,7 +37,11 @@ function sanitize(raw: unknown): ProgressByTopic {
       const status: Status = entry.s === 'done' ? 'done' : 'todo'
       const bookmarked = entry.b === true
       if (status === 'todo' && !bookmarked) continue
-      kept[problemId] = { s: status, b: bookmarked }
+      const outcome: Outcome =
+        entry.o === 'hint' || entry.o === 'couldnt' ? entry.o : 'clean'
+      kept[problemId] = status === 'done'
+        ? { s: status, b: bookmarked, o: outcome }
+        : { s: status, b: bookmarked }
     }
     if (Object.keys(kept).length > 0) next[topicId] = kept
   }
@@ -141,9 +146,11 @@ function toggle(
   field: 's' | 'b',
 ): ProgressByTopic {
   const entry = entryAt(progress, topicId, problemId)
+  const nextStatus: Status = field === 's' ? (entry.s === 'done' ? 'todo' : 'done') : entry.s
   const nextEntry: ProblemProgress = {
-    s: field === 's' ? (entry.s === 'done' ? 'todo' : 'done') : entry.s,
+    s: nextStatus,
     b: field === 'b' ? !entry.b : entry.b,
+    ...(nextStatus === 'done' ? { o: entry.o ?? 'clean' } : {}),
   }
   const topicShard = { ...(progress[topicId] ?? {}) }
   if (nextEntry.s === 'todo' && !nextEntry.b) delete topicShard[problemId]
@@ -184,6 +191,19 @@ export function markDone(topicId: string, problemId: string) {
 
 export function markBookmarked(topicId: string, problemId: string) {
   commit(toggle(current(), topicId, problemId, 'b'), topicId)
+}
+
+export function markOutcome(topicId: string, problemId: string, outcome: Outcome) {
+  const existing = entryAt(current(), topicId, problemId)
+  if (existing.s !== 'done') return
+  const next = {
+    ...current(),
+    [topicId]: {
+      ...(current()[topicId] ?? {}),
+      [problemId]: { ...existing, o: outcome },
+    },
+  }
+  commit(next, topicId)
 }
 
 export function clearProgress() {

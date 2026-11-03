@@ -4,12 +4,14 @@ export type Problem = {
   id: string
   title: string
   order: number
+  /** Optional author-curated study sequence used by phase 02. */
+  learnOrder?: number
   level: 'basic' | 'core' | 'pro' | null
   kind: 'problem' | 'theory'
   links: Partial<Record<'practice' | 'article' | 'video' | 'leetcode', string>>
 }
 
-export type Subtopic = { id: string; title: string; order: number; problems: Problem[] }
+export type Subtopic = { id: string; title: string; order: number; learnOrder?: number; problems: Problem[] }
 export type Topic = { id: string; title: string; order: number; subtopics: Subtopic[] }
 export type Catalogue = {
   schemaVersion: number

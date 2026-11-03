@@ -20,7 +20,7 @@ solution works as active recall instead of dead text.
 | Notes UI: editor + overview | `src/NoteEditor.tsx` (149 lines), `src/NotesView.tsx` (138) |
 | Notes model + limits | `src/library.ts:11-13` (`NOTE_MARKDOWN_LIMIT 5000`, `NOTE_SNIPPET_LIMIT 8000`) |
 | Notes rules | `firestore.rules:1235-1241` (`match /notes/{problemId}`) |
-| Notes in backup v3 | `src/backup.ts:38,141` |
+| Notes in backup v4 (includes Phase 02 outcomes) | `src/backup.ts:38,141` |
 | Notes tab + chips | `App.tsx:536-547`, `noteTotal` |
 | Hand-rolled markdown | `src/markdown.ts` (127 lines) — deleted with notes |
 | Lists feature shares `library.ts` | keep lists; only notes are removed |
@@ -30,8 +30,8 @@ solution works as active recall instead of dead text.
 ### In
 1. **Remove notes** from: UI (`NotesView`, `NoteEditor`, notes tab, notes chips, note
    buttons in rows), model (`library.ts` note functions + limits), data
-   (`users/{uid}/notes/{problemId}` collection and rules block), backup (v4 field drop
-   with v3 migration), tests (`e2e/library.spec.ts` trimmed, unit tests updated),
+   (`users/{uid}/notes/{problemId}` collection and rules block), backup (v5 field drop
+   with legacy notes migration), tests (`e2e/library.spec.ts` trimmed, unit tests updated),
    `App.tsx` wiring, and any copy mentioning notes.
 2. **Add `snippets`**:
    ```
@@ -52,12 +52,12 @@ solution works as active recall instead of dead text.
 5. **View mode + peek**: rendered `<pre>` (monospace, no syntax highlighting yet);
    **peek** blurs the code behind a "Reveal — I've attempted it" button (state local
    only). Row badge `⌨ has code` in practice lists and the problem page.
-6. **Rules v5** (+ generator + emulator tests): owner-only `get/list/create/update/
+6. **Rules v6** (+ generator + emulator tests): owner-only `get/list/create/update/
    delete`; `problemId` must match the catalogue slug regex; field whitelist;
    `code ≤8000`, `notes ≤500`, `language` in the enum, `verdict` optional enum.
-7. **Backup v4**: `snippets[]`; importer maps v3 `notes[]` → `snippets[id].notes`
+7. **Backup v5**: `snippets[]`; importer maps legacy `notes[]` → `snippets[id].notes`
    (dropping markdown body, keeping the ≤500 plain-text tail with a printed warning),
-   v1/v2/v3 import otherwise unchanged; exporter emits v4.
+   preserves progress outcomes, and keeps v1–v4 import support; exporter emits v5.
 8. **Copy-out**: "Copy code" + "Open in Compiler Explorer" / "Open in LeetCode"
    (deep link) so a learner without the local runner (phase 07) is never stuck.
 
@@ -98,7 +98,7 @@ NEW    src/code/editor.tsx          textarea + line numbers + indent + save stat
 NEW    src/code/peek.tsx            reveal wrapper
 NEW    src/code/highlight.ts        tiny tokenizer (optional, measured; ship only if budget allows)
 EDIT   src/library.ts               remove notes; keep lists untouched
-EDIT   src/backup.ts                schema 4: snippets, v3 notes migration
+EDIT   src/backup.ts                schema 5: snippets, legacy notes migration
 EDIT   src/accountData.ts           remove notes plumbing, add snippets
 EDIT   src/SheetList.tsx            note button → code button + has-code badge
 EDIT   src/App.tsx                  routes + wiring
@@ -143,7 +143,7 @@ NEW    src/code/*.test.ts
 | Silent data loss for existing note users | Migration prints what was dropped; notes body is long-markdown, the ≤500 tail is preserved; runbook step tells the owner to export a v3 backup first |
 | Rules regression | Generator + `check:rules` + emulator tests in the same PR; the v1 lesson: never hand-edit `firestore.rules` |
 | Editor scope creep | Hard limits: no highlighting lib, no multi-file, no execution (that's 07) |
-| Backup schema drift | v4 is additive; v1–v3 import tests stay in the suite |
+| Backup schema drift | v5 is additive; v1–v4 import tests stay in the suite |
 
 ## 10. Acceptance
 Notes are gone from code, UI, rules, backup and docs · a snippet saved on phone appears

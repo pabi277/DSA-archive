@@ -99,14 +99,14 @@ EDIT src/PlannerViews.tsx           chips, momentum, disclosure, detectors row
 EDIT src/settings.ts                targetDate, targetListId (+ sanitise + defaults)
 EDIT src/topics/practiceList.tsx    chips where a reason exists
 EDIT src/app/commandPalette.tsx     show reasons in results
-EDIT src/backup.ts (v4 field pass)  targetDate/targetListId ride along in settings
+EDIT src/backup.ts (v8 field pass)  targetDate/targetListId ride along in settings
 NEW  e2e/insights.spec.ts
 ```
 
 ## 6. Data model
 `users/{uid}` profile settings gain two optional fields (`targetDate`,
 `targetListId`). No new collections, **no extra reads** — everything is derived from
-progress already in memory. Rules v5 already validate a settings whitelist; extend it
+progress already in memory. Rules v9 (after phases 02, 04, 05 and 06) validates the settings whitelist; extend it
 with the two fields and add one emulator test each (valid, malformed rejected).
 
 ## 7. Accessibility & performance

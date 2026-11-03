@@ -571,3 +571,18 @@
   (`e2e/visual.spec.ts`, 2 viewports × 2 themes × 6 routes = 24 PNGs). The specs
   skip unless `CI` or `VISUAL_BASELINES=1` is set, so a local run cannot silently
   accept a new baseline.
+
+## Phase v2-02 implementation choices (2026-11-03)
+
+- **Outcome persistence is one optional field.** `progressByTopic` entries accept
+  `o: clean|hint|couldnt` only while solved; legacy solved rows with no outcome read
+  as `clean`, and todo rows omit the field. Topic confidence rings count `clean` as
+  learned; `hint` and `couldnt` remain solved but not confidently learned. Firestore
+  rules are now v5 and backup schema v4; prior backup versions remain importable.
+- **Phase 02 content states stay honest.** Learn primer and Quiz execution are
+  placeholders pending the content pipeline/quiz engine (phases 03/05); the Quiz
+  start button is disabled until questions exist. No statements, primers, quizzes,
+  or drill content were authored in this phase.
+- **Visual baselines remain a human gate.** CI generates the Phase 01/02 matrix and
+  uploads `visual-baselines`; it does not silently commit or auto-accept PNGs. The
+  owner reviews the artifact before the Phase 02 merge gate closes.

@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { desktop, open, openTopic, phone } from './helpers'
 
 /**
- * Visual baselines for phase v2-01: 2 viewports × 2 themes × 6 routes = 24
+ * Visual baselines for phase v2-01/02: 2 viewports × 2 themes × 8 routes = 32
  * committed snapshots.
  *
  * Baselines are generated once, in CI, against the real font subsets, and
@@ -15,6 +15,8 @@ import { desktop, open, openTopic, phone } from './helpers'
 const ROUTES = [
   { path: '/#/today', slug: 'today' },
   { path: '/#/topics', slug: 'topics' },
+  { path: '/#/topic/arrays', slug: 'topic-learn' },
+  { path: '/#/topic/arrays?tab=practice', slug: 'topic-practice' },
   { path: '/#/search', slug: 'search' },
   { path: '/#/review', slug: 'review' },
   { path: '/#/settings', slug: 'settings' },

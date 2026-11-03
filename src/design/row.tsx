@@ -16,7 +16,7 @@
 import type { ReactNode } from 'react'
 import type { Problem } from '../catalogue'
 import { LEVEL_LABELS, levelOf, type LinkFilter } from '../sheet'
-import { isBookmarked, isDone, type ProgressByTopic } from '../progress'
+import { isBookmarked, isDone, type Outcome, type ProgressByTopic } from '../progress'
 import { IconCheck, IconClock, IconExternal, IconMore, IconStar, IconStarFilled } from './icons'
 import { Menu, MenuItem, Tag } from './primitives'
 
@@ -53,7 +53,7 @@ export function LeetCodeBadge({ problem }: { problem: Problem }) {
   return <span className="row-slug num">#{match[1]}</span>
 }
 
-export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, revealed, focused, age, canEditNotes, hasNote, listCount, onToggleStatus, onToggleBookmark, onOpen, onOpenPanel, onPlan, onFocus, panel }: {
+export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, revealed, focused, age, canEditNotes, hasNote, listCount, onToggleStatus, onToggleBookmark, onSetOutcome, onOpen, onOpenPanel, onPlan, onFocus, listPosition, listSize, panel }: {
   topicId: string
   topicTitle: string
   problem: Problem
@@ -67,20 +67,24 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
   listCount: number
   onToggleStatus: (topicId: string, problemId: string) => void
   onToggleBookmark: (topicId: string, problemId: string) => void
+  onSetOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
   onOpen: (problemId: string, mode: 'problem' | 'sheet') => void
   onOpenPanel: (problemId: string, kind: 'note' | 'lists') => void
   onPlan: (problemId: string) => void
   onFocus: (problemId: string) => void
+  listPosition?: number
+  listSize?: number
   panel: ReactNode
 }) {
   const done = isDone(progress, topicId, problem.id)
   const bookmarked = isBookmarked(progress, topicId, problem.id)
+  const outcome = progress[topicId]?.[problem.id]?.o ?? 'clean'
   const level = levelOf(problem)
   const links = linkEntries(problem)
   const primaryLink = links.find((entry) => entry.linkType === 'practice') ?? links[0]
 
   return (
-    <article
+    <div
       className={[
         'row',
         done && 'is-done',
@@ -92,6 +96,9 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
       id={`problem-${problem.id}`}
       data-problem-id={problem.id}
       data-testid={`row-${problem.id}`}
+      role={listPosition ? 'listitem' : undefined}
+      aria-posinset={listPosition}
+      aria-setsize={listSize}
       tabIndex={focused ? 0 : -1}
       aria-labelledby={`row-title-${problem.id}`}
       onFocus={() => onFocus(problem.id)}
@@ -222,9 +229,30 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
         </Menu>
       </div>
 
+      {done ? (
+        <div className="row-outcome-control" role="group" aria-label={`${problem.title} result`}>
+          {([
+            ['clean', 'Clean'],
+            ['hint', 'Hint'],
+            ['couldnt', "Couldn't"],
+          ] as const).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className="row-outcome-option"
+              disabled={disabled}
+              aria-pressed={outcome === value}
+              data-testid={`outcome-${problem.id}-${value}`}
+              onClick={() => onSetOutcome(topicId, problem.id, value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      ) : null}
       {problem.kind === 'theory' ? <Tag tone="info" className="row-tag">Theory</Tag> : null}
       {panel ? <div className="row-panel">{panel}</div> : null}
-    </article>
+    </div>
   )
 }
 

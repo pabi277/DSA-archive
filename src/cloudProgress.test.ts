@@ -22,8 +22,11 @@ function entry(overrides: Partial<CloudProgressEntry> = {}): CloudProgressEntry 
 }
 
 describe('phase-2 cloud progress shape', () => {
-  it('accepts only the six validated fields and rejects hostile values', () => {
+  it('accepts only the validated fields and rejects hostile values', () => {
     expect(isValidCloudEntry(entry())).toBe(true)
+    expect(isValidCloudEntry(entry({ o: 'hint' }))).toBe(true)
+    expect(isValidCloudEntry(entry({ o: 'bad' as never }))).toBe(false)
+    expect(isValidCloudEntry(entry({ s: 'todo', o: 'clean' }))).toBe(false)
     expect(isValidCloudEntry({ ...entry(), extra: true })).toBe(false)
     expect(isValidCloudEntry({ ...entry(), s: 'hacked' })).toBe(false)
     expect(isValidCloudEntry({ ...entry(), a: 10001 })).toBe(false)
@@ -36,7 +39,7 @@ describe('phase-2 cloud progress shape', () => {
       updatedAt: 'server timestamp',
       broken: 5,
     })
-    expect(shard).toEqual({ [ids[0]]: entry({ s: 'revision', b: true, a: 3 }) })
+    expect(shard).toEqual({ [ids[0]]: entry({ s: 'revision', b: true, a: 3, o: 'clean' }) })
     expect(toUiProgress({ arrays: shard })).toEqual({
       arrays: { [ids[0]]: { s: 'todo', b: true } },
     })
@@ -45,11 +48,19 @@ describe('phase-2 cloud progress shape', () => {
 
   it('adds attempts/dates on the first done toggle and preserves them afterwards', () => {
     const first = nextCloudEntry(undefined, { s: 'done', b: false }, 's', now)
-    expect(first).toEqual({ s: 'done', b: false, a: 1, fd: now, lr: now, rc: 0 })
+    expect(first).toEqual({ s: 'done', b: false, a: 1, fd: now, lr: now, rc: 0, o: 'clean' })
     const bookmark = nextCloudEntry(first, { s: 'done', b: true }, 'b', '2026-11-03T12:00:00.000Z')
-    expect(bookmark).toEqual({ s: 'done', b: true, a: 1, fd: now, lr: now, rc: 0 })
+    expect(bookmark).toEqual({ s: 'done', b: true, a: 1, fd: now, lr: now, rc: 0, o: 'clean' })
     const undone = nextCloudEntry(bookmark, { s: 'todo', b: true }, 's', '2026-11-04T12:00:00.000Z')
     expect(undone).toEqual({ s: 'todo', b: true, a: 1, fd: now, lr: '2026-11-04T12:00:00.000Z', rc: 0 })
+  })
+
+  it('records the chosen outcome and clears it when a solved row is undone', () => {
+    const solved = nextCloudEntry(undefined, { s: 'done', b: false, o: 'clean' }, 's', now)
+    const withHint = nextCloudEntry(solved, { s: 'done', b: false, o: 'hint' }, 'o', now)
+    expect(withHint.o).toBe('hint')
+    const undone = nextCloudEntry(withHint, { s: 'todo', b: false }, 's', now)
+    expect(undone).not.toHaveProperty('o')
   })
 
   it('keeps the phase-4 revision counter across ordinary toggles', () => {
@@ -81,6 +92,7 @@ describe('phase-4 entry contract (rc)', () => {
       fd: now,
       lr: '2026-11-09T09:00:00.000Z',
       rc: 1,
+      o: 'clean',
     })
     expect(nextRevisionEntry(first, '2026-11-16T09:00:00.000Z').rc).toBe(2)
     // A revision never invents an fd, and it stops at the rules' ceiling.
@@ -95,7 +107,7 @@ describe('explicit guest → signed-in merge plan', () => {
   }
 
   it('uses the newest per-topic timestamp and removes cloud-only rows when guest wins', () => {
-    const guest: ProgressByTopic = { arrays: { [ids[0]]: { s: 'done', b: false } } }
+    const guest: ProgressByTopic = { arrays: { [ids[0]]: { s: 'done', b: false, o: 'clean' } } }
     const plan = planGuestMerge(guest, cloud, { arrays: 2_000 }, { arrays: 1_000 }, now)
     expect(plan).toMatchObject({
       guestRows: 1,
@@ -107,13 +119,13 @@ describe('explicit guest → signed-in merge plan', () => {
     expect(plan.writes).toContainEqual({
       topicId: 'arrays',
       problemId: ids[0],
-      entry: entry({ a: 1, fd: now, lr: null }),
+      entry: entry({ a: 1, fd: now, lr: null, o: 'clean' }),
     })
     expect(plan.writes).toContainEqual({ topicId: 'arrays', problemId: ids[1], entry: null })
   })
 
   it('never overwrites a newer cloud shard; the user still sees the proposal', () => {
-    const guest: ProgressByTopic = { arrays: { [ids[0]]: { s: 'done', b: false } } }
+    const guest: ProgressByTopic = { arrays: { [ids[0]]: { s: 'done', b: false, o: 'clean' } } }
     const plan = planGuestMerge(guest, cloud, { arrays: 500 }, { arrays: 1_000 }, now)
     expect(plan.guestRows).toBe(1)
     expect(plan.cloudRows).toBe(1)

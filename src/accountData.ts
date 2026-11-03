@@ -34,7 +34,9 @@ import {
   getProgressSnapshot,
   markBookmarked as markGuestBookmarked,
   markDone as markGuestDone,
+  markOutcome as markGuestOutcome,
   useProgress,
+  type Outcome,
   type ProblemProgress,
   type ProgressByTopic,
 } from './progress'
@@ -81,6 +83,7 @@ export type AccountData = {
   busy: boolean
   toggleStatus: (topicId: string, problemId: string) => void
   toggleBookmark: (topicId: string, problemId: string) => void
+  setOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
   clearGuestProgress: () => void
   mergeGuestProgress: () => void
   keepCloudProgress: () => void
@@ -337,12 +340,13 @@ export function useAccountData(
     topicId: string,
     problemId: string,
     next: ProblemProgress,
-    field: 's' | 'b',
+    field: 's' | 'b' | 'o',
   ) {
     const firestore = db
     if (!signedIn || !uid || !firestore) {
       if (field === 's') markGuestDone(topicId, problemId)
-      else markGuestBookmarked(topicId, problemId)
+      else if (field === 'b') markGuestBookmarked(topicId, problemId)
+      else if (next.o) markGuestOutcome(topicId, problemId, next.o)
       return
     }
     const now = new Date().toISOString()
@@ -405,7 +409,13 @@ export function useAccountData(
 
   const toggleBookmark = (topicId: string, problemId: string) => {
     const current = progress[topicId]?.[problemId] ?? { s: 'todo', b: false }
-    writeEntry(topicId, problemId, { s: current.s, b: !current.b }, 'b')
+    writeEntry(topicId, problemId, { ...current, b: !current.b }, 'b')
+  }
+
+  const setOutcome = (topicId: string, problemId: string, outcome: Outcome) => {
+    const current = progress[topicId]?.[problemId] ?? { s: 'todo', b: false }
+    if (current.s !== 'done') return
+    writeEntry(topicId, problemId, { ...current, o: outcome }, 'o')
   }
 
   const clearGuestProgress = () => {
@@ -596,6 +606,7 @@ export function useAccountData(
     busy,
     toggleStatus,
     toggleBookmark,
+    setOutcome,
     clearGuestProgress,
     mergeGuestProgress,
     keepCloudProgress,

@@ -173,6 +173,26 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
     )
   })
 
+  it('accepts only the three done outcomes and rejects outcomes on todo rows', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const shard = ref(alice, 'alice')
+
+    await assertSucceeds(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ o: 'clean' })), { merge: true }),
+    )
+    for (const outcome of ['hint', 'couldnt']) {
+      await assertSucceeds(
+        setDoc(shard, progressWrite(arraysIds[0], entry({ o: outcome })), { merge: true }),
+      )
+    }
+    await assertFails(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ o: 'lucky-guess' })), { merge: true }),
+    )
+    await assertFails(
+      setDoc(shard, progressWrite(arraysIds[0], entry({ s: 'todo', o: 'clean' })), { merge: true }),
+    )
+  })
+
   it('validates progress fields, known ids, one-entry writes and oversized values', async () => {
     const alice = env.authenticatedContext('alice').firestore()
     const shard = ref(alice, 'alice')

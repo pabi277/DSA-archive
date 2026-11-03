@@ -163,15 +163,36 @@ describe('shell + routing (acceptance 1, 2, 8)', () => {
     const tiles = qa('[data-testid^="topic-tile-"]')
     expect(tiles).toHaveLength(20)
     expect(tiles[0].querySelector('.ring')).toBeTruthy()
-    expect(tiles[0].textContent).toContain('done')
-    expect(tiles[0].textContent).toContain('/')
+    expect(tiles[0].textContent).toContain('problems')
+    expect(tiles[0].textContent).toContain('Basic')
   })
 
   it('opens a topic page with Learn · Practice · Quiz and the learning order', () => {
     goto('#/topic/arrays')
-    expect(qa('.topic-tabs a').map((link) => link.textContent)).toEqual(['Learn', 'Practice', 'Quiz'])
+    expect(qa('.topic-tabs [role=tab]').map((tab) => tab.textContent)).toEqual(['Learn', 'Practice', 'Quiz'])
     expect(qa('.topic-order li')).toHaveLength(arrays.subtopics.length)
     expect(q('[data-testid="topic-primer-pending"]')).toBeTruthy()
+  })
+
+  it('filters Practice problems and stores a three-way result only while done', () => {
+    goto('#/topic/arrays?tab=practice')
+    expect(q('[role="tab"][aria-selected="true"]').textContent).toBe('Practice')
+
+    const filters = qa('.segmented-item')
+    expect(filters.map((button) => button.textContent?.trim())).toEqual(['All', 'Not started', 'Shaky', 'Done'])
+    click(filters[1])
+    expect(q('[data-testid="row-two-sum"]')).toBeTruthy()
+    click(q('.segmented-item'))
+
+    click(q('[data-testid="status-two-sum"]'))
+    const hint = q('[data-testid="outcome-two-sum-hint"]')
+    click(hint)
+    expect(q('[data-testid="outcome-two-sum-hint"]').getAttribute('aria-pressed')).toBe('true')
+
+    click(q('[data-testid="status-two-sum"]'))
+    expect(container.querySelector('[data-testid="outcome-two-sum-hint"]')).toBeNull()
+    click(q('[data-testid="status-two-sum"]'))
+    expect(q('[data-testid="outcome-two-sum-clean"]').getAttribute('aria-pressed')).toBe('true')
   })
 
   it('gives an unknown topic and an unknown problem a way back', () => {

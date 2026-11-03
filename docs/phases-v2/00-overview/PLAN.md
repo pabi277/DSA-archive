@@ -21,7 +21,7 @@
 | 01 | `01-foundation-router-shell/` | Router, shell, design system v2 | URLs, sidebar/bottom bar, tokens, type, colour, density, rows, motion, states, ⌘K, undo | 9–11 |
 | 02 | `02-topics-browse/` | The 20-topic spine | `#/topics`, topic pages (Learn/Practice/Quiz tabs), rings, learning order | 5–6 |
 | 03 | `03-content-pipeline/` | Content data + authoring + validation | statements, hints, mistakes, primers, quizzes, tests — schema, tooling, CI | 5–7 (build) + authoring track |
-| 04 | `04-code-notebooks/` | Notes → Code | `snippets` collection, rules v5, backup v4, `#/code`, editor, peek/reveal | 5–6 |
+| 04 | `04-code-notebooks/` | Notes → Code | `snippets` collection, rules v6, backup v5, `#/code`, editor, peek/reveal | 5–6 |
 | 05 | `05-quiz-engine/` | Quiz engine + results | runner, scoring, explanations, quiz home, results sync + offline | 5–6 |
 | 06 | `06-theatre-player/` | Video theatre | player stage, mini player, stamps, speed memory, oEmbed, dead links | 7–9 |
 | 07 | `07-browser-runner/` | Local C++/Py/JS runner | wasm worker, Run, tests, predict-output, storage control | 5–7 |
@@ -31,6 +31,12 @@
 
 **Sequential estimate:** ~55–65 build days. Phases 02 and 03 can run in parallel once
 01 lands; 04–07 are independent of each other and can be re-ordered after 03.
+
+**Status (2026-11-03):** Phase 01 is merged via PR #12. Phase 02 implementation and
+automated CI are complete on PR #13 (CI run `41647413508` passed); review of its generated
+visual-baseline artifact remains before owner merge. Phase 03 is next after PR #13 merges.
+The rules/backup version numbers in later phase contracts assume the listed 02 → 04 → 05
+→ 06 → 08 order; if phase order changes, increment from the actual merged version.
 
 ---
 
@@ -175,5 +181,5 @@ spam. These are acceptance criteria in phases 03 and 05, not aspirations.
    actions, and 0 axe violations at 390 px and 1440 px in dark and light.
 3. Bundles inside the re-baselined budgets; compiler cached separately; app opens in
    Airplane Mode.
-4. No notes code, no dead routes, no `.md` in the UI; rules v5 + backup v4 verified by
+4. No notes code, no dead routes, no `.md` in the UI; latest rules and backup schemas verified by
    emulator tests; README/screenshots truthful.
