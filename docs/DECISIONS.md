@@ -621,7 +621,8 @@
 - **Coverage publication.** CI adds the coverage table to the run summary, a PR
   comment, a marker-delimited section of the PR body, and a `content-coverage`
   artifact. The generated `docs/content/coverage.md` remains the checked-in source of
-  truth; publishing is non-blocking. No PR was opened in this session.
+  truth; publishing is non-blocking. PR [#14](https://github.com/pabi277/DSA-archive/pull/14) was opened on the owner's explicit 2026-11-03 command; no merge was authorized.
+- **One-open-PR law preserved.** The stale v2-01 PR #11 was closed (not merged, branch untouched) before PR #14 was opened, because `rule.md` §2 forbids a second open PR. Closing was explicitly approved by the owner in the same gate moment.
 - **Authoring is incremental.** One fully authored topic (Arrays) ships with 6
   statements, 12 quiz items, 42 theory MCQ cards, 136 drills and a coverage report.
   The remaining 19 primers, 114 statements and 228 quiz items keep designed missing

@@ -1,9 +1,9 @@
 # Phase v2-03 — Content pipeline record
 
-**Branch:** `arena/cae52fb6-dsa-archive` · **Status:** implementation complete, owner accuracy review + merge gate pending
-**Green CI run id:** [`41667021614`](https://github.com/pabi277/DSA-archive/actions/runs/41667021614) · **Implementation tip sha (green CI head):** `7a7d431a47f77b3a64b15d9c2d40d2c042651a64` · **`site-preview` bytes:** 436,772
-**Initial CI run:** [`41665594838`](https://github.com/pabi277/DSA-archive/actions/runs/41665594838) found 2 new e2e assertion failures; they were fixed in `7a7d431`. The final metadata-only follow-up commit sha is reported in chat. `visual-baselines` artifact: 8,787,458 bytes.
-**No PR was opened:** PR creation remains gated on an explicit owner command. No merge, deploy or `main` push was performed.
+**Branch:** `arena/cae52fb6-dsa-archive` → `main` · **Status:** PR [#14](https://github.com/pabi277/DSA-archive/pull/14) is open for owner review; merge gate pending
+**Final green CI run id:** [`41668870080`](https://github.com/pabi277/DSA-archive/actions/runs/41668870080) · **Implementation tip sha (green CI head):** `5d65000d1359d1dc840a315f02e10d6263e1d855` · **`site-preview` bytes:** 436,765 · **`visual-baselines` bytes:** 8,786,509
+**Earlier CI runs:** [`41665594838`](https://github.com/pabi277/DSA-archive/actions/runs/41665594838) found 2 new e2e assertion failures; [`41667021614`](https://github.com/pabi277/DSA-archive/actions/runs/41667021614) was green; a later metadata-only run hit a 30 s axe-matrix timeout, which was hardened in `5d65000`. The final PR-status metadata commit sha is reported in chat.
+**PR gate:** the owner explicitly commanded opening PR #14 on 2026-11-03, after stale PR #11 was closed to preserve `rule.md`'s one-open-PR law. No merge, deploy or `main` push was performed.
 
 ## What is now visible
 

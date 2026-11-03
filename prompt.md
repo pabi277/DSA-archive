@@ -7,10 +7,12 @@
 > (`bd9350b`; CI run `41647413508` passed, including emulator rules and Playwright/axe).
 > Phase 03 is **implemented** on `arena/cae52fb6-dsa-archive`; its local validation is
 > green and CI/owner-review metadata is recorded in
-> `docs/phases-v2/03-content-pipeline/RECORD.md`. No PR was opened: PR/merge remains a
-> standing owner gate. The owner's sample-batch content-accuracy review and generated
-> visual-baseline review are still pending. No deployment or `main` push was performed.
-> Phase 04 is the next build phase after the owner commands Phase 03's PR/merge.
+> `docs/phases-v2/03-content-pipeline/RECORD.md`. PR
+> [#14](https://github.com/pabi277/DSA-archive/pull/14) is open on the owner's explicit
+> command; merging remains a standing owner gate. The owner's sample-batch content-accuracy
+> review and generated visual-baseline review are still pending. No deployment or `main`
+> push was performed. Phase 04 is the next build phase after the owner commands Phase 03's
+> merge.
 > Authority order: `rule.md` → `docs/DECISIONS.md` (owner answers) →
 > `docs/phases-v2/` (phase contracts) → `docs/ROADMAP.md` (status) →
 > `docs/DATA-MODEL.md` (Firestore/backup shapes) → `docs/UI-REFERENCE.md`
@@ -83,9 +85,10 @@ Do **not** start coding before step 5 is read end-to-end.
   link audit. Local `npm run build`, `npm test` (170), `test:data`, `check:content`,
   `check:rules`, `check:dist`, `check:links`, `check:budgets` all green. CI run id, tip sha
   and `site-preview` bytes are in
-  `docs/phases-v2/03-content-pipeline/RECORD.md`. No PR opened, no merge, no deploy.
-- **v2-04 … v2-10 not started**: Phase 04 follows only after the owner reviews Phase 03,
-  explicitly commands its PR/merge, and starts a new chat. Its primer/statement/quiz-bank
+  `docs/phases-v2/03-content-pipeline/RECORD.md`. PR
+  [#14](https://github.com/pabi277/DSA-archive/pull/14) is open; no merge, no deploy.
+- **v2-04 … v2-10 not started**: Phase 04 follows only after the owner reviews PR #14,
+  explicitly commands its merge, and starts a new chat. Its primer/statement/quiz-bank
   authoring track continues separately from the build phases.
 - **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
   topics (Basic 84 · Core 287 · Pro 109 · 15 null; 453 `problem` + 42 `theory`).
