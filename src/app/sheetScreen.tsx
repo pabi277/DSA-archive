@@ -442,7 +442,7 @@ function TopicGroup({
                   onToggleStatus={onToggleStatus}
                   onToggleBookmark={onToggleBookmark}
                   onOpen={(problemId, mode) => (mode === 'problem' ? onOpenProblem(problemId) : onOpenProblem(problemId))}
-                  onOpenPanel={(problemId) => onTogglePanel(problemId, 'note')}
+                  onOpenPanel={(problemId, kind) => onTogglePanel(problemId, kind)}
                   onPlan={onPlan}
                   onFocus={(problemId) => setTriageFocus(problemId)}
                   panel={panelKind ? renderPanel(problem.id, panelKind) : null}

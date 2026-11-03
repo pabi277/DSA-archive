@@ -68,7 +68,7 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
   onToggleStatus: (topicId: string, problemId: string) => void
   onToggleBookmark: (topicId: string, problemId: string) => void
   onOpen: (problemId: string, mode: 'problem' | 'sheet') => void
-  onOpenPanel: (problemId: string) => void
+  onOpenPanel: (problemId: string, kind: 'note' | 'lists') => void
   onPlan: (problemId: string) => void
   onFocus: (problemId: string) => void
   panel: ReactNode
@@ -207,9 +207,14 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
             </MenuItem>
           ))}
           {canEditNotes ? (
-            <MenuItem onClick={() => onOpenPanel(problem.id)} testId={`menu-lists-${problem.id}`}>
-              {hasNote ? 'Note ✓ / lists' : 'Note & lists'} {listCount > 0 ? `· ${listCount} list${listCount === 1 ? '' : 's'}` : ''}
-            </MenuItem>
+            <>
+              <MenuItem onClick={() => onOpenPanel(problem.id, 'note')} testId={`menu-note-${problem.id}`}>
+                {hasNote ? 'Edit note ✓' : 'Add note'}
+              </MenuItem>
+              <MenuItem onClick={() => onOpenPanel(problem.id, 'lists')} testId={`menu-lists-${problem.id}`}>
+                Lists{listCount > 0 ? ` · ${listCount}` : ''}
+              </MenuItem>
+            </>
           ) : null}
           <MenuItem onClick={() => onOpen(problem.id, 'sheet')} testId={`menu-sheet-${problem.id}`}>
             Show in sheet

@@ -45,7 +45,7 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     // --- 3.1: a markdown note plus a code snippet on a problem row ----------
     await openTopic(page)
     await page.getByRole('button', { name: /More actions for Two Sum/ }).click()
-    await page.getByTestId('menu-lists-two-sum').click()
+    await page.getByTestId('menu-note-two-sum').click()
     const editor = page.getByTestId('note-editor')
     await expect(editor).toBeVisible()
     await page.getByTestId('note-markdown').fill('# Two sum\nUse a **hash map** for O(n) time.')
@@ -58,10 +58,9 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
 
     await page.getByTestId('note-save').click()
     await expect(page.getByTestId('account-notice')).toContainText('Note saved')
-    // v2 row anatomy: the note mark lives on the `⋯` menu entry, which now
-    // switches to "Note ✓ / lists" once a note exists for the row.
+    // The `⋯` menu exposes the saved note action for this row.
     await page.getByRole('button', { name: /More actions for Two Sum/ }).click()
-    await expect(page.getByTestId('menu-lists-two-sum')).toContainText('Note ✓')
+    await expect(page.getByTestId('menu-note-two-sum')).toContainText('Edit note')
     await page.keyboard.press('Escape')
 
     // --- 3.2: notes overview + search ---------------------------------------
@@ -85,7 +84,8 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     await expect(listCard).toBeVisible()
 
     await open(page, '/#/search?q=two+sum')
-    await page.getByTestId('list-button-two-sum').click()
+    await page.getByRole('button', { name: /More actions for Two Sum/ }).click()
+    await page.getByTestId('menu-lists-two-sum').click()
     const picker = page.getByTestId('list-picker')
     await expect(picker).toBeVisible()
     // A click (not check(): the tick is driven by the Firestore snapshot, so it
@@ -95,7 +95,8 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     await picker.getByRole('button', { name: 'Close list picker' }).click()
 
     await open(page, '/#/search?q=linear+search')
-    await page.getByTestId('list-button-linear-search').click()
+    await page.getByRole('button', { name: /More actions for Linear Search/ }).click()
+    await page.getByTestId('menu-lists-linear-search').click()
     await page.getByTestId('list-picker').getByRole('checkbox', { name: /Interview warmup/ }).click()
     await expect(
       page.getByTestId('list-picker').getByRole('checkbox', { name: /Interview warmup/ }),
