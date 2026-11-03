@@ -229,7 +229,10 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
       setDoc(
         shard,
         {
-          [arraysIds[0]]: entry(),
+          // Change the existing first row too: merge writes retain optional
+          // fields that are omitted, so re-sending `entry()` would only add one
+          // effective key after the prior outcome assertion.
+          [arraysIds[0]]: entry({ o: 'couldnt' }),
           [arraysIds[1]]: entry(),
           updatedAt: serverTimestamp(),
         },
