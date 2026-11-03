@@ -75,30 +75,18 @@ jobs:
           except OSError:
               raise SystemExit(0)
           lines = [ansi.sub('', line).rstrip() for line in raw.splitlines()]
-          triggers = re.compile(r'(^not ok |^\s*not ok |✘|Error:|AssertionError|Unhandled|error TS)')
-          blocks, seen = [], set()
-          for index, line in enumerate(lines):
-              if not triggers.search(line):
-                  continue
-              block = ' | '.join(part.strip() for part in lines[index:index + 14] if part.strip())
-              key = block[:120]
-              if key in seen:
-                  continue
-              seen.add(key)
-              blocks.append(block[:1400])
-          # The runner re-uses annotations, so emit the earliest failures first
-          # (reverse chronological) and add a compact "each failure + its own
-          # following lines" pass: the summary block only contains test names,
-          # never the assertion that failed.
-          detail = []
-          for index, line in enumerate(lines):
-              if '✘' not in line:
-                  continue
-              following = [part.strip() for part in lines[index + 1:index + 4] if part.strip()]
-              detail.append(' | '.join([line.strip(), *following])[:600])
-          for block in detail[:10]:
-              print('::error::' + block.replace('%', '%25'))
-          for block in reversed(blocks[:6]):
+          # GitHub caps workflow-command annotations per step. Spend the ten
+          # slots on distinct failing Playwright cases with their own assertion
+          # context, rather than repeating the reporter's rolling summary rows.
+          starts = [i for i, line in enumerate(lines)
+                    if re.match(r'^\s*\d+\) \[chromium\]', line)]
+          failures = []
+          for position, start in enumerate(starts):
+              end = starts[position + 1] if position + 1 < len(starts) else len(lines)
+              block = [line.strip() for line in lines[start:end]
+                       if line.strip() and not line.strip().startswith(('attachment #', 'Usage:', '─'))]
+              failures.append(' | '.join(block)[:1800])
+          for block in failures[:10]:
               print('::error::' + block.replace('%', '%25'))
           PY
           exit 0
