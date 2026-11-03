@@ -229,7 +229,7 @@ test('signed-in airplane-mode cold open preserves cloud progress and notes and s
     await expect(page.getByTestId('progress-pill')).toHaveText('1/495 done')
 
     await page.getByRole('button', { name: /More actions for Two Sum/ }).click()
-    await page.getByTestId('menu-lists-two-sum').click()
+    await page.getByTestId('menu-note-two-sum').click()
     await page.getByTestId('note-markdown').fill('Saved before airplane mode.')
     await page.getByTestId('note-save').click()
     await expect(page.getByTestId('account-notice')).toContainText('Note saved')

@@ -177,7 +177,8 @@
   semantics and controlled expanded state. Library testing then exposed two UI gaps: the
   `⋯` menu promised notes and lists but only opened the note editor, and selecting a list
   showed its active label without filtering rows. The menu now exposes distinct note/list
-  actions and the selected list constrains the displayed sheet. Row-action text failed
+  actions and the selected list constrains the displayed sheet. The PWA E2E now uses the
+  new note action when opening its note editor. Row-action text failed
   contrast because the whole control cluster used 55% opacity; that opacity was removed.
   Toast placement and dark-theme timer contrast were corrected as well. Local unit/build
   checks pass, but CI must still confirm these changes and expose any remaining failures;
