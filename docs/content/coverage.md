@@ -1,4 +1,3 @@
-<!-- content-coverage -->
 # Phase 03 content coverage
 
 Checked on 2026-11-03. Missing content renders a designed state; no screen waits for the authoring track.

@@ -186,7 +186,6 @@ function table(title, headers, body) {
 }
 
 const markdown = [
-  '<!-- content-coverage -->',
   '# Phase 03 content coverage',
   '',
   `Checked on ${AS_OF}. Missing content renders a designed state; no screen waits for the authoring track.`,
