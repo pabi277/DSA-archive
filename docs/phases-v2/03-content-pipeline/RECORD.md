@@ -1,7 +1,8 @@
 # Phase v2-03 — Content pipeline record
 
 **Branch:** `arena/cae52fb6-dsa-archive` · **Status:** implementation complete, owner accuracy review + merge gate pending
-**CI run id:** `41665594838` (first push: 2 e2e assertions failed; fixed in a follow-up commit, green re-run id recorded in the metadata follow-up) · **Implementation tip sha:** `270c29b9e940acccf35b89fd2726479b3e4060df` · **`site-preview` bytes:** 436,924 on the first run (green re-run bytes recorded in the metadata follow-up)
+**Green CI run id:** [`41667021614`](https://github.com/pabi277/DSA-archive/actions/runs/41667021614) · **Implementation tip sha (green CI head):** `7a7d431a47f77b3a64b15d9c2d40d2c042651a64` · **`site-preview` bytes:** 436,772
+**Initial CI run:** [`41665594838`](https://github.com/pabi277/DSA-archive/actions/runs/41665594838) found 2 new e2e assertion failures; they were fixed in `7a7d431`. The final metadata-only follow-up commit sha is reported in chat. `visual-baselines` artifact: 8,787,458 bytes.
 **No PR was opened:** PR creation remains gated on an explicit owner command. No merge, deploy or `main` push was performed.
 
 ## What is now visible
@@ -36,7 +37,7 @@ Sources used in `resources[]`: LeetCode, NeetCode, takeUforward, GeeksforGeeks, 
 
 ## Validation and tests
 
-Local green on this branch: `npm run build`, `npm test` (170 tests), `npm run test:data`, `npm run check:content`, `npm run check:rules`, `npm run check:dist`, `npm run check:links`, `npm run check:budgets`. All seven pinned GitHub Actions refs in `.github/workflows/` were verified to exist via the GitHub API, and the CI YAML/PR-body shell step parses cleanly. CI run `41665594838` exposed two new e2e assertions: an ambiguous `Arrays` heading and a missing-hint state on an unauthored statement. The heading assertion is now exact and `HintDisclosure` always renders its designed missing state; the green re-run is recorded in the metadata follow-up.
+Local green on this branch: `npm run build`, `npm test` (170 tests), `npm run test:data`, `npm run check:content`, `npm run check:rules`, `npm run check:dist`, `npm run check:links`, `npm run check:budgets`. All seven pinned GitHub Actions refs in `.github/workflows/` were verified to exist via the GitHub API, and the CI YAML/PR-body shell step parses cleanly. CI run `41665594838` exposed two new e2e assertions: an ambiguous `Arrays` heading and a missing-hint state on an unauthored statement. The heading assertion is now exact and `HintDisclosure` always renders its designed missing state; green CI run `41667021614` passes the full emulator + Playwright + axe + visual matrix.
 
 - Extended `tools/validate_data.py` checks schema v2, original link counts, unchanged single-source video links, `coveredBy`, ranked resources, rank/URL uniqueness, verified days, ≥2 publishers, practice/learning coverage, 420/495 LeetCode twins, theory parity, content IDs/no orphans, statement ≤700 chars, example input/output, 2–3 runner tests, quiz invariants, primer word budget, practice-set uniqueness, contiguous sets, `why` ≤90 chars and the generated coverage report.
 - `tools/content-coverage.mjs` writes/checks the deterministic report. `tools/check-resource-links.mjs` validates every resource, canonical drill URL and theory reference against the publisher registry, reports stale/dead links per source, preserves 369 video links, and offers `CHECK_EXTERNAL_LINKS=1` / `LIVE_LINK_STRICT=1`.
