@@ -15,7 +15,7 @@ test('all topic cards open full topic pages with working placeholder tabs', asyn
 
   await page.getByRole('tab', { name: 'Practice' }).click()
   await expect(page.getByRole('tabpanel')).toContainText('Problems are ordered from fundamentals')
-  await page.getByRole('button', { name: 'Done' }).click()
+  await page.getByRole('button', { name: 'Done', exact: true }).click()
   await expect(page.getByText('No problems in this filter')).toBeVisible()
 
   await page.getByRole('tab', { name: 'Quiz' }).click()

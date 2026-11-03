@@ -84,7 +84,7 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
   const primaryLink = links.find((entry) => entry.linkType === 'practice') ?? links[0]
 
   return (
-    <article
+    <div
       className={[
         'row',
         done && 'is-done',
@@ -252,7 +252,7 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
       ) : null}
       {problem.kind === 'theory' ? <Tag tone="info" className="row-tag">Theory</Tag> : null}
       {panel ? <div className="row-panel">{panel}</div> : null}
-    </article>
+    </div>
   )
 }
 
