@@ -178,6 +178,9 @@ test('windowing keeps the DOM small: 495 rows never mount at once (acceptance 12
 })
 
 test('tokens v2: one accent, five roles, contrast pairs and 0 axe violations (acceptance 3, 7)', async ({ page }) => {
+  // 32 axe audits across two viewports can exceed Playwright's default 30 s on
+  // a loaded CI runner; keep the assertion strict, not the wall clock.
+  test.setTimeout(90_000)
   for (const viewport of [phone, desktop]) {
     await page.setViewportSize(viewport)
     for (const route of ALL_ROUTES) {
