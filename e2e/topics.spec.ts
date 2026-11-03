@@ -9,7 +9,7 @@ test('all topic cards open full topic pages with working placeholder tabs', asyn
   await expect(page.getByTestId(/^topic-tile-/)).toHaveCount(20)
 
   await page.getByTestId('topic-tile-arrays').click()
-  await expect(page.getByRole('heading', { name: 'Arrays' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Arrays', exact: true })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Learn' })).toHaveAttribute('aria-selected', 'true')
   await expect(page.getByTestId('topic-primer')).toBeVisible()
   await expect(page.getByTestId('primer-mistakes')).toBeVisible()

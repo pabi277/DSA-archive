@@ -39,7 +39,6 @@ export function StatementCard({ problem }: { problem: Problem }) {
             <Tag tone="info">{tests.length} local test cases</Tag>
             <span className="quiet-note">Bundled for the Phase 07 runner; no code executes here.</span>
           </div>
-          <HintDisclosure problemId={problem.id} />
         </>
       ) : (
         <Empty
@@ -50,6 +49,7 @@ export function StatementCard({ problem }: { problem: Problem }) {
           This row has no authored statement, constraints, example or hint yet. Its ranked sources are ready below, and the rest of the sheet is unchanged.
         </Empty>
       )}
+      <HintDisclosure problemId={problem.id} />
       <div className="statement-block" data-testid="statement-further">
         <h3>Further reading</h3>
         <p className="quiet-note">One top-ranked action, publisher names, and all remaining sources in one list.</p>
