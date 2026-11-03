@@ -119,6 +119,9 @@ test('notes and custom lists sync across devices, filter the sheet and survive b
     await expect(secondPage.locator('.list-card', { hasText: 'Interview warmup' })).toContainText('2 problems')
 
     // --- backup: schema v2 carries notes and lists --------------------------
+    // Export/import are on the account panel, which is mounted on Settings.
+    await open(secondPage, '/#/settings')
+    await expect(secondPage.getByTestId('account-panel')).toBeVisible()
     const downloadPromise = secondPage.waitForEvent('download')
     await secondPage.getByRole('button', { name: 'Export backup JSON' }).click()
     const download = await downloadPromise

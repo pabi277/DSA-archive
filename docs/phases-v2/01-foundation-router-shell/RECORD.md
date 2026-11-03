@@ -180,9 +180,12 @@
   actions and the selected list constrains the displayed sheet. The PWA E2E now uses the
   new note action when opening its note editor. Row-action text failed
   contrast because the whole control cluster used 55% opacity; that opacity was removed.
-  Toast placement and dark-theme timer contrast were corrected as well. Local unit/build
-  checks pass, but CI must still confirm these changes and expose any remaining failures;
-  phase is not green.
+  Toast placement and dark-theme timer contrast were corrected as well. The next CI run
+  passed the PWA acceptance and list-filter assertions but the library backup step timed
+  out. Its trace showed the export-button locator was waiting on the lists route: the
+  account/backup panel is mounted on Settings. The library E2E now navigates to `/#/settings`
+  and asserts the account panel is visible before exporting, matching the planner E2E.
+  Local unit/build checks pass; CI must verify this correction and any remaining failures.
 
 ## Content added
 
