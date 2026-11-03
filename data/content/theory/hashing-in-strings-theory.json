@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "hashing-in-strings-theory-mcq",
+  "problemId": "hashing-in-strings-theory",
+  "topicId": "strings-advanced-algo",
+  "kind": "theory",
+  "prompt": "Hashing In Strings | Theory: What does a rolling hash let you compare quickly?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "Candidate substrings using an update from one window to the next.",
+      "explain": "A collision still needs a verification step before a final equality claim."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 1,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "A collision still needs a verification step before a final equality claim.",
+    "reference": {
+      "source": "cp-algorithms",
+      "url": "https://cp-algorithms.com/#hashing-in-strings-theory",
+      "label": "Reference · Cp Algorithms",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

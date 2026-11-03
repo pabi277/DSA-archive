@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "easy-and-medium-mcq",
+  "problemId": "easy-and-medium",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Easy and Medium: Why begin with easy and medium exercises?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "They isolate one new decision at a time before several ideas are combined.",
+      "explain": "Small problems make it possible to identify which part of a solution failed."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 2,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Small problems make it possible to identify which part of a solution failed.",
+    "reference": {
+      "source": "usaco",
+      "url": "https://usaco.guide/#easy-and-medium",
+      "label": "Reference · Usaco",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

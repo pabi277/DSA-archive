@@ -1,0 +1,50 @@
+{
+  "patternId": "graph-traversal",
+  "topicId": "graphs",
+  "title": "Graph Traversal",
+  "summary": "Four rungs that move Graph Traversal from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 695,
+      "slug": "max-area-of-island",
+      "title": "Max Area of Island",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 133,
+      "slug": "clone-graph",
+      "title": "Clone Graph",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 841,
+      "slug": "keys-and-rooms",
+      "title": "Keys and Rooms",
+      "level": "core",
+      "set": 3,
+      "estMinutes": 35,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 1971,
+      "slug": "find-if-path-exists-in-graph",
+      "title": "Find if Path Exists in Graph",
+      "level": "basic",
+      "set": 4,
+      "estMinutes": 30,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

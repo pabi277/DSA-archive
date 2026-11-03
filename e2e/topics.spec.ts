@@ -11,7 +11,8 @@ test('all topic cards open full topic pages with working placeholder tabs', asyn
   await page.getByTestId('topic-tile-arrays').click()
   await expect(page.getByRole('heading', { name: 'Arrays' })).toBeVisible()
   await expect(page.getByRole('tab', { name: 'Learn' })).toHaveAttribute('aria-selected', 'true')
-  await expect(page.getByTestId('topic-primer-pending')).toBeVisible()
+  await expect(page.getByTestId('topic-primer')).toBeVisible()
+  await expect(page.getByTestId('primer-mistakes')).toBeVisible()
 
   await page.getByRole('tab', { name: 'Practice' }).click()
   await expect(page.getByRole('tabpanel')).toContainText('Problems are ordered from fundamentals')
@@ -20,6 +21,7 @@ test('all topic cards open full topic pages with working placeholder tabs', asyn
 
   await page.getByRole('tab', { name: 'Quiz' }).click()
   await expect(page.getByTestId('topic-quiz-pending')).toBeVisible()
+  await expect(page.getByTestId('topic-quiz-count')).toContainText('12/12 topic quiz items')
   await expect(page.getByTestId('topic-quiz-start')).toBeDisabled()
 })
 

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "learn-python-mcq",
+  "problemId": "learn-python",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Learn Python: Which Python structure preserves insertion order and maps keys to values?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "dict.",
+      "explain": "A dictionary associates hashable keys with values and keeps insertion order."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 1,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "A dictionary associates hashable keys with values and keeps insertion order.",
+    "reference": {
+      "source": "python-docs",
+      "url": "https://docs.python.org/3/#learn-python",
+      "label": "Reference · Python Docs",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

@@ -1,7 +1,7 @@
 // GENERATED FILE — do not edit by hand.
-// Source: tools/generate-firestore-rules.mjs from data/problems.json.
-// 20 topics · 495 unique problem ids.
-// Rules v5 (phase 02): self-assessed progress outcomes; prior rules remain backward compatible.
+// Source: tools/generate-firestore-rules.mjs from data/problems.json + data/practice-sets/.
+// 20 topics · 495 catalogue ids · 136 synthetic lc-<n> drill keys.
+// Rules v5 (phase 02) + Phase 03 drill whitelist; prior rules remain backward compatible.
 rules_version = '2';
 
 service cloud.firestore {
@@ -51,25 +51,25 @@ service cloud.firestore {
         && data.solvedByTopic.keys().hasOnly(["beginner-problems", "sorting", "arrays", "hashing", "binary-search", "strings-basic-and-medium", "recursion", "linked-list", "bit-manipulation", "greedy-algorithms", "sliding-window-2-pointer", "stack-queues", "binary-trees", "binary-search-trees", "heaps", "graphs", "dynamic-programming", "tries", "strings-advanced-algo", "maths"])
         && data.solvedByTopic.keys().hasAll(["beginner-problems", "sorting", "arrays", "hashing", "binary-search", "strings-basic-and-medium", "recursion", "linked-list", "bit-manipulation", "greedy-algorithms", "sliding-window-2-pointer", "stack-queues", "binary-trees", "binary-search-trees", "heaps", "graphs", "dynamic-programming", "tries", "strings-advanced-algo", "maths"])
         && data.solvedByTopic["beginner-problems"] is int && data.solvedByTopic["beginner-problems"] >= 0 && data.solvedByTopic["beginner-problems"] <= 83
-        && data.solvedByTopic["sorting"] is int && data.solvedByTopic["sorting"] >= 0 && data.solvedByTopic["sorting"] <= 7
-        && data.solvedByTopic["arrays"] is int && data.solvedByTopic["arrays"] >= 0 && data.solvedByTopic["arrays"] <= 32
-        && data.solvedByTopic["hashing"] is int && data.solvedByTopic["hashing"] >= 0 && data.solvedByTopic["hashing"] <= 6
-        && data.solvedByTopic["binary-search"] is int && data.solvedByTopic["binary-search"] >= 0 && data.solvedByTopic["binary-search"] <= 32
+        && data.solvedByTopic["sorting"] is int && data.solvedByTopic["sorting"] >= 0 && data.solvedByTopic["sorting"] <= 11
+        && data.solvedByTopic["arrays"] is int && data.solvedByTopic["arrays"] >= 0 && data.solvedByTopic["arrays"] <= 44
+        && data.solvedByTopic["hashing"] is int && data.solvedByTopic["hashing"] >= 0 && data.solvedByTopic["hashing"] <= 10
+        && data.solvedByTopic["binary-search"] is int && data.solvedByTopic["binary-search"] >= 0 && data.solvedByTopic["binary-search"] <= 40
         && data.solvedByTopic["strings-basic-and-medium"] is int && data.solvedByTopic["strings-basic-and-medium"] >= 0 && data.solvedByTopic["strings-basic-and-medium"] <= 7
-        && data.solvedByTopic["recursion"] is int && data.solvedByTopic["recursion"] >= 0 && data.solvedByTopic["recursion"] <= 22
-        && data.solvedByTopic["linked-list"] is int && data.solvedByTopic["linked-list"] >= 0 && data.solvedByTopic["linked-list"] <= 49
-        && data.solvedByTopic["bit-manipulation"] is int && data.solvedByTopic["bit-manipulation"] >= 0 && data.solvedByTopic["bit-manipulation"] <= 14
-        && data.solvedByTopic["greedy-algorithms"] is int && data.solvedByTopic["greedy-algorithms"] >= 0 && data.solvedByTopic["greedy-algorithms"] <= 14
-        && data.solvedByTopic["sliding-window-2-pointer"] is int && data.solvedByTopic["sliding-window-2-pointer"] >= 0 && data.solvedByTopic["sliding-window-2-pointer"] <= 13
-        && data.solvedByTopic["stack-queues"] is int && data.solvedByTopic["stack-queues"] >= 0 && data.solvedByTopic["stack-queues"] <= 31
-        && data.solvedByTopic["binary-trees"] is int && data.solvedByTopic["binary-trees"] >= 0 && data.solvedByTopic["binary-trees"] <= 32
-        && data.solvedByTopic["binary-search-trees"] is int && data.solvedByTopic["binary-search-trees"] >= 0 && data.solvedByTopic["binary-search-trees"] <= 15
-        && data.solvedByTopic["heaps"] is int && data.solvedByTopic["heaps"] >= 0 && data.solvedByTopic["heaps"] <= 20
-        && data.solvedByTopic["graphs"] is int && data.solvedByTopic["graphs"] >= 0 && data.solvedByTopic["graphs"] <= 46
-        && data.solvedByTopic["dynamic-programming"] is int && data.solvedByTopic["dynamic-programming"] >= 0 && data.solvedByTopic["dynamic-programming"] <= 53
-        && data.solvedByTopic["tries"] is int && data.solvedByTopic["tries"] >= 0 && data.solvedByTopic["tries"] <= 7
-        && data.solvedByTopic["strings-advanced-algo"] is int && data.solvedByTopic["strings-advanced-algo"] >= 0 && data.solvedByTopic["strings-advanced-algo"] <= 9
-        && data.solvedByTopic["maths"] is int && data.solvedByTopic["maths"] >= 0 && data.solvedByTopic["maths"] <= 3
+        && data.solvedByTopic["recursion"] is int && data.solvedByTopic["recursion"] >= 0 && data.solvedByTopic["recursion"] <= 30
+        && data.solvedByTopic["linked-list"] is int && data.solvedByTopic["linked-list"] >= 0 && data.solvedByTopic["linked-list"] <= 57
+        && data.solvedByTopic["bit-manipulation"] is int && data.solvedByTopic["bit-manipulation"] >= 0 && data.solvedByTopic["bit-manipulation"] <= 18
+        && data.solvedByTopic["greedy-algorithms"] is int && data.solvedByTopic["greedy-algorithms"] >= 0 && data.solvedByTopic["greedy-algorithms"] <= 18
+        && data.solvedByTopic["sliding-window-2-pointer"] is int && data.solvedByTopic["sliding-window-2-pointer"] >= 0 && data.solvedByTopic["sliding-window-2-pointer"] <= 17
+        && data.solvedByTopic["stack-queues"] is int && data.solvedByTopic["stack-queues"] >= 0 && data.solvedByTopic["stack-queues"] <= 43
+        && data.solvedByTopic["binary-trees"] is int && data.solvedByTopic["binary-trees"] >= 0 && data.solvedByTopic["binary-trees"] <= 44
+        && data.solvedByTopic["binary-search-trees"] is int && data.solvedByTopic["binary-search-trees"] >= 0 && data.solvedByTopic["binary-search-trees"] <= 19
+        && data.solvedByTopic["heaps"] is int && data.solvedByTopic["heaps"] >= 0 && data.solvedByTopic["heaps"] <= 24
+        && data.solvedByTopic["graphs"] is int && data.solvedByTopic["graphs"] >= 0 && data.solvedByTopic["graphs"] <= 66
+        && data.solvedByTopic["dynamic-programming"] is int && data.solvedByTopic["dynamic-programming"] >= 0 && data.solvedByTopic["dynamic-programming"] <= 69
+        && data.solvedByTopic["tries"] is int && data.solvedByTopic["tries"] >= 0 && data.solvedByTopic["tries"] <= 11
+        && data.solvedByTopic["strings-advanced-algo"] is int && data.solvedByTopic["strings-advanced-algo"] >= 0 && data.solvedByTopic["strings-advanced-algo"] <= 13
+        && data.solvedByTopic["maths"] is int && data.solvedByTopic["maths"] >= 0 && data.solvedByTopic["maths"] <= 7
         && data.solvedCount is int && data.solvedCount == data.solvedByTopic["beginner-problems"] + data.solvedByTopic["sorting"] + data.solvedByTopic["arrays"] + data.solvedByTopic["hashing"] + data.solvedByTopic["binary-search"] + data.solvedByTopic["strings-basic-and-medium"] + data.solvedByTopic["recursion"] + data.solvedByTopic["linked-list"] + data.solvedByTopic["bit-manipulation"] + data.solvedByTopic["greedy-algorithms"] + data.solvedByTopic["sliding-window-2-pointer"] + data.solvedByTopic["stack-queues"] + data.solvedByTopic["binary-trees"] + data.solvedByTopic["binary-search-trees"] + data.solvedByTopic["heaps"] + data.solvedByTopic["graphs"] + data.solvedByTopic["dynamic-programming"] + data.solvedByTopic["tries"] + data.solvedByTopic["strings-advanced-algo"] + data.solvedByTopic["maths"]
         && data.weeklySolved is int && data.weeklySolved >= 0 && data.weeklySolved <= data.solvedCount
         && data.currentStreak is int && data.currentStreak >= 0 && data.currentStreak <= 100000
@@ -262,6 +262,10 @@ service cloud.firestore {
         : keys.hasAny(["quick-sorting"]) ? validEntryOrDeleted(data, "quick-sorting")
         : keys.hasAny(["recursive-bubble-sort"]) ? validEntryOrDeleted(data, "recursive-bubble-sort")
         : keys.hasAny(["recursive-insertion-sort"]) ? validEntryOrDeleted(data, "recursive-insertion-sort")
+        : keys.hasAny(["lc-912"]) ? validEntryOrDeleted(data, "lc-912")
+        : keys.hasAny(["lc-973"]) ? validEntryOrDeleted(data, "lc-973")
+        : keys.hasAny(["lc-1356"]) ? validEntryOrDeleted(data, "lc-1356")
+        : keys.hasAny(["lc-1636"]) ? validEntryOrDeleted(data, "lc-1636")
         : false;
     }
 
@@ -298,6 +302,18 @@ service cloud.firestore {
         : keys.hasAny(["reverse-pairs"]) ? validEntryOrDeleted(data, "reverse-pairs")
         : keys.hasAny(["maximum-product-subarray-in-an-array"]) ? validEntryOrDeleted(data, "maximum-product-subarray-in-an-array")
         : keys.hasAny(["merge-two-sorted-arrays-without-extra-space"]) ? validEntryOrDeleted(data, "merge-two-sorted-arrays-without-extra-space")
+        : keys.hasAny(["lc-452"]) ? validEntryOrDeleted(data, "lc-452")
+        : keys.hasAny(["lc-252"]) ? validEntryOrDeleted(data, "lc-252")
+        : keys.hasAny(["lc-253"]) ? validEntryOrDeleted(data, "lc-253")
+        : keys.hasAny(["lc-228"]) ? validEntryOrDeleted(data, "lc-228")
+        : keys.hasAny(["lc-974"]) ? validEntryOrDeleted(data, "lc-974")
+        : keys.hasAny(["lc-525"]) ? validEntryOrDeleted(data, "lc-525")
+        : keys.hasAny(["lc-303"]) ? validEntryOrDeleted(data, "lc-303")
+        : keys.hasAny(["lc-304"]) ? validEntryOrDeleted(data, "lc-304")
+        : keys.hasAny(["lc-167"]) ? validEntryOrDeleted(data, "lc-167")
+        : keys.hasAny(["lc-16"]) ? validEntryOrDeleted(data, "lc-16")
+        : keys.hasAny(["lc-27"]) ? validEntryOrDeleted(data, "lc-27")
+        : keys.hasAny(["lc-80"]) ? validEntryOrDeleted(data, "lc-80")
         : false;
     }
 
@@ -308,6 +324,10 @@ service cloud.firestore {
         : keys.hasAny(["largest-subarray-with-sum-0"]) ? validEntryOrDeleted(data, "largest-subarray-with-sum-0")
         : keys.hasAny(["count-subarrays-with-given-sum"]) ? validEntryOrDeleted(data, "count-subarrays-with-given-sum")
         : keys.hasAny(["count-subarrays-with-given-xor-k"]) ? validEntryOrDeleted(data, "count-subarrays-with-given-xor-k")
+        : keys.hasAny(["lc-49"]) ? validEntryOrDeleted(data, "lc-49")
+        : keys.hasAny(["lc-350"]) ? validEntryOrDeleted(data, "lc-350")
+        : keys.hasAny(["lc-409"]) ? validEntryOrDeleted(data, "lc-409")
+        : keys.hasAny(["lc-290"]) ? validEntryOrDeleted(data, "lc-290")
         : false;
     }
 
@@ -344,6 +364,14 @@ service cloud.firestore {
         : keys.hasAny(["search-in-2d-matrix-ii"]) ? validEntryOrDeleted(data, "search-in-2d-matrix-ii")
         : keys.hasAny(["find-peak-element-ii"]) ? validEntryOrDeleted(data, "find-peak-element-ii")
         : keys.hasAny(["matrix-median"]) ? validEntryOrDeleted(data, "matrix-median")
+        : keys.hasAny(["lc-1552"]) ? validEntryOrDeleted(data, "lc-1552")
+        : keys.hasAny(["lc-2226"]) ? validEntryOrDeleted(data, "lc-2226")
+        : keys.hasAny(["lc-2187"]) ? validEntryOrDeleted(data, "lc-2187")
+        : keys.hasAny(["lc-1898"]) ? validEntryOrDeleted(data, "lc-1898")
+        : keys.hasAny(["lc-278"]) ? validEntryOrDeleted(data, "lc-278")
+        : keys.hasAny(["lc-744"]) ? validEntryOrDeleted(data, "lc-744")
+        : keys.hasAny(["lc-378"]) ? validEntryOrDeleted(data, "lc-378")
+        : keys.hasAny(["lc-668"]) ? validEntryOrDeleted(data, "lc-668")
         : false;
     }
 
@@ -381,6 +409,14 @@ service cloud.firestore {
         : keys.hasAny(["m-coloring-problem"]) ? validEntryOrDeleted(data, "m-coloring-problem")
         : keys.hasAny(["sudoku-solver"]) ? validEntryOrDeleted(data, "sudoku-solver")
         : keys.hasAny(["expression-add-operators"]) ? validEntryOrDeleted(data, "expression-add-operators")
+        : keys.hasAny(["lc-46"]) ? validEntryOrDeleted(data, "lc-46")
+        : keys.hasAny(["lc-47"]) ? validEntryOrDeleted(data, "lc-47")
+        : keys.hasAny(["lc-377"]) ? validEntryOrDeleted(data, "lc-377")
+        : keys.hasAny(["lc-93"]) ? validEntryOrDeleted(data, "lc-93")
+        : keys.hasAny(["lc-52"]) ? validEntryOrDeleted(data, "lc-52")
+        : keys.hasAny(["lc-77"]) ? validEntryOrDeleted(data, "lc-77")
+        : keys.hasAny(["lc-784"]) ? validEntryOrDeleted(data, "lc-784")
+        : keys.hasAny(["lc-996"]) ? validEntryOrDeleted(data, "lc-996")
         : false;
     }
 
@@ -434,6 +470,14 @@ service cloud.firestore {
         : keys.hasAny(["delete-all-occurrences-of-a-key-in-dll"]) ? validEntryOrDeleted(data, "delete-all-occurrences-of-a-key-in-dll")
         : keys.hasAny(["remove-duplicates-from-sorted-dll"]) ? validEntryOrDeleted(data, "remove-duplicates-from-sorted-dll")
         : keys.hasAny(["find-pairs-with-given-sum-in-doubly-linked-list"]) ? validEntryOrDeleted(data, "find-pairs-with-given-sum-in-doubly-linked-list")
+        : keys.hasAny(["lc-457"]) ? validEntryOrDeleted(data, "lc-457")
+        : keys.hasAny(["lc-202"]) ? validEntryOrDeleted(data, "lc-202")
+        : keys.hasAny(["lc-287"]) ? validEntryOrDeleted(data, "lc-287")
+        : keys.hasAny(["lc-2130"]) ? validEntryOrDeleted(data, "lc-2130")
+        : keys.hasAny(["lc-92"]) ? validEntryOrDeleted(data, "lc-92")
+        : keys.hasAny(["lc-24"]) ? validEntryOrDeleted(data, "lc-24")
+        : keys.hasAny(["lc-143"]) ? validEntryOrDeleted(data, "lc-143")
+        : keys.hasAny(["lc-86"]) ? validEntryOrDeleted(data, "lc-86")
         : false;
     }
 
@@ -452,6 +496,10 @@ service cloud.firestore {
         : keys.hasAny(["divide-two-numbers-without-multiplication-and-division"]) ? validEntryOrDeleted(data, "divide-two-numbers-without-multiplication-and-division")
         : keys.hasAny(["power-set-bit-manipulation"]) ? validEntryOrDeleted(data, "power-set-bit-manipulation")
         : keys.hasAny(["xor-of-numbers-in-a-given-range"]) ? validEntryOrDeleted(data, "xor-of-numbers-in-a-given-range")
+        : keys.hasAny(["lc-190"]) ? validEntryOrDeleted(data, "lc-190")
+        : keys.hasAny(["lc-201"]) ? validEntryOrDeleted(data, "lc-201")
+        : keys.hasAny(["lc-371"]) ? validEntryOrDeleted(data, "lc-371")
+        : keys.hasAny(["lc-338"]) ? validEntryOrDeleted(data, "lc-338")
         : false;
     }
 
@@ -470,6 +518,10 @@ service cloud.firestore {
         : keys.hasAny(["valid-parenthesis-checker"]) ? validEntryOrDeleted(data, "valid-parenthesis-checker")
         : keys.hasAny(["candy"]) ? validEntryOrDeleted(data, "candy")
         : keys.hasAny(["jump-game-ii"]) ? validEntryOrDeleted(data, "jump-game-ii")
+        : keys.hasAny(["lc-1710"]) ? validEntryOrDeleted(data, "lc-1710")
+        : keys.hasAny(["lc-763"]) ? validEntryOrDeleted(data, "lc-763")
+        : keys.hasAny(["lc-605"]) ? validEntryOrDeleted(data, "lc-605")
+        : keys.hasAny(["lc-134"]) ? validEntryOrDeleted(data, "lc-134")
         : false;
     }
 
@@ -487,6 +539,10 @@ service cloud.firestore {
         : keys.hasAny(["binary-subarrays-with-sum"]) ? validEntryOrDeleted(data, "binary-subarrays-with-sum")
         : keys.hasAny(["count-number-of-nice-subarrays"]) ? validEntryOrDeleted(data, "count-number-of-nice-subarrays")
         : keys.hasAny(["subarrays-with-k-different-integers"]) ? validEntryOrDeleted(data, "subarrays-with-k-different-integers")
+        : keys.hasAny(["lc-209"]) ? validEntryOrDeleted(data, "lc-209")
+        : keys.hasAny(["lc-438"]) ? validEntryOrDeleted(data, "lc-438")
+        : keys.hasAny(["lc-567"]) ? validEntryOrDeleted(data, "lc-567")
+        : keys.hasAny(["lc-713"]) ? validEntryOrDeleted(data, "lc-713")
         : false;
     }
 
@@ -522,6 +578,18 @@ service cloud.firestore {
         : keys.hasAny(["lru-cache"]) ? validEntryOrDeleted(data, "lru-cache")
         : keys.hasAny(["lfu-cache"]) ? validEntryOrDeleted(data, "lfu-cache")
         : keys.hasAny(["number-of-greater-elements-to-the-right"]) ? validEntryOrDeleted(data, "number-of-greater-elements-to-the-right")
+        : keys.hasAny(["lc-962"]) ? validEntryOrDeleted(data, "lc-962")
+        : keys.hasAny(["lc-739"]) ? validEntryOrDeleted(data, "lc-739")
+        : keys.hasAny(["lc-853"]) ? validEntryOrDeleted(data, "lc-853")
+        : keys.hasAny(["lc-1944"]) ? validEntryOrDeleted(data, "lc-1944")
+        : keys.hasAny(["lc-862"]) ? validEntryOrDeleted(data, "lc-862")
+        : keys.hasAny(["lc-1438"]) ? validEntryOrDeleted(data, "lc-1438")
+        : keys.hasAny(["lc-933"]) ? validEntryOrDeleted(data, "lc-933")
+        : keys.hasAny(["lc-362"]) ? validEntryOrDeleted(data, "lc-362")
+        : keys.hasAny(["lc-150"]) ? validEntryOrDeleted(data, "lc-150")
+        : keys.hasAny(["lc-71"]) ? validEntryOrDeleted(data, "lc-71")
+        : keys.hasAny(["lc-394"]) ? validEntryOrDeleted(data, "lc-394")
+        : keys.hasAny(["lc-224"]) ? validEntryOrDeleted(data, "lc-224")
         : false;
     }
 
@@ -558,6 +626,18 @@ service cloud.firestore {
         : keys.hasAny(["serialize-and-de-serialize-bt"]) ? validEntryOrDeleted(data, "serialize-and-de-serialize-bt")
         : keys.hasAny(["morris-inorder-traversal"]) ? validEntryOrDeleted(data, "morris-inorder-traversal")
         : keys.hasAny(["morris-preorder-traversal"]) ? validEntryOrDeleted(data, "morris-preorder-traversal")
+        : keys.hasAny(["lc-337"]) ? validEntryOrDeleted(data, "lc-337")
+        : keys.hasAny(["lc-687"]) ? validEntryOrDeleted(data, "lc-687")
+        : keys.hasAny(["lc-968"]) ? validEntryOrDeleted(data, "lc-968")
+        : keys.hasAny(["lc-979"]) ? validEntryOrDeleted(data, "lc-979")
+        : keys.hasAny(["lc-107"]) ? validEntryOrDeleted(data, "lc-107")
+        : keys.hasAny(["lc-637"]) ? validEntryOrDeleted(data, "lc-637")
+        : keys.hasAny(["lc-116"]) ? validEntryOrDeleted(data, "lc-116")
+        : keys.hasAny(["lc-117"]) ? validEntryOrDeleted(data, "lc-117")
+        : keys.hasAny(["lc-226"]) ? validEntryOrDeleted(data, "lc-226")
+        : keys.hasAny(["lc-112"]) ? validEntryOrDeleted(data, "lc-112")
+        : keys.hasAny(["lc-113"]) ? validEntryOrDeleted(data, "lc-113")
+        : keys.hasAny(["lc-437"]) ? validEntryOrDeleted(data, "lc-437")
         : false;
     }
 
@@ -577,6 +657,10 @@ service cloud.firestore {
         : keys.hasAny(["two-sum-in-bst"]) ? validEntryOrDeleted(data, "two-sum-in-bst")
         : keys.hasAny(["correct-bst-with-two-nodes-swapped"]) ? validEntryOrDeleted(data, "correct-bst-with-two-nodes-swapped")
         : keys.hasAny(["largest-bst-in-binary-tree"]) ? validEntryOrDeleted(data, "largest-bst-in-binary-tree")
+        : keys.hasAny(["lc-938"]) ? validEntryOrDeleted(data, "lc-938")
+        : keys.hasAny(["lc-530"]) ? validEntryOrDeleted(data, "lc-530")
+        : keys.hasAny(["lc-501"]) ? validEntryOrDeleted(data, "lc-501")
+        : keys.hasAny(["lc-108"]) ? validEntryOrDeleted(data, "lc-108")
         : false;
     }
 
@@ -601,6 +685,10 @@ service cloud.firestore {
         : keys.hasAny(["maximum-sum-combination"]) ? validEntryOrDeleted(data, "maximum-sum-combination")
         : keys.hasAny(["find-median-from-data-stream"]) ? validEntryOrDeleted(data, "find-median-from-data-stream")
         : keys.hasAny(["top-k-frequent-elements"]) ? validEntryOrDeleted(data, "top-k-frequent-elements")
+        : keys.hasAny(["lc-1046"]) ? validEntryOrDeleted(data, "lc-1046")
+        : keys.hasAny(["lc-767"]) ? validEntryOrDeleted(data, "lc-767")
+        : keys.hasAny(["lc-632"]) ? validEntryOrDeleted(data, "lc-632")
+        : keys.hasAny(["lc-373"]) ? validEntryOrDeleted(data, "lc-373")
         : false;
     }
 
@@ -651,6 +739,26 @@ service cloud.firestore {
         : keys.hasAny(["kosaraju-s-algorithm"]) ? validEntryOrDeleted(data, "kosaraju-s-algorithm")
         : keys.hasAny(["bridges-in-graph"]) ? validEntryOrDeleted(data, "bridges-in-graph")
         : keys.hasAny(["articulation-point-in-graph"]) ? validEntryOrDeleted(data, "articulation-point-in-graph")
+        : keys.hasAny(["lc-695"]) ? validEntryOrDeleted(data, "lc-695")
+        : keys.hasAny(["lc-133"]) ? validEntryOrDeleted(data, "lc-133")
+        : keys.hasAny(["lc-841"]) ? validEntryOrDeleted(data, "lc-841")
+        : keys.hasAny(["lc-1971"]) ? validEntryOrDeleted(data, "lc-1971")
+        : keys.hasAny(["lc-1584"]) ? validEntryOrDeleted(data, "lc-1584")
+        : keys.hasAny(["lc-1102"]) ? validEntryOrDeleted(data, "lc-1102")
+        : keys.hasAny(["lc-1489"]) ? validEntryOrDeleted(data, "lc-1489")
+        : keys.hasAny(["lc-959"]) ? validEntryOrDeleted(data, "lc-959")
+        : keys.hasAny(["lc-399"]) ? validEntryOrDeleted(data, "lc-399")
+        : keys.hasAny(["lc-997"]) ? validEntryOrDeleted(data, "lc-997")
+        : keys.hasAny(["lc-1293"]) ? validEntryOrDeleted(data, "lc-1293")
+        : keys.hasAny(["lc-1654"]) ? validEntryOrDeleted(data, "lc-1654")
+        : keys.hasAny(["lc-261"]) ? validEntryOrDeleted(data, "lc-261")
+        : keys.hasAny(["lc-310"]) ? validEntryOrDeleted(data, "lc-310")
+        : keys.hasAny(["lc-1557"]) ? validEntryOrDeleted(data, "lc-1557")
+        : keys.hasAny(["lc-1466"]) ? validEntryOrDeleted(data, "lc-1466")
+        : keys.hasAny(["lc-684"]) ? validEntryOrDeleted(data, "lc-684")
+        : keys.hasAny(["lc-685"]) ? validEntryOrDeleted(data, "lc-685")
+        : keys.hasAny(["lc-990"]) ? validEntryOrDeleted(data, "lc-990")
+        : keys.hasAny(["lc-1202"]) ? validEntryOrDeleted(data, "lc-1202")
         : false;
     }
 
@@ -708,6 +816,22 @@ service cloud.firestore {
         : keys.hasAny(["partition-array-for-maximum-sum"]) ? validEntryOrDeleted(data, "partition-array-for-maximum-sum")
         : keys.hasAny(["minimum-cost-to-cut-the-stick"]) ? validEntryOrDeleted(data, "minimum-cost-to-cut-the-stick")
         : keys.hasAny(["different-ways-to-evaluate-a-boolean-expression"]) ? validEntryOrDeleted(data, "different-ways-to-evaluate-a-boolean-expression")
+        : keys.hasAny(["lc-746"]) ? validEntryOrDeleted(data, "lc-746")
+        : keys.hasAny(["lc-213"]) ? validEntryOrDeleted(data, "lc-213")
+        : keys.hasAny(["lc-91"]) ? validEntryOrDeleted(data, "lc-91")
+        : keys.hasAny(["lc-639"]) ? validEntryOrDeleted(data, "lc-639")
+        : keys.hasAny(["lc-221"]) ? validEntryOrDeleted(data, "lc-221")
+        : keys.hasAny(["lc-664"]) ? validEntryOrDeleted(data, "lc-664")
+        : keys.hasAny(["lc-1547"]) ? validEntryOrDeleted(data, "lc-1547")
+        : keys.hasAny(["lc-514"]) ? validEntryOrDeleted(data, "lc-514")
+        : keys.hasAny(["lc-279"]) ? validEntryOrDeleted(data, "lc-279")
+        : keys.hasAny(["lc-474"]) ? validEntryOrDeleted(data, "lc-474")
+        : keys.hasAny(["lc-879"]) ? validEntryOrDeleted(data, "lc-879")
+        : keys.hasAny(["lc-1155"]) ? validEntryOrDeleted(data, "lc-1155")
+        : keys.hasAny(["lc-646"]) ? validEntryOrDeleted(data, "lc-646")
+        : keys.hasAny(["lc-1027"]) ? validEntryOrDeleted(data, "lc-1027")
+        : keys.hasAny(["lc-1218"]) ? validEntryOrDeleted(data, "lc-1218")
+        : keys.hasAny(["lc-97"]) ? validEntryOrDeleted(data, "lc-97")
         : false;
     }
 
@@ -719,6 +843,10 @@ service cloud.firestore {
         : keys.hasAny(["number-of-distinct-substrings-in-a-string"]) ? validEntryOrDeleted(data, "number-of-distinct-substrings-in-a-string")
         : keys.hasAny(["maximum-xor-of-two-numbers-in-an-array"]) ? validEntryOrDeleted(data, "maximum-xor-of-two-numbers-in-an-array")
         : keys.hasAny(["maximum-xor-with-an-element-from-an-array"]) ? validEntryOrDeleted(data, "maximum-xor-with-an-element-from-an-array")
+        : keys.hasAny(["lc-211"]) ? validEntryOrDeleted(data, "lc-211")
+        : keys.hasAny(["lc-648"]) ? validEntryOrDeleted(data, "lc-648")
+        : keys.hasAny(["lc-720"]) ? validEntryOrDeleted(data, "lc-720")
+        : keys.hasAny(["lc-212"]) ? validEntryOrDeleted(data, "lc-212")
         : false;
     }
 
@@ -732,6 +860,10 @@ service cloud.firestore {
         : keys.hasAny(["kmp-algorithm-or-lps-array"]) ? validEntryOrDeleted(data, "kmp-algorithm-or-lps-array")
         : keys.hasAny(["shortest-palindrome"]) ? validEntryOrDeleted(data, "shortest-palindrome")
         : keys.hasAny(["longest-happy-prefix"]) ? validEntryOrDeleted(data, "longest-happy-prefix")
+        : keys.hasAny(["lc-28"]) ? validEntryOrDeleted(data, "lc-28")
+        : keys.hasAny(["lc-459"]) ? validEntryOrDeleted(data, "lc-459")
+        : keys.hasAny(["lc-67"]) ? validEntryOrDeleted(data, "lc-67")
+        : keys.hasAny(["lc-43"]) ? validEntryOrDeleted(data, "lc-43")
         : false;
     }
 
@@ -739,6 +871,10 @@ service cloud.firestore {
       return keys.hasAny(["print-all-primes-till-n"]) ? validEntryOrDeleted(data, "print-all-primes-till-n")
         : keys.hasAny(["prime-factorisation-of-a-number"]) ? validEntryOrDeleted(data, "prime-factorisation-of-a-number")
         : keys.hasAny(["count-primes-in-range-l-to-r"]) ? validEntryOrDeleted(data, "count-primes-in-range-l-to-r")
+        : keys.hasAny(["lc-172"]) ? validEntryOrDeleted(data, "lc-172")
+        : keys.hasAny(["lc-258"]) ? validEntryOrDeleted(data, "lc-258")
+        : keys.hasAny(["lc-441"]) ? validEntryOrDeleted(data, "lc-441")
+        : keys.hasAny(["lc-367"]) ? validEntryOrDeleted(data, "lc-367")
         : false;
     }
 
@@ -760,7 +896,7 @@ service cloud.firestore {
     function validProgressWrite_sorting(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["selection-sort", "bubble-sort", "insertion-sorting", "merge-sorting", "quick-sorting", "recursive-bubble-sort", "recursive-insertion-sort"];
+      let allowed = ["selection-sort", "bubble-sort", "insertion-sorting", "merge-sorting", "quick-sorting", "recursive-bubble-sort", "recursive-insertion-sort", "lc-912", "lc-973", "lc-1356", "lc-1636"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -775,7 +911,7 @@ service cloud.firestore {
     function validProgressWrite_arrays(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["linear-search", "largest-element", "second-largest-element", "maximum-consecutive-ones", "left-rotate-array-by-one", "left-rotate-array-by-k-places", "move-zeros-to-end", "remove-duplicates-from-sorted-array", "find-missing-number", "union-of-two-sorted-arrays", "intersection-of-two-sorted-arrays", "majority-element-i", "leaders-in-an-array", "rearrange-array-elements-by-sign", "print-the-matrix-in-spiral-manner", "pascal-s-triangle-i", "pascal-s-triangle-ii", "pascal-s-triangle-iii", "rotate-matrix-by-90-degrees", "set-matrix-zeroes", "two-sum", "3-sum", "4-sum", "sort-an-array-of-0-s-1-s-and-2-s", "kadane-s-algorithm", "next-permutation", "majority-element-ii", "find-the-repeating-and-missing-number", "count-inversions", "reverse-pairs", "maximum-product-subarray-in-an-array", "merge-two-sorted-arrays-without-extra-space"];
+      let allowed = ["linear-search", "largest-element", "second-largest-element", "maximum-consecutive-ones", "left-rotate-array-by-one", "left-rotate-array-by-k-places", "move-zeros-to-end", "remove-duplicates-from-sorted-array", "find-missing-number", "union-of-two-sorted-arrays", "intersection-of-two-sorted-arrays", "majority-element-i", "leaders-in-an-array", "rearrange-array-elements-by-sign", "print-the-matrix-in-spiral-manner", "pascal-s-triangle-i", "pascal-s-triangle-ii", "pascal-s-triangle-iii", "rotate-matrix-by-90-degrees", "set-matrix-zeroes", "two-sum", "3-sum", "4-sum", "sort-an-array-of-0-s-1-s-and-2-s", "kadane-s-algorithm", "next-permutation", "majority-element-ii", "find-the-repeating-and-missing-number", "count-inversions", "reverse-pairs", "maximum-product-subarray-in-an-array", "merge-two-sorted-arrays-without-extra-space", "lc-452", "lc-252", "lc-253", "lc-228", "lc-974", "lc-525", "lc-303", "lc-304", "lc-167", "lc-16", "lc-27", "lc-80"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -790,7 +926,7 @@ service cloud.firestore {
     function validProgressWrite_hashing(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["basic-hashing-2", "longest-consecutive-sequence-in-an-array", "longest-subarray-with-sum-k", "largest-subarray-with-sum-0", "count-subarrays-with-given-sum", "count-subarrays-with-given-xor-k"];
+      let allowed = ["basic-hashing-2", "longest-consecutive-sequence-in-an-array", "longest-subarray-with-sum-k", "largest-subarray-with-sum-0", "count-subarrays-with-given-sum", "count-subarrays-with-given-xor-k", "lc-49", "lc-350", "lc-409", "lc-290"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -805,7 +941,7 @@ service cloud.firestore {
     function validProgressWrite_binary_search(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["search-x-in-sorted-array", "lower-bound", "upper-bound", "search-insert-position", "floor-and-ceil-in-sorted-array", "first-and-last-occurrence", "search-in-rotated-sorted-array-i", "search-in-rotated-sorted-array-ii", "find-minimum-in-rotated-sorted-array", "find-out-how-many-times-the-array-is-rotated", "single-element-in-sorted-array", "count-occurrences-in-a-sorted-array", "find-square-root-of-a-number", "find-nth-root-of-a-number", "find-the-smallest-divisor", "koko-eating-bananas", "minimum-days-to-make-m-bouquets", "capacity-to-ship-packages-within-d-days", "kth-missing-positive-number", "painter-s-partition", "aggressive-cows", "book-allocation-problem", "find-peak-element", "median-of-2-sorted-arrays", "kth-element-of-2-sorted-arrays", "minimize-max-distance-to-gas-station", "split-array-largest-sum", "find-row-with-maximum-1-s", "search-in-a-2d-matrix", "search-in-2d-matrix-ii", "find-peak-element-ii", "matrix-median"];
+      let allowed = ["search-x-in-sorted-array", "lower-bound", "upper-bound", "search-insert-position", "floor-and-ceil-in-sorted-array", "first-and-last-occurrence", "search-in-rotated-sorted-array-i", "search-in-rotated-sorted-array-ii", "find-minimum-in-rotated-sorted-array", "find-out-how-many-times-the-array-is-rotated", "single-element-in-sorted-array", "count-occurrences-in-a-sorted-array", "find-square-root-of-a-number", "find-nth-root-of-a-number", "find-the-smallest-divisor", "koko-eating-bananas", "minimum-days-to-make-m-bouquets", "capacity-to-ship-packages-within-d-days", "kth-missing-positive-number", "painter-s-partition", "aggressive-cows", "book-allocation-problem", "find-peak-element", "median-of-2-sorted-arrays", "kth-element-of-2-sorted-arrays", "minimize-max-distance-to-gas-station", "split-array-largest-sum", "find-row-with-maximum-1-s", "search-in-a-2d-matrix", "search-in-2d-matrix-ii", "find-peak-element-ii", "matrix-median", "lc-1552", "lc-2226", "lc-2187", "lc-1898", "lc-278", "lc-744", "lc-378", "lc-668"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -835,7 +971,7 @@ service cloud.firestore {
     function validProgressWrite_recursion(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["pow-x-n", "generate-parentheses", "power-set", "count-good-numbers", "reverse-a-stack", "learn-all-patterns-of-subsequences-theory", "check-if-there-exists-a-subsequence-with-sum-k", "count-all-subsequences-with-sum-k", "generate-binary-strings-without-consecutive-1s", "combination-sum", "combination-sum-ii", "subsets-i", "subsets-ii", "combination-sum-iii", "letter-combinations-of-a-phone-number", "palindrome-partitioning", "word-search", "n-queen", "rat-in-a-maze", "m-coloring-problem", "sudoku-solver", "expression-add-operators"];
+      let allowed = ["pow-x-n", "generate-parentheses", "power-set", "count-good-numbers", "reverse-a-stack", "learn-all-patterns-of-subsequences-theory", "check-if-there-exists-a-subsequence-with-sum-k", "count-all-subsequences-with-sum-k", "generate-binary-strings-without-consecutive-1s", "combination-sum", "combination-sum-ii", "subsets-i", "subsets-ii", "combination-sum-iii", "letter-combinations-of-a-phone-number", "palindrome-partitioning", "word-search", "n-queen", "rat-in-a-maze", "m-coloring-problem", "sudoku-solver", "expression-add-operators", "lc-46", "lc-47", "lc-377", "lc-93", "lc-52", "lc-77", "lc-784", "lc-996"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -850,7 +986,7 @@ service cloud.firestore {
     function validProgressWrite_linked_list(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["introduction-to-singly-linkedlist", "traversal-in-linked-list", "deletion-in-linked-list", "insertion-in-linked-list", "deletion-of-the-head-of-ll", "deletion-of-the-tail-of-linked-list", "deletion-of-the-kth-element-of-linked-list", "delete-the-element-with-value-x", "insertion-at-the-head-of-linked-list", "insertion-at-the-tail-of-linked-list", "insertion-at-the-kth-position-of-linked-list", "insertion-before-the-value-x-in-linked-list", "find-the-length-of-the-linked-list", "search-in-linked-list", "introduction-to-doubly-ll", "deletion-in-doubly-ll", "insertion-in-dll", "convert-array-to-doubly-linked-list", "delete-tail-of-doubly-linked-list", "delete-kth-element-of-doubly-linked-list", "removing-given-node-in-doubly-linked-list", "insert-node-before-head-in-doubly-linked-list", "insert-node-before-tail-in-doubly-linked-list", "insert-node-before-kth-node-in-doubly-linked-list", "insert-before-given-node-in-doubly-linked-list", "delete-head-of-doubly-linked-list", "reverse-a-doubly-linked-list", "add-two-numbers-in-linked-list", "segregate-odd-and-even-nodes-in-linked-list", "sort-a-linked-list-of-0-s-1-s-and-2-s", "remove-nth-node-from-the-back-of-the-ll", "reverse-a-ll", "add-one-to-a-number-represented-by-ll", "find-middle-of-linked-list", "delete-the-middle-node-in-ll", "check-if-ll-is-palindrome-or-not", "find-the-intersection-point-of-y-ll", "detect-a-loop-in-ll", "find-the-starting-point-in-ll", "length-of-loop-in-ll", "reverse-ll-in-group-of-given-size-k", "rotate-a-ll", "merge-two-sorted-lists", "flattening-of-ll", "sort-ll", "clone-a-ll-with-random-and-next-pointer", "delete-all-occurrences-of-a-key-in-dll", "remove-duplicates-from-sorted-dll", "find-pairs-with-given-sum-in-doubly-linked-list"];
+      let allowed = ["introduction-to-singly-linkedlist", "traversal-in-linked-list", "deletion-in-linked-list", "insertion-in-linked-list", "deletion-of-the-head-of-ll", "deletion-of-the-tail-of-linked-list", "deletion-of-the-kth-element-of-linked-list", "delete-the-element-with-value-x", "insertion-at-the-head-of-linked-list", "insertion-at-the-tail-of-linked-list", "insertion-at-the-kth-position-of-linked-list", "insertion-before-the-value-x-in-linked-list", "find-the-length-of-the-linked-list", "search-in-linked-list", "introduction-to-doubly-ll", "deletion-in-doubly-ll", "insertion-in-dll", "convert-array-to-doubly-linked-list", "delete-tail-of-doubly-linked-list", "delete-kth-element-of-doubly-linked-list", "removing-given-node-in-doubly-linked-list", "insert-node-before-head-in-doubly-linked-list", "insert-node-before-tail-in-doubly-linked-list", "insert-node-before-kth-node-in-doubly-linked-list", "insert-before-given-node-in-doubly-linked-list", "delete-head-of-doubly-linked-list", "reverse-a-doubly-linked-list", "add-two-numbers-in-linked-list", "segregate-odd-and-even-nodes-in-linked-list", "sort-a-linked-list-of-0-s-1-s-and-2-s", "remove-nth-node-from-the-back-of-the-ll", "reverse-a-ll", "add-one-to-a-number-represented-by-ll", "find-middle-of-linked-list", "delete-the-middle-node-in-ll", "check-if-ll-is-palindrome-or-not", "find-the-intersection-point-of-y-ll", "detect-a-loop-in-ll", "find-the-starting-point-in-ll", "length-of-loop-in-ll", "reverse-ll-in-group-of-given-size-k", "rotate-a-ll", "merge-two-sorted-lists", "flattening-of-ll", "sort-ll", "clone-a-ll-with-random-and-next-pointer", "delete-all-occurrences-of-a-key-in-dll", "remove-duplicates-from-sorted-dll", "find-pairs-with-given-sum-in-doubly-linked-list", "lc-457", "lc-202", "lc-287", "lc-2130", "lc-92", "lc-24", "lc-143", "lc-86"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -865,7 +1001,7 @@ service cloud.firestore {
     function validProgressWrite_bit_manipulation(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["introduction-to-bits-and-tricks", "check-if-the-i-th-bit-is-set-or-not", "check-if-a-number-is-odd-or-not", "check-if-a-number-is-power-of-2-or-not", "count-the-number-of-set-bits", "set-the-rightmost-unset-bit", "swap-two-numbers", "minimum-bit-flips-to-convert-number", "single-number-i", "single-number-ii", "single-number-iii", "divide-two-numbers-without-multiplication-and-division", "power-set-bit-manipulation", "xor-of-numbers-in-a-given-range"];
+      let allowed = ["introduction-to-bits-and-tricks", "check-if-the-i-th-bit-is-set-or-not", "check-if-a-number-is-odd-or-not", "check-if-a-number-is-power-of-2-or-not", "count-the-number-of-set-bits", "set-the-rightmost-unset-bit", "swap-two-numbers", "minimum-bit-flips-to-convert-number", "single-number-i", "single-number-ii", "single-number-iii", "divide-two-numbers-without-multiplication-and-division", "power-set-bit-manipulation", "xor-of-numbers-in-a-given-range", "lc-190", "lc-201", "lc-371", "lc-338"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -880,7 +1016,7 @@ service cloud.firestore {
     function validProgressWrite_greedy_algorithms(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["assign-cookies", "lemonade-change", "fractional-knapsack", "jump-game-i", "shortest-job-first", "job-sequencing-problem", "n-meetings-in-one-room", "non-overlapping-intervals", "insert-interval", "merge-intervals", "minimum-number-of-platforms-required-for-a-railway", "valid-parenthesis-checker", "candy", "jump-game-ii"];
+      let allowed = ["assign-cookies", "lemonade-change", "fractional-knapsack", "jump-game-i", "shortest-job-first", "job-sequencing-problem", "n-meetings-in-one-room", "non-overlapping-intervals", "insert-interval", "merge-intervals", "minimum-number-of-platforms-required-for-a-railway", "valid-parenthesis-checker", "candy", "jump-game-ii", "lc-1710", "lc-763", "lc-605", "lc-134"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -895,7 +1031,7 @@ service cloud.firestore {
     function validProgressWrite_sliding_window_2_pointer(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["theory", "maximum-points-you-can-obtain-from-cards", "longest-substring-without-repeating-characters", "max-consecutive-ones-iii", "fruit-into-baskets", "longest-substring-with-at-most-k-distinct-characters", "longest-repeating-character-replacement", "minimum-window-substring", "minimum-window-subsequence", "number-of-substrings-containing-all-three-characters", "binary-subarrays-with-sum", "count-number-of-nice-subarrays", "subarrays-with-k-different-integers"];
+      let allowed = ["theory", "maximum-points-you-can-obtain-from-cards", "longest-substring-without-repeating-characters", "max-consecutive-ones-iii", "fruit-into-baskets", "longest-substring-with-at-most-k-distinct-characters", "longest-repeating-character-replacement", "minimum-window-substring", "minimum-window-subsequence", "number-of-substrings-containing-all-three-characters", "binary-subarrays-with-sum", "count-number-of-nice-subarrays", "subarrays-with-k-different-integers", "lc-209", "lc-438", "lc-567", "lc-713"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -910,7 +1046,7 @@ service cloud.firestore {
     function validProgressWrite_stack_queues(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["implementation-using-different-ds", "implement-stack-using-arrays", "implement-queue-using-arrays", "implement-stack-using-queue", "implement-queue-using-stack", "implement-stack-using-linkedlist", "implement-queue-using-linkedlist", "balanced-paranthesis", "infix-to-postfix-conversion", "infix-to-prefix-conversion", "prefix-to-infix-conversion", "prefix-to-postfix-conversion", "postfix-to-infix-conversion", "postfix-to-prefix-conversion", "next-greater-element", "next-greater-element-2", "asteroid-collision", "sum-of-subarray-minimums", "sum-of-subarray-ranges", "remove-k-digits", "next-smaller-element", "implement-min-stack", "sliding-window-maximum", "trapping-rainwater", "largest-rectangle-in-a-histogram", "maximum-rectangles", "stock-span-problem", "celebrity-problem", "lru-cache", "lfu-cache", "number-of-greater-elements-to-the-right"];
+      let allowed = ["implementation-using-different-ds", "implement-stack-using-arrays", "implement-queue-using-arrays", "implement-stack-using-queue", "implement-queue-using-stack", "implement-stack-using-linkedlist", "implement-queue-using-linkedlist", "balanced-paranthesis", "infix-to-postfix-conversion", "infix-to-prefix-conversion", "prefix-to-infix-conversion", "prefix-to-postfix-conversion", "postfix-to-infix-conversion", "postfix-to-prefix-conversion", "next-greater-element", "next-greater-element-2", "asteroid-collision", "sum-of-subarray-minimums", "sum-of-subarray-ranges", "remove-k-digits", "next-smaller-element", "implement-min-stack", "sliding-window-maximum", "trapping-rainwater", "largest-rectangle-in-a-histogram", "maximum-rectangles", "stock-span-problem", "celebrity-problem", "lru-cache", "lfu-cache", "number-of-greater-elements-to-the-right", "lc-962", "lc-739", "lc-853", "lc-1944", "lc-862", "lc-1438", "lc-933", "lc-362", "lc-150", "lc-71", "lc-394", "lc-224"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -925,7 +1061,7 @@ service cloud.firestore {
     function validProgressWrite_binary_trees(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["introduction", "inorder-traversal", "preorder-traversal", "postorder-traversal", "level-order-traversal", "pre-post-inorder-in-one-traversal", "maximum-depth-in-bt", "check-if-two-trees-are-identical-or-not", "check-for-balanced-binary-tree", "diameter-of-binary-tree", "maximum-path-sum", "check-for-symmetrical-bts", "children-sum-property-in-binary-tree", "zig-zag-or-spiral-traversal", "boundary-traversal", "vertical-order-traversal", "top-view-of-bt", "bottom-view-of-bt", "right-left-view-of-bt", "print-root-to-leaf-path-in-bt", "lca-in-bt", "maximum-width-of-bt", "print-all-nodes-at-a-distance-of-k-in-bt", "minimum-time-taken-to-burn-the-bt-from-a-given-node", "count-total-nodes-in-a-complete-bt", "flatten-binary-tree-to-linked-list", "requirements-needed-to-construct-a-unique-bt", "construct-a-bt-from-preorder-and-inorder", "construct-a-bt-from-postorder-and-inorder", "serialize-and-de-serialize-bt", "morris-inorder-traversal", "morris-preorder-traversal"];
+      let allowed = ["introduction", "inorder-traversal", "preorder-traversal", "postorder-traversal", "level-order-traversal", "pre-post-inorder-in-one-traversal", "maximum-depth-in-bt", "check-if-two-trees-are-identical-or-not", "check-for-balanced-binary-tree", "diameter-of-binary-tree", "maximum-path-sum", "check-for-symmetrical-bts", "children-sum-property-in-binary-tree", "zig-zag-or-spiral-traversal", "boundary-traversal", "vertical-order-traversal", "top-view-of-bt", "bottom-view-of-bt", "right-left-view-of-bt", "print-root-to-leaf-path-in-bt", "lca-in-bt", "maximum-width-of-bt", "print-all-nodes-at-a-distance-of-k-in-bt", "minimum-time-taken-to-burn-the-bt-from-a-given-node", "count-total-nodes-in-a-complete-bt", "flatten-binary-tree-to-linked-list", "requirements-needed-to-construct-a-unique-bt", "construct-a-bt-from-preorder-and-inorder", "construct-a-bt-from-postorder-and-inorder", "serialize-and-de-serialize-bt", "morris-inorder-traversal", "morris-preorder-traversal", "lc-337", "lc-687", "lc-968", "lc-979", "lc-107", "lc-637", "lc-116", "lc-117", "lc-226", "lc-112", "lc-113", "lc-437"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -940,7 +1076,7 @@ service cloud.firestore {
     function validProgressWrite_binary_search_trees(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["introduction-to-bst", "search-in-bst", "floor-and-ceil-in-a-bst", "minimum-and-maximum-in-bst", "insert-a-given-node-in-bst", "delete-a-node-in-bst", "kth-smallest-and-largest-element-in-bst", "check-if-a-tree-is-a-bst-or-not", "lca-in-bst", "construct-a-bst-from-a-preorder-traversal", "inorder-successor-and-predecessor-in-bst", "bst-iterator", "two-sum-in-bst", "correct-bst-with-two-nodes-swapped", "largest-bst-in-binary-tree"];
+      let allowed = ["introduction-to-bst", "search-in-bst", "floor-and-ceil-in-a-bst", "minimum-and-maximum-in-bst", "insert-a-given-node-in-bst", "delete-a-node-in-bst", "kth-smallest-and-largest-element-in-bst", "check-if-a-tree-is-a-bst-or-not", "lca-in-bst", "construct-a-bst-from-a-preorder-traversal", "inorder-successor-and-predecessor-in-bst", "bst-iterator", "two-sum-in-bst", "correct-bst-with-two-nodes-swapped", "largest-bst-in-binary-tree", "lc-938", "lc-530", "lc-501", "lc-108"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -955,7 +1091,7 @@ service cloud.firestore {
     function validProgressWrite_heaps(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["heaps-theory-video", "heapify-algorithm", "build-heap-from-a-given-array", "implement-min-heap", "implement-max-heap", "check-if-an-array-represents-a-min-heap", "convert-min-heap-to-max-heap", "heap-sort", "k-th-largest-element-in-an-array", "kth-largest-element-in-a-stream-of-running-integers", "sort-a-k-sorted-array", "merge-k-sorted-lists", "replace-elements-by-their-rank", "task-scheduler", "hand-of-straights", "design-twitter", "minimum-cost-to-connect-sticks", "maximum-sum-combination", "find-median-from-data-stream", "top-k-frequent-elements"];
+      let allowed = ["heaps-theory-video", "heapify-algorithm", "build-heap-from-a-given-array", "implement-min-heap", "implement-max-heap", "check-if-an-array-represents-a-min-heap", "convert-min-heap-to-max-heap", "heap-sort", "k-th-largest-element-in-an-array", "kth-largest-element-in-a-stream-of-running-integers", "sort-a-k-sorted-array", "merge-k-sorted-lists", "replace-elements-by-their-rank", "task-scheduler", "hand-of-straights", "design-twitter", "minimum-cost-to-connect-sticks", "maximum-sum-combination", "find-median-from-data-stream", "top-k-frequent-elements", "lc-1046", "lc-767", "lc-632", "lc-373"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -970,7 +1106,7 @@ service cloud.firestore {
     function validProgressWrite_graphs(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["introduction-to-graph", "traversal-techniques", "connected-components", "number-of-provinces", "number-of-islands", "flood-fill-algorithm", "number-of-enclaves", "rotten-oranges", "distance-of-nearest-cell-having-one", "surrounded-regions", "number-of-distinct-islands", "detect-a-cycle-in-an-undirected-graph", "bipartite-graph", "topological-sort-or-kahn-s-algorithm", "detect-a-cycle-in-a-directed-graph", "find-eventual-safe-states", "course-schedule-i", "course-schedule-ii", "alien-dictionary", "shortest-path-in-dag", "shortest-path-in-undirected-graph-with-unit-weights", "word-ladder-i", "word-ladder-ii", "dijkstra-s-algorithm", "print-shortest-path", "shortest-distance-in-a-binary-maze", "path-with-minimum-effort", "cheapest-flight-within-k-stops", "minimum-multiplications-to-reach-end", "number-of-ways-to-arrive-at-destination", "bellman-ford-algorithm", "floyd-warshall-algorithm", "find-the-city-with-the-smallest-number-of-neighbors", "network-delay-time", "swim-in-rising-water", "mst-theory", "disjoint-set", "find-the-mst-weight", "number-of-operations-to-make-network-connected", "accounts-merge", "number-of-islands-ii", "making-a-large-island", "most-stones-removed-with-same-row-or-column", "kosaraju-s-algorithm", "bridges-in-graph", "articulation-point-in-graph"];
+      let allowed = ["introduction-to-graph", "traversal-techniques", "connected-components", "number-of-provinces", "number-of-islands", "flood-fill-algorithm", "number-of-enclaves", "rotten-oranges", "distance-of-nearest-cell-having-one", "surrounded-regions", "number-of-distinct-islands", "detect-a-cycle-in-an-undirected-graph", "bipartite-graph", "topological-sort-or-kahn-s-algorithm", "detect-a-cycle-in-a-directed-graph", "find-eventual-safe-states", "course-schedule-i", "course-schedule-ii", "alien-dictionary", "shortest-path-in-dag", "shortest-path-in-undirected-graph-with-unit-weights", "word-ladder-i", "word-ladder-ii", "dijkstra-s-algorithm", "print-shortest-path", "shortest-distance-in-a-binary-maze", "path-with-minimum-effort", "cheapest-flight-within-k-stops", "minimum-multiplications-to-reach-end", "number-of-ways-to-arrive-at-destination", "bellman-ford-algorithm", "floyd-warshall-algorithm", "find-the-city-with-the-smallest-number-of-neighbors", "network-delay-time", "swim-in-rising-water", "mst-theory", "disjoint-set", "find-the-mst-weight", "number-of-operations-to-make-network-connected", "accounts-merge", "number-of-islands-ii", "making-a-large-island", "most-stones-removed-with-same-row-or-column", "kosaraju-s-algorithm", "bridges-in-graph", "articulation-point-in-graph", "lc-695", "lc-133", "lc-841", "lc-1971", "lc-1584", "lc-1102", "lc-1489", "lc-959", "lc-399", "lc-997", "lc-1293", "lc-1654", "lc-261", "lc-310", "lc-1557", "lc-1466", "lc-684", "lc-685", "lc-990", "lc-1202"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -985,7 +1121,7 @@ service cloud.firestore {
     function validProgressWrite_dynamic_programming(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["introduction-to-dp", "climbing-stairs", "frog-jump", "frog-jump-with-k-distances", "maximum-sum-of-non-adjacent-elements", "house-robber", "ninja-s-training", "grid-unique-paths", "unique-paths-ii", "minimum-falling-path-sum", "triangle", "cherry-pickup-ii", "count-square-submatrices-with-all-ones", "best-time-to-buy-and-sell-stock", "best-time-to-buy-and-sell-stock-ii", "best-time-to-buy-and-sell-stock-iii", "best-time-to-buy-and-sell-stock-iv", "best-time-to-buy-and-sell-stock-with-transaction-fees", "best-time-to-buy-and-sell-stock-with-cooldown", "subset-sum-equals-to-target", "partition-equal-subset-sum", "partition-a-set-into-two-subsets-with-minimum-absolute-sum-difference", "count-subsets-with-sum-k", "count-partitions-with-given-difference", "0-and-1-knapsack", "minimum-coins", "target-sum", "coin-change-ii", "unbounded-knapsack", "rod-cutting-problem", "longest-increasing-subsequence", "print-longest-increasing-subsequence", "largest-divisible-subset", "longest-string-chain", "longest-bitonic-subsequence", "number-of-longest-increasing-subsequences", "longest-common-subsequence", "longest-common-substring", "longest-palindromic-subsequence", "minimum-insertions-to-make-string-palindrome", "minimum-insertions-or-deletions-to-convert-string-a-to-b", "shortest-common-supersequence", "distinct-subsequences", "edit-distance", "wildcard-matching", "word-break", "count-palindromic-subsequences", "matrix-chain-multiplication", "burst-balloons", "palindrome-partitioning-ii", "partition-array-for-maximum-sum", "minimum-cost-to-cut-the-stick", "different-ways-to-evaluate-a-boolean-expression"];
+      let allowed = ["introduction-to-dp", "climbing-stairs", "frog-jump", "frog-jump-with-k-distances", "maximum-sum-of-non-adjacent-elements", "house-robber", "ninja-s-training", "grid-unique-paths", "unique-paths-ii", "minimum-falling-path-sum", "triangle", "cherry-pickup-ii", "count-square-submatrices-with-all-ones", "best-time-to-buy-and-sell-stock", "best-time-to-buy-and-sell-stock-ii", "best-time-to-buy-and-sell-stock-iii", "best-time-to-buy-and-sell-stock-iv", "best-time-to-buy-and-sell-stock-with-transaction-fees", "best-time-to-buy-and-sell-stock-with-cooldown", "subset-sum-equals-to-target", "partition-equal-subset-sum", "partition-a-set-into-two-subsets-with-minimum-absolute-sum-difference", "count-subsets-with-sum-k", "count-partitions-with-given-difference", "0-and-1-knapsack", "minimum-coins", "target-sum", "coin-change-ii", "unbounded-knapsack", "rod-cutting-problem", "longest-increasing-subsequence", "print-longest-increasing-subsequence", "largest-divisible-subset", "longest-string-chain", "longest-bitonic-subsequence", "number-of-longest-increasing-subsequences", "longest-common-subsequence", "longest-common-substring", "longest-palindromic-subsequence", "minimum-insertions-to-make-string-palindrome", "minimum-insertions-or-deletions-to-convert-string-a-to-b", "shortest-common-supersequence", "distinct-subsequences", "edit-distance", "wildcard-matching", "word-break", "count-palindromic-subsequences", "matrix-chain-multiplication", "burst-balloons", "palindrome-partitioning-ii", "partition-array-for-maximum-sum", "minimum-cost-to-cut-the-stick", "different-ways-to-evaluate-a-boolean-expression", "lc-746", "lc-213", "lc-91", "lc-639", "lc-221", "lc-664", "lc-1547", "lc-514", "lc-279", "lc-474", "lc-879", "lc-1155", "lc-646", "lc-1027", "lc-1218", "lc-97"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -1000,7 +1136,7 @@ service cloud.firestore {
     function validProgressWrite_tries(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["bit-prerequisites-for-trie-problems", "trie-implementation-and-operations", "trie-implementation-and-advanced-operations", "longest-word-with-all-prefixes", "number-of-distinct-substrings-in-a-string", "maximum-xor-of-two-numbers-in-an-array", "maximum-xor-with-an-element-from-an-array"];
+      let allowed = ["bit-prerequisites-for-trie-problems", "trie-implementation-and-operations", "trie-implementation-and-advanced-operations", "longest-word-with-all-prefixes", "number-of-distinct-substrings-in-a-string", "maximum-xor-of-two-numbers-in-an-array", "maximum-xor-with-an-element-from-an-array", "lc-211", "lc-648", "lc-720", "lc-212"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -1015,7 +1151,7 @@ service cloud.firestore {
     function validProgressWrite_strings_advanced_algo(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["reverse-every-word-in-a-string", "minimum-number-of-bracket-reversals-to-make-an-expression-balanced", "count-and-say", "hashing-in-strings-theory", "rabin-karp-algorithm", "z-function", "kmp-algorithm-or-lps-array", "shortest-palindrome", "longest-happy-prefix"];
+      let allowed = ["reverse-every-word-in-a-string", "minimum-number-of-bracket-reversals-to-make-an-expression-balanced", "count-and-say", "hashing-in-strings-theory", "rabin-karp-algorithm", "z-function", "kmp-algorithm-or-lps-array", "shortest-palindrome", "longest-happy-prefix", "lc-28", "lc-459", "lc-67", "lc-43"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])
@@ -1030,7 +1166,7 @@ service cloud.firestore {
     function validProgressWrite_maths(data, old) {
       let changed = data.diff(old).affectedKeys();
       let entriesChanged = changed.difference(['updatedAt'].toSet());
-      let allowed = ["print-all-primes-till-n", "prime-factorisation-of-a-number", "count-primes-in-range-l-to-r"];
+      let allowed = ["print-all-primes-till-n", "prime-factorisation-of-a-number", "count-primes-in-range-l-to-r", "lc-172", "lc-258", "lc-441", "lc-367"];
       let allowedWithTime = allowed.concat(['updatedAt']);
       return data.keys().hasOnly(allowedWithTime)
         && data.keys().hasAll(['updatedAt'])

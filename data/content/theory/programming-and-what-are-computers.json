@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "programming-and-what-are-computers-mcq",
+  "problemId": "programming-and-what-are-computers",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Programming and What Are Computers?: What does a program primarily give a computer?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "An ordered set of instructions over input data.",
+      "explain": "A program says which steps to take and what data those steps use."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 1,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "A program says which steps to take and what data those steps use.",
+    "reference": {
+      "source": "programiz",
+      "url": "https://www.programiz.com/dsa#programming-and-what-are-computers",
+      "label": "Reference · Programiz",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

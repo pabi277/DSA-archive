@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-11-03",
+  "catalogue": {
+    "rows": 495,
+    "topics": 20,
+    "theoryRows": 42
+  },
+  "resources": {
+    "rowsWithResources": 495,
+    "multiPublisherRows": 495,
+    "multiPublisherPercent": 100,
+    "leetcodeExactOrNear": 420,
+    "theoryLabelled": 75,
+    "staleLinks": 0,
+    "sources": [
+      "geeksforgeeks",
+      "leetcode",
+      "neetcode",
+      "programiz",
+      "takeuforward",
+      "usaco"
+    ]
+  },
+  "content": {
+    "primers": 1,
+    "primerWords": 789,
+    "statements": 6,
+    "hints": 6,
+    "mistakes": 6,
+    "testCases": 18,
+    "quizItems": 12,
+    "theoryMcqs": 42,
+    "fullyAuthoredTopics": [
+      "arrays"
+    ]
+  },
+  "practice": {
+    "patterns": 34,
+    "drills": 136,
+    "uniqueSlugs": 136,
+    "contiguousSets": true,
+    "sets": [
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "byTopic": [
+    {
+      "topicId": "beginner-problems",
+      "title": "Beginner Problems",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 23,
+      "drills": 0
+    },
+    {
+      "topicId": "sorting",
+      "title": "Sorting",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 0,
+      "drills": 4
+    },
+    {
+      "topicId": "arrays",
+      "title": "Arrays",
+      "primer": true,
+      "statements": 6,
+      "hints": 6,
+      "quizItems": 12,
+      "theoryMcqs": 0,
+      "drills": 12
+    },
+    {
+      "topicId": "hashing",
+      "title": "Hashing",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 1,
+      "drills": 4
+    },
+    {
+      "topicId": "binary-search",
+      "title": "Binary Search",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 0,
+      "drills": 8
+    },
+    {
+      "topicId": "strings-basic-and-medium",
+      "title": "Strings (Basic and Medium)",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 0,
+      "drills": 0
+    },
+    {
+      "topicId": "recursion",
+      "title": "Recursion",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 1,
+      "drills": 8
+    },
+    {
+      "topicId": "linked-list",
+      "title": "Linked-List",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 6,
+      "drills": 8
+    },
+    {
+      "topicId": "bit-manipulation",
+      "title": "Bit Manipulation",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 1,
+      "drills": 4
+    },
+    {
+      "topicId": "greedy-algorithms",
+      "title": "Greedy Algorithms",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 0,
+      "drills": 4
+    },
+    {
+      "topicId": "sliding-window-2-pointer",
+      "title": "Sliding Window / 2 Pointer",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 1,
+      "drills": 4
+    },
+    {
+      "topicId": "stack-queues",
+      "title": "Stack / Queues",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 1,
+      "drills": 12
+    },
+    {
+      "topicId": "binary-trees",
+      "title": "Binary Trees",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 1,
+      "drills": 12
+    },
+    {
+      "topicId": "binary-search-trees",
+      "title": "Binary Search Trees",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 1,
+      "drills": 4
+    },
+    {
+      "topicId": "heaps",
+      "title": "Heaps",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 1,
+      "drills": 4
+    },
+    {
+      "topicId": "graphs",
+      "title": "Graphs",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 2,
+      "drills": 20
+    },
+    {
+      "topicId": "dynamic-programming",
+      "title": "Dynamic Programming",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 1,
+      "drills": 16
+    },
+    {
+      "topicId": "tries",
+      "title": "Tries",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 1,
+      "drills": 4
+    },
+    {
+      "topicId": "strings-advanced-algo",
+      "title": "Strings (Advanced Algo)",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 1,
+      "drills": 4
+    },
+    {
+      "topicId": "maths",
+      "title": "Maths",
+      "primer": false,
+      "statements": 0,
+      "hints": 0,
+      "quizItems": 0,
+      "theoryMcqs": 0,
+      "drills": 4
+    }
+  ]
+}

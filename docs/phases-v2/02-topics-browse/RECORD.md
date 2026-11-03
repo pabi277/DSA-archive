@@ -1,7 +1,7 @@
 # Phase v2-02 — the 20-topic spine
 
 - Date: 2026-11-03
-- Status: 🟡 **implementation complete; owner review/merge gate.** PR [#13](https://github.com/pabi277/DSA-archive/pull/13) is open from `arena/e2907924-dsa-archive`. The full CI run [41647413508](https://github.com/pabi277/DSA-archive/actions/runs/41647413508) passed, including Firestore Emulator rules, Playwright phone/desktop acceptance, axe, budgets, and production builds. No merge or deployment was performed.
+- Status: ✅ **merged to `main`** by the owner's explicit command. PR [#13](https://github.com/pabi277/DSA-archive/pull/13) merged at `bd9350bd85d1af8c7e4c747f7d2035366e101e6f`. The full CI run [41647413508](https://github.com/pabi277/DSA-archive/actions/runs/41647413508) passed, including Firestore Emulator rules, Playwright phone/desktop acceptance, axe, budgets, and production builds. No deployment was performed.
 - Phase 1 prerequisite: PR #12 merged to `main` at `558a25f`; CI run `41635438159` passed. Phase 1's contract remains [`../01-foundation-router-shell/PLAN.md`](../01-foundation-router-shell/PLAN.md).
 - Scope: [`PLAN.md`](PLAN.md) §10 — topics overview, topic page, learning order, practice filters/outcomes, grouped search, Today blocks, and the one-field persistence change.
 
@@ -49,4 +49,4 @@ A learner can browse the 20-topic map, open a topic, follow a learning-ordered p
 
 ## Exit
 
-Implementation and automated CI are complete. Stop at the owner review/merge gate: review the generated visual-baseline artifact, approve the topic experience, then merge PR #13 when ready. No deployment was authorized or performed.
+Implementation and automated CI were completed, then PR #13 was merged to `main` at `bd9350b` on the owner's explicit command. No deployment was authorized or performed. Phase 03 builds on this merged baseline; its own review/merge gate remains open.

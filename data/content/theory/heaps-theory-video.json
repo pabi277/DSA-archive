@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "heaps-theory-video-mcq",
+  "problemId": "heaps-theory-video",
+  "topicId": "heaps",
+  "kind": "theory",
+  "prompt": "Heaps (Theory Video): Which value is available at the root of a min-heap?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "The smallest stored value.",
+      "explain": "The heap property places the minimum at the root while keeping every parent no larger than its children."
+    },
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 0,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "The heap property places the minimum at the root while keeping every parent no larger than its children.",
+    "reference": {
+      "source": "usaco",
+      "url": "https://usaco.guide/#heaps-theory-video",
+      "label": "Reference · Usaco",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

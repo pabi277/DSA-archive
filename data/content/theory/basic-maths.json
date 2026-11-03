@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-maths-mcq",
+  "problemId": "basic-maths",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Basic Maths: Why does integer division need an explicit check in many algorithms?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "Truncation can change a midpoint or quotient compared with real arithmetic.",
+      "explain": "Rounding direction matters at boundaries and in repeated halving steps."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 1,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Rounding direction matters at boundaries and in repeated halving steps.",
+    "reference": {
+      "source": "usaco",
+      "url": "https://usaco.guide/#basic-maths",
+      "label": "Reference · Usaco",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

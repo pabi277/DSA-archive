@@ -1,0 +1,11 @@
+{
+  "topicId": "maths",
+  "patterns": [
+    "math-number-theory",
+    "two-pointers",
+    "sliding-window"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

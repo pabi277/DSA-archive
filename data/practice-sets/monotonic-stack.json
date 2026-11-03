@@ -1,0 +1,50 @@
+{
+  "patternId": "monotonic-stack",
+  "topicId": "stack-queues",
+  "title": "Monotonic Stack",
+  "summary": "Four rungs that move Monotonic Stack from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 962,
+      "slug": "maximum-width-ramp",
+      "title": "Maximum Width Ramp",
+      "level": "pro",
+      "set": 1,
+      "estMinutes": 40,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 739,
+      "slug": "daily-temperatures",
+      "title": "Daily Temperatures",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 853,
+      "slug": "car-fleet",
+      "title": "Car Fleet",
+      "level": "core",
+      "set": 3,
+      "estMinutes": 35,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 1944,
+      "slug": "number-of-visible-people-in-a-queue",
+      "title": "Number of Visible People in a Queue",
+      "level": "pro",
+      "set": 4,
+      "estMinutes": 55,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

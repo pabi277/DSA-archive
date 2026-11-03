@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "introduction-to-bits-and-tricks-mcq",
+  "problemId": "introduction-to-bits-and-tricks",
+  "topicId": "bit-manipulation",
+  "kind": "theory",
+  "prompt": "Introduction to Bits and Tricks: What does the bitwise AND operation test at a position?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    },
+    {
+      "text": "Whether both operands have a 1 in that position.",
+      "explain": "Each bit is combined independently, which makes masks useful for checking flags."
+    }
+  ],
+  "answerIndex": 3,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Each bit is combined independently, which makes masks useful for checking flags.",
+    "reference": {
+      "source": "cp-algorithms",
+      "url": "https://cp-algorithms.com/#introduction-to-bits-and-tricks",
+      "label": "Reference · Cp Algorithms",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

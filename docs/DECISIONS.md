@@ -517,14 +517,19 @@
 - 2026-11-03 — **More problems?** — **Yes: add more LeetCode problems.** Implemented as
   pattern "drills" (3–4 rungs per pattern, **+120–140 problems**, `data/practice-sets/`),
   not by inflating the sheet. Progress reuses the existing `progressByTopic` shape with
-  `lc-<n>` ids — no new collection, no rules change. Target ≈400 distinct LeetCode
-  problems overall. Doc: `docs/phases-v2/03-content-pipeline/PRACTICE-SETS.md`.
-- 2026-11-03 — **Sources?** — **No single source of truth.** Articles/videos become a
-  ranked, multi-publisher `resources[]` per problem (LeetCode, NeetCode, cp-algorithms,
-  USACO Guide, GfG, Programiz, YouTube channels, cppreference), every non-theory row with
-  ≥1 practice + ≥1 learning source and **≥2 distinct publishers**, publisher name always
-  visible, `verified` dates re-checked by `check:links`. takeuforward is demoted to one
-  source among several. Doc: `docs/phases-v2/03-content-pipeline/RESOURCE-POLICY.md`.
+  `lc-<n>` ids — no new collection, field, schema version or quota path. The generated
+  `firestore.rules` whitelist and per-topic size cap were extended to admit those known
+  ids; no rules *design* change. Target ≈400 distinct LeetCode problems overall. Doc:
+  `docs/phases-v2/03-content-pipeline/PRACTICE-SETS.md`.
+- 2026-11-03 — **Sources?** — **No single source of truth for articles/learning
+  resources.** Ranked, multi-publisher `resources[]` are added per problem (LeetCode,
+  NeetCode, cp-algorithms, USACO Guide, GfG, Programiz, cppreference), every non-theory
+  row with ≥1 practice + ≥1 learning source and **≥2 distinct publishers**, publisher name
+  always visible, `verified` dates re-checked by `check:links`. takeuforward is demoted to
+  one source among several. **Owner clarification in `69834c7`: video links stay
+  single-source** in `links.video`; no video multi-sourcing, transcript, oEmbed badge,
+  player modification or bulk rewrite. Doc:
+  `docs/phases-v2/03-content-pipeline/RESOURCE-POLICY.md`.
 - 2026-11-03 — **Questions/tasks?** — **No quiz spam.** A check appears only where it is
   checkable, follows the material, and changes behaviour; ≤3 checks per topic beside the
   topic quiz, ≤1 inline check per primer section. **Coding stays coding** (run + authored
@@ -586,3 +591,41 @@
 - **Visual baselines remain a human gate.** CI generates the Phase 01/02 matrix and
   uploads `visual-baselines`; it does not silently commit or auto-accept PNGs. The
   owner reviews the artifact before the Phase 02 merge gate closes.
+
+## Phase v2-03 implementation choices (2026-11-03)
+
+- **No owner answer was changed.** The earlier owner-answer clarifications above
+  record the source policy (`69834c7`: videos stay single-source) and the drill
+  rules shape. This phase implements them; it does not re-open a gate.
+- **Four ranked resources per row, not six.** The seeder was trimmed from 4–6 to
+  exactly 4 to stay inside the 380 kB gzip shell budget. The first-ranked resource
+  is a verb-noun primary action; `⋯ More sources` exposes all four with publisher,
+  type, rank, `verified` date and match label. Rank is global 1–4, which is also
+  unique per type. Original video links are preserved byte-for-byte in `links.video`.
+- **Build-time JSON, no runtime fetch.** `data/problems.json` stays the validation/
+  authoring master; four derived minified catalogue shards and all learner/practice
+  JSON are imported by `src/content/load.ts` via `import.meta.glob(..., eager: true)`.
+  Content chunks are code-split in `vite.config.ts`: `content-data` 7.1 kB gzip,
+  `practice-data` 5.2 kB gzip, `content-ui` 23.6 kB gzip.
+- **Safe renderer and shape sanitisation.** `RichText` escapes first, then whitelists
+  semantic inline elements, bullets, code and HTTPS allow-listed links; raw HTML and
+  external images never enter the DOM. Every JSON accessor tolerates a missing or
+  malformed file and returns a designed state instead of failing the build.
+- **Rules whitelist is generated, not a new schema.** `lc-<n>` drill keys join the
+  existing 20-topic `progressByTopic` shape; the generated rules whitelist and size
+  cap include 495 + 136 known ids. Firestore rules remain v5 and backup remains v4.
+- **Link checks are split.** Deterministic `npm run check:links` validates the source
+  registry, canonical URL shape and 180-day `verified` freshness for CI speed and
+  Spark frugality. `link-audit.yml` runs live HTTP checks on schedule/manual dispatch;
+  video oEmbed/player badges remain Phase 06 work.
+- **Coverage publication.** CI adds the coverage table to the run summary, a PR
+  comment, a marker-delimited section of the PR body, and a `content-coverage`
+  artifact. The generated `docs/content/coverage.md` remains the checked-in source of
+  truth; publishing is non-blocking. No PR was opened in this session.
+- **Authoring is incremental.** One fully authored topic (Arrays) ships with 6
+  statements, 12 quiz items, 42 theory MCQ cards, 136 drills and a coverage report.
+  The remaining 19 primers, 114 statements and 228 quiz items keep designed missing
+  states. Owner sample-batch accuracy review is explicitly pending.
+- **Visual baselines remain a human gate.** The matrix grows from 32 to 48 generated
+  baselines (statement, hint open, primer, practice grid added); owner visual review
+  remains outstanding before merge.

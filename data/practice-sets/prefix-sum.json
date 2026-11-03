@@ -1,0 +1,50 @@
+{
+  "patternId": "prefix-sum",
+  "topicId": "arrays",
+  "title": "Prefix Sum",
+  "summary": "Four rungs that move Prefix Sum from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 974,
+      "slug": "subarray-sums-divisible-by-k",
+      "title": "Subarray Sums Divisible by K",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 525,
+      "slug": "contiguous-array",
+      "title": "Contiguous Array",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 303,
+      "slug": "range-sum-query-immutable",
+      "title": "Range Sum Query - Immutable",
+      "level": "basic",
+      "set": 3,
+      "estMinutes": 25,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 304,
+      "slug": "range-sum-query-2d-immutable",
+      "title": "Range Sum Query 2D - Immutable",
+      "level": "core",
+      "set": 4,
+      "estMinutes": 40,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

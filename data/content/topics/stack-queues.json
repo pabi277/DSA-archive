@@ -1,0 +1,11 @@
+{
+  "topicId": "stack-queues",
+  "patterns": [
+    "stack",
+    "monotonic-stack",
+    "queue-deque"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

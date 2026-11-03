@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "introduction-mcq",
+  "problemId": "introduction",
+  "topicId": "binary-trees",
+  "kind": "theory",
+  "prompt": "Introduction: What is the root of a tree?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "The node with no parent.",
+      "explain": "Every other node is reached by following links away from the root."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 2,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Every other node is reached by following links away from the root.",
+    "reference": {
+      "source": "usaco",
+      "url": "https://usaco.guide/#introduction",
+      "label": "Reference · Usaco",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

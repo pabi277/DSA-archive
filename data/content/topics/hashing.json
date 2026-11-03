@@ -1,0 +1,11 @@
+{
+  "topicId": "hashing",
+  "patterns": [
+    "hashing",
+    "two-pointers",
+    "sliding-window"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

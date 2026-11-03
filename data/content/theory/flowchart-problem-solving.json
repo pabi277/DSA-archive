@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "flowchart-problem-solving-mcq",
+  "problemId": "flowchart-problem-solving",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Flowchart Problem-Solving: Which flowchart shape usually represents a decision?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "A diamond with two labelled exits.",
+      "explain": "A branch needs exactly one true path and one false path in a clear diagram."
+    },
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 0,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "A branch needs exactly one true path and one false path in a clear diagram.",
+    "reference": {
+      "source": "programiz",
+      "url": "https://www.programiz.com/dsa#flowchart-problem-solving",
+      "label": "Reference · Programiz",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

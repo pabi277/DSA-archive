@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "breaking-the-myth-mcq",
+  "problemId": "breaking-the-myth",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Breaking The Myth: Which idea removes the myth that DSA belongs to one language?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "A data structure can be implemented in any general-purpose language.",
+      "explain": "Language syntax changes; the relationships between stored values do not."
+    },
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 0,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Language syntax changes; the relationships between stored values do not.",
+    "reference": {
+      "source": "programiz",
+      "url": "https://www.programiz.com/dsa#breaking-the-myth",
+      "label": "Reference · Programiz",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

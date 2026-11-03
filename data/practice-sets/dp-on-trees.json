@@ -1,0 +1,50 @@
+{
+  "patternId": "dp-on-trees",
+  "topicId": "binary-trees",
+  "title": "DP on Trees",
+  "summary": "Four rungs that move DP on Trees from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 337,
+      "slug": "house-robber-iii",
+      "title": "House Robber III",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 687,
+      "slug": "longest-univalue-path",
+      "title": "Longest Univalue Path",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 968,
+      "slug": "binary-tree-cameras",
+      "title": "Binary Tree Cameras",
+      "level": "pro",
+      "set": 3,
+      "estMinutes": 50,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 979,
+      "slug": "distribute-coins-in-binary-tree",
+      "title": "Distribute Coins in Binary Tree",
+      "level": "core",
+      "set": 4,
+      "estMinutes": 40,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

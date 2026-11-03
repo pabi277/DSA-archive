@@ -1,0 +1,11 @@
+{
+  "topicId": "sliding-window-2-pointer",
+  "patterns": [
+    "sliding-window",
+    "two-pointers",
+    "prefix-sum"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

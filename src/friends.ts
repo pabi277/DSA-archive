@@ -1,5 +1,6 @@
 /** Phase 5 summary model. Pure derivation only: no data is shared by this module. */
 import { catalogue } from './catalogue'
+import { DRILLS, DRILLS_BY_TOPIC } from './content/practice'
 import type { CloudProgressByTopic } from './cloudProgress'
 import { dateFromDayKey, streakInfo, weeklyStats } from './planner'
 
@@ -16,16 +17,22 @@ export type FriendSummary = {
 }
 
 export function makeFriendSummary(displayName: string, entries: CloudProgressByTopic, today: string): FriendSummary {
-  // Use only catalogue rows in their correct shard, not arbitrary cached keys.
+  // Use only known catalogue + synthetic drill ids in their correct shard, not
+  // arbitrary cached keys. Drills ride the same topic docs, so friends totals
+  // include them without a new summary field.
   const known: CloudProgressByTopic = {}
   const solvedByTopic: Record<string, number> = {}
   for (const topic of catalogue.topics) {
     const shard: CloudProgressByTopic[string] = {}
     let count = 0
-    for (const problem of topic.subtopics.flatMap((subtopic) => subtopic.problems)) {
-      const entry = entries[topic.id]?.[problem.id]
+    const ids = [
+      ...topic.subtopics.flatMap((subtopic) => subtopic.problems.map((problem) => problem.id)),
+      ...(DRILLS_BY_TOPIC.get(topic.id) ?? []).map((drill) => drill.id),
+    ]
+    for (const problemId of ids) {
+      const entry = entries[topic.id]?.[problemId]
       if (!entry) continue
-      shard[problem.id] = entry
+      shard[problemId] = entry
       if (entry.s === 'done') count += 1
     }
     known[topic.id] = shard
@@ -53,15 +60,15 @@ export function parseFriendSummary(raw: unknown): FriendSummary | null {
   if (typeof data.displayName !== 'string' || data.displayName.length < 1 || data.displayName.length > 80) return null
   if (!isDay(data.asOf) || (data.lastActiveDate !== null && !isDay(data.lastActiveDate))) return null
   if (data.lastActiveDate !== null && data.lastActiveDate > data.asOf) return null
-  const catalogueSize = catalogue.topics.reduce((sum, topic) =>
-    sum + topic.subtopics.reduce((subtotal, subtopic) => subtotal + subtopic.problems.length, 0), 0)
-  if (!isCount(data.solvedCount, catalogueSize) || !isCount(data.weeklySolved, data.solvedCount) || !isCount(data.currentStreak, 100000)) return null
+  const knownSize = catalogue.topics.reduce((sum, topic) =>
+    sum + topic.subtopics.reduce((subtotal, subtopic) => subtotal + subtopic.problems.length, 0), 0) + DRILLS.length
+  if (!isCount(data.solvedCount, knownSize) || !isCount(data.weeklySolved, data.solvedCount) || !isCount(data.currentStreak, 100000)) return null
   if (typeof data.solvedByTopic !== 'object' || data.solvedByTopic === null || Array.isArray(data.solvedByTopic)) return null
   const topicCounts = data.solvedByTopic as Record<string, unknown>
   if (Object.keys(topicCounts).length !== catalogue.topics.length) return null
   const solvedByTopic: Record<string, number> = {}
   for (const topic of catalogue.topics) {
-    const max = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.problems.length, 0)
+    const max = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.problems.length, 0) + (DRILLS_BY_TOPIC.get(topic.id)?.length ?? 0)
     const count = topicCounts[topic.id]
     if (!isCount(count, max)) return null
     solvedByTopic[topic.id] = count

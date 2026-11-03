@@ -1,0 +1,50 @@
+{
+  "patternId": "dp-interval",
+  "topicId": "dynamic-programming",
+  "title": "Dp Interval",
+  "summary": "Four rungs that move Dp Interval from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 221,
+      "slug": "maximal-square",
+      "title": "Maximal Square",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 664,
+      "slug": "strange-printer",
+      "title": "Strange Printer",
+      "level": "pro",
+      "set": 2,
+      "estMinutes": 45,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 1547,
+      "slug": "minimum-difficulty-of-a-job-schedule",
+      "title": "Minimum Difficulty of a Job Schedule",
+      "level": "pro",
+      "set": 3,
+      "estMinutes": 50,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 514,
+      "slug": "freedom-trail",
+      "title": "Freedom Trail",
+      "level": "pro",
+      "set": 4,
+      "estMinutes": 55,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

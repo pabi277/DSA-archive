@@ -2,8 +2,8 @@ import { expect, test, type Page } from '@playwright/test'
 import { desktop, open, openTopic, phone } from './helpers'
 
 /**
- * Visual baselines for phase v2-01/02: 2 viewports × 2 themes × 8 routes = 32
- * committed snapshots.
+ * Visual baselines for phases v2-01/02/03: 2 viewports × 2 themes × 12 routes = 48
+ * committed snapshots (statement, hint open, primer, practice grid added in 03).
  *
  * Baselines are generated once, in CI, against the real font subsets, and
  * committed by hand — never auto-accepted. Locally (and in this sandbox, where
@@ -22,6 +22,14 @@ const ROUTES = [
   { path: '/#/settings', slug: 'settings' },
   { path: '/#/not-found', slug: 'not-found' },
 ] as const
+
+/** Phase 03 surfaces: statement, hint-open, authored primer and drill grid. */
+const CONTENT_ROUTES: { path: string; slug: string; hint?: boolean }[] = [
+  { path: '/#/problem/linear-search', slug: 'statement' },
+  { path: '/#/problem/linear-search', slug: 'hint-open', hint: true },
+  { path: '/#/topic/arrays', slug: 'primer' },
+  { path: '/#/practice', slug: 'practice-grid' },
+]
 
 const VIEWPORTS = [
   { name: 'phone', size: phone },
@@ -42,7 +50,7 @@ async function setTheme(page: Page, theme: 'dark' | 'light') {
 
 for (const viewport of VIEWPORTS) {
   for (const theme of ['dark', 'light'] as const) {
-    for (const route of ROUTES) {
+    for (const route of [...ROUTES, ...CONTENT_ROUTES]) {
       test(`${route.slug} · ${viewport.name} · ${theme}`, async ({ page }) => {
         await page.setViewportSize(viewport.size)
         await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: theme })
@@ -51,6 +59,10 @@ for (const viewport of VIEWPORTS) {
         // The sheet only shows rows inside an open topic; the snapshot must
         // cover row anatomy, so open the first one deterministically.
         if (route.slug === 'search') await openTopic(page)
+        if ('hint' in route && route.hint) {
+          await page.locator('[data-testid="hint-details"] summary').click()
+          await expect(page.getByTestId('hint-details')).toHaveAttribute('open', '')
+        }
         await expect(page.getByTestId('page-header')).toBeVisible()
 
         await expect(page).toHaveScreenshot(`${route.slug}-${viewport.name}-${theme}.png`, {

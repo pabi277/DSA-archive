@@ -1,0 +1,50 @@
+{
+  "patternId": "queue-deque",
+  "topicId": "stack-queues",
+  "title": "Queue Deque",
+  "summary": "Four rungs that move Queue Deque from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 862,
+      "slug": "shortest-subarray-with-sum-at-least-k",
+      "title": "Shortest Subarray with Sum at Least K",
+      "level": "pro",
+      "set": 1,
+      "estMinutes": 40,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 1438,
+      "slug": "longest-continuous-subarray-with-absolute-diff-less-than-or-equal-to-limit",
+      "title": "Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit",
+      "level": "pro",
+      "set": 2,
+      "estMinutes": 45,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 933,
+      "slug": "number-of-recent-calls",
+      "title": "Number of Recent Calls",
+      "level": "basic",
+      "set": 3,
+      "estMinutes": 25,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 362,
+      "slug": "design-hit-counter",
+      "title": "Design Hit Counter",
+      "level": "core",
+      "set": 4,
+      "estMinutes": 40,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

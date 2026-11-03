@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "dry-runs-edge-cases-and-debugging-mcq",
+  "problemId": "dry-runs-edge-cases-and-debugging",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Dry Runs, Edge Cases and Debugging: What is the purpose of a dry run on a small input?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "To trace stored values and compare them with the intended output.",
+      "explain": "A written trace reveals the first step where the mental model and program diverge."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 1,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "A written trace reveals the first step where the mental model and program diverge.",
+    "reference": {
+      "source": "usaco",
+      "url": "https://usaco.guide/#dry-runs-edge-cases-and-debugging",
+      "label": "Reference · Usaco",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

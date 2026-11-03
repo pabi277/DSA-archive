@@ -1,0 +1,11 @@
+{
+  "topicId": "binary-trees",
+  "patterns": [
+    "tree-dfs",
+    "tree-bfs",
+    "dp-on-trees"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "implementation-using-different-ds-mcq",
+  "problemId": "implementation-using-different-ds",
+  "topicId": "stack-queues",
+  "kind": "theory",
+  "prompt": "Implementation using different DS: Which property distinguishes a stack from a queue?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "A stack removes the newest item; a queue removes the oldest item.",
+      "explain": "The removal order, not the storage array, defines the behaviour."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 1,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "The removal order, not the storage array, defines the behaviour.",
+    "reference": {
+      "source": "programiz",
+      "url": "https://www.programiz.com/dsa#implementation-using-different-ds",
+      "label": "Reference · Programiz",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

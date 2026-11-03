@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "insertion-in-linked-list-mcq",
+  "problemId": "insertion-in-linked-list",
+  "topicId": "linked-list",
+  "kind": "theory",
+  "prompt": "Insertion in Linked List: Which two links must be set when inserting between two nodes?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    },
+    {
+      "text": "The new node's next link and the predecessor's next link.",
+      "explain": "Both updates preserve one continuous chain with the new node in the middle."
+    }
+  ],
+  "answerIndex": 3,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Both updates preserve one continuous chain with the new node in the middle.",
+    "reference": {
+      "source": "geeksforgeeks",
+      "url": "https://www.geeksforgeeks.org/dsa/data-structures/#insertion-in-linked-list",
+      "label": "Reference · Geeksforgeeks",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

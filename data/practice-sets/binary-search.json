@@ -1,0 +1,50 @@
+{
+  "patternId": "binary-search",
+  "topicId": "binary-search",
+  "title": "Binary Search",
+  "summary": "Four rungs that move Binary Search from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 278,
+      "slug": "first-bad-version",
+      "title": "First Bad Version",
+      "level": "basic",
+      "set": 1,
+      "estMinutes": 15,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 744,
+      "slug": "find-smallest-letter-greater-than-target",
+      "title": "Find Smallest Letter Greater Than Target",
+      "level": "basic",
+      "set": 2,
+      "estMinutes": 20,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 378,
+      "slug": "kth-smallest-element-in-a-sorted-matrix",
+      "title": "Kth Smallest Element in a Sorted Matrix",
+      "level": "pro",
+      "set": 3,
+      "estMinutes": 50,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 668,
+      "slug": "kth-smallest-number-in-multiplication-table",
+      "title": "Kth Smallest Number in Multiplication Table",
+      "level": "pro",
+      "set": 4,
+      "estMinutes": 55,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

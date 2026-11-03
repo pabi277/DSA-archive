@@ -1,0 +1,50 @@
+{
+  "patternId": "heap-topk",
+  "topicId": "heaps",
+  "title": "Heap Topk",
+  "summary": "Four rungs that move Heap Topk from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 1046,
+      "slug": "last-stone-weight",
+      "title": "Last Stone Weight",
+      "level": "basic",
+      "set": 1,
+      "estMinutes": 15,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 767,
+      "slug": "reorganize-string",
+      "title": "Reorganize String",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 632,
+      "slug": "smallest-range-covering-elements-from-k-lists",
+      "title": "Smallest Range Covering Elements from K Lists",
+      "level": "pro",
+      "set": 3,
+      "estMinutes": 50,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 373,
+      "slug": "find-k-pairs-with-smallest-sums",
+      "title": "Find K Pairs with Smallest Sums",
+      "level": "core",
+      "set": 4,
+      "estMinutes": 40,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

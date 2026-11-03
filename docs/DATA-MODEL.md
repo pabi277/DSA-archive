@@ -1,11 +1,14 @@
 # Data model — DSA Archive website (Firebase-backed)
 
-> **v2 data-model work is landing phase by phase.** Phase 02 is implemented on PR #13:
+> **v2 data-model work is landing phase by phase.** Phase 02 merged in PR #13:
 > progress entries now support optional `o: clean|hint|couldnt`, Firestore rules are v5,
-> and backups are schema v4. The later changes remain planned: phase 04 replaces notes
-> with snippets; phase 05 adds quiz results; phase 06 adds snippet moments; phase 08 adds
-> target settings. The schema below is the existing model with the Phase 02 outcome field
-> called out explicitly; future contracts remain in their phase plans.
+> and backups are schema v4. Phase 03 (implemented on `arena/cae52fb6-dsa-archive`,
+> owner accuracy review + merge gate pending) upgrades the git catalogue to `schemaVersion: 2`,
+> adds own-written learner-content JSON and practice-set files, and admits synthetic `lc-<n>`
+> keys to the **existing** `progressByTopic` docs via a regenerated rules whitelist. There is
+> no new collection, Firestore schema version, backup version or quota path. Later changes
+> remain planned: phase 04 replaces notes with snippets; phase 05 adds quiz results; phase 06
+> adds snippet moments; phase 08 adds target settings.
 
 
 > Plan-stage sketch (revised 2026-11-02 for the owner's Firebase
@@ -26,12 +29,12 @@
 Catalogue ids are the join key everywhere. Progress never references
 row positions, so reordering the sheet can't scramble anyone's data.
 
-## 2. Sheet schema (`data/problems.json`, v1 sketch — unchanged by Firebase)
+## 2. Sheet schema (`data/problems.json`, v2 as shipped — unchanged by Firebase)
 
 ```jsonc
 {
-  "schemaVersion": 1,
-  "generatedFrom": "one-time clean-room extraction from copy-web/index.html (phase 0)",
+  "schemaVersion": 2,
+  "generatedFrom": "one-time clean-room extraction from copy-web/index.html (phase 0); phase 03 additive enrichment",
   // Owner's 10-row live-sheet spot-check remains a content-accuracy task.
   // Real values from the shipped file (verified 2026-11-02, phase 1);
   // this example used to be an invented sketch and disagreed with the
@@ -50,14 +53,30 @@ row positions, so reordering the sheet can't scramble anyone's data.
           "article":  "https://takeuforward.org/blogs/data-structure-and-algorithm/two-sum",
           "leetcode": "https://leetcode.com/problems/two-sum/",
           "video":    "https://youtu.be/UXDSeD9mN-k"
-        }
+        },
+        "resources": [                  // phase 03: ranked, publisher-labelled, 4 per row
+          { "type": "practice", "publisher": "leetcode", "rank": 1,
+            "url": "https://leetcode.com/problems/two-sum/",
+            "label": "Two Sum on LeetCode", "verified": "2026-11-03",
+            "match": "exact" }
+        ],
+        "lcMatch": "exact",             // exact | near | theory
+        "lcLabel": "Two Sum",
+        "coveredBy": "two-sum"           // optional: canonical row for a duplicate LC slug
       }]
     }]
   }]
 }
 ```
 
-No problem statements/articles/solutions are stored — links point out.
+Phase 03 adds **our own** short statements, hints, primers, quiz items, theory MCQs and
+runner test cases as build-time JSON under `data/content/`; 136 synthetic drills live in
+`data/practice-sets/`. Third-party article text, solutions, transcripts and paid content
+are **not** stored — outbound `links` remain links, and the single-source video links are
+preserved. `data/problems.json` remains the validation/authoring master; four minified
+`data/catalogue/catalogue-{a,b,c,d}.json` shards are derived at seed time and imported by
+the app (no runtime JSON fetch). Missing learner content is expected and rendered as a
+designed state. See `docs/content/AUTHORING.md` and the Phase 03 phase record.
 
 ## 3. Firestore schema (frozen at phase 2 — rules-tested)
 
@@ -132,6 +151,17 @@ emulator suite tests all three accepted values plus invalid values and the
 `todo` restriction. Backup v4 carries outcomes; schemas 1–3 remain importable
 and normalize legacy solved rows to `clean`.
 
+### Phase 03 synthetic drills (rules v5; no backup change)
+
+`data/practice-sets/<patternId>.json` supplies 136 unique drill keys of the
+form `lc-<n>`. They are written into the **same** `users/{uid}/progressByTopic/{topicId}`
+shard entries with the existing `{ s, b, o, a, fd, lr, rc }` shape; no new field,
+collection, rules version or backup schema is introduced. The rules generator
+reads those files to extend each topic's generated whitelist and size cap, and
+`tools/firestore-rules.test.mjs` proves known/unknown drill keys. Sheet progress,
+friends counts, planner and backups validate 495 + 136 known ids; the visible
+catalogue denominator stays 495.
+
 ### Security-rules principles (the actual protection — `rule.md` §5)
 
 - Default deny. A user may read/write only under `users/{their uid}`.
@@ -174,13 +204,16 @@ and normalize legacy solved rows to `clean`.
 ### Rules validation (generated from `data/problems.json`)
 
 `tools/generate-firestore-rules.mjs` emits the versioned `firestore.rules`
-from the single validated catalogue: 20 topic whitelists, 495 unique
-problem ids. Default deny; owner-only `get/list/create/update/delete`
+from the single validated catalogue and `data/practice-sets/`: 20 topic
+whitelists, 495 catalogue problem ids plus 136 synthetic `lc-<n>` drill keys.
+Default deny; owner-only `get/list/create/update/delete`
 under `users/{uid}`; profile field types and size caps; progress entry
 fields `s` (`todo|done|revision`), `b`, `a` (0–10000), `fd`/`lr`
 (≤40 chars or null), `rc` (0–100), and optional `o` (`clean|hint|couldnt`,
 not allowed on `todo`); one changed problem key per write; top-level shard
-size capped at the topic's row count + `updatedAt`.
+size capped at the topic's 495-row or synthetic-drill count + `updatedAt`.
+The `/495` UI denominator remains the validated sheet size; synthetic drills
+never inflate it.
 
 **Rules v2 (phase 3)** adds two owner-only collections without touching the
 phase-2 rules above:

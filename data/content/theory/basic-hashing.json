@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-hashing-mcq",
+  "problemId": "basic-hashing",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Basic Hashing: What does a hash table store for fast lookup?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    },
+    {
+      "text": "Keys mapped to buckets and then to associated values.",
+      "explain": "A hash function narrows the search before equality is checked inside a bucket."
+    }
+  ],
+  "answerIndex": 3,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "A hash function narrows the search before equality is checked inside a bucket.",
+    "reference": {
+      "source": "cp-algorithms",
+      "url": "https://cp-algorithms.com/#basic-hashing",
+      "label": "Reference · Cp Algorithms",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

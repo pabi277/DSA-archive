@@ -7,6 +7,7 @@
  * `users/{uid}/lists/{listId}` — with catalogue ids as the join key.
  */
 import { catalogue, type Problem } from './catalogue'
+import { DRILL_BY_ID, drillAsProblem } from './content/practice'
 
 export const NOTE_MARKDOWN_LIMIT = 5000
 export const NOTE_SNIPPET_LIMIT = 8000
@@ -73,6 +74,16 @@ for (const topic of catalogue.topics) {
       })
     }
   }
+}
+// Phase 03 drills reuse the same id → location lookup but are not catalogue
+// rows and never appear in the 495-row sheet denominator.
+for (const [id, drill] of DRILL_BY_ID) {
+  locations.set(id, {
+    topicId: drill.topicId,
+    topicTitle: drill.topicTitle,
+    subtopicTitle: `${drill.patternTitle} · set ${drill.set}`,
+    problem: drillAsProblem(drill),
+  })
 }
 
 export function locateProblem(problemId: string): ProblemLocation | null {

@@ -171,18 +171,18 @@ describe('shell + routing (acceptance 1, 2, 8)', () => {
     goto('#/topic/arrays')
     expect(qa('.topic-tabs [role=tab]').map((tab) => tab.textContent)).toEqual(['Learn', 'Practice', 'Quiz'])
     expect(qa('.topic-order li')).toHaveLength(arrays.subtopics.length)
-    expect(q('[data-testid="topic-primer-pending"]')).toBeTruthy()
+    expect(q('[data-testid="topic-primer"]')).toBeTruthy()
   })
 
   it('filters Practice problems and stores a three-way result only while done', () => {
     goto('#/topic/arrays?tab=practice')
     expect(q('[role="tab"][aria-selected="true"]').textContent).toBe('Practice')
 
-    const filters = qa('.segmented-item')
+    const filters = qa('[aria-label="Filter practice problems"] .segmented-item')
     expect(filters.map((button) => button.textContent?.trim())).toEqual(['All', 'Not started', 'Shaky', 'Done'])
     click(filters[1])
     expect(q('[data-testid="row-two-sum"]')).toBeTruthy()
-    click(q('.segmented-item'))
+    click(q('[aria-label="Filter practice problems"] .segmented-item'))
 
     click(q('[data-testid="status-two-sum"]'))
     const hint = q('[data-testid="outcome-two-sum-hint"]')

@@ -55,11 +55,11 @@ import {
   CodeScreen,
   InsightsScreen,
   NotFoundScreen,
-  PracticeScreen,
-  ProblemScreen,
   QuizHome,
   SettingsScreen,
 } from './app/placeholderScreens'
+import { ProblemScreen } from './app/problemScreen'
+import { PracticeScreen } from './app/practiceScreen'
 import { Button, Card, Ring, Stat, ToastHost } from './design/primitives'
 import { IconArrowRight, IconCheck, IconSearch, IconSpark } from './design/icons'
 
@@ -739,7 +739,15 @@ function AppShell() {
             ) : null}
             {route.name === 'problem' ? <ProblemScreen problemId={route.param} /> : null}
             {route.name === 'code' ? <CodeScreen signedIn={signedIn} /> : null}
-            {route.name === 'practice' ? <PracticeScreen /> : null}
+            {route.name === 'practice' ? (
+              <PracticeScreen
+                progress={progress}
+                disabled={progressDisabled}
+                onToggleStatus={data.toggleStatus}
+                onPlan={onPlan}
+                onOpenProblem={(problemId) => openProblem(problemId)}
+              />
+            ) : null}
             {route.name === 'quiz' ? <QuizHome signedIn={signedIn} /> : null}
             {route.name === 'insights' ? <InsightsScreen signedIn={signedIn} /> : null}
 

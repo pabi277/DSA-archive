@@ -1,0 +1,50 @@
+{
+  "patternId": "topological-sort",
+  "topicId": "graphs",
+  "title": "Topological Sort",
+  "summary": "Four rungs that move Topological Sort from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 261,
+      "slug": "graph-valid-tree",
+      "title": "Graph Valid Tree",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 310,
+      "slug": "minimum-height-trees",
+      "title": "Minimum Height Trees",
+      "level": "pro",
+      "set": 2,
+      "estMinutes": 45,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 1557,
+      "slug": "minimum-number-of-vertices-to-reach-all-nodes",
+      "title": "Minimum Number of Vertices to Reach All Nodes",
+      "level": "core",
+      "set": 3,
+      "estMinutes": 35,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 1466,
+      "slug": "reorder-routes-to-make-all-paths-lead-to-the-city-zero",
+      "title": "Reorder Routes to Make All Paths Lead to the City Zero",
+      "level": "pro",
+      "set": 4,
+      "estMinutes": 55,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

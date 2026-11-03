@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-hashing-2-mcq",
+  "problemId": "basic-hashing-2",
+  "topicId": "hashing",
+  "kind": "theory",
+  "prompt": "Basic Hashing: Which situation most directly calls for a frequency map?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    },
+    {
+      "text": "Counting how often each distinct value appears.",
+      "explain": "A map turns repeated linear counting into one update per observed value."
+    }
+  ],
+  "answerIndex": 3,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "A map turns repeated linear counting into one update per observed value.",
+    "reference": {
+      "source": "cp-algorithms",
+      "url": "https://cp-algorithms.com/#basic-hashing-2",
+      "label": "Reference · Cp Algorithms",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

@@ -1,0 +1,50 @@
+{
+  "patternId": "sorting",
+  "topicId": "sorting",
+  "title": "Sorting",
+  "summary": "Four rungs that move Sorting from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 912,
+      "slug": "sort-an-array",
+      "title": "Sort an Array",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 973,
+      "slug": "k-closest-points-to-origin",
+      "title": "K Closest Points to Origin",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 1356,
+      "slug": "sort-integers-by-the-number-of-1-bits",
+      "title": "Sort Integers by The Number of 1 Bits",
+      "level": "basic",
+      "set": 3,
+      "estMinutes": 25,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 1636,
+      "slug": "sort-array-by-increasing-frequency",
+      "title": "Sort Array by Increasing Frequency",
+      "level": "basic",
+      "set": 4,
+      "estMinutes": 30,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

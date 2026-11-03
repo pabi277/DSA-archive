@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "python-libraries-part-2-mcq",
+  "problemId": "python-libraries-part-2",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Python Libraries Part 2: Which standard structure is a good fit for a minimum-first queue?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "heapq.",
+      "explain": "The module maintains the heap invariant on a normal list."
+    },
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 0,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "The module maintains the heap invariant on a normal list.",
+    "reference": {
+      "source": "python-docs",
+      "url": "https://docs.python.org/3/#python-libraries-part-2",
+      "label": "Reference · Python Docs",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

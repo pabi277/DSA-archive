@@ -1,0 +1,372 @@
+{
+  "schemaVersion": 1,
+  "verified": "2026-11-03",
+  "patterns": [
+    {
+      "id": "two-pointers",
+      "title": "Two Pointers",
+      "topicId": "arrays",
+      "summary": "Practise Two Pointers with four increasing rungs."
+    },
+    {
+      "id": "sliding-window",
+      "title": "Sliding Window",
+      "topicId": "sliding-window-2-pointer",
+      "summary": "Practise Sliding Window with four increasing rungs."
+    },
+    {
+      "id": "prefix-sum",
+      "title": "Prefix Sum",
+      "topicId": "arrays",
+      "summary": "Practise Prefix Sum with four increasing rungs."
+    },
+    {
+      "id": "hashing",
+      "title": "Hashing",
+      "topicId": "hashing",
+      "summary": "Practise Hashing with four increasing rungs."
+    },
+    {
+      "id": "binary-search",
+      "title": "Binary Search",
+      "topicId": "binary-search",
+      "summary": "Practise Binary Search with four increasing rungs."
+    },
+    {
+      "id": "binary-search-on-answer",
+      "title": "Binary Search On Answer",
+      "topicId": "binary-search",
+      "summary": "Practise Binary Search On Answer with four increasing rungs."
+    },
+    {
+      "id": "sorting",
+      "title": "Sorting",
+      "topicId": "sorting",
+      "summary": "Practise Sorting with four increasing rungs."
+    },
+    {
+      "id": "stack",
+      "title": "Stack",
+      "topicId": "stack-queues",
+      "summary": "Practise Stack with four increasing rungs."
+    },
+    {
+      "id": "monotonic-stack",
+      "title": "Monotonic Stack",
+      "topicId": "stack-queues",
+      "summary": "Practise Monotonic Stack with four increasing rungs."
+    },
+    {
+      "id": "queue-deque",
+      "title": "Queue Deque",
+      "topicId": "stack-queues",
+      "summary": "Practise Queue Deque with four increasing rungs."
+    },
+    {
+      "id": "linked-list-reversal",
+      "title": "Linked List Reversal",
+      "topicId": "linked-list",
+      "summary": "Practise Linked List Reversal with four increasing rungs."
+    },
+    {
+      "id": "fast-slow-pointers",
+      "title": "Fast Slow Pointers",
+      "topicId": "linked-list",
+      "summary": "Practise Fast Slow Pointers with four increasing rungs."
+    },
+    {
+      "id": "heap-topk",
+      "title": "Heap Topk",
+      "topicId": "heaps",
+      "summary": "Practise Heap Topk with four increasing rungs."
+    },
+    {
+      "id": "intervals",
+      "title": "Intervals",
+      "topicId": "arrays",
+      "summary": "Practise Intervals with four increasing rungs."
+    },
+    {
+      "id": "greedy",
+      "title": "Greedy",
+      "topicId": "greedy-algorithms",
+      "summary": "Practise Greedy with four increasing rungs."
+    },
+    {
+      "id": "backtracking",
+      "title": "Backtracking",
+      "topicId": "recursion",
+      "summary": "Practise Backtracking with four increasing rungs."
+    },
+    {
+      "id": "recursion-subsets",
+      "title": "Recursion Subsets",
+      "topicId": "recursion",
+      "summary": "Practise Recursion Subsets with four increasing rungs."
+    },
+    {
+      "id": "tree-dfs",
+      "title": "Tree Dfs",
+      "topicId": "binary-trees",
+      "summary": "Practise Tree Dfs with four increasing rungs."
+    },
+    {
+      "id": "tree-bfs",
+      "title": "Tree Bfs",
+      "topicId": "binary-trees",
+      "summary": "Practise Tree Bfs with four increasing rungs."
+    },
+    {
+      "id": "bst-invariant",
+      "title": "BST Invariant",
+      "topicId": "binary-search-trees",
+      "summary": "Practise BST Invariant with four increasing rungs."
+    },
+    {
+      "id": "trie",
+      "title": "Trie",
+      "topicId": "tries",
+      "summary": "Practise Trie with four increasing rungs."
+    },
+    {
+      "id": "union-find",
+      "title": "Union Find",
+      "topicId": "graphs",
+      "summary": "Practise Union Find with four increasing rungs."
+    },
+    {
+      "id": "graph-traversal",
+      "title": "Graph Traversal",
+      "topicId": "graphs",
+      "summary": "Practise Graph Traversal with four increasing rungs."
+    },
+    {
+      "id": "topological-sort",
+      "title": "Topological Sort",
+      "topicId": "graphs",
+      "summary": "Practise Topological Sort with four increasing rungs."
+    },
+    {
+      "id": "shortest-path",
+      "title": "Shortest Path",
+      "topicId": "graphs",
+      "summary": "Practise Shortest Path with four increasing rungs."
+    },
+    {
+      "id": "mst",
+      "title": "MST",
+      "topicId": "graphs",
+      "summary": "Practise MST with four increasing rungs."
+    },
+    {
+      "id": "bit-manipulation",
+      "title": "Bit Manipulation",
+      "topicId": "bit-manipulation",
+      "summary": "Practise Bit Manipulation with four increasing rungs."
+    },
+    {
+      "id": "dp-1d",
+      "title": "1D DP",
+      "topicId": "dynamic-programming",
+      "summary": "Practise 1D DP with four increasing rungs."
+    },
+    {
+      "id": "dp-knapsack",
+      "title": "Dp Knapsack",
+      "topicId": "dynamic-programming",
+      "summary": "Practise Dp Knapsack with four increasing rungs."
+    },
+    {
+      "id": "dp-lis",
+      "title": "Dp Lis",
+      "topicId": "dynamic-programming",
+      "summary": "Practise Dp Lis with four increasing rungs."
+    },
+    {
+      "id": "dp-interval",
+      "title": "Dp Interval",
+      "topicId": "dynamic-programming",
+      "summary": "Practise Dp Interval with four increasing rungs."
+    },
+    {
+      "id": "dp-on-trees",
+      "title": "DP on Trees",
+      "topicId": "binary-trees",
+      "summary": "Practise DP on Trees with four increasing rungs."
+    },
+    {
+      "id": "math-number-theory",
+      "title": "Math Number Theory",
+      "topicId": "maths",
+      "summary": "Practise Math Number Theory with four increasing rungs."
+    },
+    {
+      "id": "strings-pattern-matching",
+      "title": "Strings Pattern Matching",
+      "topicId": "strings-advanced-algo",
+      "summary": "Practise Strings Pattern Matching with four increasing rungs."
+    }
+  ],
+  "topics": [
+    {
+      "topicId": "beginner-problems",
+      "patterns": [
+        "two-pointers",
+        "sliding-window",
+        "prefix-sum"
+      ]
+    },
+    {
+      "topicId": "sorting",
+      "patterns": [
+        "sorting",
+        "two-pointers",
+        "sliding-window"
+      ]
+    },
+    {
+      "topicId": "arrays",
+      "patterns": [
+        "two-pointers",
+        "prefix-sum",
+        "intervals"
+      ]
+    },
+    {
+      "topicId": "hashing",
+      "patterns": [
+        "hashing",
+        "two-pointers",
+        "sliding-window"
+      ]
+    },
+    {
+      "topicId": "binary-search",
+      "patterns": [
+        "binary-search",
+        "binary-search-on-answer",
+        "two-pointers"
+      ]
+    },
+    {
+      "topicId": "strings-basic-and-medium",
+      "patterns": [
+        "two-pointers",
+        "sliding-window",
+        "prefix-sum"
+      ]
+    },
+    {
+      "topicId": "recursion",
+      "patterns": [
+        "backtracking",
+        "recursion-subsets",
+        "two-pointers"
+      ]
+    },
+    {
+      "topicId": "linked-list",
+      "patterns": [
+        "linked-list-reversal",
+        "fast-slow-pointers",
+        "two-pointers"
+      ]
+    },
+    {
+      "topicId": "bit-manipulation",
+      "patterns": [
+        "bit-manipulation",
+        "two-pointers",
+        "sliding-window"
+      ]
+    },
+    {
+      "topicId": "greedy-algorithms",
+      "patterns": [
+        "greedy",
+        "two-pointers",
+        "sliding-window"
+      ]
+    },
+    {
+      "topicId": "sliding-window-2-pointer",
+      "patterns": [
+        "sliding-window",
+        "two-pointers",
+        "prefix-sum"
+      ]
+    },
+    {
+      "topicId": "stack-queues",
+      "patterns": [
+        "stack",
+        "monotonic-stack",
+        "queue-deque"
+      ]
+    },
+    {
+      "topicId": "binary-trees",
+      "patterns": [
+        "tree-dfs",
+        "tree-bfs",
+        "dp-on-trees"
+      ]
+    },
+    {
+      "topicId": "binary-search-trees",
+      "patterns": [
+        "bst-invariant",
+        "two-pointers",
+        "sliding-window"
+      ]
+    },
+    {
+      "topicId": "heaps",
+      "patterns": [
+        "heap-topk",
+        "two-pointers",
+        "sliding-window"
+      ]
+    },
+    {
+      "topicId": "graphs",
+      "patterns": [
+        "union-find",
+        "graph-traversal",
+        "topological-sort"
+      ]
+    },
+    {
+      "topicId": "dynamic-programming",
+      "patterns": [
+        "dp-1d",
+        "dp-knapsack",
+        "dp-lis"
+      ]
+    },
+    {
+      "topicId": "tries",
+      "patterns": [
+        "trie",
+        "two-pointers",
+        "sliding-window"
+      ]
+    },
+    {
+      "topicId": "strings-advanced-algo",
+      "patterns": [
+        "strings-pattern-matching",
+        "two-pointers",
+        "sliding-window"
+      ]
+    },
+    {
+      "topicId": "maths",
+      "patterns": [
+        "math-number-theory",
+        "two-pointers",
+        "sliding-window"
+      ]
+    }
+  ]
+}

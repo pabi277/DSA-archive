@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { readFile } from 'node:fs/promises'
+import { readFile, readdir } from 'node:fs/promises'
 import { open, openTopic } from './helpers'
 
 /**
@@ -92,6 +92,23 @@ async function seedSolvedDaysAgo(uid: string, problemId: string, days: number) {
     }),
   })
   expect(response.ok).toBe(true)
+}
+
+const practiceDir = new URL('../data/practice-sets/', import.meta.url)
+
+async function firstArraysDrill() {
+  const names = (await readdir(practiceDir)).filter((name) => name.endsWith('.json')).sort()
+  for (const name of names) {
+    const set = JSON.parse(await readFile(new URL(name, practiceDir), 'utf8')) as {
+      patternId: string
+      topicId: string
+      problems: { lc: number }[]
+    }
+    if (set.topicId === 'arrays' && set.problems[0]) {
+      return { id: `lc-${set.problems[0].lc}`, patternId: set.patternId }
+    }
+  }
+  throw new Error('no arrays practice drill found')
 }
 
 async function openToday(page: Page) {
@@ -210,6 +227,49 @@ test('a study session runs Today → solve → revise, with stats and a v3 backu
     await expect(page.getByTestId('account-notice')).toContainText('0 plan days')
     await openToday(page)
     await expect(page.getByTestId('today-empty')).toBeVisible()
+  } finally {
+    await context.close()
+  }
+})
+
+test('a synthetic lc-<n> drill resurfaces in Review and can be planned in Today', async ({ browser }) => {
+  test.setTimeout(240_000)
+  const firestoreClear = await fetch(
+    `http://127.0.0.1:8080/emulator/v1/projects/${emulatorProject}/databases/(default)/documents`,
+    { method: 'DELETE' },
+  )
+  expect(firestoreClear.ok).toBe(true)
+  const authClear = await fetch(
+    `http://127.0.0.1:9099/emulator/v1/projects/${emulatorProject}/accounts`,
+    { method: 'DELETE' },
+  )
+  expect(authClear.ok).toBe(true)
+
+  const context = await browser.newContext({ viewport: phone, acceptDownloads: true })
+  try {
+    const page = await context.newPage()
+    await open(page, '/')
+    await page.getByTestId('emulator-sign-in').click()
+    await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
+
+    const drill = await firstArraysDrill()
+    const uid = await ownerUid()
+    await seedSolvedDaysAgo(uid, drill.id, 5)
+    await page.reload()
+    await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
+
+    await open(page, '/#/review')
+    await expect(page.getByTestId(`due-item-${drill.id}`)).toBeVisible()
+    await expect(page.getByTestId(`due-label-${drill.id}`)).toContainText('Overdue 2 days')
+
+    await open(page, '/#/practice')
+    await page.getByTestId(`practice-pattern-${drill.patternId}`).click()
+    await expect(page.getByTestId(`drill-today-${drill.id}`)).toBeEnabled()
+    await page.getByTestId(`drill-today-${drill.id}`).click()
+    await openToday(page)
+    await expect(page.getByTestId(`today-item-${drill.id}`)).toBeVisible()
+    // The 495-row sheet denominator stays unchanged; drills have their own progress.
+    await expect(page.getByTestId('progress-pill')).toContainText('/495 done')
   } finally {
     await context.close()
   }

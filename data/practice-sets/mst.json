@@ -1,0 +1,50 @@
+{
+  "patternId": "mst",
+  "topicId": "graphs",
+  "title": "MST",
+  "summary": "Four rungs that move MST from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 1584,
+      "slug": "min-cost-to-connect-all-points",
+      "title": "Min Cost to Connect All Points",
+      "level": "pro",
+      "set": 1,
+      "estMinutes": 40,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 1102,
+      "slug": "path-with-maximum-minimum-value",
+      "title": "Path with Maximum Minimum Value",
+      "level": "pro",
+      "set": 2,
+      "estMinutes": 45,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 1489,
+      "slug": "find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree",
+      "title": "Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree",
+      "level": "pro",
+      "set": 3,
+      "estMinutes": 50,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 959,
+      "slug": "regions-cut-by-slashes",
+      "title": "Regions Cut By Slashes",
+      "level": "pro",
+      "set": 4,
+      "estMinutes": 55,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}

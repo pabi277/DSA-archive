@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "programming-languages-and-choosing-a-path-mcq",
+  "problemId": "programming-languages-and-choosing-a-path",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Programming Languages and Choosing a Path: Which criterion is most useful when picking a first language for DSA?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "Clear syntax, strong standard collections and a debugger you can use.",
+      "explain": "Early practice benefits from quick feedback more than from language branding."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 2,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Early practice benefits from quick feedback more than from language branding.",
+    "reference": {
+      "source": "programiz",
+      "url": "https://www.programiz.com/dsa#programming-languages-and-choosing-a-path",
+      "label": "Reference · Programiz",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

@@ -5,16 +5,18 @@
 
 # UI reference — DSA Archive website
 
-> ⚠️ **v2 supersedes the screen inventory and tokens below (planned 2026-11-03).**
-> The v2 design system (Inter + JetBrains Mono subsets, one accent with five semantic
-> roles, density compaction, motion, routed shell with sidebar/bottom bar) is specified in
+> ⚠️ **v2 supersedes the screen inventory and tokens below.** Phases v2-01 and
+> v2-02 are merged to `main`; Phase v2-03 (content pipeline) is implemented on the
+> working branch with owner review/merge pending. The v2 design system (Inter +
+> JetBrains Mono subsets, one accent with five semantic roles, density compaction,
+> motion, routed shell with sidebar/bottom bar) is specified in
 > [`phases-v2/01-foundation-router-shell/PLAN.md`](phases-v2/01-foundation-router-shell/PLAN.md) §4
 > and the cross-cutting rules in [`phases-v2/00-overview/PLAN.md`](phases-v2/00-overview/PLAN.md) §A3.
-> The v1 tokens below stay **in force until phase 01 lands**, then this file keeps the v1
-> table as history and gains a frozen **Tokens v2** table. Screens added in v2:
-> `#/topics`, `#/topic/<id>` (Learn · Practice · Quiz), `#/problem/<id>` (theatre),
-> `#/code`, `#/quiz`, `#/practice`, `#/insights`, `#/search`, `#/not-found`,
-> and the command palette. Retired: the Notes view/editor.
+> The v1 table below is history; the frozen **Tokens v2** table is authoritative and
+> **no token value changed in Phase 03**. Screens added in v2:
+> `#/topics`, `#/topic/<id>` (Learn · Practice · Quiz), `#/problem/<id>` (statement now;
+> theatre later), `#/code`, `#/quiz`, `#/practice`, `#/insights`, `#/search`,
+> `#/not-found`, and the command palette. Retired: the Notes view/editor.
 
 > The design specification. **No real UI code before phase 0-D is
 > owner-approved and the tokens below are frozen** (`../rule.md` §§4–5).
@@ -54,6 +56,10 @@
     phase-1 sheet are listed under "Deliberate adaptations" at the
     bottom of this file — they are implementation differences, not
     token or direction changes.)*
+  - v2 phases add screens and content surfaces, but the frozen v2 token
+    values, roles, fonts, radii, spacing, motion and touch targets remain
+    unchanged. Phase 03 adds CSS classes composed only from those tokens;
+    it does not re-open the design gate.
 
 ## Screens & states (complete v1 inventory — one row per state)
 
@@ -230,6 +236,17 @@ value is a GATE** (`rule.md` §3) — add a dated line under Approval first.
       in-app `Page not found` state + installable PWA shell (`manifest.webmanifest`,
       clean-room `"DA"` monogram icons, `sw.js`, optional `Install` control on
       `beforeinstallprompt`) — *phase 6*.
+- [x] Problem statement (4 blocks + collapsed local hint + common mistake),
+      ranked primary resource, publisher-labelled `More sources` disclosure and
+      designed missing-content state — *v2-03* (`src/content/statement.tsx`,
+      `src/content/resourceActions.tsx`, `src/content/hint.tsx`).
+- [x] Topic primer (fixed sections, one code block, one mistake callout) and
+      designed primer-coming state — *v2-03* (`src/content/primer.tsx`).
+- [x] Core sheet / Drills segmented view, synthetic drill rows, per-pattern
+      practice grid and drill-progress pill — *v2-03*
+      (`src/topics/topicPage.tsx`, `src/app/practiceScreen.tsx`).
+- [x] Topic quiz authored-count state (execution stays disabled until Phase 05)
+      and safe escape-first rich text — *v2-03* (`src/content/richText.tsx`).
 
 ## Comparison duty (per UI phase)
 
@@ -394,3 +411,21 @@ for direct mock comparison; owner visual review remains outstanding.
     not in roadmap Phases 2–6; JSON export/import and `Clear local progress`
     ship now.
 
+
+### Phase v2-03 implementation note (2026-11-03)
+
+- **New screens use the frozen v2 tokens only.** The statement, hint, primer,
+  resource disclosure, practice grid and Core/Drills toggle add new class names
+  but no new hue, font, radius, spacing step, shadow, motion curve or touch
+  target. Dense secondary row actions remain the existing 34–36 px exception;
+  primary controls stay ≥44 px on phones. External-resource labels are text,
+  never colour-only.
+- **Designed states are part of the inventory.** Missing statements, missing
+  hints, unauthored primers, empty quizzes and disabled Phase 05 quiz execution
+  use the existing empty-state pattern and explain the next step.
+- **Comparison evidence:** `e2e/content.spec.ts` runs axe 0 and no horizontal
+  overflow at phone/desktop across six new content routes; `e2e/visual.spec.ts`
+  extends the phase snapshot matrix from 32 to 48 baselines (statement, hint
+  open, primer, practice grid × dark/light × phone/desktop). Baselines are
+  generated in CI for owner review, not hand-drawn. Owner visual review of the
+  generated artifact remains outstanding before merge.

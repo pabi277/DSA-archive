@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "flowcharts-and-pseudocode-mcq",
+  "problemId": "flowcharts-and-pseudocode",
+  "topicId": "beginner-problems",
+  "kind": "theory",
+  "prompt": "Flowcharts and Pseudocode: Why write pseudocode before a full implementation?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    },
+    {
+      "text": "It exposes decisions and loops without language-specific details.",
+      "explain": "The plan can be checked before syntax and library choices add noise."
+    }
+  ],
+  "answerIndex": 3,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "The plan can be checked before syntax and library choices add noise.",
+    "reference": {
+      "source": "programiz",
+      "url": "https://www.programiz.com/dsa#flowcharts-and-pseudocode",
+      "label": "Reference · Programiz",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

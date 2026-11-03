@@ -5,13 +5,26 @@
  * one-changed-entry validator are expanded here. Run `npm run rules:generate`
  * after a catalogue edit; `npm run check:rules` runs in CI.
  */
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile, readdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const dataPath = path.join(root, 'data', 'problems.json')
+const practiceDir = path.join(root, 'data', 'practice-sets')
 const rulesPath = path.join(root, 'firestore.rules')
+
+/** Phase 03 synthetic `lc-<n>` drill keys, grouped by their existing topic shard. */
+async function loadDrillIdsByTopic() {
+  const map = new Map()
+  const names = (await readdir(practiceDir)).filter((name) => name.endsWith('.json')).sort()
+  for (const name of names) {
+    const set = JSON.parse(await readFile(path.join(practiceDir, name), 'utf8'))
+    const ids = set.problems.map((problem) => `lc-${problem.lc}`)
+    map.set(set.topicId, [...(map.get(set.topicId) ?? []), ...ids])
+  }
+  return map
+}
 
 function literal(value) {
   return JSON.stringify(value)
@@ -74,23 +87,30 @@ function topicBlock(topic) {
 `
 }
 
-export function generateRules(catalogue) {
+export function generateRules(catalogue, drillIdsByTopic = new Map()) {
   const topics = catalogue.topics.map((topic) => ({
     id: topic.id,
-    problemIds: topic.subtopics.flatMap((subtopic) => subtopic.problems.map((problem) => problem.id)),
+    problemIds: [
+      ...topic.subtopics.flatMap((subtopic) => subtopic.problems.map((problem) => problem.id)),
+      ...(drillIdsByTopic.get(topic.id) ?? []),
+    ],
+    catalogueCount: topic.subtopics.flatMap((subtopic) => subtopic.problems).length,
+    drillCount: (drillIdsByTopic.get(topic.id) ?? []).length,
   }))
   if (topics.some((topic) => topic.problemIds.length === 0)) {
-    throw new Error('Every topic must contain at least one problem id')
+    throw new Error('Every topic must contain at least one known id')
   }
   const allIds = topics.flatMap((topic) => topic.problemIds)
   if (new Set(allIds).size !== allIds.length) {
-    throw new Error('Problem ids must be globally unique for topic-sharded rules')
+    throw new Error('Known ids (catalogue + drills) must be globally unique for topic-sharded rules')
   }
+  const drillTotal = topics.reduce((sum, topic) => sum + topic.drillCount, 0)
+  const catalogueTotal = topics.reduce((sum, topic) => sum + topic.catalogueCount, 0)
 
   return `// GENERATED FILE — do not edit by hand.
-// Source: tools/generate-firestore-rules.mjs from data/problems.json.
-// ${topics.length} topics · ${allIds.length} unique problem ids.
-// Rules v5 (phase 02): self-assessed progress outcomes; prior rules remain backward compatible.
+// Source: tools/generate-firestore-rules.mjs from data/problems.json + data/practice-sets/.
+// ${topics.length} topics · ${catalogueTotal} catalogue ids · ${drillTotal} synthetic lc-<n> drill keys.
+// Rules v5 (phase 02) + Phase 03 drill whitelist; prior rules remain backward compatible.
 rules_version = '2';
 
 service cloud.firestore {
@@ -318,7 +338,8 @@ ${topics.map(topicBlock).join('\n')}
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 if (isMain) {
   const catalogue = JSON.parse(await readFile(dataPath, 'utf8'))
-  const generated = generateRules(catalogue)
+  const drillIdsByTopic = await loadDrillIdsByTopic()
+  const generated = generateRules(catalogue, drillIdsByTopic)
   if (process.argv.includes('--check')) {
     let current = ''
     try {

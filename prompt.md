@@ -3,11 +3,14 @@
 # DSA Archive — continuation prompt (v2 programme, one phase per chat)
 
 > **Self-contained handoff.** v1 is complete. v2 Phase 01 is merged to `main` in PR #12
-> (`558a25f`; CI run `41635438159` passed). Phase 02 implementation is complete on
-> PR #13 (`arena/e2907924-dsa-archive`); CI run `41647413508` passed, including emulator
-> rules and Playwright/axe. The generated visual-baseline artifact still needs owner review;
-> PR #13 has not been merged. No deployment was performed. Phase 03 is the next phase after
-> the owner reviews the artifact and merges PR #13. Phases 03–10 remain planned.
+> (`558a25f`; CI run `41635438159` passed). Phase 02 is merged to `main` in PR #13
+> (`bd9350b`; CI run `41647413508` passed, including emulator rules and Playwright/axe).
+> Phase 03 is **implemented** on `arena/cae52fb6-dsa-archive`; its local validation is
+> green and CI/owner-review metadata is recorded in
+> `docs/phases-v2/03-content-pipeline/RECORD.md`. No PR was opened: PR/merge remains a
+> standing owner gate. The owner's sample-batch content-accuracy review and generated
+> visual-baseline review are still pending. No deployment or `main` push was performed.
+> Phase 04 is the next build phase after the owner commands Phase 03's PR/merge.
 > Authority order: `rule.md` → `docs/DECISIONS.md` (owner answers) →
 > `docs/phases-v2/` (phase contracts) → `docs/ROADMAP.md` (status) →
 > `docs/DATA-MODEL.md` (Firestore/backup shapes) → `docs/UI-REFERENCE.md`
@@ -69,20 +72,29 @@ Do **not** start coding before step 5 is read end-to-end.
   passed. The Phase 1 contract is preserved in
   `docs/phases-v2/01-foundation-router-shell/PLAN.md`; its closure is recorded in
   `docs/phases-v2/01-foundation-router-shell/RECORD.md`.
-- **v2-02 implementation/CI complete; owner gate pending**: PR #13 from
-  `arena/e2907924-dsa-archive`, current tip `2c85f15`; CI run `41647413508` passed with
-  emulator rules, Playwright phone/desktop, axe, bundle, and catalogue checks. All 20
-  topics, topic tabs/practice/outcomes, grouped search, and Today updates are implemented.
-  The CI-generated visual-baseline artifact requires owner review; PR #13 remains open.
-  No merge or deploy has occurred.
-- **v2-03 … v2-10 not started**: next is `03-content-pipeline` after PR #13 is reviewed
-  and merged; its primer/statement/quiz-bank authoring is a distinct phase and separate PR.
+- **v2-02 complete and merged**: PR #13 → `main` at `bd9350b`; CI run `41647413508`
+  passed with emulator rules, Playwright phone/desktop, axe, bundle, and catalogue
+  checks. All 20 topics, topic tabs/practice/outcomes, grouped search, and Today
+  updates are implemented. No deployment occurred.
+- **v2-03 implementation complete; owner review/merge gate pending**: branch
+  `arena/cae52fb6-dsa-archive`; `schemaVersion: 2`, 495 ranked resource rows with ≥2
+  publishers, 420/495 exact-or-near LeetCode twins, 136 drills, 42 theory MCQ cards, one
+  fully authored Arrays topic, statement/practice screens, coverage CI and a scheduled
+  link audit. Local `npm run build`, `npm test` (170), `test:data`, `check:content`,
+  `check:rules`, `check:dist`, `check:links`, `check:budgets` all green. CI run id, tip sha
+  and `site-preview` bytes are in
+  `docs/phases-v2/03-content-pipeline/RECORD.md`. No PR opened, no merge, no deploy.
+- **v2-04 … v2-10 not started**: Phase 04 follows only after the owner reviews Phase 03,
+  explicitly commands its PR/merge, and starts a new chat. Its primer/statement/quiz-bank
+  authoring track continues separately from the build phases.
 - **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
   topics (Basic 84 · Core 287 · Pro 109 · 15 null; 453 `problem` + 42 `theory`).
   **369 video links** (321 unique: 256 `youtu.be` + 65 `youtube.com`) — **single source
   by owner decision, keep them**; they are copied verbatim from the snapshot (no
   rewrite, no repair). 289 rows have LeetCode links (**273 unique**, 13 duplicated
-  slugs). **206 rows have no LeetCode mapping.**
+  slugs). **206 rows have no LeetCode mapping.** Phase 03 adds additive
+  `resources[]`, `lcMatch`, `lcLabel` and optional `coveredBy` to every row, four
+  derived runtime catalogue shards, `data/content/` and `data/practice-sets/`.
 - Tokens **v2 are frozen** (`src/design/tokens.css` + `UI-REFERENCE.md`); v1 is history
   and the one-time re-freeze is spent.
 
@@ -93,8 +105,8 @@ Do **not** start coding before step 5 is read end-to-end.
 | # | Folder | Scope in one line | Est | Deps |
 |---|---|---|---|---|
 | 01 | `01-foundation-router-shell/` | ✅ **merged in PR #12** — hash router + sidebar/bottom-bar shell + tokens v2 (Inter + JetBrains Mono, one accent / five semantic roles, density, motion, undo, skeletons, `⌘K`, `j/k/x`, sheet windowing) | 9–11 d | — |
-| 02 | `02-topics-browse/` | 🟡 **implementation + CI complete; artifact review/merge pending** — PR #13, run `41647413508` green; `#/topics` + topic pages + practice/outcomes + Today + grouped search | 5–6 d | 01 |
-| 03 | `03-content-pipeline/` | Content schema + safe renderers + validator/CI + **`resources[]` multi-source** + **`data/practice-sets/` drills (+120–140 LeetCode)** + 42 theory MCQs schema + coverage report | 7–9 d + authoring | 01 |
+| 02 | `02-topics-browse/` | ✅ **merged in PR #13** (`bd9350b`) — `#/topics` + topic pages + practice/outcomes + Today + grouped search; run `41647413508` green | 5–6 d | 01 |
+| 03 | `03-content-pipeline/` | 🟡 **implementation complete; owner accuracy/visual review + merge gate** — schema v2 + safe renderers + validator/CI + **`resources[]` multi-source** + **136 drills** + 42 theory MCQs + Arrays primer/statements/quiz + coverage report | 7–9 d + authoring | 01, 02 merged |
 | 04 | `04-code-notebooks/` | **Delete notes** end-to-end; add `snippets` collection, rules **v6**, backup **v5** (+v4 notes migration), `#/code`, small editor, peek/reveal | 5–6 d | 01 |
 | 05 | `05-quiz-engine/` | **Theory MCQ cards** (4 options, per-option explanations, always-available `Show solution`, `[Solve]` vs `[Check]`) + 12-item topic quiz, 80% pass, `quizResults`, guest merge | 6–7 d | 02, 03 |
 | 06 | `06-theatre-player/` | In-app YouTube theatre (official IFrame API, our chrome), mini player surviving routes, timeline **stamps**, speed memory, oEmbed metadata + dead-link badge | 7–9 d | 01–03 |
@@ -103,7 +115,7 @@ Do **not** start coding before step 5 is read end-to-end.
 | 09 | `09-pwa-accessibility-hardening/` | Budgets re-baselined with published numbers, SW v2 exclusions, CSP (report-only → enforce), a11y × offline matrices, network assertion, dead-dependency decision | 4–5 d | 01–08 |
 | 10 | `10-release-v2/` | README v2, generated screenshots, DATA-MODEL v5, CHANGELOG, runbook, honest content-coverage table | 2–3 d | 09 |
 
-**Sequential ≈57–69 build days.** Phase 01 is merged; Phase 02 is at the owner review/merge gate. Phases 02 and 03 can proceed in parallel after 01; future rules/backup versions must increment from the actual merged baseline.
+**Sequential ≈57–69 build days.** Phases 01 and 02 are merged; Phase 03 is at its owner review/merge gate. Rules v5 / backup v4 remain the latest merged baseline (Phase 03 adds only generated `lc-<n>` whitelist keys). Future rules/backup versions must increment from the actual merged baseline after each phase.
 
 Each `PLAN.md` already contains: charter · current-state evidence (`file:line`) · scope in ·
 scope **out with reasons** · design spec/wireframes · file plan (`NEW`/`EDIT`/`DELETE`) ·
@@ -143,10 +155,13 @@ exit gate. **The acceptance list is the contract** — do not add features outsi
 9. **Coding stays coding, theory becomes MCQ** — one action per row: `[Solve]` or
    `[Check]`. No quiz spam: checks only where they are checkable, follow the material,
    and change behaviour (≤3 per topic beside the quiz, ≤1 inline per primer section).
-10. **No single source of truth for articles**: ranked `resources[]`, ≥2 publishers per
-    non-theory row, publisher names always visible, `verified` dates re-checked.
+10. **No single source of truth for articles/learning resources**: ranked `resources[]`,
+    ≥2 publishers per non-theory row, publisher names always visible, `verified` dates
+    re-checked. **Videos stay single-source** in `links.video` by owner clarification
+    (`69834c7`); no rewrite, multi-sourcing or player modification.
 11. **More LeetCode problems**: pattern drills (+120–140) in `data/practice-sets/`,
-    reusing `progressByTopic` with `lc-<n>` ids — **no schema change**.
+    reusing `progressByTopic` with `lc-<n>` ids — **no Firestore schema change**; only
+    the generated rules whitelist and per-topic size cap include the known drill ids.
 
 ## 8. Hard no list
 
@@ -185,25 +200,32 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 > `docs/ROADMAP.md` status and `prompt.md` in the same commit. Stop at the merge gate —
 > no PR merge, no deploy, no `main` push without my explicit command.
 
-> **Ready-made next one (03, after PR #13 is reviewed and merged):**
+> **Ready-made next one (04, only after Phase 03 is reviewed and merged by my explicit command):**
 >
-> Run v2 phase **03 — content-pipeline** for `pabi277/DSA-archive`.
-> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches and Phase 02 decisions),
-> `docs/phases-v2/README.md`, `docs/phases-v2/00-overview/PLAN.md`, and
-> `docs/phases-v2/03-content-pipeline/PLAN.md` in full. Phase 01 is already merged; Phase
-> 02 is PR #13 and must be merged by the owner before starting a new phase. Keep Phase 03
-> to its own branch/PR; preserve the Phase 01 and Phase 02 plans as contracts. Update its
-> `RECORD.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md` if needed, and `prompt.md`. No merge,
-> deploy, or `main` push without my explicit command.
+> Run v2 phase **04 — code-notebooks** for `pabi277/DSA-archive`.
+> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches plus Phase 01–03
+> implementation choices), `docs/phases-v2/README.md`,
+> `docs/phases-v2/00-overview/PLAN.md`, and
+> `docs/phases-v2/04-code-notebooks/PLAN.md` in full. Phases 01 and 02 are merged; Phase 03
+> must be reviewed and merged by my explicit command before starting a new phase. Keep Phase
+> 04 to its own branch/PR; preserve the earlier phase plans as contracts and advance rules
+> v6 / backup v5 from the latest merged baseline (including the Phase 03 `lc-<n>` whitelist
+> if Phase 03 lands first). Update its `RECORD.md`, `docs/ROADMAP.md`,
+> `docs/DECISIONS.md` if needed, and `prompt.md`. No merge, deploy, or `main` push without
+> my explicit command.
 
 ---
 
 ## 11. Content track (runs in parallel from phase 02; the real long pole)
 
-`docs/phases-v2/03-content-pipeline/AUTHORING.md` — templates + review workflow.
+`docs/phases-v2/03-content-pipeline/AUTHORING.md` — templates + review workflow;
+`docs/content/AUTHORING.md` — the live workflow and per-topic checklist.
 Volumes: 20 primers (600–900 words) · 120 beginner statements (then ~375) · 495 hints ·
 495 common mistakes · **42 theory MCQs** · 240 topic-quiz items · ~300 runner test cases ·
-~34 pattern files (drills). Order: **P0** = primers, beginner statements, hints/mistakes
-for beginner rows, quizzes, theory MCQs, first 10 pattern files. Everything is our own
-writing, verified by the owner in small batches, and every screen renders a designed
-"content coming" state so code never waits on content.
+~34 pattern files (drills). Phase 03 landed 1 primer, 6 beginner statements, 6 hints +
+mistakes, 12 topic-quiz items, 42 theory MCQs, 18 runner cases and 34 drill files; the
+generated `docs/content/coverage.md` is the checked-in progress report. Order: **P0** =
+primers, beginner statements, hints/mistakes for beginner rows, quizzes, theory MCQs,
+first 10 pattern files. Everything is our own writing, verified by the owner in small
+batches, and every screen renders a designed "content coming" state so code never waits
+on content. **Owner sample-batch accuracy review is pending.**

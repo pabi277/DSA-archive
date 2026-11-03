@@ -1,0 +1,11 @@
+{
+  "topicId": "bit-manipulation",
+  "patterns": [
+    "bit-manipulation",
+    "two-pointers",
+    "sliding-window"
+  ],
+  "learnOrder": [],
+  "primer": null,
+  "quiz": []
+}

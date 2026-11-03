@@ -1,0 +1,35 @@
+name: External link audit
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      strict:
+        description: 'Fail the audit on 404/410 or stale verified dates (1 = yes)'
+        required: false
+        default: '0'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    env:
+      CONTENT_AS_OF: '2026-11-03'
+      CHECK_EXTERNAL_LINKS: '1'
+      LIVE_LINK_STRICT: ${{ github.event.inputs.strict || '0' }}
+      LINK_CHECK_CONCURRENCY: '24'
+      LINK_CHECK_TIMEOUT_MS: '4000'
+      LINK_CHECK_MAX: '1500'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6.0.2
+      - name: Set up Node
+        uses: actions/setup-node@v6.1.0
+        with:
+          node-version: 22
+      - name: Re-check ranked resources, canonical drills and theory references
+        run: node tools/check-resource-links.mjs

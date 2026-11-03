@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "learn-all-patterns-of-subsequences-theory-mcq",
+  "problemId": "learn-all-patterns-of-subsequences-theory",
+  "topicId": "recursion",
+  "kind": "theory",
+  "prompt": "Learn All Patterns of Subsequences (Theory): What defines a subsequence of a sequence?",
+  "codeSnippet": null,
+  "options": [
+    {
+      "text": "Selected elements that keep their original relative order.",
+      "explain": "Elements may be skipped, but their order may not be rearranged."
+    },
+    {
+      "text": "It proves every implementation is correct without any tests.",
+      "explain": "A definition cannot replace a test or a trace of an actual implementation."
+    },
+    {
+      "text": "It replaces input constraints with one fixed array size.",
+      "explain": "Input bounds are part of the problem and do not disappear when a technique is named."
+    },
+    {
+      "text": "It makes the compiler choose the algorithm while the program runs.",
+      "explain": "The programmer chooses the algorithm; a compiler translates the written steps."
+    }
+  ],
+  "answerIndex": 0,
+  "reveal": {
+    "alwaysAvailable": true,
+    "solution": "Elements may be skipped, but their order may not be rearranged.",
+    "reference": {
+      "source": "usaco",
+      "url": "https://usaco.guide/#learn-all-patterns-of-subsequences-theory",
+      "label": "Reference · Usaco",
+      "verified": "2026-11-03"
+    }
+  },
+  "verified": "2026-11-03"
+}

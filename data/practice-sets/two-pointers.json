@@ -1,0 +1,50 @@
+{
+  "patternId": "two-pointers",
+  "topicId": "arrays",
+  "title": "Two Pointers",
+  "summary": "Four rungs that move Two Pointers from recognition to transfer.",
+  "prerequisites": [],
+  "verified": "2026-11-03",
+  "problems": [
+    {
+      "lc": 167,
+      "slug": "two-sum-ii-input-array-is-sorted",
+      "title": "Two Sum II",
+      "level": "core",
+      "set": 1,
+      "estMinutes": 25,
+      "why": "Start with the clearest signal for this pattern.",
+      "classic": true
+    },
+    {
+      "lc": 16,
+      "slug": "3sum-closest",
+      "title": "3Sum Closest",
+      "level": "core",
+      "set": 2,
+      "estMinutes": 30,
+      "why": "The same idea appears with a different input shape.",
+      "classic": true
+    },
+    {
+      "lc": 27,
+      "slug": "remove-element",
+      "title": "Remove Element",
+      "level": "basic",
+      "set": 3,
+      "estMinutes": 25,
+      "why": "A new constraint changes what you track while scanning.",
+      "classic": false
+    },
+    {
+      "lc": 80,
+      "slug": "remove-duplicates-from-sorted-array-ii",
+      "title": "Remove Duplicates from Sorted Array II",
+      "level": "core",
+      "set": 4,
+      "estMinutes": 40,
+      "why": "Combine the pattern with one more invariant before finishing.",
+      "classic": false
+    }
+  ]
+}
