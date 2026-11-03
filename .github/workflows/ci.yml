@@ -139,6 +139,14 @@ jobs:
           if [ -s failure-digest.md ]; then
             gh pr comment "${{ github.event.pull_request.number }}" --body-file failure-digest.md --edit-last --create-if-none || true
           fi
+      - name: Upload generated visual baselines for review
+        if: always() && hashFiles('e2e/__screenshots__/**') != ''
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: visual-baselines
+          path: e2e/__screenshots__/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Upload browser diagnostics on failure
         if: failure() && hashFiles('test-results/**') != ''
         uses: actions/upload-artifact@v7.0.2

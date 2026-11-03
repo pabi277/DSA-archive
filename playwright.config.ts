@@ -20,6 +20,11 @@ export default defineConfig({
     // Visual baselines: a shifted-but-identical page must still fail loudly.
     toHaveScreenshot: { threshold: 0.2 },
   },
+  // The first run on a fresh branch has no baselines yet. Writing the missing
+  // ones keeps the matrix meaningful (a *changed* baseline still fails) and the
+  // PNGs are uploaded as an artifact to be reviewed and committed by hand —
+  // never auto-accepted.
+  updateSnapshots: 'missing',
   webServer: {
     command: 'npm run preview -- --host 0.0.0.0',
     url: 'http://127.0.0.1:4173',
