@@ -103,6 +103,9 @@ jobs:
           PY
           exit 0
       - name: Publish browser failure digest on the pull request
+        # The sandbox cannot download Actions logs or artifacts (the blob host is
+        # outside its allowlist) and check-run annotations are capped, so the
+        # failing assertions are re-published where they can be read: a PR comment.
         if: failure() && github.event_name == 'pull_request' && hashFiles('test-output.log') != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -112,23 +115,29 @@ jobs:
           ansi = re.compile(r'\x1b\[[0-9;]*[A-Za-z]')
           raw = open('test-output.log', encoding='utf-8', errors='replace').read()
           lines = [ansi.sub('', line).rstrip() for line in raw.splitlines()]
-          out = ['<!-- failure-digest -->', '## Browser matrix failure digest', '', '```']
-          # Per failing test: its name plus the ~25 lines after it, which hold
-          # the Playwright error, the locator and the call log.
-          for index, line in enumerate(lines):
-              if not re.search(r'✘\s+\d+ \[chromium\]', line):
-                  continue
-              block = [part for part in lines[index:index + 28] if part.strip()]
-              out.extend(block)
-              out.append('')
-              if len(out) > 400:
-                  out.append('… truncated; see the site-e2e-diagnostics artifact.')
-                  break
-          out.append('```')
+          # `list` reporter: the run summary first, then one "  N) [chromium] …"
+          # block per failure with the assertion, the locator and the call log.
+          starts = [i for i, line in enumerate(lines) if re.match(r'^\s+\d+\) \[chromium\]', line)]
+          body = lines[starts[0]:] if starts else lines[-250:]
+          # Visual-snapshot noise (no baselines exist yet) goes in its own section.
+          visual, functional, bucket = [], [], functional
+          for line in body:
+              if re.match(r'^\s+\d+\) \[chromium\]', line):
+                  bucket = visual if 'visual.spec.ts' in line else functional
+              elif re.match(r'^\s+\d+\) ', line):
+                  bucket = visual  # summary rows at the top of the block
+              bucket.append(line)
+          shown = [line for line in functional if line.strip()][:450]
+          out = ['<!-- failure-digest -->', '## Browser matrix failure digest', '',
+                 f'{len(starts)} failing tests · {len(functional)} lines of non-visual detail', '', '```']
+          out.extend(shown)
+          if len(functional) > len(shown):
+              out.append('… truncated')
+          out.extend(['```', '', f'Visual baselines pending: {len(visual)} lines (see the artifact).'])
           print('\n'.join(out))
           PY
           if [ -s failure-digest.md ]; then
-            gh pr comment "${{ github.event.pull_request.number }}" --body-file failure-digest.md || true
+            gh pr comment "${{ github.event.pull_request.number }}" --body-file failure-digest.md --edit-last --create-if-none || true
           fi
       - name: Upload browser diagnostics on failure
         if: failure() && hashFiles('test-results/**') != ''
