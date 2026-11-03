@@ -41,3 +41,30 @@ plan + Phase 0 authorized 2026-11-02 · exit gate complete (Git author identity 
 ## Held / cancelled (keep visible)
 
 - *(none yet)*
+
+---
+
+# v2 programme (planned 2026-11-03)
+
+Owner decisions 2026-11-03: craft-first UI · in-app YouTube theatre · notes → code ·
+beginner layer (all 20 topics, statements, quizzes) · local C++ runner · expensive
+analytics dropped. Full contracts live in [`docs/phases-v2/`](phases-v2/README.md)
+(one folder per phase, `PLAN.md` each).
+
+| # | Phase | Done means | Status |
+|---|---|---|---|
+| v2-01 | Router, shell, design system v2 | every screen has a URL · back button works · one accent/5 roles · density · ⌘K · undo · snapshots + budgets | 📋 planned |
+| v2-02 | 20-topic spine, topic pages, 3-way outcome | `#/topics` shows all 20 with rings · Learn/Practice/Quiz tabs · outcome persists via emulator | 📋 planned |
+| v2-03 | Content pipeline (statements, hints, primers, quiz bank, tests) | schema + validator green in CI · one topic fully authored end-to-end · coverage report | 📋 planned |
+| v2-04 | Notes → Code | notes gone from code/rules/backup · snippet syncs across profiles · rules v5 · backup v4 migration | 📋 planned |
+| v2-05 | Quiz engine | 12-question run passes at 80% · results sync · guest merge · rules tests | 📋 planned |
+| v2-06 | Theatre (in-app YouTube) | 40-min session inside the app · mini player survives navigation · stamps seek · dead-link fallback | 📋 planned |
+| v2-07 | Browser runner (C++/Py/JS) | compile+run warm ≤2.5 s · test cases pass/fail with diff · runaway loop stops · no code leaves the device | 📋 planned |
+| v2-08 | Light insights | ≤2 reason chips per row · momentum (no punitive streak) · one-line trajectory · "how this plan was made" | 📋 planned |
+| v2-09 | PWA/a11y/perf hardening | budgets re-baselined with published numbers · axe 0 across matrix · offline every route · CSP decision | 📋 planned |
+| v2-10 | Release v2 | README/screenshots truthful · runbook ready · deploy still gated | 📋 planned |
+
+**Explicitly NOT in v2** (owner decisions): FSRS/retention math · attempt-history engine ·
+readiness score · calibration · per-pattern "par" · pattern tagging of all 495 rows ·
+notes · transcripts (fetch or paste) · ad-blocking or modifying the YouTube player ·
+remote judge/Judge0/Piston · AI of any kind · public signup/leaderboards.

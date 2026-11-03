@@ -473,3 +473,41 @@
   authenticated owner/reciprocal-friend access and strict per-field caps for a
   ≤6-person group. Revisit via an owner GATE only if the app becomes public.
 
+## Owner decisions — v2 direction (answered 2026-11-03, never re-ask)
+
+- 2026-11-03 — **v2 priority?** — "boost its UI" is the **first** work item; the
+  interface must be *super good*, not polished later. Recorded as phase v2-01.
+- 2026-11-03 — **Expensive ideas?** — **Dropped**: FSRS scheduler, attempt-history
+  engine, readiness score, calibration, per-pattern time ("par"), weak-pattern radar,
+  workload forecast, ETA modelling. Cheap survivors only: reason chips, a single
+  `o` outcome field (`clean|hint|couldnt`), momentum instead of a punitive streak, and
+  a one-line pace sentence (phase v2-08).
+- 2026-11-03 — **Video?** — YouTube plays **inside our own screen** via the official
+  IFrame Player API. The owner browses with **Brave**, so ad filtering is the browser's
+  business. The app **never** modifies, overlays or blocks any part of the player
+  (ToS §4.13) — a permanent limit, not a TODO.
+- 2026-11-03 — **Transcripts?** — **Dropped entirely** (auto-fetch *and*
+  paste-your-own). Analysis kept in `docs/FEEDBACK-ytpro-review.md` §2.2; not revisited
+  unless the owner asks.
+- 2026-11-03 — **Notes section?** — **Removed.** Replaced by a **Code section** stored in
+  Firestore (`users/{uid}/snippets/{problemId}`), with rules v5 and backup v4.
+- 2026-11-03 — **Audience of the redesign?** — **Beginners.** All 20 topics always
+  listed, in-app problem statements, primers, hints, common mistakes and **quizzes**
+  (12 per topic, pass 80%). Copy must be readable by a first-year student.
+- 2026-11-03 — **Code execution?** — **Local, in-browser** (WebAssembly compiler in a
+  Worker). **No** server, **no** Judge0/Piston, **no** hidden test suites or judge
+  verdicts. C++/Python/JS run; Java/C#/Go/Rust get copy-out links.
+- 2026-11-03 — **Phase packaging?** — Every phase gets its own folder under
+  `docs/phases-v2/NN-slug/` with a complete `PLAN.md` (and a `RECORD.md` when executed).
+
+### GATE re-openings approved for v2 (2026-11-03, phase v2-01)
+
+- **Design tokens v1 → v2**: the 2026-11-02 freeze is superseded by a new one-time freeze
+  after the owner reviews tokens v2 (Inter + JetBrains Mono subsets, semantic colour
+  roles, density, motion). `UI-REFERENCE.md` keeps the v1 table as history.
+- **"System fonts only"** is lifted (two self-hosted subsets, ~45 kB, budgeted).
+- **CI budgets** may be re-baselined **once**, with published numbers and a written
+  rationale (phase v2-09): CSS 60 kB raw / 18 kB gz · entry JS 180 kB raw / 55 kB gz.
+- **Tailwind/daisyUI** must be decided (use them, or remove them) — no third state.
+- **CSP**: adopting one (with `frame-src` for YouTube and `worker-src`) is approved in
+  principle; report-only first, then enforce.
