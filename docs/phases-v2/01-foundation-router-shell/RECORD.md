@@ -168,9 +168,10 @@
   undo action is not clipped by app layout ancestors.
 - Playwright cannot run in this sandbox: the Chromium download endpoint resets the TLS
   connection. The next CI annotation pass also exposed a light-theme `--subtle` contrast
-  ratio of 4.47:1 (updated to a measured 4.73:1), the topic disclosure's controlled-open
-  race (now handled from the summary click), and the toast's viewport placement (body-level
-  portal, anchored below the top bar). Local unit/build checks pass after these changes,
+  ratio of 4.47:1 (updated to a measured 4.73:1 in the app and standalone 404/offline
+  fallbacks), the topic disclosure's controlled-open race (the summary now updates both the
+  native disclosure and React state), and the toast's viewport placement (anchored below
+  the top bar while retaining app token inheritance). Local unit/build checks pass after
   but another CI run must prove them and expose any remaining failures; the phase is not
   CI-green yet.
 

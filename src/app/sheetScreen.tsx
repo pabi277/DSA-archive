@@ -398,7 +398,10 @@ function TopicGroup({
           // Keep the disclosure controlled by React so the open-topic set is the
           // state source; native toggling races the prop update on some browsers.
           event.preventDefault()
-          onToggle(!open)
+          const nextOpen = !open
+          const details = event.currentTarget.parentElement
+          if (details instanceof HTMLDetailsElement) details.open = nextOpen
+          onToggle(nextOpen)
         }}
       >
         <span className="topic-chevron" aria-hidden="true">
