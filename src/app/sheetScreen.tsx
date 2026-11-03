@@ -21,6 +21,7 @@ import {
   LINK_FILTERS,
   LINK_LABELS,
   activeFilterCount,
+  applySheetQuery,
   type FilteredTopic,
   type FilteredSheet,
   type LevelFilter,
@@ -104,6 +105,13 @@ export function SheetScreen({
   const listChoices = useMemo(() => sortLists(lists), [lists])
   const [activeListId, setActiveListId] = useState<string | null>(null)
   const activeList: CustomList | null = activeListId ? (lists[activeListId] ?? null) : null
+  const displayedSheet = useMemo(
+    () =>
+      activeList
+        ? applySheetQuery({ ...query, listProblemIds: new Set(activeList.problemIds) }, progress)
+        : sheet,
+    [activeList, progress, query, sheet],
+  )
 
   // `/` and the palette bump `searchSignal` to put the caret in this field.
   useEffect(() => {
@@ -118,11 +126,11 @@ export function SheetScreen({
   useEffect(() => {
     if (!revealed || autoOpened.current === revealed) return
     autoOpened.current = revealed
-    const owner = sheet.topics.find((topic) =>
+    const owner = displayedSheet.topics.find((topic) =>
       topic.subtopics.some((subtopic) => subtopic.problems.some((problem) => problem.id === revealed)),
     )
     if (owner && !openTopics.has(owner.id)) onToggleTopic(owner.id, true)
-  }, [revealed, sheet.topics, openTopics, onToggleTopic])
+  }, [revealed, displayedSheet.topics, openTopics, onToggleTopic])
 
   const toggleLevel = (level: LevelFilter) =>
     onFiltersChange({
@@ -233,8 +241,8 @@ export function SheetScreen({
       </div>
 
       <p className="quiet-note" data-testid="match-count">
-        Showing {sheet.matchCount} of {sheet.totalCount} problems across {sheet.topics.length} of{' '}
-        {sheet.topicCount} topics
+        Showing {displayedSheet.matchCount} of {displayedSheet.totalCount} problems across {displayedSheet.topics.length} of{' '}
+        {displayedSheet.topicCount} topics
         {filterCount > 0 ? ` · ${filterCount} filter${filterCount === 1 ? '' : 's'} on` : ''}
         {activeList ? ` · list “${activeList.title}”` : ''}
         {filters.search.trim() === '' ? ' · press / to search' : ''}
@@ -259,7 +267,7 @@ export function SheetScreen({
         </div>
       )}
 
-      {sheet.topics.length === 0 ? (
+      {displayedSheet.topics.length === 0 ? (
         <Empty
           title="No matching problems"
           mark={<IconFilter size={20} />}
@@ -277,7 +285,7 @@ export function SheetScreen({
         <>
           {children}
           <div className="topic-list" data-testid="topic-list">
-          {sheet.topics.map((topic) => (
+          {displayedSheet.topics.map((topic) => (
             <TopicGroup
               key={topic.id}
               topic={topic}
