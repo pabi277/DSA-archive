@@ -25,12 +25,9 @@
     "check:budgets": "node tools/check-budgets.mjs"
   },
   "dependencies": {
-    "@tailwindcss/vite": "4.3.3",
-    "daisyui": "5.7.50",
     "firebase": "12.19.0",
     "react": "19.3.1",
-    "react-dom": "19.3.1",
-    "tailwindcss": "4.3.3"
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

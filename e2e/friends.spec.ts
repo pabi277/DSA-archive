@@ -1,3 +1,4 @@
+import { open } from './helpers'
 import { expect, test } from '@playwright/test'
 import AxeBuilder from '@axe-core/playwright'
 
@@ -13,14 +14,14 @@ test('two accounts share only opted-in summaries and leaderboard follows progres
   try {
     const owner = await ownerContext.newPage()
     const friend = await friendContext.newPage()
-    await owner.goto('/')
-    await friend.goto('/?test-user=friend')
+    await open(owner, '/')
+    await open(friend, '/?test-user=friend')
     await owner.getByTestId('emulator-sign-in').click()
     await friend.getByTestId('emulator-sign-in').click()
     await expect(owner.getByTestId('signed-in-banner')).toContainText('CI Owner')
     await expect(friend.getByTestId('signed-in-banner')).toContainText('CI Friend')
-    await owner.getByTestId('view-tab-friends').click()
-    await friend.getByTestId('view-tab-friends').click()
+    await open(owner, '/#/friends')
+    await open(friend, '/#/friends')
     await expect(owner.getByRole('button', { name: 'Create invite code' })).toBeEnabled()
     await owner.getByRole('button', { name: 'Create invite code' }).click()
     await expect(owner.getByTestId('invite-code')).toBeVisible()
@@ -32,14 +33,14 @@ test('two accounts share only opted-in summaries and leaderboard follows progres
     await expect(friend.getByText('Your friends (1)')).toBeVisible()
     await expect(friend.getByTestId('friends-leaderboard')).toContainText('CI Owner: 0 solved', { timeout: 20_000 })
     await expect(owner.getByText('Summary unavailable')).toBeVisible()
-    await owner.getByTestId('view-tab-today').click()
+    await open(owner, '/#/today')
     await owner.getByTestId('today-suggest').click()
     await owner.locator('[data-testid^="today-done-"]').first().click()
     await expect(friend.getByTestId('friends-leaderboard')).toContainText('CI Owner: 1 solved')
     await expect(friend.getByTestId('friends-goal')).toContainText('1/20')
     expect((await new AxeBuilder({ page: friend }).analyze()).violations).toEqual([])
     await friend.screenshot({ path: 'test-results/friends-phone.png', fullPage: true })
-    await owner.getByTestId('view-tab-friends').click()
+    await open(owner, '/#/friends')
     await owner.getByRole('button', { name: 'Stop sharing' }).click()
     await expect(friend.getByText('Summary unavailable')).toBeVisible()
     await friend.getByRole('button', { name: 'Remove friend' }).click()

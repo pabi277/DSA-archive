@@ -53,7 +53,7 @@ analytics dropped. Full contracts live in [`docs/phases-v2/`](phases-v2/README.m
 
 | # | Phase | Done means | Status |
 |---|---|---|---|
-| v2-01 | Router, shell, design system v2 | every screen has a URL · back button works · one accent/5 roles · density · ⌘K · undo · snapshots + budgets | 📋 planned |
+| v2-01 | Router, shell, design system v2 | every screen has a URL · back button works · one accent/5 roles · density · ⌘K · undo · snapshots + budgets | 🟡 **code complete; CI failure fixes applied, rerun pending + owner review** — hash router with 16 routes, 240 px sidebar / 64 px rail / phone bottom bar, tokens v2 frozen, Tailwind+daisyUI removed, density 38/48/62, ⌘K palette (10 destinations · 20 topics · 495 problems · 11 actions), `j k x s ↵ g t g c ?` triage, 6 s undo toast, windowed sheet (40 rows per topic), 24 axe-audited routes, budget re-baseline **335 kB gz shell / 42.2 kB CSS**. Record: [`docs/phases-v2/01-foundation-router-shell/RECORD.md`](phases-v2/01-foundation-router-shell/RECORD.md) |
 | v2-02 | 20-topic spine, topic pages, 3-way outcome | `#/topics` shows all 20 with rings · Learn/Practice/Quiz tabs · outcome persists via emulator | 📋 planned |
 | v2-03 | Content pipeline + **resource policy** + **practice sets** | ranked multi-source `resources[]` on every row (≥2 publishers) · LeetCode coverage ≥420/495 · +120–140 drills in `data/practice-sets/` with `#/practice` · 42 theory MCQs · schema + validator green · coverage report | 📋 planned |
 | v2-04 | Notes → Code | notes gone from code/rules/backup · snippet syncs across profiles · rules v5 · backup v4 migration | 📋 planned |

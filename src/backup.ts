@@ -15,7 +15,7 @@ import {
   type CloudProgressByTopic,
   type CloudTopicProgress,
 } from './cloudProgress'
-import type { Settings, Theme } from './settings'
+import { clampDensity, type Density, type Settings, type Theme } from './settings'
 import {
   DEFAULT_DAILY_GOAL,
   PLAN_ID_PATTERN,
@@ -47,6 +47,13 @@ export type BackupProfile = {
   theme: Theme
   largeText: boolean
   hideDone: boolean
+  /**
+   * Device preferences added in v2-01. Optional on purpose: older v3 files (and
+   * any file written by a v1 app) lack them, and both are re-sanitised on
+   * import, so a backup that predates them still imports unchanged.
+   */
+  density?: Density
+  railCollapsed?: boolean
   dailyGoal: number
   shareSummary: boolean
 }
@@ -73,7 +80,7 @@ export type BackupCounts = {
 
 export type BackupInput = {
   account: { displayName: string; email: string }
-  settings: Settings
+  settings: Pick<Settings, 'theme' | 'largeText' | 'hideDone' | 'density' | 'railCollapsed'>
   progressByTopic: CloudProgressByTopic
   notes?: BackupNote[]
   lists?: BackupList[]
@@ -108,6 +115,8 @@ export function createBackup(input: BackupInput): string {
       theme: input.settings.theme,
       largeText: input.settings.largeText,
       hideDone: input.settings.hideDone,
+      density: input.settings.density,
+      railCollapsed: input.settings.railCollapsed,
       dailyGoal: clampGoal(input.dailyGoal ?? DEFAULT_DAILY_GOAL),
       shareSummary: false,
     },
@@ -295,6 +304,10 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
     })(),
     largeText: p.largeText === true,
     hideDone: p.hideDone === true,
+    // Malformed or absent device preferences fall back to the default rather
+    // than failing the whole import: they describe a device, not your record.
+    density: clampDensity(p.density),
+    railCollapsed: p.railCollapsed === true,
     dailyGoal:
       typeof p.dailyGoal === 'number' &&
       Number.isInteger(p.dailyGoal) &&

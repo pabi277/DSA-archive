@@ -532,3 +532,42 @@
   solution the learner can always reveal). Never both on one row:
   `[Solve]` for coding, `[Check]` for theory. Doc:
   `docs/phases-v2/05-quiz-engine/THEORY-MCQ.md`.
+
+## Phase v2-01 agent implementation choices (2026-11-03 UTC)
+
+- **Tailwind/daisyUI REMOVED, not adopted (the gate required one or the other).**
+  Every shipping class was already hand-written against the token layer; the
+  framework contributed only an unused preflight + theme-variable layer — once
+  `@source` was scoped to `src/`, its remaining contribution was dead bytes that
+  failed the shell budget. Built CSS is **42.2 kB raw / 7.9 kB gzip** without it
+  (cap 60 / 18 kB). `@tailwindcss/vite`, `tailwindcss`
+  and `daisyui` are uninstalled from `package.json`/`package-lock.json`,
+  `vite.config.ts` no longer registers the plugin, and `src/styles.css` imports
+  only `./design/tokens.css`. Consequence: `docs/UI-REFERENCE.md` v1's
+  "Vite + React + TypeScript + Tailwind + daisyUI" stack line is v1 history.
+- **Tokens v2 frozen** (`src/design/tokens.css`, documented in
+  `UI-REFERENCE.md` "Tokens v2"). The single accent is `--action`, semantic roles
+  add `--info` (v1 had a "no separate hue story"), and `--chart-1…3` carry level
+  bars. The authorised one-time v1 → v2 re-freeze is now **spent**.
+- **Fonts are vendored, not installed at build time** (`public/fonts/`, 57.5 kB
+  raw in the separate runtime bucket, never precached). `tools/fetch-fonts.mjs`
+  reproduces them from `@fontsource*` + `pyftsubset`; the packages are *not*
+  dependencies because a `npm ci` must not change shell bytes. Both typefaces
+  are OFL; nothing comes from `copy-web/`.
+- **`#/notes` is a first-class route.** The v1 tab strip showed "Notes" and
+  "Lists" side by side; v2 keeps both (notes are deleted in v2-04, not in v2-01)
+  and gives each its own URL so the back button and the palette can address them
+  independently. No data shape changed.
+- **Windowing is by topic, not by scroll position.** A closed topic mounts zero
+  rows; an open topic mounts the first 40 and grows by 40 through an explicit
+  "Show N more rows" control, which a deep link or a random pick pre-expands.
+  This keeps ≤1,200 DOM nodes with all 20 topics openable and keeps keyboard
+  triage deterministic (no node recycling under the focus ring).
+- **Undo covers guest progress and the local library; destructive deletes still
+  confirm.** Marking, un-marking and status/outcome flips push a 6-second toast
+  that restores the exact previous snapshot (`replaceGuestProgress`); list delete
+  keeps its confirm step and is *not* undoable, per the PLAN risk note.
+- **Visual baselines are generated in CI only** and committed by hand
+  (`e2e/visual.spec.ts`, 2 viewports × 2 themes × 6 routes = 24 PNGs). The specs
+  skip unless `CI` or `VISUAL_BASELINES=1` is set, so a local run cannot silently
+  accept a new baseline.

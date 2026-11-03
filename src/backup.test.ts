@@ -32,7 +32,13 @@ const plans: BackupPlan[] = [
 ]
 const input = {
   account: { displayName: 'CI Owner', email: 'ci.owner@example.test' },
-  settings: { theme: 'dark' as const, largeText: false, hideDone: true },
+  settings: {
+    theme: 'dark' as const,
+    largeText: false,
+    hideDone: true,
+    density: 'compact' as const,
+    railCollapsed: true,
+  },
   progressByTopic: { arrays: { 'two-sum': cloudEntry } },
   notes,
   lists,
@@ -80,6 +86,22 @@ describe('JSON backup (schema v3, phases 2–4)', () => {
     expect(parsed.backup.lists).toEqual(lists)
     expect(parsed.backup.plans).toEqual(plans)
     expect(parsed.backup.excluded).toContain('friends')
+    // v2-01 device preferences ride along in v3 without a schema bump.
+    expect(parsed.backup.profile).toMatchObject({ density: 'compact', railCollapsed: true })
+  })
+
+  it('defaults density and the rail on files written before v2-01 (device prefs are not data)', () => {
+    const legacy = copy()
+    delete legacy.profile.density
+    delete legacy.profile.railCollapsed
+    const parsed = parseBackup(JSON.stringify(legacy))
+    expect(parsed.backup.profile).toMatchObject({ density: 'comfortable', railCollapsed: false })
+
+    const malformed = { ...legacy, profile: { ...legacy.profile, density: 'enormous', railCollapsed: 'yes' } }
+    expect(parseBackup(JSON.stringify(malformed)).backup.profile).toMatchObject({
+      density: 'comfortable',
+      railCollapsed: false,
+    })
   })
 
   it('imports a phase-3 schemaVersion 2 file and defaults the missing revision counter', () => {

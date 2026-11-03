@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
+import { open, openTopic } from './helpers'
 
 /**
  * Roadmap phase 4 "Done means" in CI, at phone width against the Auth +
@@ -94,7 +95,7 @@ async function seedSolvedDaysAgo(uid: string, problemId: string, days: number) {
 }
 
 async function openToday(page: Page) {
-  await page.getByTestId('view-tab-today').click()
+  await open(page, '/#/today')
   await expect(page.getByTestId('today-view')).toBeVisible()
 }
 
@@ -115,7 +116,7 @@ test('a study session runs Today → solve → revise, with stats and a v3 backu
   const context = await browser.newContext({ viewport: phone, acceptDownloads: true })
   try {
     const page = await context.newPage()
-    await page.goto('/')
+    await open(page, '/')
     await page.getByTestId('emulator-sign-in').click()
     await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
 
@@ -125,7 +126,7 @@ test('a study session runs Today → solve → revise, with stats and a v3 backu
     await expect(page.getByTestId('today-goal-status')).toContainText('0/5 moved today')
     await page.getByTestId('today-suggest').click()
     await expect(page.locator('[data-testid^="today-item-"]')).toHaveCount(5)
-    await expect(page.getByTestId('view-tab-today')).toContainText('0/5')
+    await expect(page.getByTestId('nav-today')).toContainText('0/5')
 
     // Solve one of them from the planner: the row, the tally and the sheet agree.
     const firstItem = page.locator('[data-testid^="today-item-"]').first()
@@ -151,7 +152,7 @@ test('a study session runs Today → solve → revise, with stats and a v3 backu
     await seedSolvedDaysAgo(uid, 'linear-search', 5)
     await page.reload()
     await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
-    await page.getByTestId('view-tab-revision').click()
+    await open(page, '/#/review')
     await expect(page.getByTestId('revision-count')).toContainText('1 due today')
     await expect(page.getByTestId('due-item-linear-search')).toBeVisible()
     await expect(page.getByTestId('due-label-linear-search')).toContainText('Overdue 2 days')
@@ -167,7 +168,7 @@ test('a study session runs Today → solve → revise, with stats and a v3 backu
     await expect(page.getByTestId('upcoming-list')).toContainText('Linear Search')
 
     // --- 4.3 Stats: streak, weekly strip, heatmap, topic and level bars -----
-    await page.getByTestId('view-tab-stats').click()
+    await open(page, '/#/stats')
     await expect(page.getByTestId('stats-view')).toBeVisible()
     await expect(page.getByTestId('stat-solved')).not.toHaveText('0')
     await expect(page.getByTestId('stat-week')).not.toHaveText('0')
@@ -182,7 +183,8 @@ test('a study session runs Today → solve → revise, with stats and a v3 backu
     expect(phoneAudit.violations).toEqual([])
 
     // --- backup schema v3 carries the plan day and the revision counter -----
-    await page.getByTestId('view-tab-sheet').click()
+    // The account panel (export/import) lives on the Settings route in v2.
+    await open(page, '/#/settings')
     const downloadPromise = page.waitForEvent('download')
     await page.getByRole('button', { name: 'Export backup JSON' }).click()
     const download = await downloadPromise

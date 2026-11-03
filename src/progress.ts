@@ -190,6 +190,15 @@ export function clearProgress() {
   commit({})
 }
 
+/**
+ * v2-01 undo support: replace the whole guest snapshot (used to restore the
+ * previous row state after an undo toast runs). Not a merge — the caller passes
+ * the exact snapshot it captured a moment earlier.
+ */
+export function replaceGuestProgress(next: ProgressByTopic) {
+  commit(sanitize(next))
+}
+
 /** Test/review helper: forget stored rows without touching the UI. */
 export function resetProgressStoreForTests() {
   cached = null

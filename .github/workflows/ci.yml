@@ -7,6 +7,9 @@ on:
 
 permissions:
   contents: read
+  # Only used to publish the browser-failure digest as a PR comment (the agent
+  # sandbox cannot fetch Actions logs or artifacts, and annotations are capped).
+  pull-requests: write
 
 jobs:
   verify:
@@ -82,11 +85,82 @@ jobs:
               if key in seen:
                   continue
               seen.add(key)
-              blocks.append(block[:900])
-          for block in blocks[:8]:
+              blocks.append(block[:1400])
+          # The runner re-uses annotations, so emit the earliest failures first
+          # (reverse chronological) and add a compact "each failure + its own
+          # following lines" pass: the summary block only contains test names,
+          # never the assertion that failed.
+          detail = []
+          for index, line in enumerate(lines):
+              if '✘' not in line:
+                  continue
+              following = [part.strip() for part in lines[index + 1:index + 4] if part.strip()]
+              detail.append(' | '.join([line.strip(), *following])[:600])
+          for block in detail[:10]:
+              print('::error::' + block.replace('%', '%25'))
+          for block in reversed(blocks[:6]):
               print('::error::' + block.replace('%', '%25'))
           PY
           exit 0
+      - name: Publish browser failure digest on the pull request
+        # The sandbox cannot download Actions logs or artifacts (the blob host is
+        # outside its allowlist) and check-run annotations are capped, so the
+        # failing assertions are re-published where they can be read: a PR comment.
+        if: failure() && github.event_name == 'pull_request' && hashFiles('test-output.log') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PY' > failure-digest.md
+          import re
+          ansi = re.compile(r'\x1b\[[0-9;]*[A-Za-z]')
+          raw = open('test-output.log', encoding='utf-8', errors='replace').read()
+          lines = [ansi.sub('', line).rstrip() for line in raw.splitlines()]
+          # `list` reporter: the run summary first, then one "  N) [chromium] …"
+          # block per failure with the assertion, the locator and the call log.
+          starts = [i for i, line in enumerate(lines) if re.match(r'^\s+\d+\) \[chromium\]', line)]
+          body = lines[starts[0]:] if starts else lines[-250:]
+          # Visual-snapshot noise (no baselines exist yet) goes in its own section.
+          visual, functional = [], []
+          bucket = functional
+          for line in body:
+              if re.match(r'^\s+\d+\) \[chromium\]', line):
+                  bucket = visual if 'visual.spec.ts' in line else functional
+              elif re.match(r'^\s+\d+\) ', line):
+                  bucket = visual  # summary rows at the top of the block
+              bucket.append(line)
+          shown = [line for line in functional if line.strip()][:450]
+          out = ['<!-- failure-digest -->', '## Browser matrix failure digest', '',
+                 f'{len(starts)} failing tests · {len(functional)} lines of non-visual detail', '', '```']
+          out.extend(shown)
+          if len(functional) > len(shown):
+              out.append('… truncated')
+          out.extend(['```', '', f'Visual baselines pending: {len(visual)} lines (see the artifact).'])
+          print('\n'.join(out))
+          PY
+          # Publish, but never fail the run on the publishing itself (the
+          # browser result above is the signal this job exists to report).
+          set +e
+          if [ -s failure-digest.md ]; then
+            REPO="${{ github.repository }}"
+            NUM="${{ github.event.pull_request.number }}"
+            COMMENT_ID=$(gh api "repos/$REPO/issues/$NUM/comments?per_page=100" \
+              --jq '.[] | select(.body | startswith("<!-- failure-digest -->")) | .id' 2>/dev/null | tail -1)
+            if [ -n "$COMMENT_ID" ]; then
+              gh api -X PATCH "repos/$REPO/issues/comments/$COMMENT_ID" -F body=@failure-digest.md > /dev/null 2>&1
+            else
+              gh pr comment "$NUM" --body-file failure-digest.md 2>&1 | tail -2
+            fi
+            echo "digest published (comment ${COMMENT_ID:-new})"
+          fi
+          exit 0
+      - name: Upload generated visual baselines for review
+        if: always() && hashFiles('e2e/__screenshots__/**') != ''
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: visual-baselines
+          path: e2e/__screenshots__/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Upload browser diagnostics on failure
         if: failure() && hashFiles('test-results/**') != ''
         uses: actions/upload-artifact@v7.0.2
