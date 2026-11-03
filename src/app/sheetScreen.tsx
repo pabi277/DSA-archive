@@ -393,7 +393,14 @@ function TopicGroup({
       open={open}
       onToggle={(event) => onToggle(event.currentTarget.open)}
     >
-      <summary>
+      <summary
+        onClick={(event) => {
+          // Keep the disclosure controlled by React so the open-topic set is the
+          // state source; native toggling races the prop update on some browsers.
+          event.preventDefault()
+          onToggle(!open)
+        }}
+      >
         <span className="topic-chevron" aria-hidden="true">
           <IconChevron size={16} />
         </span>

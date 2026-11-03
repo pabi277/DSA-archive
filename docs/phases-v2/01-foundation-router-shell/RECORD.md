@@ -167,8 +167,12 @@
   phone top bar exceeded 390 px. Toasts now render in a body-level portal so the fixed
   undo action is not clipped by app layout ancestors.
 - Playwright cannot run in this sandbox: the Chromium download endpoint resets the TLS
-  connection. These CI-derived fixes have local unit/build checks, but another CI run must
-  prove them and expose any remaining failures; the phase is not CI-green yet.
+  connection. The next CI annotation pass also exposed a light-theme `--subtle` contrast
+  ratio of 4.47:1 (updated to a measured 4.73:1), the topic disclosure's controlled-open
+  race (now handled from the summary click), and the toast's viewport placement (body-level
+  portal, anchored below the top bar). Local unit/build checks pass after these changes,
+  but another CI run must prove them and expose any remaining failures; the phase is not
+  CI-green yet.
 
 ## Content added
 

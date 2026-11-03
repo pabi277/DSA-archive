@@ -1055,17 +1055,13 @@ body {
 .toast-host {
   position: fixed;
   z-index: 80;
-  bottom: calc(var(--bottom-bar-height) + 16px);
+  top: calc(var(--topbar-height) + 12px);
   right: var(--space-4);
   display: grid;
   gap: var(--space-2);
   width: min(380px, calc(100vw - 32px));
-}
-
-@media (min-width: 821px) {
-  .toast-host {
-    bottom: var(--space-4);
-  }
+  max-height: calc(100vh - var(--topbar-height) - 24px);
+  overflow-y: auto;
 }
 
 .toast {

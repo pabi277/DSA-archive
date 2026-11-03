@@ -98,7 +98,7 @@ re-freeze was authorised for phase v2-01 and is now spent).
 | `--bg` | `#0B0D0E` | `#F7F8F7` |
 | `--surface` / `--surface-2` | `#121516` / `#171B1C` | `#FFFFFF` / `#F1F3F1` |
 | `--line` / `--line-strong` | `#262B2C` / `#363D3E` | `#DCE1DD` / `#C2CAC4` |
-| `--ink` / `--muted` / `--subtle` | `#EDF0ED` / `#9BA6A2` / `#7E8A85` | `#141817` / `#55605A` / `#6B7570` |
+| `--ink` / `--muted` / `--subtle` | `#EDF0ED` / `#9BA6A2` / `#7E8A85` | `#141817` / `#55605A` / `#68716C` |
 | `--action` / `--action-ink` | `#7FE3B4` / `#06231A` | `#14603F` / `#FFFFFF` |
 | `--success` / `--caution` / `--danger` | `#6FD3A2` / `#E3C07F` / `#EF9A8F` | `#14603F` / `#7A5714` / `#96382C` |
 | `--info` (new) | `#9FC4E8` | `#1F4F78` |
