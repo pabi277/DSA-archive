@@ -2,6 +2,8 @@
 
 **Folder:** `docs/phases-v2/02-topics-browse/`
 **Estimate:** 5–6 days (+ content from phase 03) · **Depends on:** 01 · **Blocks:** 05, 06
+
+**Implementation status (2026-11-03):** Phase 2 is implemented on PR [#13](https://github.com/pabi277/DSA-archive/pull/13); the full CI matrix, including emulator rules, browser acceptance and axe, passes on `2c85f15`. CI-generated visual baselines are attached to run `41647413508` for human review; they are not committed yet. No deployment was performed. Primer and quiz content remain explicit Phase 03/05 placeholders as scoped.
 **Why:** a beginner needs a *map*, not a 495-row accordion. All 20 topics are always
 visible; each has a page with three modes and an honest state of your own progress.
 

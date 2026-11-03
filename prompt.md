@@ -2,11 +2,12 @@
 
 # DSA Archive — continuation prompt (v2 programme, one phase per chat)
 
-> **Self-contained handoff.** v1 is complete. **v2 phase 01 implementation has been copied
-> to this session's branch `arena/07ecf93c-dsa-archive`; the accessibility/search and CI
-> digest fixes are applied, but browser CI must pass before phase 01 is considered closed.**
-> The original PR #11 remains on a different head branch and is not updated by this branch.
-> Phases 02–10 are planned and not started.
+> **Self-contained handoff.** v1 is complete. v2 Phase 01 is merged to `main` in PR #12
+> (`558a25f`; CI run `41635438159` passed). Phase 02 implementation is complete on
+> PR #13 (`arena/e2907924-dsa-archive`); CI run `41647413508` passed, including emulator
+> rules and Playwright/axe. The generated visual-baseline artifact still needs owner review;
+> PR #13 has not been merged. No deployment was performed. Phase 03 is the next phase after
+> the owner reviews the artifact and merges PR #13. Phases 03–10 remain planned.
 > Authority order: `rule.md` → `docs/DECISIONS.md` (owner answers) →
 > `docs/phases-v2/` (phase contracts) → `docs/ROADMAP.md` (status) →
 > `docs/DATA-MODEL.md` (Firestore/backup shapes) → `docs/UI-REFERENCE.md`
@@ -62,19 +63,28 @@ Do **not** start coding before step 5 is read end-to-end.
 
 - **v1 complete** (`docs/phases/00…06`): 495 problems / 20 topics, Google Auth +
   Firestore progress sync, notes+snippets+lists, planner + 3/7/21 revision, friends,
-  PWA offline. Rules **v4**, backup **v3**. Nothing deployed.
-- **v2-01 implementation present; browser CI fix follow-up pending** (`docs/phases-v2/01-foundation-router-shell/RECORD.md`): hash router (16 routes, `#/notes` included), sidebar/rail/bottom-bar shell, **tokens v2 frozen**, Tailwind + daisyUI **removed**, density 38/48/62, undo toast, `⌘K` palette, triage, and windowed sheet. The retrieved failing log identified an axe visible-label mismatch and collapsed search results; both are fixed. The PR digest script's Python `NameError` is fixed too. Local unit/build/data/rule/budget checks pass; a CI rerun is still needed because this sandbox cannot download Chromium. **Do not merge until CI passes and owner reviews.**
-- **v2-02 … v2-10 fully planned, zero code written:** nine remaining phase contracts plus
-  three policy docs (`RESOURCE-POLICY.md`, `PRACTICE-SETS.md`, `THEORY-MCQ.md`) and the
-  authoring guide (`AUTHORING.md`). `data/` is **byte-identical to `main`**.
+  PWA offline. Rules v4 (v1 programme) and backup v3 were the v1-era versions; nothing
+  was deployed by this Phase 2 work.
+- **v2-01 complete and merged**: PR #12 → `main` at `558a25f`; CI run `41635438159`
+  passed. The Phase 1 contract is preserved in
+  `docs/phases-v2/01-foundation-router-shell/PLAN.md`; its closure is recorded in
+  `docs/phases-v2/01-foundation-router-shell/RECORD.md`.
+- **v2-02 implementation/CI complete; owner gate pending**: PR #13 from
+  `arena/e2907924-dsa-archive`, current tip `2c85f15`; CI run `41647413508` passed with
+  emulator rules, Playwright phone/desktop, axe, bundle, and catalogue checks. All 20
+  topics, topic tabs/practice/outcomes, grouped search, and Today updates are implemented.
+  The CI-generated visual-baseline artifact requires owner review; PR #13 remains open.
+  No merge or deploy has occurred.
+- **v2-03 … v2-10 not started**: next is `03-content-pipeline` after PR #13 is reviewed
+  and merged; its primer/statement/quiz-bank authoring is a distinct phase and separate PR.
 - **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
   topics (Basic 84 · Core 287 · Pro 109 · 15 null; 453 `problem` + 42 `theory`).
   **369 video links** (321 unique: 256 `youtu.be` + 65 `youtube.com`) — **single source
   by owner decision, keep them**; they are copied verbatim from the snapshot (no
   rewrite, no repair). 289 rows have LeetCode links (**273 unique**, 13 duplicated
   slugs). **206 rows have no LeetCode mapping.**
-- Tokens **v2 are frozen** (2026-11-03, `src/design/tokens.css` + `UI-REFERENCE.md`
-  "Tokens v2"); v1 is history and the one-time re-freeze is spent.
+- Tokens **v2 are frozen** (`src/design/tokens.css` + `UI-REFERENCE.md`); v1 is history
+  and the one-time re-freeze is spent.
 
 ---
 
@@ -82,10 +92,10 @@ Do **not** start coding before step 5 is read end-to-end.
 
 | # | Folder | Scope in one line | Est | Deps |
 |---|---|---|---|---|
-| 01 | `01-foundation-router-shell/` | 🟡 **done, at the merge gate** — hash router + sidebar/bottom-bar shell + tokens v2 (Inter + JetBrains Mono, one accent / five semantic roles, density, motion, undo, skeletons, `⌘K`, `j/k/x`, sheet windowing) | 9–11 d | — |
-| 02 | `02-topics-browse/` | `#/topics` (all 20 always visible with rings) + `#/topic/<id>` Learn/Practice/Quiz + learning order + **3-way outcome** (`o: clean\|hint\|couldnt`) + `#/search` | 5–6 d | 01 |
+| 01 | `01-foundation-router-shell/` | ✅ **merged in PR #12** — hash router + sidebar/bottom-bar shell + tokens v2 (Inter + JetBrains Mono, one accent / five semantic roles, density, motion, undo, skeletons, `⌘K`, `j/k/x`, sheet windowing) | 9–11 d | — |
+| 02 | `02-topics-browse/` | 🟡 **implementation + CI complete; artifact review/merge pending** — PR #13, run `41647413508` green; `#/topics` + topic pages + practice/outcomes + Today + grouped search | 5–6 d | 01 |
 | 03 | `03-content-pipeline/` | Content schema + safe renderers + validator/CI + **`resources[]` multi-source** + **`data/practice-sets/` drills (+120–140 LeetCode)** + 42 theory MCQs schema + coverage report | 7–9 d + authoring | 01 |
-| 04 | `04-code-notebooks/` | **Delete notes** end-to-end; add `snippets` collection, rules **v5**, backup **v4** (+v3 notes migration), `#/code`, small editor, peek/reveal | 5–6 d | 01 |
+| 04 | `04-code-notebooks/` | **Delete notes** end-to-end; add `snippets` collection, rules **v6**, backup **v5** (+v4 notes migration), `#/code`, small editor, peek/reveal | 5–6 d | 01 |
 | 05 | `05-quiz-engine/` | **Theory MCQ cards** (4 options, per-option explanations, always-available `Show solution`, `[Solve]` vs `[Check]`) + 12-item topic quiz, 80% pass, `quizResults`, guest merge | 6–7 d | 02, 03 |
 | 06 | `06-theatre-player/` | In-app YouTube theatre (official IFrame API, our chrome), mini player surviving routes, timeline **stamps**, speed memory, oEmbed metadata + dead-link badge | 7–9 d | 01–03 |
 | 07 | `07-browser-runner/` | Local wasm C++/Python/JS runner in a Worker: Run, Stop, diagnostics, authored tests with first-diff, predict-the-output, 14 MB cache control, copy-out for Java/C# | 5–7 d | 04, 03 |
@@ -93,7 +103,7 @@ Do **not** start coding before step 5 is read end-to-end.
 | 09 | `09-pwa-accessibility-hardening/` | Budgets re-baselined with published numbers, SW v2 exclusions, CSP (report-only → enforce), a11y × offline matrices, network assertion, dead-dependency decision | 4–5 d | 01–08 |
 | 10 | `10-release-v2/` | README v2, generated screenshots, DATA-MODEL v5, CHANGELOG, runbook, honest content-coverage table | 2–3 d | 09 |
 
-**Sequential ≈57–69 build days.** 02 ∥ 03 once 01 merges; 04–07 are independent after 03.
+**Sequential ≈57–69 build days.** Phase 01 is merged; Phase 02 is at the owner review/merge gate. Phases 02 and 03 can proceed in parallel after 01; future rules/backup versions must increment from the actual merged baseline.
 
 Each `PLAN.md` already contains: charter · current-state evidence (`file:line`) · scope in ·
 scope **out with reasons** · design spec/wireframes · file plan (`NEW`/`EDIT`/`DELETE`) ·
@@ -175,19 +185,16 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 > `docs/ROADMAP.md` status and `prompt.md` in the same commit. Stop at the merge gate —
 > no PR merge, no deploy, no `main` push without my explicit command.
 
-> **Ready-made next one (02, once v2-01 is merged):**
+> **Ready-made next one (03, after PR #13 is reviewed and merged):**
 >
-> Run v2 phase **02 — topics-browse** for `pabi277/DSA-archive`.
-> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches, plus the
-> phase v2-01 implementation notes), `docs/phases-v2/README.md`,
-> `docs/phases-v2/00-overview/PLAN.md`, then `docs/phases-v2/02-topics-browse/PLAN.md`
-> in full — its acceptance list is the contract. Start from `main` **after** v2-01 is
-> merged (the router, shell, tokens v2, palette and triage already exist; reuse them,
-> do not rebuild them). Verify branch/CI/identity first, implement only that phase,
-> land unit + Playwright (phone & desktop) + axe 0 + visual snapshots (extend the 24-name
-> baseline set only where a screen genuinely changed), and update the phase `RECORD.md`,
-> `docs/ROADMAP.md` status and `prompt.md` in the same commit. Stop at the merge gate —
-> no PR, no merge, no deploy, no `main` push without my explicit command.
+> Run v2 phase **03 — content-pipeline** for `pabi277/DSA-archive`.
+> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches and Phase 02 decisions),
+> `docs/phases-v2/README.md`, `docs/phases-v2/00-overview/PLAN.md`, and
+> `docs/phases-v2/03-content-pipeline/PLAN.md` in full. Phase 01 is already merged; Phase
+> 02 is PR #13 and must be merged by the owner before starting a new phase. Keep Phase 03
+> to its own branch/PR; preserve the Phase 01 and Phase 02 plans as contracts. Update its
+> `RECORD.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md` if needed, and `prompt.md`. No merge,
+> deploy, or `main` push without my explicit command.
 
 ---
 

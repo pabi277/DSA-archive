@@ -115,7 +115,7 @@ NEW  src/theatre/*.test.ts
 ```
 snippets/{problemId}  … { moments: [{ at: number ≥0 ≤ 86400, text ≤140, createdAt }] ≤30 }
 ```
-Rules v5 additions: `moments` is a list ≤30, each map has `at` (number, bounded), `text`
+Rules v8 additions: `moments` is a list ≤30, each map has `at` (number, bounded), `text`
 (string ≤140), `createdAt` (timestamp or ISO string) — validated in the generator's shape
 check and enforced by a runtime rules test. No new collection, no new reads beyond the
 snippet doc you already read in phase 04.

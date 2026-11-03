@@ -53,7 +53,7 @@ phase 03 ships the data schema and validator.
    Only **one doc per topic**, best score kept, attempts counter incremented. Guest users
    get localStorage results (same shape) and a merge-on-sign-in prompt following the
    existing progress-merge pattern.
-5. **Rules v5**: owner-only, `bestScore ≤ bestTotal ≤ 12`, `attempts` bounded, `passed`
+5. **Rules v7**: owner-only, `bestScore ≤ bestTotal ≤ 12`, `attempts` bounded, `passed`
    is a bool. Emulator tests included.
 6. **Offline**: the whole runner works offline (data is bundled); results queue locally
    and sync on reconnect with the existing optimistic-write plumbing.
@@ -96,7 +96,7 @@ EDIT src/topics/topicPage.tsx  Quiz tab → real entry (phase 02 placeholder)
 EDIT src/accountData.ts        quizResults read/write + merge on sign-in
 EDIT tools/generate-firestore-rules.mjs, firestore.rules   quizResults block
 EDIT tools/firestore-rules.test.mjs                        +3 tests
-EDIT src/backup.ts             schema 4 gains quizResults[]
+EDIT src/backup.ts             schema 6 gains quizResults[]
 NEW  e2e/quiz.spec.ts
 NEW  src/quiz/*.test.ts
 ```
@@ -109,7 +109,7 @@ NEW  src/quiz/*.test.ts
 | Fields | `bestScore`, `bestTotal`, `attempts`, `lastScore`, `lastAt`, `passed` |
 | Cap | `bestTotal ≤ 12`, `attempts ≤ 999`, `bestScore ≤ bestTotal` |
 | Guest | localStorage `dsa-archive.quiz.v1`, merged on sign-in (max score wins) |
-| Backup | v4 `quizResults[]`; absent in v1–v3 without breaking import |
+| Backup | v6 `quizResults[]`; absent in v1–v5 without breaking import |
 | Privacy | results never leave the owner; friends' summaries unchanged |
 | Deletion | "delete my data" removes the subcollection |
 

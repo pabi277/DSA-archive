@@ -1,16 +1,11 @@
 # Data model — DSA Archive website (Firebase-backed)
 
-> ⚠️ **v2 changes this model (planned 2026-11-03, not yet implemented).**
-> Phase 04 removes `users/{uid}/notes/{problemId}` and adds
-> `users/{uid}/snippets/{problemId}` `{ language, code, notes?, verdict?, updatedAt }`;
-> phase 05 adds `users/{uid}/quizResults/{topicId}` `{ bestScore, bestTotal, attempts,
-> lastScore, lastAt, passed }`; phase 02 adds the optional `o` field
-> (`clean|hint|couldnt`) to every progress entry; phase 06 adds `moments[]` (≤30 stamps)
-> to the snippet document; phase 08 adds `targetDate` / `targetListId` to profile
-> settings. Rules move to **v5**, backup to **v4** (v1–v3 still import; v3 notes migrate
-> into `snippets.notes`). Contracts: [`phases-v2/04-code-notebooks/PLAN.md`](phases-v2/04-code-notebooks/PLAN.md),
-> [`phases-v2/05-quiz-engine/PLAN.md`](phases-v2/05-quiz-engine/PLAN.md). The v4 schema
-> below remains accurate for the code that exists today.
+> **v2 data-model work is landing phase by phase.** Phase 02 is implemented on PR #13:
+> progress entries now support optional `o: clean|hint|couldnt`, Firestore rules are v5,
+> and backups are schema v4. The later changes remain planned: phase 04 replaces notes
+> with snippets; phase 05 adds quiz results; phase 06 adds snippet moments; phase 08 adds
+> target settings. The schema below is the existing model with the Phase 02 outcome field
+> called out explicitly; future contracts remain in their phase plans.
 
 
 > Plan-stage sketch (revised 2026-11-02 for the owner's Firebase
@@ -83,7 +78,8 @@ users/{uid}/progressByTopic/{topicId}        // ≤20 docs — the login read se
                  "a": 2,                     // attempts
                  "fd": "2026-…",             // firstDoneAt (drives 3/7/21-day dues)
                  "lr": "2026-…",             // lastRevisedAt
-                 "rc": 1 }, … }              // phase 4: revisions done (0–100)
+                 "rc": 1,                    // revisions done (0–100)
+                 "o": "hint" }, … }         // phase 02: clean | hint | couldnt; absent on todo
   updatedAt
 
 users/{uid}/notes/{problemId}                // phase 3 — created only when a note exists
@@ -126,6 +122,15 @@ ranking and the viewer-local session goal. Active listeners cost one initial
 summary read per visible friend plus reads for updates; denied listeners retry
 with exponential backoff (2 seconds to 1 minute) while the app is open. Cache cannot retract previously
 observed data.
+
+### Phase 02 progress outcome (rules v5; backup v4)
+
+Progress entries accept optional `o: clean|hint|couldnt` only when `s` is not
+`todo`. Older solved rows without `o` read as `clean`; changing a row back to
+`todo` removes the field. The rules generator validates the enum and the
+emulator suite tests all three accepted values plus invalid values and the
+`todo` restriction. Backup v4 carries outcomes; schemas 1–3 remain importable
+and normalize legacy solved rows to `clean`.
 
 ### Security-rules principles (the actual protection — `rule.md` §5)
 
@@ -173,7 +178,8 @@ from the single validated catalogue: 20 topic whitelists, 495 unique
 problem ids. Default deny; owner-only `get/list/create/update/delete`
 under `users/{uid}`; profile field types and size caps; progress entry
 fields `s` (`todo|done|revision`), `b`, `a` (0–10000), `fd`/`lr`
-(≤40 chars or null); one changed problem key per write; top-level shard
+(≤40 chars or null), `rc` (0–100), and optional `o` (`clean|hint|couldnt`,
+not allowed on `todo`); one changed problem key per write; top-level shard
 size capped at the topic's row count + `updatedAt`.
 
 **Rules v2 (phase 3)** adds two owner-only collections without touching the
@@ -259,11 +265,11 @@ its phase record before it is built.
    owner command); keep it there, outside every build, and never as
    a runtime input.
 
-## 6. Export / import (anti-lock-in — schema v3 since phase 4)
+## 6. Export / import (anti-lock-in — schema v4 since phase 02)
 
-Export = one JSON file: `schemaVersion: 3`, `generatedBy`, `exportedAt`,
+Export = one JSON file: `schemaVersion: 4`, `generatedBy`, `exportedAt`,
 profile settings (including the real `dailyGoal`), all `progressByTopic` rows
-(with `a`/`fd`/`lr` and `rc`), the real `notes[]` array (`problemId`,
+(with `a`/`fd`/`lr`, `rc`, and optional `o`), the real `notes[]` array (`problemId`,
 `markdown`, `snippet`, `updatedAt`), the real `lists[]` array (`listId`,
 `title`, `problemIds`, `updatedAt`), the real `plans[]` array (`date`,
 `problemIds`, `doneIds`, `updatedAt` — every day, read on demand at export), and
@@ -275,9 +281,10 @@ show an explicit error. Import deletes existing topic shards, replays one-key
 writes, restores profile settings (and the daily goal), then replaces notes,
 lists and plan days one document per item.
 
-**Recorded migration:** `parseBackup` accepts **schema 1, 2 and 3**. Phase-2
-files wrote empty `notes`/`lists`/`plans` arrays, so they import unchanged and
-simply restore none of them; a v1 or v2 file that claims note/list/plan content
-is refused rather than guessed. A missing `rc` in a v1/v2 entry is normalized
-to 0 before the restore writes it. This is also the migration path off Firebase if the owner
+**Recorded migration:** `parseBackup` accepts **schema 1, 2, 3 and 4**. Phase-2
+(v1 app) files wrote empty `notes`/`lists`/`plans` arrays, so they import unchanged
+and simply restore none of them; a v1 or v2 file that claims note/list/plan content
+is refused rather than guessed. Missing `rc` defaults to 0; legacy solved rows
+without `o` default to `clean`, and `todo` rows never receive an outcome. This is
+also the migration path off Firebase if the owner
 ever wants one — powerful must never mean trapped.

@@ -1,9 +1,9 @@
 # Phase v2-01 — foundation: router, shell, design system v2
 
 - Date: 2026-11-03
-- Status: 🟡 **code complete on `arena/42bcf5f6-dsa-archive`; stopped at the merge gate.**
-  Not merged, not deployed, no PR opened, `main` untouched. Owner review of tokens v2
-  and the visual baselines is the remaining gate before CI is asked to run.
+- Status: ✅ **merged to `main` through PR #12** at `558a25f` on 2026-11-03.
+  CI run `41635438159` passed; no deployment was performed. The Phase 1 PLAN remains
+  the frozen contract; this record was updated to reflect the later merge and CI result.
 - Scope: the acceptance list in [`PLAN.md`](PLAN.md) §10 (13 items) only — hash router,
   shell, tokens v2, primitives + icons, density, row anatomy, motion, designed states,
   undo, `⌘K`, keyboard triage, sheet windowing, budget re-baseline + snapshots.
@@ -201,8 +201,9 @@ dark + light, and a designed page for every pending feature — with the full 49
 Today, Review, Stats, Lists, Notes and Friends still working, signed out or signed in, and
 still offline behind the Service Worker.
 
-## Exit
+## Closure update (2026-11-03)
 
-Acceptance 1–8 are met in code; 7 (CI: axe 0 / snapshots committed / budgets green) is met
-for budgets and awaits the first CI run for axe + snapshots. **Stop at the merge gate:** no
-PR, no merge, no deploy, no `main` push without the owner's explicit command.
+The owner merged this phase through PR #12 after the emulator/browser CI passed
+(run `41635438159`). This supersedes the earlier pre-merge notes above. No deploy was
+performed. Preserve `PLAN.md` as the Phase 1 contract; Phase 2 is recorded separately in
+[`../02-topics-browse/RECORD.md`](../02-topics-browse/RECORD.md).

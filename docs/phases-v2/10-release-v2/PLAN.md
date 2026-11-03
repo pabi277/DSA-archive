@@ -26,20 +26,20 @@ runbook. Close the v1→v2 record trail.
 3. **Docs set, final:**
    - `docs/UI-REFERENCE.md` — tokens v2 (frozen), screen inventory v2, states matrix.
    - `docs/DATA-MODEL.md` — v5 section: `snippets`, `quizResults`, settings fields,
-     backup v4, quota v2 table, deletion contract.
+     backup v8, quota v2 table, deletion contract.
    - `docs/DECISIONS.md` — every v2 decision dated (drops, re-baselines, tokens freeze,
      no-ad-blocking stance, notes→code, local runner, CSP decision, dependency removals).
    - `docs/phases-v2/*/RECORD.md` — one per executed phase (CI id, tip sha, preview bytes,
      deviations, what is visible).
    - `docs/CHANGELOG.md` — v2.0.0 entries grouped by surface, written for a user.
-   - `docs/RELEASE-RUNBOOK.md` — updated: rules v5 deploy, hosting, rollback, verification
+   - `docs/RELEASE-RUNBOOK.md` — updated: rules v9 deploy, hosting, rollback, verification
      steps (open `/`, `#/topics`, one problem, one quiz, one run), and the exact commands
      (owner executes).
 4. **Content coverage statement** — a truthful table of what content exists (primers,
    statements, hints, quiz items, test cases) so nobody assumes completeness.
-5. **Security/rules verification** — `npm run check:rules` clean, rules v5 deployed only by
+5. **Security/rules verification** — `npm run check:rules` clean, rules v9 deployed only by
    the owner, emulator suite green in the same commit, `firestore.rules` regenerated last.
-6. **Backup story** — documented v1→v4 import path with the notes migration note, and a
+6. **Backup story** — documented v1→v8 import path with the notes migration note, and a
    tested "export → wipe → import" round trip in the e2e suite.
 7. **PWA/store metadata** — manifest name/short/theme colours updated for v2, icons
    unchanged (clean-room "DA" monogram), `apple-touch-icon`, OG image regenerated.

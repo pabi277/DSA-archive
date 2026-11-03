@@ -99,7 +99,7 @@ NEW  src/runner/*.test.ts
 ## 6. Data model
 **No Firestore change.** Test cases come from `data/content/problems/*.json` (phase 03).
 The optional stored `verdict` on a snippet (phase 04) may be set from a run result; that
-is one field, already allowed by rules v5.
+is one field, already allowed by rules v6 (after Phase 04).
 
 ## 7. Accessibility & performance
 - Run/Stop are real buttons with `aria-busy` on the output region and an `aria-live`
