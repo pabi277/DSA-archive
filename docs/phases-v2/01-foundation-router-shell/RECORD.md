@@ -180,19 +180,13 @@
   actions and the selected list constrains the displayed sheet. The PWA E2E now uses the
   new note action when opening its note editor. Row-action text failed
   contrast because the whole control cluster used 55% opacity; that opacity was removed.
-  Toast placement and dark-theme timer contrast were corrected as well. The next CI run
-  passed the PWA acceptance and list-filter assertions but the library backup step timed
-  out. Its trace showed the export-button locator was waiting on the lists route: the
-  account/backup panel is mounted on Settings. The library E2E now navigates to `/#/settings`
-  and asserts the account panel is visible before exporting, matching the planner E2E.
-  Local unit/build checks pass; CI must verify this correction and any remaining failures.
-
-
-- Follow-up on CI run `41633213412`: the export and first restore succeeded. The trace
-  showed the test then navigated to Notes to verify the restore and tried the phase-2
-  import while still on Notes, where the Settings-only import control is absent. The
-  library E2E now returns to `/#/settings` and asserts the account panel is visible before
-  performing that backward-compatible import.
+  Toast placement and dark-theme timer contrast were corrected as well. The library backup
+  acceptance exposed two route mistakes: export was first attempted off Settings, and the
+  phase-2 backward-compatible import was then attempted off Settings after the notes-empty
+  check. Both now return to `/#/settings` and assert the account panel before interacting
+  with backup controls. CI run `41634493137` on `e077041` passed all checks, including the
+  emulator rules and phone/desktop browser acceptance. Local unit tests (154/154), build,
+  bundle budgets, and `git diff --check` pass as well.
 
 ## Content added
 
