@@ -350,6 +350,11 @@ function TopicGroup({
   triageFocus: string | null
 }) {
   const total = topic.subtopics.reduce((sum, subtopic) => sum + subtopic.problems.length, 0)
+  const [expanded, setExpanded] = useState(open)
+
+  useEffect(() => {
+    setExpanded(open)
+  }, [open])
 
   const revealedIndex = useMemo(() => {
     if (!revealed) return -1
@@ -387,19 +392,12 @@ function TopicGroup({
   const remaining = Math.max(0, total - windowSize)
 
   return (
-    <details
-      id={`topic-${topic.id}`}
-      className="topic-card"
-      open={open}
-    >
+    <details id={`topic-${topic.id}`} className="topic-card" open={expanded}>
       <summary
         onClick={(event) => {
-          // Keep the disclosure controlled by React so the open-topic set is the
-          // state source; native toggling races the prop update on some browsers.
           event.preventDefault()
-          const nextOpen = !open
-          const details = event.currentTarget.parentElement
-          if (details instanceof HTMLDetailsElement) details.open = nextOpen
+          const nextOpen = !expanded
+          setExpanded(nextOpen)
           onToggle(nextOpen)
         }}
       >
@@ -417,7 +415,7 @@ function TopicGroup({
       </summary>
       {/* Rows mount only while the topic is open: 495 rows never sit in the DOM
           behind a closed <details>, which is the whole point of §3.12. */}
-      {open ? (
+      {expanded ? (
       <div className="topic-body">
         {visible.map((subtopic) => (
           <section key={subtopic.id} aria-labelledby={`subtopic-${subtopic.id}`}>

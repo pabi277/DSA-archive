@@ -170,10 +170,10 @@
   connection. The next CI annotation pass also exposed a light-theme `--subtle` contrast
   ratio of 4.47:1 (updated to a measured 4.73:1 in the app and standalone 404/offline
   fallbacks), the topic disclosure's controlled-open race (the summary now updates both the
-  native disclosure and React state without a stale native toggle callback), and the toast
-  host's location (it was a sibling outside `.app-root`, so theme/spacing tokens were
-  unresolved; it now renders inside the themed shell, anchored below the top bar). Local
-  unit/build checks pass after
+  disclosure state (topic open state is explicit React state synced with external open
+  requests), toast placement (the host now renders inside `.app-root` to inherit theme and
+  spacing tokens), and dark-theme toast timer contrast (uses the muted text token instead
+  of the low-contrast subtle token). Local unit/build checks pass after
   but another CI run must prove them and expose any remaining failures; the phase is not
   CI-green yet.
 
