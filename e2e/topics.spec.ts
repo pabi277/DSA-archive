@@ -30,5 +30,5 @@ test('search from Today keeps matches grouped under their owning topic', async (
   const arraysGroup = page.locator('#topic-arrays')
   await expect(arraysGroup).toHaveAttribute('open', '')
   await expect(arraysGroup.getByTestId('row-two-sum')).toBeVisible()
-  await expect(arraysGroup.getByRole('heading', { name: 'Arrays' })).toBeVisible()
+  await expect(arraysGroup.locator('summary')).toContainText('Arrays')
 })
