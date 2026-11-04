@@ -872,3 +872,41 @@ that is a gate.
   read, and the panel says so.
 - **Add-on removal is one cache.** "Clear" deletes `dsa-archive-runtime-v1` only; the app
   shell cache, Firestore's offline cache and every other origin store are untouched.
+
+### A red CI run must name its own failure (2026-11-04, post-merge)
+
+`main` failed its Unit tests step (`41864841877`) on a tree that had just passed on the
+branch and passed 294/294 locally six times. The annotation said only `Process completed
+with exit code 1.`, Actions logs and artifacts are outside this sandbox's allowlist,
+`gh run rerun` was refused, and the run could not be re-dispatched. The failure was not
+merely flaky — it was **unreadable**, and that is the defect that got fixed first.
+
+Standing rule from here on: **a step that can fail must be able to say why in a
+check-run annotation**, because annotations are the only channel this project's agent can
+read. Specifically:
+
+- The unit step writes a JUnit report, keeps the console output, and fails on **vitest's
+  exit code only** — it prints `vitest exit=N, tee exit=M`, so an infrastructure failure
+  (a missing log directory, a full disk) can never again masquerade as a test failure.
+- A follow-up step names up to six failing cases with file, test name and assertion
+  message. When zero cases failed it says so, and falls back to `Unhandled / FAIL /
+  Failed Suites / Error:` lines from the captured output — which is how the real cause was
+  found in one run.
+- Browser failures already had this treatment (phase 4); the unit step was the gap.
+
+The underlying bug was **console output outliving a test worker**: vitest ships console
+writes over an async RPC, and a write still in flight when the worker is torn down raises
+`Closing rpc while "onUserConsoleLog" was pending`, which fails the run while every test
+passes. Three sources were removed rather than suppressed: jsdom's `scrollTo`
+"Not implemented" messages (157 per run) are stubbed in `src/testSetup.ts`, the runner
+panel's missing `IS_REACT_ACT_ENVIRONMENT` flag is set like the other React suites, and
+lazy route chunks are settled inside `act()` before a test unmounts.
+
+Two consequences worth keeping:
+
+- **A stub is not a silenced warning.** Nothing asserts scroll position, and jsdom's
+  "implementation" is a no-op that differs only by writing to the console.
+- **Fire-and-forget writes need an acknowledgement before a reload.** The phase-06 stamps
+  spec reloaded while the emulator had not yet received the write. It now polls the
+  emulator's REST API (`waitForSavedStamp`) — the same owner-token access `code.spec.ts`
+  uses — instead of trusting that the UI showing a row means the server has it.
