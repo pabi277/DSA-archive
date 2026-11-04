@@ -58,4 +58,4 @@ Phase 04 left `35 B` of shell gzip headroom (`379,965 B / 380,000 B`), while Pha
 
 ## Exit gate
 
-Owner reviews `arena/6327674f-dsa-archive`, CI run [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495) (`site-preview` + 64 `visual-baselines`), and this record, then explicitly commands opening and merging the PR. **Stopped here before any PR, merge, `main` push, or deploy.**
+Owner reviewed this record and CI run [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495), then explicitly commanded the PR and merge. **Merged to `main` via PR [#16](https://github.com/pabi277/DSA-archive/pull/16).** No deploy.

@@ -261,6 +261,10 @@ The owner therefore chose **388 kB**, which restores real headroom (measured `38
 
 ## Exit gate
 
-Owner reviews this record, the CI run on `arena/c2fd0a14-dsa-archive` and the `site-preview`
-artifact — including one full video watched at phone and desktop width — then explicitly
-commands the PR/merge. **Stopped here before any PR, merge, `main` push or deploy.**
+Owner reviewed this record, the CI run on `arena/c2fd0a14-dsa-archive` and the `site-preview`
+artifact, then explicitly commanded the merge on 2026-11-04.
+
+**Merged to `main` via PR [#17](https://github.com/pabi277/DSA-archive/pull/17)** — merge
+commit `d44b55a`. Branch CI: `41826722515` green on every step. Merge commit on `main`:
+`41827690926` green. **No deploy** and no live Firebase command was run; Phase v2-07 starts
+only on the owner's next instruction.

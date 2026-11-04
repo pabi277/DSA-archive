@@ -116,9 +116,12 @@ Do **not** start coding before step 5 is read end-to-end.
   tests (27 files); Playwright + axe + emulator rules run in CI — run `41825858179` on this
   branch is green, every step including browser acceptance.
   Record: `docs/phases-v2/06-theatre-player/RECORD.md`.
-- **v2-07 … v2-10 not started**: Phase 07 follows only after the owner reviews Phase 06,
-  explicitly commands its PR/merge, and starts a new chat. The primer/statement/quiz-bank
-  authoring track continues separately from the build phases.
+- **v2-06 is merged** to `main` via PR [#17](https://github.com/pabi277/DSA-archive/pull/17)
+  (merge commit `d44b55a`, green on `main` as `41827690926`) on the owner's explicit command
+  (2026-11-04). No deploy was run.
+- **v2-07 … v2-10 not started**: Phase 07 begins on the owner's next instruction, in a new
+  chat. The primer/statement/quiz-bank authoring track continues separately from the build
+  phases.
 - **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
   topics (Basic 84 · Core 287 · Pro 109 · 15 null; 453 `problem` + 42 `theory`).
   **369 video links** (321 unique: 256 `youtu.be` + 65 `youtube.com`) — **single source
