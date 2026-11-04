@@ -20,7 +20,7 @@ test('all topic cards open full topic pages with working placeholder tabs', asyn
   await expect(page.getByText('No problems in this filter')).toBeVisible()
 
   await page.getByRole('tab', { name: 'Quiz' }).click()
-  await expect(page.getByTestId('topic-quiz-card')).toBeVisible()
+  await expect(page.getByTestId('topic-quiz-ready')).toBeVisible()
   await expect(page.getByTestId('topic-quiz-count')).toContainText('12/12 topic quiz items')
   await expect(page.getByTestId('topic-quiz-start')).toBeEnabled()
 

@@ -5,9 +5,9 @@ import { desktop, open, phone } from './helpers'
 
 const emulatorProject = 'demo-dsa-archive'
 
-type RawQuizFile = {
+type RawTopicQuizFile = {
   topicId: string
-  items: Array<{
+  quiz: Array<{
     id: string
     prompt: string
     answerIndex: 0 | 1 | 2 | 3
@@ -15,8 +15,8 @@ type RawQuizFile = {
 }
 
 async function loadAnswerByPrompt(): Promise<Map<string, number>> {
-  const raw = JSON.parse(await readFile('data/content/quizzes/arrays.json', 'utf8')) as RawQuizFile
-  return new Map(raw.items.map((item) => [item.prompt, item.answerIndex]))
+  const raw = JSON.parse(await readFile('data/content/topics/arrays.json', 'utf8')) as RawTopicQuizFile
+  return new Map(raw.quiz.map((item) => [item.prompt, item.answerIndex]))
 }
 
 async function completeArraysQuiz(page: Page, answerByPrompt: Map<string, number>, passAll = true) {

@@ -208,7 +208,11 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
             type="button"
             className="row-tool row-check"
             aria-expanded={theoryExpanded}
-            aria-label={`Check your understanding of ${problem.title}`}
+            aria-label={
+              theoryExpanded
+                ? `Hide check for ${problem.title}`
+                : `Check your understanding of ${problem.title}`
+            }
             data-testid={`check-${problem.id}`}
             onClick={(event) => {
               event.stopPropagation()
