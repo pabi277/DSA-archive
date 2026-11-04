@@ -81,6 +81,30 @@ export function packFileUrls(packs: RuntimePacks, ids: readonly string[], runner
 }
 
 /**
+ * Put the worker bundle itself in the runtime bucket.
+ *
+ * The worker script is fetched by `new Worker(url)`, so it never passes through
+ * the fetch shim that caches the toolchain files. Without this the panel would
+ * announce "Download the JavaScript runner · 1.3 MB, once", run JavaScript
+ * perfectly (it needs no toolchain), and then honestly report **nothing**
+ * cached in Settings — a promise the learner could never act on. Caching the
+ * bundle here makes "runs work offline" true even for JavaScript.
+ */
+export async function cacheRunnerBundle(runner: RunnerBundle | null): Promise<void> {
+  if (!runner || !storageAvailable()) return
+  const url = absolute(runner.worker)
+  try {
+    const cache = await caches.open(RUNTIME_CACHE)
+    if (await cache.match(url)) return
+    const response = await fetch(url, { cache: 'reload' })
+    if (response.ok) await cache.put(url, response.clone())
+  } catch {
+    // Offline with nothing cached: the warm-up that follows reports it, in words
+    // a learner can act on. A cache miss is not worth a second error message.
+  }
+}
+
+/**
  * Bytes actually held in the runtime bucket, counted from the manifests rather
  * than from `navigator.storage.estimate()` — an estimate would count the app
  * shell, Firestore's cache and every other origin blob too.

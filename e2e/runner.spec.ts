@@ -184,7 +184,9 @@ test.describe('local runner', () => {
     await chooseLanguage(page, 'cpp')
     await typeCode(page, '#include <cstdio>\nint main() { printf("0\\n"); }')
 
-    await page.getByTestId('runner-download').click()
+    // `Run tests` installs the toolchain on its way (it calls the same warm-up),
+    // so the failing-case path is one press, like it is for a learner.
+    await page.getByTestId('runner-tests-button').click()
     await expect(page.getByTestId('runner-cases-summary')).toContainText('✗ 0/3 — case 1 differs', {
       timeout: 240_000,
     })

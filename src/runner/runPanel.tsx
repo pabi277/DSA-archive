@@ -23,7 +23,14 @@ import type { CodeLanguage } from '../code/codeStore'
 import { outboundFor, PACK_LICENSES, supportFor } from './languages'
 import { formatBytes, installPlan } from './packs'
 import { RunnerClient, RunnerError, type RunnerErrorKind } from './client'
-import { isInstalled, loadRuntimeAssets, packFileUrls, storageAvailable, type RuntimeAssets } from './runtimeStore'
+import {
+  cacheRunnerBundle,
+  isInstalled,
+  loadRuntimeAssets,
+  packFileUrls,
+  storageAvailable,
+  type RuntimeAssets,
+} from './runtimeStore'
 import { runLine } from './output'
 import { CASE_TIMEOUT_MS, runCases, type CaseRunSummary, type CaseSpec } from './tests'
 import type { RunOutcome } from './protocol'
@@ -171,6 +178,9 @@ export default function RunPanel({
       },
       (loaded, total) => setProgress({ loaded, total }),
     )
+    // The worker script never goes through the shim, so it is cached here —
+    // otherwise JavaScript would run but Settings would report an empty cache.
+    await cacheRunnerBundle(assets?.runner ?? null)
     setInstalled(true)
   }, [assets, client, installed, plan])
 
