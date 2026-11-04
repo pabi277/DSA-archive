@@ -125,6 +125,10 @@ test('⌘K reaches every route, every topic, any problem and 10+ actions (accept
   await page.keyboard.press('ControlOrMeta+k')
   await expect(page.getByTestId('palette-input')).toBeFocused()
   await page.keyboard.type('settings')
+  // Wait for the filtered list before pressing Enter: the palette filters
+  // asynchronously, and an Enter that lands before the first option exists is
+  // swallowed (this was the one flake in the matrix).
+  await expect(page.getByTestId('palette-option').first()).toContainText(/Settings/i)
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/#\/settings$/)
 })

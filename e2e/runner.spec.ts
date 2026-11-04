@@ -187,7 +187,10 @@ test.describe('local runner', () => {
     // `Run tests` installs the toolchain on its way (it calls the same warm-up),
     // so the failing-case path is one press, like it is for a learner.
     await page.getByTestId('runner-tests-button').click()
-    await expect(page.getByTestId('runner-cases-summary')).toContainText('✗ 0/3 — case 1 differs', {
+    // `largest-element` ships three cases; a program that always prints `0`
+    // differs on case 1 (expected `-2`) and case 2 (expected `12`) and happens to
+    // match case 3 (expected `0`) — so the honest summary is 1 of 3.
+    await expect(page.getByTestId('runner-cases-summary')).toContainText('✗ 1/3 — case 1 differs', {
       timeout: 240_000,
     })
     await expect(page.getByTestId('runner-diff-1')).toContainText('- expected: -2')
