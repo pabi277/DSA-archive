@@ -674,3 +674,41 @@
   as artifacts for owner review per the standing flow; contentful signed-in
   editor/peek shots ride in the emulator spec's screenshots. Owner visual review
   remains outstanding before merge.
+
+## Phase v2-05 implementation choices (2026-11-04)
+
+- **No owner answer was changed.** "Coding stays coding, theory becomes MCQ" and
+  the anti-spam placement rule (`THEORY-MCQ.md`: `≤1` inline check per primer
+  section, `≤3` per topic beside the 12-item quiz) are enforced both in UI and
+  in `tools/validate_data.py`. Theory rows carry `[Check]` (never `[Solve]` or
+  code panels); coding rows carry `[Solve]` (never quiz cards).
+- **Theory MCQs reuse `progressByTopic`; inline primer checks write nothing.**
+  Answering a theory MCQ right marks the row `done` with `o: "clean"`; opening
+  `Show solution → Mark as read` marks it `done` with `o: "hint"` (both wired
+  into the 6-second `u` / toast undo stack via an atomic `markDoneWithOutcome`
+  write). Primer inline checks are purely formative and touch neither
+  `localStorage` nor Firestore.
+- **Rules v7 + backup v6.** `users/{uid}/quizResults/{topicId}` stores one best-score
+  document per topic (`bestScore <= bestTotal <= 12`, `lastScore <= bestTotal`,
+  `1 <= attempts <= 999`, `passed is bool`, `lastAt == request.time`, `topicId`
+  in the 20-topic generated whitelist). Guest users store the identical shape at
+  `dsa-archive.quiz.v1` and receive an explicit *Merge guest quiz scores?* banner
+  on sign-in (nothing merges silently). Backup writer advances **v5 → v6**
+  (`quizResults[]` added; schemas 1–5 still import with `quizResults: []`, and
+  pre-v6 files claiming `quizResults` are refused rather than guessed).
+- **Lossless build-time table-packing keeps the frozen 380 kB shell cap intact
+  with 4.04 kB of headroom (`375.96 kB` gzip).** Phase 04 ended `35 B` below the
+  `380,000 B` shell precache cap, while Phase 05 needed to ship the quiz engine,
+  UI screens, styles, 3 Arrays inline checks, and all 42 `TheoryMcq` JSON files
+  in the offline bundle. Rather than raising the cap early (the one-time
+  re-baseline belongs to Phase 09) or trimming scope, `vite.config.ts` packs
+  `virtual:dsa-catalogue` at build time (URL prefix dictionary, `$` problem-slug
+  back-references, deduplicated publisher-label table) and unpacks the exact
+  runtime `Catalogue` object in `src/catalogue.ts` (proven `toEqual` to
+  `data/problems.json` in `src/catalogue.test.ts`), alongside splitting
+  `@firebase/auth` core from `@firebase/firestore`. All canonical JSON files on
+  disk remain untouched and human-readable.
+- **Visual baselines grow from 56 to 64.** Added `quiz-home` (`/#/quiz`) and
+  `quiz-runner` (`/#/quiz/arrays`) across phone/desktop × dark/light for CI
+  generation and owner visual review.
+

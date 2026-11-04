@@ -1,6 +1,8 @@
 import { catalogue } from '../catalogue'
 import type { CloudProgressByTopic } from '../cloudProgress'
+import { getTheoryMcqCount, getTopicQuizCount } from '../content/load'
 import { tallyTopic, type Outcome, type ProgressByTopic } from '../progress'
+import type { QuizResultsByTopic } from '../quiz/results'
 import { levelOf, type LevelFilter } from '../sheet'
 import { revisionQueue } from '../planner'
 import { buildPath } from './router'
@@ -36,10 +38,16 @@ function summaries(entries: CloudProgressByTopic, today: string) {
   return { dueByTopic }
 }
 
-export function TopicsScreen({ progress, entries, today }: {
+export function TopicsScreen({
+  progress,
+  entries,
+  today,
+  quizResults = {},
+}: {
   progress: ProgressByTopic
   entries: CloudProgressByTopic
   today: string
+  quizResults?: QuizResultsByTopic
 }) {
   const { dueByTopic } = summaries(entries, today)
   const total = catalogue.topics.reduce((sum, topic) => sum + tallyTopic(progress, topic).total, 0)
@@ -85,7 +93,21 @@ export function TopicsScreen({ progress, entries, today }: {
                     {topic.subtopics.slice(0, 3).map((subtopic) => <Tag key={subtopic.id} tone="neutral">{subtopic.title}</Tag>)}
                     {topic.subtopics.length > 3 ? <span className="quiet-note">+{topic.subtopics.length - 3}</span> : null}
                   </span>
-                  <span className="quiet-note topic-quiz-status">Quiz content is authored in Phase 03; quiz runs arrive in Phase 05.</span>
+                  <span className="quiet-note topic-quiz-status num" data-testid={`topic-quiz-badge-${topic.id}`}>
+                    {(() => {
+                      const quizCount = getTopicQuizCount(topic.id)
+                      const theoryCount = getTheoryMcqCount(topic.id)
+                      const res = quizResults[topic.id]
+                      if (quizCount === 0) {
+                        return theoryCount > 0
+                          ? `Quiz · Coming soon · ${theoryCount} theory check${theoryCount === 1 ? '' : 's'} ready`
+                          : 'Quiz · Coming soon'
+                      }
+                      if (res?.passed) return `Quiz ✓ ${res.bestScore}/${res.bestTotal}`
+                      if (res) return `Quiz · Best ${res.bestScore}/${res.bestTotal}`
+                      return `Quiz · Not taken (${quizCount} items)`
+                    })()}
+                  </span>
                 </span>
                 <span className="topic-tile-ring">
                   <Ring value={learnedHere} total={tally.total} size={44} thickness={4} label={`${topic.title}: ${learnedHere} of ${tally.total} learned confidently`} />

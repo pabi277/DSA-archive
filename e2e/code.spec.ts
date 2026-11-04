@@ -156,7 +156,7 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     const path = await download.path()
     expect(path).toBeTruthy()
     const backup = JSON.parse(await readFile(path!, 'utf8'))
-    expect(backup.schemaVersion).toBe(5)
+    expect(backup.schemaVersion).toBe(6)
     expect(backup.notes).toBeUndefined()
     expect(backup.snippets).toHaveLength(1)
     expect(backup.snippets[0]).toMatchObject({ problemId: 'two-sum', language: 'cpp' })

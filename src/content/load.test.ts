@@ -1,17 +1,24 @@
 import { describe, expect, it } from 'vitest'
+import { catalogue, catalogueProblems } from '../catalogue'
 import {
   contentCoverage,
+  getAllTheoryMcqs,
   getHint,
   getPracticeSets,
   getPrimer,
   getQuiz,
   getStatement,
   getTests,
+  getTheoryMcq,
+  getTheoryMcqsByTopic,
+  getTopicContent,
   getTopicPatterns,
   sanitizeCoverage,
+  sanitizeInlineCheck,
   sanitizePracticeSet,
   sanitizeQuizItem,
   sanitizeStatement,
+  sanitizeTheoryMcq,
   sanitizeTopicContent,
 } from './load'
 
@@ -19,6 +26,8 @@ describe('shape-sanitised learner content', () => {
   it('tolerates garbage without throwing or leaking unsafe shapes', () => {
     for (const garbage of [null, undefined, 42, 'text', [], {}, { statement: 1 }]) {
       expect(sanitizeStatement(garbage)).toBeNull()
+      expect(sanitizeTheoryMcq(garbage)).toBeNull()
+      expect(sanitizeInlineCheck(garbage)).toBeNull()
     }
     expect(sanitizeQuizItem(null)).toBeNull()
     expect(sanitizePracticeSet({ patternId: 'x' })).toBeNull()
@@ -93,5 +102,40 @@ describe('coverage maths and authored sample', () => {
     expect(sets.every((set) => set.problems.map((problem) => problem.set).every((value, index) => value === index + 1))).toBe(true)
     const ids = sets.flatMap((set) => set.problems.map((problem) => `lc-${problem.lc}`))
     expect(new Set(ids).size).toBe(136)
+  })
+
+  it('loads all 42 theory MCQs with strict coding/theory parity and enforces the placement budget', () => {
+    expect(getAllTheoryMcqs()).toHaveLength(42)
+    expect(getTheoryMcq('basic-arrays')?.topicId).toBe('beginner-problems')
+    expect(getTheoryMcqsByTopic('beginner-problems')).toHaveLength(23)
+    expect(getTheoryMcq('two-sum')).toBeNull()
+
+    for (const problem of catalogueProblems) {
+      if (problem.kind === 'theory') {
+        const mcq = getTheoryMcq(problem.id)
+        expect(mcq, `missing theory MCQ for ${problem.id}`).not.toBeNull()
+        expect(mcq!.reveal.alwaysAvailable).toBe(true)
+        expect(mcq!.reveal.solution.length).toBeGreaterThan(0)
+        expect(mcq!.reveal.reference.url.startsWith('https://')).toBe(true)
+        expect(getTests(problem.id), `theory row ${problem.id} must never carry coding tests`).toEqual([])
+      } else {
+        expect(getTheoryMcq(problem.id), `coding row ${problem.id} must never carry a theory MCQ`).toBeNull()
+      }
+    }
+
+    for (const topic of catalogue.topics) {
+      const content = getTopicContent(topic.id)
+      if (!content) continue
+      const sectionIds = new Set(content.sections.map((section) => section.id))
+      const checks = content.sections.map((section) => section.check).filter((check) => check !== null)
+      // Placement budget: <=1 inline check per section and <=3 per topic beyond the 12-item quiz.
+      expect(checks.length).toBeLessThanOrEqual(3)
+      for (const check of checks) {
+        expect(sectionIds.has(check.rereadSectionId)).toBe(true)
+        expect(check.reveal.alwaysAvailable).toBe(true)
+        expect(check.reveal.reference.url.startsWith('https://')).toBe(true)
+      }
+    }
+    expect(getTopicContent('arrays')?.sections.every((section) => section.check !== null)).toBe(true)
   })
 })

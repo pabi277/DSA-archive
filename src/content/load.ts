@@ -8,10 +8,12 @@
  * crashing a screen. Theory MCQ cards are Phase 05 data only: they are checked
  * by `test:data` and the coverage report, but never imported into this runtime.
  */
-import coverageRaw from '../../data/content/coverage.json'
+import contentBundle from 'virtual:dsa-content'
+import type { ResourceSource } from '../catalogue'
 import type {
   CoverageReport,
   CoverageTopic,
+  InlineCheck,
   PracticeProblem,
   PracticeSet,
   Primer,
@@ -21,24 +23,29 @@ import type {
   QuizOption,
   Statement,
   TestCase,
+  TheoryMcq,
+  TheoryReference,
+  TheoryReveal,
   TopicContent,
 } from './types'
 
 type UnknownRecord = Record<string, unknown>
 
 const QUIZ_KINDS = new Set<QuizKind>(['pattern', 'dryrun', 'complexity', 'bug', 'edge'])
-const TOPIC_MODULES = import.meta.glob<unknown>('../../data/content/topics/*.json', {
-  eager: true,
-  import: 'default',
-})
-const PROBLEM_MODULES = import.meta.glob<unknown>('../../data/content/problems/*.json', {
-  eager: true,
-  import: 'default',
-})
-const PRACTICE_MODULES = import.meta.glob<unknown>('../../data/practice-sets/*.json', {
-  eager: true,
-  import: 'default',
-})
+const ALLOWED_SOURCES = new Set<ResourceSource>([
+  'leetcode',
+  'neetcode',
+  'takeuforward',
+  'geeksforgeeks',
+  'programiz',
+  'cp-algorithms',
+  'usaco',
+  'cppreference',
+  'python-docs',
+  'mdn',
+  'roadmap-sh',
+  'youtube',
+])
 
 function record(value: unknown): UnknownRecord | null {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -75,10 +82,6 @@ function stringList(value: unknown, maxItems = 100): string[] {
 function shortList(value: unknown, min: number, max: number): string[] | null {
   const items = stringList(value, max)
   return items.length >= min && items.length <= max ? items : null
-}
-
-function fileId(path: string): string {
-  return path.split('/').pop()?.replace(/\.json$/, '') ?? ''
 }
 
 function quizOption(value: unknown): QuizOption | null {
@@ -171,12 +174,105 @@ function sanitizePrimer(raw: unknown): Primer | null {
   }
 }
 
+function sanitizeReference(raw: unknown): TheoryReference | null {
+  const item = record(raw)
+  if (!item) return null
+  const source = typeof item.source === 'string' && ALLOWED_SOURCES.has(item.source as ResourceSource)
+    ? (item.source as ResourceSource)
+    : null
+  const url = text(item.url, 400)
+  const label = text(item.label, 120)
+  const verified = text(item.verified, 10)
+  if (!source || !url || !url.startsWith('https://') || !label || !verified) return null
+  return { source, url, label, verified }
+}
+
+function sanitizeReveal(raw: unknown): TheoryReveal | null {
+  const item = record(raw)
+  if (!item || item.alwaysAvailable !== true) return null
+  const solution = text(item.solution, 400)
+  const reference = sanitizeReference(item.reference)
+  if (!solution || !reference) return null
+  return { alwaysAvailable: true, solution, reference }
+}
+
+/** Exported so unit tests can feed deliberately broken JSON shapes. */
+export function sanitizeInlineCheck(raw: unknown): InlineCheck | null {
+  const item = record(raw)
+  if (!item) return null
+  const id = text(item.id, 80)
+  const prompt = text(item.prompt, 240)
+  const answerIndex = integer(item.answerIndex, 0, 3)
+  if (!id || !prompt || answerIndex === null || !Array.isArray(item.options) || item.options.length !== 4) return null
+  const options = item.options.map(quizOption)
+  if (options.some((option) => option === null)) return null
+  const codeSnippet = item.codeSnippet === null || item.codeSnippet === undefined
+    ? null
+    : optionalText(item.codeSnippet, 2400)
+  const rereadSectionId = text(item.rereadSectionId, 80)
+  const rereadSectionTitle = text(item.rereadSectionTitle, 140)
+  const reveal = sanitizeReveal(item.reveal)
+  if (!rereadSectionId || !rereadSectionTitle || !reveal) return null
+  return {
+    id,
+    prompt,
+    codeSnippet,
+    options: options as [QuizOption, QuizOption, QuizOption, QuizOption],
+    answerIndex: answerIndex as InlineCheck['answerIndex'],
+    rereadSectionId,
+    rereadSectionTitle,
+    reveal,
+  }
+}
+
+/** Exported so unit tests can feed deliberately broken JSON shapes. */
+export function sanitizeTheoryMcq(raw: unknown): TheoryMcq | null {
+  const item = record(raw)
+  if (!item || item.schemaVersion !== 1) return null
+  const kind = item.kind === 'theory'
+    ? 'theory'
+    : typeof item.kind === 'string' && QUIZ_KINDS.has(item.kind as QuizKind)
+      ? (item.kind as QuizKind)
+      : null
+  const id = text(item.id, 80)
+  const prompt = text(item.prompt, 240)
+  const answerIndex = integer(item.answerIndex, 0, 3)
+  if (!id || !kind || !prompt || answerIndex === null || !Array.isArray(item.options) || item.options.length !== 4) return null
+  const options = item.options.map(quizOption)
+  if (options.some((option) => option === null)) return null
+  const codeSnippet = item.codeSnippet === null || item.codeSnippet === undefined
+    ? null
+    : optionalText(item.codeSnippet, 2400)
+  const problemId = text(item.problemId, 80)
+  const topicId = text(item.topicId, 80)
+  const reveal = sanitizeReveal(item.reveal)
+  const verified = text(item.verified, 10)
+  if (!problemId || !topicId || !reveal || !verified) return null
+  return {
+    schemaVersion: 1,
+    problemId,
+    topicId,
+    id,
+    kind,
+    prompt,
+    codeSnippet,
+    options: options as [QuizOption, QuizOption, QuizOption, QuizOption],
+    answerIndex: answerIndex as TheoryMcq['answerIndex'],
+    reveal,
+    verified,
+  }
+}
+
 function sanitizeSection(raw: unknown): PrimerSection | null {
   const item = record(raw)
   if (!item) return null
+  const id = text(item.id, 80) ?? text(item.title, 80)?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') ?? null
   const title = text(item.title, 120)
   const body = text(item.text, 4000)
-  return title && body ? { title, text: body } : null
+  if (!id || !title || !body) return null
+  const check = item.check === null || item.check === undefined ? null : sanitizeInlineCheck(item.check)
+  if (item.check !== null && item.check !== undefined && !check) return null
+  return { id, title, text: body, check }
 }
 
 /** Exported so unit tests can feed deliberately broken JSON shapes. */
@@ -340,18 +436,98 @@ export function sanitizeCoverage(raw: unknown): CoverageReport {
 
 function collect<T>(modules: Record<string, unknown>, sanitize: (raw: unknown) => T | null): Map<string, T> {
   const result = new Map<string, T>()
-  for (const [path, raw] of Object.entries(modules)) {
-    const id = fileId(path)
+  for (const [id, raw] of Object.entries(modules)) {
     const safe = sanitize(raw)
     if (id && safe) result.set(id, safe)
   }
   return result
 }
 
-const topics = collect(TOPIC_MODULES, sanitizeTopicContent)
-const statements = collect(PROBLEM_MODULES, sanitizeStatement)
-const practiceSets = collect(PRACTICE_MODULES, sanitizePracticeSet)
-const coverage = sanitizeCoverage(coverageRaw)
+const CONTENT_SOURCES: ResourceSource[] = [
+  'leetcode', 'neetcode', 'takeuforward', 'geeksforgeeks', 'programiz',
+  'cp-algorithms', 'usaco', 'cppreference', 'python-docs', 'mdn',
+  'roadmap-sh', 'youtube',
+]
+const CONTENT_LEVELS = [null, 'basic', 'core', 'pro'] as const
+
+const [
+  rawPrefixes,
+  rawTopics,
+  rawProblems,
+  rawTheory,
+  rawPractice,
+  rawCoverage,
+] = contentBundle as [
+  string[],
+  Record<string, unknown>,
+  Record<string, unknown>,
+  [string, string, string, string, string | 0, [string, string][], number, string, number, string, string, string | 0, string | 0][],
+  [string, string, string, string, string[], string | 0, [number, string, string, number, number, number, string, number][]][],
+  unknown,
+]
+
+function unpackContentUrl(val: string): string {
+  const code = val.charCodeAt(0) - 65
+  return code >= 0 && code < rawPrefixes.length ? `${rawPrefixes[code]}${val.slice(1)}` : val
+}
+
+const unpackedTheory: Record<string, unknown> = Object.fromEntries(
+  rawTheory.map(([problemId, topicId, id, prompt, codeSnippet, opts, answerIndex, solution, srcIdx, refUrl, refLabel, refVer, ver]) => [
+    problemId,
+    {
+      schemaVersion: 1,
+      problemId,
+      topicId,
+      id,
+      kind: 'theory',
+      prompt,
+      codeSnippet: codeSnippet === 0 ? null : codeSnippet,
+      options: opts.map(([t, e]) => ({ text: t, explain: e })),
+      answerIndex,
+      reveal: {
+        alwaysAvailable: true,
+        solution,
+        reference: {
+          source: CONTENT_SOURCES[srcIdx],
+          url: unpackContentUrl(refUrl),
+          label: refLabel,
+          verified: refVer === 0 ? '2026-11-03' : refVer,
+        },
+      },
+      verified: ver === 0 ? '2026-11-03' : ver,
+    },
+  ]),
+)
+
+const unpackedPractice: Record<string, unknown> = Object.fromEntries(
+  rawPractice.map(([patternId, topicId, title, summary, prerequisites, ver, probs]) => [
+    patternId,
+    {
+      patternId,
+      topicId,
+      title,
+      summary,
+      prerequisites,
+      verified: ver === 0 ? '2026-11-03' : ver,
+      problems: probs.map(([lc, slug, ptitle, lvl, set, estMinutes, why, classic]) => ({
+        lc,
+        slug,
+        title: ptitle,
+        level: CONTENT_LEVELS[lvl],
+        set,
+        estMinutes,
+        why,
+        classic: classic === 1,
+      })),
+    },
+  ]),
+)
+
+const topics = collect(rawTopics, sanitizeTopicContent)
+const statements = collect(rawProblems, sanitizeStatement)
+const theoryMcqs = collect(unpackedTheory, sanitizeTheoryMcq)
+const practiceSets = collect(unpackedPractice, sanitizePracticeSet)
+const coverage = sanitizeCoverage(rawCoverage)
 
 export function contentCoverage(): CoverageReport {
   return coverage
@@ -402,7 +578,19 @@ export function getTopicQuizCount(topicId: string): number {
   return getQuiz(topicId).length
 }
 
+export function getTheoryMcq(problemId: string): TheoryMcq | null {
+  return theoryMcqs.get(problemId) ?? null
+}
+
+export function getTheoryMcqsByTopic(topicId: string): TheoryMcq[] {
+  return [...theoryMcqs.values()].filter((mcq) => mcq.topicId === topicId)
+}
+
+export function getAllTheoryMcqs(): TheoryMcq[] {
+  return [...theoryMcqs.values()]
+}
+
 export function getTheoryMcqCount(topicId?: string): number {
-  if (!topicId) return coverage.content.theoryMcqs
-  return coverage.byTopic.find((topic) => topic.topicId === topicId)?.theoryMcqs ?? 0
+  if (!topicId) return theoryMcqs.size
+  return getTheoryMcqsByTopic(topicId).length
 }

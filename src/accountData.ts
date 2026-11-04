@@ -56,6 +56,7 @@ import {
 import type { Backup, BackupCounts } from './backup'
 import { DEFAULT_DAILY_GOAL, clampGoal } from './planner'
 import type { PlannerState } from './plannerData'
+import { clearGuestQuizResults, type QuizDataState } from './quiz/results'
 
 export type SyncState = 'local' | 'local-offline' | 'syncing' | 'synced' | 'pending' | 'offline' | 'error'
 export type MergeProposal = Omit<MergePlan, 'writes'>
@@ -85,6 +86,7 @@ export type AccountData = {
   toggleStatus: (topicId: string, problemId: string) => void
   toggleBookmark: (topicId: string, problemId: string) => void
   setOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
+  markDoneWithOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
   clearGuestProgress: () => void
   mergeGuestProgress: () => void
   keepCloudProgress: () => void
@@ -133,6 +135,7 @@ export function useAccountData(
   library: LibraryState,
   code: CodeState,
   planner: PlannerState,
+  quiz: QuizDataState,
 ): AccountData {
   const settings = useSettings()
   const guestProgress = useProgress()
@@ -420,8 +423,33 @@ export function useAccountData(
     writeEntry(topicId, problemId, { ...current, o: outcome }, 'o')
   }
 
+  const markDoneWithOutcome = (topicId: string, problemId: string, outcome: Outcome) => {
+    const current = progress[topicId]?.[problemId] ?? { s: 'todo', b: false }
+    const firestore = db
+    if (!signedIn || !uid || !firestore) {
+      if (current.s !== 'done') markGuestDone(topicId, problemId)
+      markGuestOutcome(topicId, problemId, outcome)
+      return
+    }
+    const now = new Date().toISOString()
+    const old = cloudRef.current[topicId]?.[problemId]
+    const entry: CloudProgressEntry = {
+      ...nextCloudEntry(old, { s: 'done', b: current.b, o: outcome }, 's', now),
+      o: outcome,
+    }
+    setCloudState({
+      ...cloudRef.current,
+      [topicId]: { ...(cloudRef.current[topicId] ?? {}), [problemId]: entry },
+    })
+    setPendingWrites(true)
+    void commitWrite(firestore, uid, { topicId, problemId, entry }).catch((reason) => {
+      setDataError(`Could not save progress: ${messageFrom(reason)}`)
+    })
+  }
+
   const clearGuestProgress = () => {
     clearProgress()
+    clearGuestQuizResults()
     setNotice('Guest rows cleared from this device.')
   }
 
@@ -466,8 +494,8 @@ export function useAccountData(
       setDataError('Wait for the signed-in sheet to finish syncing before exporting.')
       return
     }
-    if (!library.ready || !code.ready) {
-      setDataError('Wait for lists and saved code to finish syncing before exporting.')
+    if (!library.ready || !code.ready || !quiz.ready) {
+      setDataError('Wait for lists, saved code and quiz scores to finish syncing before exporting.')
       return
     }
     setBusy(true)
@@ -477,6 +505,7 @@ export function useAccountData(
       // backup must still carry the whole planner history.
       const plans = await planner.collectPlansForBackup()
       const snippets = code.snippetsSnapshot()
+      const quizResults = quiz.resultsSnapshot()
       const text = createBackup({
         account: { displayName: account.user.displayName, email: account.user.email },
         settings: getSettingsSnapshot(),
@@ -484,6 +513,7 @@ export function useAccountData(
         snippets,
         lists: library.listsSnapshot(),
         plans,
+        quizResults,
         dailyGoal,
       })
       const blob = new Blob([text], { type: 'application/json' })
@@ -496,7 +526,7 @@ export function useAccountData(
       anchor.remove()
       setTimeout(() => URL.revokeObjectURL(url), 0)
       setNotice(
-        `Backup exported with ${countCloudRows(cloudRef.current)} progress rows, ${snippets.length} saved solution${snippets.length === 1 ? '' : 's'} and ${plans.length} plan day${plans.length === 1 ? '' : 's'}.`,
+        `Backup exported with ${countCloudRows(cloudRef.current)} progress rows, ${snippets.length} saved solution${snippets.length === 1 ? '' : 's'}, ${plans.length} plan day${plans.length === 1 ? '' : 's'} and ${quizResults.length} quiz result${quizResults.length === 1 ? '' : 's'}.`,
       )
     } catch (reason) {
       setDataError(`Could not export the backup: ${messageFrom(reason)}`)
@@ -570,9 +600,10 @@ export function useAccountData(
         await library.applyBackup(preview.backup.lists)
         await code.applyBackup(preview.backup.snippets)
         await planner.applyPlanBackup(preview.backup.plans)
+        await quiz.applyBackup(preview.backup.quizResults)
         setImportPreview(null)
         setNotice(
-          `Imported ${preview.counts.rows} row${preview.counts.rows === 1 ? '' : 's'} across ${preview.counts.topics} topic${preview.counts.topics === 1 ? '' : 's'} · ${preview.counts.snippets} saved solution${preview.counts.snippets === 1 ? '' : 's'} · ${preview.counts.lists} list${preview.counts.lists === 1 ? '' : 's'} · ${preview.counts.plans} plan day${preview.counts.plans === 1 ? '' : 's'}.`,
+          `Imported ${preview.counts.rows} row${preview.counts.rows === 1 ? '' : 's'} across ${preview.counts.topics} topic${preview.counts.topics === 1 ? '' : 's'} · ${preview.counts.snippets} saved solution${preview.counts.snippets === 1 ? '' : 's'} · ${preview.counts.lists} list${preview.counts.lists === 1 ? '' : 's'} · ${preview.counts.plans} plan day${preview.counts.plans === 1 ? '' : 's'} · ${preview.counts.quizResults} quiz result${preview.counts.quizResults === 1 ? '' : 's'}.`,
         )
       } catch (reason) {
         setDataError(`Import failed: ${messageFrom(reason)}`)
@@ -612,6 +643,7 @@ export function useAccountData(
     toggleStatus,
     toggleBookmark,
     setOutcome,
+    markDoneWithOutcome,
     clearGuestProgress,
     mergeGuestProgress,
     keepCloudProgress,

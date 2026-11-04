@@ -410,3 +410,63 @@ describe('signed-out states keep working', () => {
     expect(q('[data-testid="friends-view"]').textContent).toContain('Sign in to invite friends')
   })
 })
+
+describe('phase v2-05 quiz engine and theory MCQs', () => {
+  it('renders inline primer checks and expands theory concept checks in Practice with undo', () => {
+    goto('#/topic/arrays?tab=learn&section=read-the-shape')
+    expect(qa('[data-testid^="primer-check-"]').length).toBeGreaterThanOrEqual(2)
+    expect(q('#primer-section-read-the-shape')).toBeTruthy()
+
+    goto('#/topic/beginner-problems?tab=practice')
+    const checkBtn = q('[data-testid="check-basic-arrays"]')
+    expect(checkBtn.getAttribute('aria-expanded')).toBe('false')
+    click(checkBtn)
+    expect(checkBtn.getAttribute('aria-expanded')).toBe('true')
+
+    const card = q('[data-testid="theory-mcq-basic-arrays"]')
+    const radios = [...card.querySelectorAll('[role="radio"]')] as HTMLElement[]
+    expect(radios).toHaveLength(4)
+
+    // Use Show solution -> Mark as read (hint outcome), then undo with u.
+    click(q('[data-testid="mcq-show-solution-basic-arrays"]'))
+    click(q('[data-testid="mcq-mark-read-basic-arrays"]'))
+    expect(q('[data-testid="progress-pill"]').textContent).toBe('1/495 done')
+    press('u')
+    expect(q('[data-testid="progress-pill"]').textContent).toBe('0/495 done')
+  })
+
+  it('distinguishes ready vs pending topic quiz tabs and persists a guest Arrays quiz pass across routes', () => {
+    goto('#/topic/sorting?tab=quiz')
+    expect(q('[data-testid="topic-quiz-pending"]')).toBeTruthy()
+    expect((q('[data-testid="topic-quiz-start"]') as HTMLButtonElement).disabled).toBe(true)
+
+    goto('#/topic/arrays?tab=quiz')
+    expect((q('[data-testid="topic-quiz-start"]') as HTMLButtonElement).disabled).toBe(false)
+
+    // Launch via command palette action -> QuizHome -> Start a 4-minute check.
+    press('k', { metaKey: true })
+    type(q('[data-testid="palette-input"]') as HTMLInputElement, '4-minute quiz check')
+    const quizOption = qa('[data-testid="palette-option"]').find((el) =>
+      el.textContent?.includes('Start a 4-minute quiz check'),
+    )!
+    expect(quizOption).toBeTruthy()
+    click(quizOption)
+    expect(window.location.hash).toBe('#/quiz')
+    goto(window.location.hash)
+    click(q('[data-testid="quiz-start-primary"]'))
+    expect(window.location.hash).toBe('#/quiz/arrays')
+    goto(window.location.hash)
+
+    // Answer all 12 questions in guest mode (even a 0/12 attempt records to dsa-archive.quiz.v1).
+    for (let i = 0; i < 12; i += 1) {
+      press('1')
+      press('Enter')
+      press('Enter')
+    }
+    expect(q('[data-testid="quiz-result-screen"]')).toBeTruthy()
+    const saved = JSON.parse(localStorage.getItem('dsa-archive.quiz.v1') ?? '{}')
+    expect(saved.arrays?.attempts).toBe(1)
+    expect(saved.arrays?.bestTotal).toBe(12)
+  })
+})
+

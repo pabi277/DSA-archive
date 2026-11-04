@@ -75,6 +75,10 @@ const KNOWN_PATHS: Record<string, RouteName> = {
   'not-found': 'not-found',
 }
 
+const OPTIONAL_SEGMENT_PARAM: Partial<Record<RouteName, boolean>> = {
+  quiz: true,
+}
+
 const SEGMENT_PARAM: Partial<Record<RouteName, boolean>> = {
   topic: true,
   problem: true,
@@ -152,6 +156,11 @@ export function parseRoute(hash: string): Route {
     if (!second) return notFound('#/not-found')
     const query = parseQuery(searchPart)
     return { name, param: second, query, path: buildPath(name, second, query) }
+  }
+  if (OPTIONAL_SEGMENT_PARAM[name]) {
+    const query = parseQuery(searchPart)
+    const param = second ?? ''
+    return { name, param, query, path: buildPath(name, param, query) }
   }
   if (second) return notFound('#/not-found')
   const query = parseQuery(searchPart)

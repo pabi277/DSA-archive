@@ -175,6 +175,14 @@ export function buildActions(config: PaletteConfig): PaletteAction[] {
 
   actions.push(
     {
+      id: 'action:quiz',
+      label: 'Start a 4-minute quiz check',
+      detail: 'Quizzes',
+      group: 'Action',
+      keywords: 'quiz check test topic',
+      run: () => navigate('quiz'),
+    },
+    {
       id: 'action:shortcuts',
       label: 'Keyboard shortcuts',
       detail: 'Press ?',

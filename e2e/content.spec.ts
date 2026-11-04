@@ -63,7 +63,7 @@ test('Arrays is fully authored end to end and the quiz count is visible', async 
 
   await open(page, '/#/topic/arrays?tab=quiz')
   await expect(page.getByTestId('topic-quiz-count')).toContainText('12/12 topic quiz items')
-  await expect(page.getByTestId('topic-quiz-start')).toBeDisabled()
+  await expect(page.getByTestId('topic-quiz-start')).toBeEnabled()
 
   await open(page, '/#/topic/arrays?tab=practice')
   await page.getByTestId('practice-view-drills').click()

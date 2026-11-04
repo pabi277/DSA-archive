@@ -122,6 +122,14 @@ users/{uid}/plans/{yyyy-mm-dd}               // phase 4 — today's plan (1 doc 
   doneIds: […],                              // ticked in Today; always ⊆ problemIds
   updatedAt                                  // serverTimestamp, enforced by rules
 
+users/{uid}/quizResults/{topicId}            // phase v2-05 — best quiz score per topic (≤20 docs)
+  bestScore: 11,                             // int 0..bestTotal
+  bestTotal: 12,                             // int 1..12
+  attempts: 2,                               // int 1..999
+  lastScore: 11,                             // int 0..bestTotal
+  lastAt,                                    // serverTimestamp, enforced by rules
+  passed: true                               // bool (sticky once ≥80% achieved)
+
 users/{uid}/friends/{friendUid}              // phase 5
   code, addedAt                              // reciprocal pair created atomically using invite
 
@@ -259,10 +267,22 @@ touching anything above except the entry field list:
   the default deny. Old note *documents*, if any exist in a live project, simply
   become unreachable — they are never read by v2-04 clients.
 
+**Rules v7 (phase v2-05)** adds per-topic quiz results while preserving all v6 rules:
+
+- `quizResults/{topicId}` — owner-only `get/list/delete`; `create/update` require
+  `topicId` in the generated 20-topic whitelist, exact keys
+  `bestScore`/`bestTotal`/`attempts`/`lastScore`/`lastAt`/`passed`, integers
+  `1 <= bestTotal <= 12`, `0 <= bestScore <= bestTotal`,
+  `0 <= lastScore <= bestTotal`, `1 <= attempts <= 999`, boolean `passed`, and
+  `lastAt == request.time`. Guest quiz scores live at `dsa-archive.quiz.v1` and
+  merge explicitly on sign-in (`max(bestScore)`, summed `attempts <= 999`, newer
+  `lastScore`). Theory MCQ rows reuse `progressByTopic` (`s: 'done'`,
+  `o: 'clean' | 'hint'`), and primer inline checks write nothing.
+
 Rules have no loops and only 1,000 evaluated expressions per request, so
 catalogue membership for these collections is enforced by the client and
 the backup parser (recorded in `DECISIONS.md`), while the rules bound every
-document's shape and size. The emulator suite (15 tests) covers stranger and
+document's shape and size. The emulator suite (18 tests) covers stranger and
 unauthenticated denial, invalid/oversized fields, unknown extra keys, a
 non-server `updatedAt`, malformed snippet/list ids, over-long titles, >200 ids,
 oversized joined id text, plus owner create/update/delete, owner-only plan
@@ -319,28 +339,31 @@ its phase record before it is built.
    owner command); keep it there, outside every build, and never as
    a runtime input.
 
-## 6. Export / import (anti-lock-in — schema v5 since phase v2-04)
+## 6. Export / import (anti-lock-in — schema v6 since phase v2-05)
 
-Export = one JSON file: `schemaVersion: 5`, `generatedBy`, `exportedAt`,
+Export = one JSON file: `schemaVersion: 6`, `generatedBy`, `exportedAt`,
 profile settings (including the real `dailyGoal`), all `progressByTopic` rows
 (with `a`/`fd`/`lr`, `rc`, and optional `o`), the real `snippets[]` array
 (`problemId`, `language`, `code`, `notes`, optional `verdict`, `updatedAt` — there
 is no top-level `notes[]` any more; the ≤500-char `notes` field *inside* a
 snippet is its plain-text reminder), the real `lists[]` array (`listId`,
 `title`, `problemIds`, `updatedAt`), the real `plans[]` array (`date`,
-`problemIds`, `doneIds`, `updatedAt` — every day, read on demand at export), and
+`problemIds`, `doneIds`, `updatedAt` — every day, read on demand at export),
+the real `quizResults[]` array (`topicId`, `bestScore`, `bestTotal`, `attempts`,
+`lastScore`, `lastAt`, `passed`), and
 an `excluded` list naming friends/summary
 (they're social, not study data). `src/backup.ts` validates schema version,
-catalogue ids, field types, per-snippet/per-list caps and a 4 MB file cap; the UI
-previews row/topic/snippet/list/plan counts (plus any migration `warnings`) and
+catalogue ids, field types, per-snippet/per-list/per-quiz caps and a 4 MB file cap; the UI
+previews row/topic/snippet/list/plan/quiz counts (plus any migration `warnings`) and
 only then replaces. Invalid files show an explicit error. Import deletes existing
 topic shards, replays one-key writes, restores profile settings (and the daily
-goal), then replaces snippets, lists and plan days one document per item.
+goal), then replaces snippets, lists, plan days and quiz results one document per item.
 
-**Recorded migration:** `parseBackup` accepts **schemas 1, 2, 3, 4 and 5**. Phase-2
+**Recorded migration:** `parseBackup` accepts **schemas 1, 2, 3, 4, 5 and 6**. Phase-2
 (v1 app) files wrote empty `notes`/`lists`/`plans` arrays, so they import unchanged
 and simply restore none of them; a v1 or v2 file that claims note/list/plan content
-is refused rather than guessed. Missing `rc` defaults to 0; legacy solved rows
+is refused rather than guessed. Schemas 1–5 restore `quizResults: []`, and a pre-v6
+file claiming `quizResults` content is refused rather than guessed. Missing `rc` defaults to 0; legacy solved rows
 without `o` default to `clean`, and `todo` rows never receive an outcome.
 **Schemas ≤4 carry the removed `notes[]` (phase v2-04):** each legacy note becomes
 one snippet — its old `snippet` field was already code and is kept **byte-for-byte**

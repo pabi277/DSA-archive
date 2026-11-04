@@ -5,13 +5,16 @@ import { ProblemRow, ageLabel } from '../design/row'
 import { Button, Card, Empty, Ring, SegmentedControl, Tag } from '../design/primitives'
 import { revisionQueue } from '../planner'
 import { IconArrowLeft, IconArrowRight, IconSpark } from '../design/icons'
-import { contentCoverage, getQuiz, getTheoryMcqCount, getTopicPatterns } from '../content/load'
+import { contentCoverage, getQuiz, getTheoryMcq, getTheoryMcqCount, getTopicContent, getTopicPatterns } from '../content/load'
 import { PrimerView } from '../content/primer'
 import { drillsForTopic, type Drill } from '../content/practice'
 import { levelOf } from '../sheet'
 import { isDone, type Outcome, type ProgressByTopic } from '../progress'
-import { buildPath, navigate } from '../app/router'
+import { buildPath, navigate, openHref } from '../app/router'
 import type { SnippetsById } from '../code/codeStore'
+import { QUIZ_TARGET_COUNT, quizPassMark } from '../quiz/engine'
+import { TheoryMcqCard } from '../quiz/mcqCard'
+import type { QuizResult } from '../quiz/results'
 import { learningOrderedSubtopics } from './learnOrder'
 
 export type TopicTab = 'learn' | 'practice' | 'quiz'
@@ -22,6 +25,8 @@ export type TopicPageProps = {
   /** Saved solutions, for the `⌨ has code` row badge (v2-04). */
   snippets?: SnippetsById
   tabQuery?: string
+  sectionQuery?: string
+  quizResult?: QuizResult
   progress: ProgressByTopic
   entries: CloudProgressByTopic
   today: string
@@ -30,6 +35,7 @@ export type TopicPageProps = {
   onToggleStatus: (topicId: string, problemId: string) => void
   onToggleBookmark: (topicId: string, problemId: string) => void
   onSetOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
+  onMarkDoneWithOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
   onOpenProblem: (problemId: string) => void
   onPlan: (problemId: string) => void
 }
@@ -132,9 +138,9 @@ export function TopicPage(props: TopicPageProps) {
       </nav>
 
       <section id={`topic-panel-${tab}`} role="tabpanel" aria-labelledby={`topic-tab-${tab}`} className="topic-tab-panel" tabIndex={0}>
-        {tab === 'learn' ? <LearnPanel topic={topic} onPractice={() => selectTab('practice')} /> : null}
+        {tab === 'learn' ? <LearnPanel topic={topic} activeSectionId={props.sectionQuery} onPractice={() => selectTab('practice')} /> : null}
         {tab === 'practice' ? <PracticePanel {...props} topic={topic} /> : null}
-        {tab === 'quiz' ? <QuizPanel topic={topic} /> : null}
+        {tab === 'quiz' ? <QuizPanel topic={topic} quizResult={props.quizResult} /> : null}
       </section>
 
       <nav className="topic-neighbours" aria-label="Adjacent topics">
@@ -145,10 +151,10 @@ export function TopicPage(props: TopicPageProps) {
   )
 }
 
-function LearnPanel({ topic, onPractice }: { topic: Topic; onPractice: () => void }) {
+function LearnPanel({ topic, activeSectionId, onPractice }: { topic: Topic; activeSectionId?: string; onPractice: () => void }) {
   return (
     <div className="topic-learn-panel">
-      <PrimerView topicId={topic.id} topicTitle={topic.title} />
+      <PrimerView topicId={topic.id} topicTitle={topic.title} activeSectionId={activeSectionId} />
       <Card title="Your learning path">
         <ol className="topic-order">
           {learningOrderedSubtopics(topic).map((subtopic, index) => (
@@ -177,7 +183,9 @@ type PracticeView = 'core' | 'drills'
 function PracticePanel(props: TopicPageProps & { topic: Topic }) {
   const [filter, setFilter] = useState<PracticeFilter>('all')
   const [view, setView] = useState<PracticeView>('core')
+  const [expandedTheoryId, setExpandedTheoryId] = useState<string | null>(null)
   const subtopics = useMemo(() => learningOrderedSubtopics(props.topic), [props.topic])
+  const primerSection = getTopicContent(props.topic.id)?.sections[0] ?? null
   const total = props.topic.subtopics.reduce((sum, subtopic) => sum + subtopic.problems.length, 0)
   const visibleCount = subtopics.reduce((sum, subtopic) => sum + subtopic.problems.filter((problem) => passesFilter(problem, props.topic.id, props.progress, filter)).length, 0)
   const drills = drillsForTopic(props.topic.id)
@@ -220,6 +228,8 @@ function PracticePanel(props: TopicPageProps & { topic: Topic }) {
                   <div role="list" aria-label={`${subtopic.title} practice problems`}>
                     {problems.map((problem, index) => {
                       const entry = props.entries[props.topic.id]?.[problem.id]
+                      const isTheoryOpen = problem.kind === 'theory' && expandedTheoryId === problem.id
+                      const mcq = isTheoryOpen ? getTheoryMcq(problem.id) : null
                       return (
                         <ProblemRow
                           key={problem.id}
@@ -234,16 +244,32 @@ function PracticePanel(props: TopicPageProps & { topic: Topic }) {
                           canEditCode={false}
                           hasCode={Boolean(props.snippets?.[problem.id])}
                           listCount={0}
+                          theoryExpanded={isTheoryOpen}
                           onToggleStatus={props.onToggleStatus}
                           onToggleBookmark={props.onToggleBookmark}
                           onSetOutcome={props.onSetOutcome}
                           onOpen={(problemId) => props.onOpenProblem(problemId)}
-                          onOpenPanel={() => {}}
+                          onOpenPanel={(problemId, kind) => {
+                            if (kind === 'theory') {
+                              setExpandedTheoryId((current) => (current === problemId ? null : problemId))
+                            }
+                          }}
                           onPlan={props.onPlan}
                           onFocus={() => {}}
                           listPosition={index + 1}
                           listSize={problems.length}
-                          panel={null}
+                          panel={
+                            mcq ? (
+                              <TheoryMcqCard
+                                mcq={mcq}
+                                topicTitle={props.topic.title}
+                                progress={props.progress[props.topic.id]?.[problem.id]}
+                                rereadSection={primerSection ? { id: primerSection.id, title: primerSection.title } : null}
+                                onMarkClean={() => props.onMarkDoneWithOutcome(props.topic.id, problem.id, 'clean')}
+                                onMarkReadWithHint={() => props.onMarkDoneWithOutcome(props.topic.id, problem.id, 'hint')}
+                              />
+                            ) : null
+                          }
                         />
                       )
                     })}
@@ -320,15 +346,77 @@ function DrillsPanel({
   )
 }
 
-function QuizPanel({ topic }: { topic: Topic }) {
+function QuizPanel({ topic, quizResult }: { topic: Topic; quizResult?: QuizResult }) {
   const authored = getQuiz(topic.id).length
   const theory = getTheoryMcqCount(topic.id)
   const bank = contentCoverage().content.quizItems
+  if (authored === 0) {
+    return (
+      <Empty
+        title="Coming soon — 12-item bank in authoring"
+        mark={<IconSpark size={20} />}
+        testId="topic-quiz-pending"
+        action={
+          <Button disabled data-testid="topic-quiz-start">
+            Start {topic.title} quiz
+          </Button>
+        }
+      >
+        <span data-testid="topic-quiz-count">
+          {authored}/12 topic quiz items · {theory} theory MCQs · {bank}/240 bank items
+        </span>
+        . {theory > 0 ? 'Concept checks are already live under Practice.' : 'This topic quiz bank is in the authoring queue.'}
+      </Empty>
+    )
+  }
+
+  const passMark = quizPassMark(authored)
+  const incomplete = authored < QUIZ_TARGET_COUNT
+  const nextSeed = quizResult?.attempts ?? 0
+
   return (
-    <Empty title="Quiz bank is authored; engine arrives in Phase 05" mark={<IconSpark size={20} />} testId="topic-quiz-pending" action={
-      <Button disabled data-testid="topic-quiz-start">Start {topic.title} quiz</Button>
-    }>
-      <span data-testid="topic-quiz-count">{authored}/12 topic quiz items · {theory} theory MCQs · {bank}/240 bank items</span>. Execution, reveal and pass marks stay in Phase 05; this start button stays disabled.
-    </Empty>
+    <Card
+      title={`${topic.title} check`}
+      action={
+        quizResult ? (
+          <Tag tone={quizResult.passed ? 'success' : 'caution'}>
+            {quizResult.passed
+              ? `Quiz ✓ ${quizResult.bestScore}/${quizResult.bestTotal}`
+              : `Best ${quizResult.bestScore}/${quizResult.bestTotal}`}
+          </Tag>
+        ) : (
+          <Tag tone="neutral">Not taken</Tag>
+        )
+      }
+      data-testid="topic-quiz-ready"
+    >
+      <p className="quiet-note num" data-testid="topic-quiz-count">
+        {authored}/12 topic quiz items · {theory} theory MCQs · {bank}/240 bank items · pass mark {passMark}/{authored} (≥80%)
+        {incomplete ? ' · bank incomplete' : ''}
+      </p>
+      {quizResult ? (
+        <p className="quiet-note num">
+          Attempts: {quizResult.attempts} · last score {quizResult.lastScore}/{quizResult.bestTotal}. Retaking shuffles the question order.
+        </p>
+      ) : (
+        <p className="quiet-note">
+          4-minute check: instant per-option explanations after every submit, with primer links on anything you miss.
+        </p>
+      )}
+      <div className="inline-actions">
+        <Button
+          variant="primary"
+          data-testid="topic-quiz-start"
+          onClick={() =>
+            openHref(buildPath('quiz', topic.id, nextSeed > 0 ? { seed: String(nextSeed) } : {}))
+          }
+        >
+          {quizResult ? `Retake ${topic.title} quiz` : `Start ${topic.title} quiz`}
+        </Button>
+        <a className="btn btn-secondary" href={buildPath('quiz')}>
+          All quizzes
+        </a>
+      </div>
+    </Card>
   )
 }

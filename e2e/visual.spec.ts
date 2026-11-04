@@ -33,6 +33,8 @@ const CONTENT_ROUTES: { path: string; slug: string; hint?: boolean }[] = [
   { path: '/#/practice', slug: 'practice-grid' },
   { path: '/#/code', slug: 'code' },
   { path: '/#/problem/two-sum', slug: 'problem-code' },
+  { path: '/#/quiz', slug: 'quiz-home' },
+  { path: '/#/quiz/arrays', slug: 'quiz-runner' },
 ]
 
 const VIEWPORTS = [

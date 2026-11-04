@@ -50,6 +50,7 @@ export const ALL_ROUTES = [
   '/#/code',
   '/#/practice',
   '/#/quiz',
+  '/#/quiz/arrays',
   '/#/review',
   '/#/insights',
   '/#/settings',

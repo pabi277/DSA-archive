@@ -23,7 +23,7 @@ performance targets, tests, risks, acceptance criteria, and exit gate.
 parallel from phase 02 onwards.
 
 
-**Execution status (2026-11-04):** Phase 01 is merged to `main` via PR #12; Phase 02 via PR #13 (`bd9350b`, CI run `41647413508` green); Phase 03 via PR #14 (`e51695a`, 2026-11-03, `main` CI run `41696457606` green). Phase 04 is implemented on `arena/25c78974-dsa-archive`; PR [#15](https://github.com/pabi277/DSA-archive/pull/15) is open on the owner's command with CI run `41782795154` green (emulator rules v6, 83 Playwright tests, axe 0, 56 visual baselines as a review artifact); its record is [`04-code-notebooks/RECORD.md`](04-code-notebooks/RECORD.md). The merge remains gated on the owner's explicit command. Latest *merged* versions are rules v5 / backup v4; Phase 04 advances them to rules v6 / backup v5 on its branch. The listed sequence assumes phases 02 → 04 → 05 → 06 → 08.
+**Execution status (2026-11-04):** Phases 01–04 are merged to `main` (PR #12 `558a25f`, PR #13 `bd9350b`, PR #14 `e51695a`, PR #15 `f4fa993` with CI run `41782795154` green). Phase 05 is implemented on `arena/6327674f-dsa-archive` with all local gates green (193 unit tests, data/content/rules/dist/links checks, and 375.96 kB / 380 kB gzip shell precache via lossless catalogue table-packing); its record is [`05-quiz-engine/RECORD.md`](05-quiz-engine/RECORD.md). Opening a PR and merging remain gated on the owner's explicit command. Latest *merged* versions on `main` are rules v6 / backup v5; Phase 05 advances them to rules v7 / backup v6 on its branch. The listed sequence continues 05 → 06 → 07 → 08 → 09 → 10.
 
 ## Owner additions 2026-11-03 (batch 2)
 

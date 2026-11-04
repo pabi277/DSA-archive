@@ -3,12 +3,10 @@
  *
  * Schema v1 shipped with empty library arrays, v2 added library data, v3
  * added plans and revision counts, v4 added the optional self-assessed
- * outcome, and v5 (phase v2-04) replaces the removed markdown `notes[]`
- * with saved solutions in `snippets[]`. All prior schemas remain
- * importable: a legacy note's code field becomes a snippet's `code`
- * unchanged, and its markdown body is dropped except a ≤500 character
- * plain-text tail kept as the snippet's `notes` reminder — with the
- * affected ids listed in `warnings`. Friends/summaries stay excluded.
+ * outcome, v5 (phase v2-04) replaced the removed markdown `notes[]`
+ * with saved solutions in `snippets[]`, and v6 (phase v2-05) adds
+ * per-topic quiz scores in `quizResults[]`. All prior schemas (1–5)
+ * remain importable unchanged. Friends/summaries stay excluded.
  */
 import { catalogue } from './catalogue'
 import {
@@ -27,6 +25,8 @@ import {
   type CloudProgressByTopic,
   type CloudTopicProgress,
 } from './cloudProgress'
+import { MAX_QUIZ_ATTEMPTS, type BackupQuizResult } from './quiz/results'
+import { QUIZ_TARGET_COUNT } from './quiz/engine'
 import { clampDensity, type Density, type Settings, type Theme } from './settings'
 import {
   DEFAULT_DAILY_GOAL,
@@ -43,9 +43,9 @@ import {
   type BackupList,
 } from './library'
 
-export const BACKUP_SCHEMA_VERSION = 5
-/** Schemas 1–4 import unchanged; legacy fields are normalized or migrated. */
-export const SUPPORTED_BACKUP_SCHEMAS = [1, 2, 3, 4, 5] as const
+export const BACKUP_SCHEMA_VERSION = 6
+/** Schemas 1–5 import unchanged; legacy fields are normalized or migrated. */
+export const SUPPORTED_BACKUP_SCHEMAS = [1, 2, 3, 4, 5, 6] as const
 /** Room for many saved solutions; each field is individually capped below. */
 const MAX_BACKUP_BYTES = 4_000_000
 
@@ -79,6 +79,7 @@ export type Backup = {
   snippets: BackupSnippet[]
   lists: BackupList[]
   plans: BackupPlan[]
+  quizResults: BackupQuizResult[]
   excluded: string[]
 }
 
@@ -88,6 +89,7 @@ export type BackupCounts = {
   snippets: number
   lists: number
   plans: number
+  quizResults: number
 }
 
 export type BackupInput = {
@@ -97,6 +99,7 @@ export type BackupInput = {
   snippets?: BackupSnippet[]
   lists?: BackupList[]
   plans?: BackupPlan[]
+  quizResults?: BackupQuizResult[]
   dailyGoal?: number
   exportedAt?: string
 }
@@ -136,6 +139,7 @@ export function createBackup(input: BackupInput): string {
     snippets: input.snippets ?? [],
     lists: input.lists ?? [],
     plans: input.plans ?? [],
+    quizResults: input.quizResults ?? [],
     excluded: ['friends', 'public/summary'],
   }
   return JSON.stringify(backup, null, 2)
@@ -204,11 +208,11 @@ function parseTimestamp(value: unknown, label: string): string | null {
   return value
 }
 
-/** Schema v5 saved solutions, validated exactly as rules v6 will store them. */
+/** Schema v5+ saved solutions, validated exactly as rules v6/v7 store them. */
 function parseSnippets(raw: unknown, schemaVersion: number): BackupSnippet[] {
   if (raw === undefined) return []
   if (!Array.isArray(raw)) fail('snippets must be an array')
-  if (schemaVersion < BACKUP_SCHEMA_VERSION && raw.length > 0) {
+  if (schemaVersion < 5 && raw.length > 0) {
     // Files before v5 never carried a snippets array; content there is not a
     // shape we ever produced, so refuse it instead of guessing.
     fail(`a schemaVersion ${schemaVersion} backup cannot contain snippets`)
@@ -249,8 +253,8 @@ function migrateLegacyNotes(raw: unknown, schemaVersion: number): { snippets: Ba
     // shape we ever produced, so refuse it instead of guessing.
     fail('a schemaVersion 1 backup cannot contain notes')
   }
-  if (schemaVersion === BACKUP_SCHEMA_VERSION && raw.length > 0) {
-    fail('a schemaVersion 5 backup cannot contain notes')
+  if (schemaVersion >= 5 && raw.length > 0) {
+    fail(`a schemaVersion ${schemaVersion} backup cannot contain notes`)
   }
   const seen = new Set<string>()
   const snippets: BackupSnippet[] = []
@@ -367,6 +371,58 @@ function parsePlans(raw: unknown, schemaVersion: number): BackupPlan[] {
   })
 }
 
+const QUIZ_RESULT_KEYS = ['topicId', 'bestScore', 'bestTotal', 'attempts', 'lastScore', 'lastAt', 'passed']
+
+function parseQuizResults(raw: unknown, schemaVersion: number): BackupQuizResult[] {
+  if (raw === undefined) return []
+  if (!Array.isArray(raw)) fail('quizResults must be an array')
+  if (schemaVersion < 6 && raw.length > 0) {
+    fail(`a schemaVersion ${schemaVersion} backup cannot contain quizResults`)
+  }
+  const seen = new Set<string>()
+  return raw.map((entry, index) => {
+    if (!isRecord(entry)) fail(`quizResults[${index}] must be an object`)
+    if (!Object.keys(entry).every((key) => QUIZ_RESULT_KEYS.includes(key))) {
+      fail(`quizResults[${index}] has unexpected fields`)
+    }
+    const topicId = entry.topicId
+    if (typeof topicId !== 'string' || !knownIds.has(topicId)) {
+      fail(`quizResults[${index}] does not name a topic in this catalogue`)
+    }
+    if (seen.has(topicId)) fail(`duplicate quiz result for "${topicId}"`)
+    seen.add(topicId)
+    const bestTotal = entry.bestTotal
+    if (typeof bestTotal !== 'number' || !Number.isInteger(bestTotal) || bestTotal < 1 || bestTotal > QUIZ_TARGET_COUNT) {
+      fail(`quizResults[${index}].bestTotal must be an integer from 1 to ${QUIZ_TARGET_COUNT}`)
+    }
+    const bestScore = entry.bestScore
+    if (typeof bestScore !== 'number' || !Number.isInteger(bestScore) || bestScore < 0 || bestScore > bestTotal) {
+      fail(`quizResults[${index}].bestScore must be an integer from 0 to bestTotal`)
+    }
+    const lastScore = entry.lastScore
+    if (typeof lastScore !== 'number' || !Number.isInteger(lastScore) || lastScore < 0 || lastScore > bestTotal) {
+      fail(`quizResults[${index}].lastScore must be an integer from 0 to bestTotal`)
+    }
+    const attempts = entry.attempts
+    if (typeof attempts !== 'number' || !Number.isInteger(attempts) || attempts < 1 || attempts > MAX_QUIZ_ATTEMPTS) {
+      fail(`quizResults[${index}].attempts must be an integer from 1 to ${MAX_QUIZ_ATTEMPTS}`)
+    }
+    if (typeof entry.passed !== 'boolean') {
+      fail(`quizResults[${index}].passed must be a boolean`)
+    }
+    const lastAt = parseTimestamp(entry.lastAt, `quizResults[${index}].lastAt`) ?? new Date(0).toISOString()
+    return {
+      topicId,
+      bestScore,
+      bestTotal,
+      attempts,
+      lastScore,
+      lastAt,
+      passed: entry.passed,
+    }
+  })
+}
+
 export function parseBackup(text: string): { backup: Backup; counts: BackupCounts; warnings: string[] } {
   if (text.length > MAX_BACKUP_BYTES) {
     throw new BackupError('file is larger than the 4 MB backup limit')
@@ -440,9 +496,10 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
 
   const currentSnippets = parseSnippets(raw.snippets, schemaVersion)
   const legacy = migrateLegacyNotes(raw.notes, schemaVersion)
-  const snippets = schemaVersion === BACKUP_SCHEMA_VERSION ? currentSnippets : legacy.snippets
+  const snippets = schemaVersion >= 5 ? currentSnippets : legacy.snippets
   const lists = parseLists(raw.lists, schemaVersion)
   const plans = parsePlans(raw.plans, schemaVersion)
+  const quizResults = parseQuizResults(raw.quizResults, schemaVersion)
 
   const backup: Backup = {
     schemaVersion: BACKUP_SCHEMA_VERSION,
@@ -453,6 +510,7 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
     snippets,
     lists,
     plans,
+    quizResults,
     excluded: Array.isArray(raw.excluded) ? raw.excluded.filter((item): item is string => typeof item === 'string') : [],
   }
   return {
@@ -463,7 +521,8 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
       snippets: snippets.length,
       lists: lists.length,
       plans: plans.length,
+      quizResults: quizResults.length,
     },
-    warnings: schemaVersion === BACKUP_SCHEMA_VERSION ? [] : legacy.warnings,
+    warnings: schemaVersion >= 5 ? [] : legacy.warnings,
   }
 }
