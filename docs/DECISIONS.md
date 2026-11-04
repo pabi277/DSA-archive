@@ -767,6 +767,18 @@ Consequences, all recorded in `docs/phases-v2/06-theatre-player/RECORD.md`:
 - **The problem page's tab is URL state** (`#/problem/<id>?tab=code`). The phase-04 code
   screen's "Open problem" row relies on landing with the solution in view, and "every view
   has a URL" is a standing rule, so the tab had to graduate from component state.
+- **The tab strip is phone-only UI; the tab itself is never phone-only.** Above 1080 px the
+  strip is `display: none`, because the rail carries the same two destinations (the stamps
+  list and `⌨ Code`) and a second control would be duplicate navigation. It was briefly kept
+  in the DOM as a 1×1 `clip-path` box to stay keyboard-operable; that was removed after CI
+  showed it still intercepting pointer events — a control that is invisible but in the way is
+  worse than no control. Because the tab is the address, nothing is lost at any width, and
+  the screen listens for `hashchange` so back/forward and pasted deep links land on the panel
+  they name.
+- **An editor is keyed by identity, never by a save timestamp.** Keying `CodeEditor` on
+  `problemId-updatedAt` made every save remount it, discarding whatever was typed after the
+  save and (on a slow snapshot) unmounting the panel mid-read. `updatedAt` is data, not
+  identity.
 - **Stamps live in the snippet document** (`snippets[id].moments`), not a new collection:
   ≤30 per snippet, `text` ≤140 chars, `at` 0–86 400, `createdAt` ISO. They ride the read
   Phase 04 already performs, so no new document, no new quota path and no new sync concern.

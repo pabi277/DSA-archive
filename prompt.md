@@ -101,8 +101,9 @@ Do **not** start coding before step 5 is read end-to-end.
   Player API loaded on that route only (`enablejsapi=1` + `origin`, `rel=0`,
   `iv_load_policy=3`, `playsinline=1`, `cc_load_policy=1`, `host=youtube-nocookie`,
   `start=` for `?t=`), our control bar **below** the frame (play/pause, ±10 s, clock,
-  per-topic speed 0.5–2×, Stamp, captions `c`, fill-screen `f`, skip-to-next-stamp,
-  watched ≥60%), keys `space/k ←/→ f c s n`, one mini player that docks the *same* frame
+  per-topic speed 0.5–2×, Stamp, captions `c`, skip-to-next-stamp, watched ≥60%),
+  keys `space/k ←/→ c s n` (`f` fill-screen was dropped: YouTube's own full-screen control
+  must not be shadowed, see the phase record), one mini player that docks the *same* frame
   across routes, timeline stamps in `snippets[id].moments` (≤30 × ≤140 chars, add/delete
   both undoable) under rules **v8**, build-time oEmbed metadata in
   `data/media/<videoId>.json` (never fetched at runtime; the sandbox had no egress so the
@@ -111,7 +112,9 @@ Do **not** start coding before step 5 is read end-to-end.
   Backup **v7** (reads 1–7). Theme screens lazy-load with the `content-ui` route chunk;
   entry JS stays `32.84 kB` gzip. **Owner re-baselined the shell cap 380 → 386 → 388 kB gzip**
   (the 386 kB figure left the build exactly on the ceiling, so build variance failed CI;
-  rationale + rejected alternatives in the phase record; Phase 09 re-examines it). 231 unit tests; Playwright + axe + emulator rules run in CI.
+  rationale + rejected alternatives in the phase record; Phase 09 re-examines it). 236 unit
+  tests (27 files); Playwright + axe + emulator rules run in CI — run `41825858179` on this
+  branch is green, every step including browser acceptance.
   Record: `docs/phases-v2/06-theatre-player/RECORD.md`.
 - **v2-07 … v2-10 not started**: Phase 07 follows only after the owner reviews Phase 06,
   explicitly commands its PR/merge, and starts a new chat. The primer/statement/quiz-bank

@@ -102,20 +102,21 @@ speed** reset. No toggle pretends to block ads.
 ## Validation (local, this branch)
 
 - `npm run build` — clean, `0` TypeScript errors.
-- `npm test` — **231 tests across 26 files** (was 194/22). New: `video.test.ts` (11),
-  `stamps.test.ts` (13), `speedMemory.test.ts` (5), `autoAdvance.test.ts` (6);
-  `backup.test.ts` moved to schema v7.
+- `npm test` — **236 tests across 27 files** (was 194/22). New: `video.test.ts` (11),
+  `stamps.test.ts` (13), `speedMemory.test.ts` (5), `autoAdvance.test.ts` (6),
+  `tab.test.ts` (6); `backup.test.ts` moved to schema v7.
 - `npm run test:data` — 495 rows / 20 topics, 42/42 theory MCQs, coverage current.
 - `npm run check:rules` — `firestore.rules` matches the generator (20 topics, v8).
 - `npm run check:dist` — 21 files, no `copy-web/` paths or assets.
 - `npm run check:links` — 2 161 references, 1 157 unique URLs, **369 single-source video
   links untouched**, 0 stale.
-- `npm run check:budgets` — **CSS, entry JS and largest chunk green; total shell red**
-  (see below).
-- Playwright: `e2e/theatre.spec.ts` added (**15 tests**, both widths, axe 0 on two theatre
+- `npm run check:budgets` — **green** at `386.02 kB` gzip against the 388 kB cap
+  (CSS 10.10 kB / 18, entry 32.9 / 55, largest chunk 129.9 / 520).
+- Playwright: `e2e/theatre.spec.ts` added (**17 tests**, both widths, axe 0 on two theatre
   routes, plus an emulator-gated stamp round-trip); `code.spec.ts`, `library.spec.ts`,
   `planner.spec.ts`, `quiz.spec.ts` and `sync.spec.ts` moved to `schemaVersion: 7`.
-  **Not run locally** (no Chromium/Java in the sandbox — CI covers them).
+  **Not run locally** (no Chromium/Java in the sandbox — CI is the browser, and run
+  `41825858179` is green).
 
 ### What CI caught (and what was fixed)
 
@@ -128,6 +129,35 @@ The first four CI runs each exposed a real defect; none of them were test-only n
 | `41807928868` | `firestore.rules` v8 **did not compile**: `moments.all(function (moment) {...})` is a lambda, and Firestore Rules have no lambdas. | Unrolled per-index clauses emitted by the generator. |
 | `41808350018` | `PERMISSION_DENIED` — *"the maximum of 1000 expressions to evaluate has been reached"*: 30 full shape checks is simply too many. | Every index now gets one cheap key check; the two boundary stamps get the full `validStamp`; the list must be ≤30, sorted and inside 0–86400. The client always writes the whole sorted list, so an add moves the last element and a delete re-exposes a boundary one. |
 | `41808733081` | Rules green; Playwright found four regressions: `label-content-name-mismatch` on our glyph buttons, `heading-order` on `#/problem/<id>` (h1 → h3), the phase-04 "Open problem" row landing on a page without the code panel, and stale `schemaVersion: 6` assertions in four specs. | Glyphs are `aria-hidden` under complete labels; the phone layout renders the problem `h2`; the tab became URL state (`?tab=code`); the four specs moved to 7. |
+| `41811776493` … `41821337671` | Repeated reds in the browser stage while the rules stayed green. Each was traced before being touched; nothing was retried into a pass. | See *The last four reds* below — two were product bugs. |
+| **`41825858179`** | **Green.** Every step, rules and browser acceptance included. | — |
+
+### The last four reds
+
+The tail of this phase was a reminder that a red browser step is evidence, not noise. One
+trap had to be undone in the product before the specs could be honest:
+
+- **The "visually hidden but clickable" tab strip.** Parked at 1×1 with `clip-path` so the
+  desktop strip stayed keyboard-operable, it still intercepted pointer events — Playwright
+  named the nav and title as the interceptors. A control that is invisible but in the way is
+  worse than no control. The strip is now `display: none` above 1080 px (the rail carries the
+  same two destinations there) and the tab remains reachable at every width because it is a
+  URL. The specs moved to the rail's own controls.
+- **`problem-panel-problem` has no title.** It renders the statement body only; the heading
+  above the stage carries the title. The offline test asserts the authored copy instead of a
+  string the panel never contained.
+- **The tab did not follow the address (product bug).** The screen re-read `?tab=` only when
+  `problemId` changed, so a same-document hash navigation — back/forward, a pasted deep link,
+  a bookmark — left the previous panel on screen. The tab *is* the address in this phase, so
+  the screen now listens for `hashchange`, and the parser lives in `theatre/tab.ts` with six
+  unit tests.
+- **Every save remounted the code editor (product bug).** `CodePanel` keyed the editor by
+  `problemId-updatedAt`; each save writes a fresh server timestamp, so saving discarded
+  anything typed afterwards and, against a slow snapshot, unmounted the panel under the
+  reader. Keyed by problem identity now.
+- **The offline-flush assertion stops trusting a label.** It reads the emulator document with
+  the owner token (the access `planner.spec.ts` already used), so it proves the write reached
+  the server, then confirms the read side from the second browser profile.
 
 Two runtime defects were found by reading the hand-off path while waiting for CI, both of
 which would have made the mini player never work with the real player:
