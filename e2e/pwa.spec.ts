@@ -45,6 +45,23 @@ async function waitForServiceWorkerControl(page: Page) {
   })
 }
 
+/**
+ * Audit steady-state colours, not a cross-fade.
+ *
+ * Every surface in this app animates its background and text colour for
+ * `--motion-micro` (120 ms), and a theme change on load (restored from storage)
+ * starts that fade after the first paint. Axe samples computed colours at one
+ * instant, so a sample taken 20 ms into a dark→light fade compares a half-faded
+ * foreground against a half-faded background and reports a contrast failure that
+ * no user can ever see — WCAG measures the steady state. Emulating reduced
+ * motion collapses those durations to 0.001 ms (see `tokens.css`), which is how
+ * the visual specs already run. This bit us once: `#8e9994 on #404243` — neither
+ * colour exists in our tokens, they were 20% of the way through a fade.
+ */
+test.beforeEach(async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+})
+
 async function expectFitsAndAccessible(page: Page) {
   const fits = await page.evaluate(
     () => document.documentElement.scrollWidth <= window.innerWidth,

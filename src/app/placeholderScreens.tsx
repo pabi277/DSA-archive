@@ -8,11 +8,18 @@
  * and code bodies graduated to their own modules in phases 03–04, and 05
  * replaces the quiz home below.
  */
+import { Suspense, lazy } from 'react'
 import { buildPath } from './router'
 import { Button, Card, Empty, Tag } from '../design/primitives'
 import { useTheatreSettings, resetAllRates } from '../theatre/theatreSettings'
 import { memorisedTopics, rateLabel } from '../theatre/speedMemory'
 import { IconSpark, IconToday } from '../design/icons'
+
+/**
+ * Phase v2-07: the runner's storage card is a lazy chunk. It imports the runtime
+ * manifests, which belong to the installed add-on — not to the frozen shell.
+ */
+const RunnerSettingsCard = lazy(() => import('../runner/settingsCard'))
 
 export function InsightsScreen({ signedIn }: { signedIn: boolean }) {
   return (
@@ -118,6 +125,10 @@ export function SettingsScreen({
       </Card>
 
       <TheatreSettingsCard />
+
+      <Suspense fallback={null}>
+        <RunnerSettingsCard />
+      </Suspense>
 
       <Card title="Your data">
         <p className="quiet-note">

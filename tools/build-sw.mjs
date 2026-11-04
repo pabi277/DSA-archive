@@ -18,6 +18,43 @@ import { createHash } from 'node:crypto'
 import { readdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
+/**
+ * Phase v2-07: the runner is an *installed add-on*. Its worker bundle
+ * (`assets/runner-*.js`, ~1.3 MB of Clang glue) and the toolchains it fetches
+ * (`runtime/…`, ~43 MB when both packs ship) are fetched on demand and stored in
+ * their own Cache Storage bucket — never in the shell precache. The shell stays
+ * the 388 kB gzip the owner approved, and the app still opens offline.
+ */
+const RUNTIME_PREFIXES = ['runtime/', 'assets/runner-']
+
+/**
+ * Manifests are the exception inside the runtime tree: ~1 kB each, and they tell
+ * the app what it is about to install. Serving a stale one from a cache-first
+ * bucket would advertise the wrong download size, so the network always answers
+ * for them and the app keeps its own offline copy.
+ */
+const RUNTIME_MANIFESTS = ['runtime/packs.json', 'runtime/runner/index.json']
+
+export function isRuntimeAsset(rel) {
+  return RUNTIME_PREFIXES.some((prefix) => rel.startsWith(prefix))
+}
+
+async function collectRuntimeAssets(dir, base = dir) {
+  const entries = await readdir(dir, { withFileTypes: true })
+  const out = []
+  for (const entry of entries) {
+    const full = path.join(dir, entry.name)
+    if (entry.isDirectory()) {
+      out.push(...(await collectRuntimeAssets(full, base)))
+      continue
+    }
+    const rel = path.relative(base, full).replaceAll(path.sep, '/')
+    if (rel === 'sw.js' || rel.endsWith('.map')) continue
+    if (isRuntimeAsset(rel) && !RUNTIME_MANIFESTS.includes(rel)) out.push(`/${rel}`)
+  }
+  return out.sort()
+}
+
 async function collectFiles(dir, base = dir) {
   const entries = await readdir(dir, { withFileTypes: true })
   const out = []
@@ -32,6 +69,7 @@ async function collectFiles(dir, base = dir) {
       // demand and cached by the browser's font cache, never precached — they
       // live in the separate "runtime assets" budget bucket, not the shell.
       if (rel.startsWith('fonts/')) continue
+      if (isRuntimeAsset(rel)) continue
       out.push(rel)
     }
   }
@@ -40,6 +78,7 @@ async function collectFiles(dir, base = dir) {
 
 export async function writeServiceWorker(distDir = path.resolve('dist')) {
   const files = await collectFiles(distDir)
+  const runtimeUrls = await collectRuntimeAssets(distDir)
   const hash = createHash('sha256')
   for (const rel of files) {
     hash.update(rel)
@@ -55,6 +94,12 @@ export async function writeServiceWorker(distDir = path.resolve('dist')) {
 const CACHE_NAME = ${JSON.stringify(cacheName)};
 const PRECACHE_URLS = ${JSON.stringify(precacheUrls, null, 2)};
 const PRECACHE_SET = new Set(PRECACHE_URLS);
+// Phase v2-07: the local code runner lives in its own bucket, filled by the app
+// when a learner installs a toolchain. Cache-first so a run works in airplane
+// mode; the shell above is untouched.
+const RUNTIME_CACHE = 'dsa-archive-runtime-v1';
+const RUNTIME_URLS = ${JSON.stringify(runtimeUrls, null, 2)};
+const RUNTIME_SET = new Set(RUNTIME_URLS);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -116,6 +161,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  if (RUNTIME_SET.has(url.pathname)) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(RUNTIME_CACHE);
+        const cached = await cache.match(url.href);
+        if (cached) return cached;
+        return fetch(request);
+      })(),
+    );
+    return;
+  }
+
   if (PRECACHE_SET.has(url.pathname)) {
     event.respondWith(
       caches.open(CACHE_NAME).then(async (cache) => {
@@ -129,5 +186,5 @@ self.addEventListener('fetch', (event) => {
 `
 
   await writeFile(path.join(distDir, 'sw.js'), source, 'utf8')
-  return { cacheName, precacheCount: precacheUrls.length }
+  return { cacheName, precacheCount: precacheUrls.length, runtimeCount: runtimeUrls.length }
 }

@@ -35,8 +35,20 @@ export const BUDGETS = {
   maxSingleJsRawBytes: 520_000,
   maxSingleJsGzipBytes: 165_000,
   maxShellGzipBytes: 388_000,
-  /** Runtime bucket: fonts + future compiler payload, never precached. */
-  maxRuntimeAssetRawBytes: 15_000_000,
+  /**
+   * Phase v2-07 runtime bucket — a SEPARATE bucket from the shell, never
+   * precached, published here with measured numbers:
+   *   · the runner UI chunk (`assets/runner-*.js`): the panel, the settings card
+   *     and the MCQ snippet hook, all lazy;
+   *   · the runner's own worker bundle and the toolchains it fetches
+   *     (`runtime/…`): C/C++ 29.0 MB, Python 13.5 MB, worker ~1.3 MB.
+   * Neither is part of the 388 kB gzip shell the owner froze, and both are
+   * exempt only while the Service Worker provably does not precache them (the
+   * assertion at the bottom of this file).
+   */
+  maxRunnerChunkRawBytes: 120_000,
+  maxRunnerChunkGzipBytes: 40_000,
+  maxRuntimeAssetRawBytes: 48_000_000,
   maxFontRawBytes: 60_000,
 }
 
@@ -59,8 +71,13 @@ for (const rel of files) {
   stats.push({ rel, raw: buf.length, gzip: gz.length })
 }
 
-const cssFiles = stats.filter((item) => item.rel.endsWith('.css'))
-const jsAssets = stats.filter((item) => item.rel.startsWith('assets/') && item.rel.endsWith('.js'))
+const isRuntimeAsset = (rel) => rel.startsWith('runtime/') || rel.startsWith('assets/runner-')
+// The runner chunk and its stylesheet are an installed add-on; everything below
+// counts the *shell* only.
+const cssFiles = stats.filter((item) => item.rel.endsWith('.css') && !isRuntimeAsset(item.rel))
+const jsAssets = stats.filter(
+  (item) => item.rel.startsWith('assets/') && item.rel.endsWith('.js') && !isRuntimeAsset(item.rel),
+)
 const entryJs = jsAssets.find((item) => /^assets\/index-[^/]+\.js$/.test(item.rel))
 
 if (!entryJs) throw new Error('Could not find built entry chunk dist/assets/index-*.js')
@@ -74,7 +91,7 @@ const largestJsGzip = jsAssets.reduce((max, item) => (item.gzip > max.gzip ? ite
 // manifest and icons. Runtime assets (font subsets, the future wasm compiler)
 // are deliberately in their own bucket below and are never precached.
 const totalShellGzip = stats
-  .filter((item) => !item.rel.startsWith('fonts/'))
+  .filter((item) => !item.rel.startsWith('fonts/') && !isRuntimeAsset(item.rel))
   .reduce((sum, item) => sum + item.gzip, 0)
 
 const failures = []
@@ -127,8 +144,23 @@ const swSource = await readFile(path.join(root, 'sw.js'), 'utf8')
 if (!swSource.includes("url.pathname.startsWith('/__/')")) {
   failures.push('dist/sw.js must bypass Firebase Hosting /__/ Auth paths')
 }
+function swArray(name) {
+  const match = swSource.match(new RegExp(`const ${name} = (\\[[\\s\\S]*?\\]);`))
+  if (!match) return null
+  try {
+    return new Set(JSON.parse(match[1]))
+  } catch {
+    return null
+  }
+}
+
+const precacheList = swArray('PRECACHE_URLS')
+const runtimeList = swArray('RUNTIME_URLS')
+if (!precacheList || !runtimeList) {
+  failures.push('dist/sw.js must declare both PRECACHE_URLS and RUNTIME_URLS')
+}
 for (const asset of [...cssFiles, ...jsAssets]) {
-  if (!swSource.includes(`"/${asset.rel}"`)) {
+  if (precacheList && !precacheList.has(`/${asset.rel}`)) {
     failures.push(`dist/sw.js does not precache /${asset.rel}`)
   }
 }
@@ -142,14 +174,40 @@ for (const standalonePage of ['offline.html', '404.html']) {
 
 // Runtime-asset bucket: fonts ship from `public/fonts/` and are fetched on demand
 // (font-display: swap), so they must never enter the shell precache list.
-const runtimeAssets = stats.filter((item) => item.rel.startsWith('fonts/'))
-const fontRaw = runtimeAssets.reduce((sum, item) => sum + item.raw, 0)
+const fontAssets = stats.filter((item) => item.rel.startsWith('fonts/'))
+const fontRaw = fontAssets.reduce((sum, item) => sum + item.raw, 0)
 if (fontRaw > BUDGETS.maxFontRawBytes) {
   failures.push(`Font subsets raw ${fontRaw} B > budget ${BUDGETS.maxFontRawBytes} B (two Latin subsets, ~45 kB)`)
 }
-for (const asset of runtimeAssets) {
-  if (swSource.includes(`"/${asset.rel}"`)) {
+
+// Phase v2-07: the runner is an installed add-on with its own two caps. It is
+// reported separately, never added to the shell number above.
+const runnerChunk = stats.filter((item) => item.rel.startsWith('assets/runner-'))
+const runnerChunkRaw = runnerChunk.reduce((sum, item) => sum + item.raw, 0)
+const runnerChunkGzip = runnerChunk.reduce((sum, item) => sum + item.gzip, 0)
+if (runnerChunkRaw > BUDGETS.maxRunnerChunkRawBytes) {
+  failures.push(`Runner UI chunk raw ${runnerChunkRaw} B > budget ${BUDGETS.maxRunnerChunkRawBytes} B`)
+}
+if (runnerChunkGzip > BUDGETS.maxRunnerChunkGzipBytes) {
+  failures.push(`Runner UI chunk gzip ${runnerChunkGzip} B > budget ${BUDGETS.maxRunnerChunkGzipBytes} B`)
+}
+const packAssets = stats.filter((item) => item.rel.startsWith('runtime/'))
+const packRaw = packAssets.reduce((sum, item) => sum + item.raw, 0)
+if (packRaw > BUDGETS.maxRuntimeAssetRawBytes) {
+  failures.push(`Runtime toolchain assets raw ${packRaw} B > budget ${BUDGETS.maxRuntimeAssetRawBytes} B`)
+}
+for (const asset of [...fontAssets, ...runnerChunk, ...packAssets]) {
+  if (precacheList?.has(`/${asset.rel}`)) {
     failures.push(`dist/sw.js must not precache runtime asset /${asset.rel}`)
+  }
+}
+// The two manifests are deliberately *not* in the runtime cache list: the app
+// fetches them fresh and keeps its own copy for offline use.
+const RUNTIME_MANIFESTS = new Set(['runtime/packs.json', 'runtime/runner/index.json'])
+for (const asset of [...runnerChunk, ...packAssets]) {
+  if (RUNTIME_MANIFESTS.has(asset.rel)) continue
+  if (runtimeList && !runtimeList.has(`/${asset.rel}`)) {
+    failures.push(`dist/sw.js must serve /${asset.rel} from the runtime cache`)
   }
 }
 
@@ -165,12 +223,20 @@ console.log(
     `  Largest JS:   ${largestJsRaw.rel} ${(largestJsRaw.raw / 1000).toFixed(2)} kB raw / ${(largestJsGzip.gzip / 1000).toFixed(2)} kB gzip (cap ${BUDGETS.maxSingleJsRawBytes / 1000} / ${BUDGETS.maxSingleJsGzipBytes / 1000} kB)`,
     `  Total shell:  ${(totalShellGzip / 1000).toFixed(2)} kB gzip (cap ${BUDGETS.maxShellGzipBytes / 1000} kB · ~${coldInstallsPerDay} cold installs/day inside 360 MB Spark Hosting cap)`,
     `  Runtime:      ${(fontRaw / 1000).toFixed(2)} kB font subsets raw (cap ${BUDGETS.maxFontRawBytes / 1000} kB · separate bucket, never precached)`,
+    `  Runner UI:    ${(runnerChunkRaw / 1000).toFixed(2)} kB raw / ${(runnerChunkGzip / 1000).toFixed(2)} kB gzip (cap ${BUDGETS.maxRunnerChunkRawBytes / 1000} / ${BUDGETS.maxRunnerChunkGzipBytes / 1000} kB · lazy, never precached)`,
+    `  Toolchains:   ${(packRaw / 1000 / 1000).toFixed(1)} MB raw on disk (cap ${BUDGETS.maxRuntimeAssetRawBytes / 1000 / 1000} MB · downloaded per language, cached on the device)`,
     `  Shell parts:  CSS ${(totalCssGzip / 1000).toFixed(1)} · entry ${(entryJs.gzip / 1000).toFixed(1)} · ` +
       stats
-        .filter((item) => item.rel.startsWith('assets/') && item.rel.endsWith('.js') && item !== entryJs)
+        .filter(
+          (item) =>
+            item.rel.startsWith('assets/') &&
+            item.rel.endsWith('.js') &&
+            item !== entryJs &&
+            !isRuntimeAsset(item.rel),
+        )
         .map((item) => `${item.rel.replace(/^assets\//, '').replace(/-[\w-]{8}\.js$/, '')} ${(item.gzip / 1000).toFixed(1)}`)
         .join(' · ') +
-      ` · other ${((totalShellGzip - totalCssGzip - stats.filter((item) => item.rel.endsWith('.js')).reduce((sum, item) => sum + item.gzip, 0)) / 1000).toFixed(1)} kB gzip`,
+      ` · other ${((totalShellGzip - totalCssGzip - stats.filter((item) => item.rel.endsWith('.js') && !isRuntimeAsset(item.rel)).reduce((sum, item) => sum + item.gzip, 0)) / 1000).toFixed(1)} kB gzip`,
   ].join('\n'),
 )
 

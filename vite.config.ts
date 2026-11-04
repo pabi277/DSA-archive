@@ -4,6 +4,23 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import { writeServiceWorker } from './tools/build-sw.mjs'
 
+/**
+ * Chunk names that belong to the runner add-on rather than the app shell. They
+ * are renamed to `assets/runner-<hash>.(js|css)` so the Service Worker, the
+ * budget gate and the docs can all point at one prefix. Keep this list next to
+ * the runner's entry points (`src/runner/runPanel.tsx`, `settingsCard.tsx` and
+ * whatever module they end up sharing).
+ */
+const RUNNER_CHUNK_NAMES = new Set([
+  'runPanel',
+  'snippetRun',
+  'settingsCard',
+  'runtimeStore',
+  'runner',
+  'client',
+  'packs',
+])
+
 const VIRTUAL_CATALOGUE = 'virtual:dsa-catalogue'
 const RESOLVED_CATALOGUE = `\0${VIRTUAL_CATALOGUE}`
 const VIRTUAL_CONTENT = 'virtual:dsa-content'
@@ -245,6 +262,13 @@ export default defineConfig({
     modulePreload: { polyfill: false },
     rolldownOptions: {
       output: {
+        // Phase v2-07: the runner's lazy chunks all share one file-name prefix,
+        // so `tools/build-sw.mjs` and `tools/check-budgets.mjs` can recognise
+        // "installed add-on" by name and keep it out of the shell precache (the
+        // shell is frozen at 388 kB gzip; the runner is ~22 kB raw of UI that
+        // most visits never load). Everything else keeps Vite's naming.
+        chunkFileNames: (chunk) =>
+          RUNNER_CHUNK_NAMES.has(chunk.name ?? '') ? 'assets/runner-[hash].js' : 'assets/[name]-[hash].js',
         codeSplitting: {
           groups: [
             { name: 'firebase-auth', test: /node_modules[\\/]@firebase[\\/](?:app|component|logger|util|webchannel-wrapper|auth)[\\/]/ },

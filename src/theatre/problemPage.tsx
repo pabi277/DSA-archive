@@ -16,7 +16,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { catalogue, type Topic } from '../catalogue'
 import { locateProblem } from '../library'
 import { isDrillId } from '../content/practice'
-import { getTheoryMcq, getTopicContent } from '../content/load'
+import { getTests, getTheoryMcq, getTopicContent } from '../content/load'
 import { mediaFor } from '../content/load'
 import { StatementCard } from '../content/statement'
 import { Button, Empty, Tag } from '../design/primitives'
@@ -102,6 +102,9 @@ export function ProblemScreen({
   )
 
   const moments = useMemo(() => momentsOf(snippet), [snippet])
+  // Phase v2-07: the authored `{input, expected}` pairs (phase 03) drive the
+  // Run panel's "Run tests" button on this same page.
+  const cases = useMemo(() => getTests(problemId), [problemId])
 
   const addStamp = useCallback(
     (at: number, text: string) => {
@@ -327,6 +330,7 @@ export function ProblemScreen({
                 signedIn={signedIn}
                 disabled={codeDisabled}
                 sync={codeSync}
+                cases={cases}
                 onSave={onSaveCode}
                 onDelete={() => {
                   if (moments.length > 0 && !snippet?.code.trim() && !snippet?.notes.trim()) {

@@ -1,10 +1,17 @@
-import { useId, useRef, useState, type KeyboardEvent } from 'react'
+import { Suspense, lazy, useId, useRef, useState, type KeyboardEvent } from 'react'
 import { buildPath, openHref } from '../app/router'
 import { publisherName } from '../content/resources'
 import type { InlineCheck, QuizOption, TheoryMcq, TheoryReveal } from '../content/types'
 import { Button, Tag } from '../design/primitives'
 import type { ProblemProgress } from '../progress'
 import type { QuizChoice } from './engine'
+
+/**
+ * Phase v2-07: "predict the output, then prove it". The affordance itself is an
+ * add-on chunk — the shell only pays for `lazy` + `Suspense`, and a learner who
+ * never answers a code question never downloads the runner.
+ */
+const SnippetRun = lazy(() => import('../runner/snippetRun').then((module) => ({ default: module.SnippetRun })))
 
 const OPTION_KEYS = ['A', 'B', 'C', 'D'] as const
 
@@ -235,6 +242,14 @@ export function TheoryMcqCard({
         onSelect={setSelected}
       />
 
+      {/* Phase v2-07: after the learner commits to an answer, the snippet can be
+          run for real — the one moment a local compiler teaches something. */}
+      {submitted && mcq.codeSnippet ? (
+        <Suspense fallback={null}>
+          <SnippetRun code={mcq.codeSnippet} problemId={mcq.problemId} />
+        </Suspense>
+      ) : null}
+
       <div className="mcq-actions">
         {!submitted ? (
           <Button
@@ -365,6 +380,14 @@ export function InlineCheckCard({
         locked={submitted}
         onSelect={setSelected}
       />
+
+      {/* Phase v2-07: after the learner commits to an answer, the snippet can be
+          run for real — the one moment a local compiler teaches something. */}
+      {submitted && check.codeSnippet ? (
+        <Suspense fallback={null}>
+          <SnippetRun code={check.codeSnippet} problemId={check.id} />
+        </Suspense>
+      ) : null}
 
       <div className="mcq-actions">
         {!submitted ? (

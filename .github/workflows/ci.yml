@@ -94,6 +94,21 @@ jobs:
         run: npm run check:rules
       - name: Unit tests
         run: npm test
+      - name: Fetch the local runner toolchain (C and C++)
+        # Phase v2-07: the browser compiler is a static toolchain (~29 MB) that
+        # git must not carry. CI downloads it from the pinned npm package, verifies
+        # every byte against the published sha-512, and so can run the real
+        # "compile C++ with std::sort" and "stop a runaway loop" acceptance cases.
+        run: |
+          npm run runtime:fetch -- --pack cpp
+          node tools/fetch-runtime.mjs --check
+      - name: Build and verify the runner worker bundle + toolchain
+        # `runtime/runner/` is git-ignored like the packs, so CI builds it here;
+        # `runtime:check` then re-verifies the emitted bundle, its licence banner,
+        # the manifest and every pack byte on disk.
+        run: |
+          npm run runtime:worker
+          npm run runtime:check
       - name: Production build (emulator identifiers)
         env:
           VITE_FIREBASE_USE_EMULATOR: 'true'
@@ -112,6 +127,9 @@ jobs:
         env:
           GCLOUD_PROJECT: demo-dsa-archive
           PLAYWRIGHT_EMULATOR: '1'
+          # Turns on the C++ assertions in `e2e/runner.spec.ts` (the pack is on
+          # disk from the step above).
+          RUNNER_CPP: '1'
         run: |
           set -o pipefail
           npm run test:emulator 2>&1 | tee test-output.log

@@ -6,7 +6,7 @@
  * promises matter more, and phase 07 plugs its runner in beside this panel
  * without rework.
  */
-import { useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import { locateProblem } from '../library'
 import { Button, Tag } from '../design/primitives'
 import {
@@ -24,6 +24,16 @@ import {
   type SnippetDraft,
 } from './codeStore'
 import { PeekCode } from './peek'
+import type { CaseSpec } from '../runner/tests'
+
+/**
+ * Phase v2-07: the runner is an installed add-on, loaded on first paint of the
+ * panel and never part of the app shell (the shell is frozen at 388 kB gzip and
+ * the worker alone is ~1.3 MB). A `Suspense` with no fallback is deliberate —
+ * the panel appears under the code buttons a moment later, and nothing shifts
+ * because it is always the last block in the card.
+ */
+const RunPanel = lazy(() => import('../runner/runPanel'))
 
 export type CodeSync = { busy: boolean; pending: boolean; online: boolean }
 
@@ -88,6 +98,7 @@ export function CodeEditor({
   snippet,
   disabled,
   sync,
+  cases,
   onSave,
   onDelete,
   onClose,
@@ -97,6 +108,8 @@ export function CodeEditor({
   snippet: Snippet | null
   disabled: boolean
   sync: CodeSync
+  /** Authored `{input, expected}` pairs from phase 03 (`getTests`). */
+  cases: readonly CaseSpec[]
   onSave: (draft: SnippetDraft) => void
   onDelete: () => void
   onClose?: () => void
@@ -226,8 +239,12 @@ export function CodeEditor({
         />
       </div>
       <p className="code-counter num">
-        {code.length} / {CODE_LIMIT} · Tab indents · ⌘S saves
+        {code.length} / {CODE_LIMIT} · Tab indents · ⌘S saves · ⌘↵ runs
       </p>
+
+      <Suspense fallback={null}>
+        <RunPanel code={code} language={language} cases={cases} problemId={problemId} />
+      </Suspense>
 
       <label className="field-label" htmlFor={`code-note-${problemId}`}>
         Reminder (optional, plain text, {SNIPPET_NOTES_LIMIT} max)
@@ -303,6 +320,7 @@ export function CodePanel({
   signedIn,
   disabled,
   sync,
+  cases,
   initialMode = 'view',
   onSave,
   onDelete,
@@ -314,6 +332,7 @@ export function CodePanel({
   signedIn: boolean
   disabled: boolean
   sync: CodeSync
+  cases: readonly CaseSpec[]
   initialMode?: 'view' | 'edit'
   onSave: (draft: SnippetDraft) => void
   onDelete: () => void
@@ -347,6 +366,7 @@ export function CodePanel({
         snippet={snippet}
         disabled={disabled}
         sync={sync}
+        cases={cases}
         onSave={(draft) => {
           // Stay in the editor after saving (like the old note editor): the
           // save status flips to Saved/Offline from the snapshot, and the
@@ -400,10 +420,9 @@ export function CodePanel({
           </Button>
         ) : null}
       </div>
-      <p className="fine-print">
-        To run it today, copy and paste into LeetCode or Compiler Explorer. The in-app runner
-        arrives in Phase 07.
-      </p>
+      <Suspense fallback={null}>
+        <RunPanel code={snippet.code} language={snippet.language} cases={cases} problemId={problemId} />
+      </Suspense>
     </section>
   )
 }

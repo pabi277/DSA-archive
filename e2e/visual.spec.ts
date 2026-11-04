@@ -65,6 +65,9 @@ for (const viewport of VIEWPORTS) {
         // The sheet only shows rows inside an open topic; the snapshot must
         // cover row anatomy, so open the first one deterministically.
         if (route.slug === 'search') await openTopic(page)
+        // Phase v2-07: the runner's storage card is a lazy chunk; wait for it so
+        // the settings baseline never races its own async import.
+        if (route.slug === 'settings') await expect(page.getByTestId('runner-settings')).toBeVisible()
         if ('hint' in route && route.hint) {
           await page.locator('[data-testid="hint-details"] summary').click()
           await expect(page.getByTestId('hint-details')).toHaveAttribute('open', '')
