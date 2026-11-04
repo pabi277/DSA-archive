@@ -5,12 +5,14 @@
 > **Self-contained handoff.** v1 is complete. v2 Phases 01–04 are merged to `main`
 > (PR #12 `558a25f`, PR #13 `bd9350b`, PR #14 `e51695a`, PR #15 `f4fa993` with CI run
 > `41782795154` green). Phase 05 (`05-quiz-engine`) is **implemented** on
-> `arena/6327674f-dsa-archive`; all local validation gates are green (193 unit tests,
-> rules v7, backup v6, data/content/dist/links checks, and 375.96 kB / 380 kB gzip shell
-> precache) and recorded in `docs/phases-v2/05-quiz-engine/RECORD.md`. Opening a PR and
-> merging remain standing owner gates; no PR, merge, deployment, or `main` push was
-> performed without the owner's explicit command. Phase 06 (`06-theatre-player`) is the
-> next build phase after the owner commands Phase 05's PR and merge.
+> `arena/6327674f-dsa-archive` with CI run
+> [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495)
+> (`cac1c7f`) green across 194 unit tests, 18 emulator rules v7 tests, 94 Playwright +
+> axe checks, 64 visual baselines, `site-preview` (435,685 B), and 376.01 kB / 380 kB
+> gzip shell precache, recorded in `docs/phases-v2/05-quiz-engine/RECORD.md`. Opening a
+> PR and merging remain standing owner gates; no PR, merge, deployment, or `main` push
+> was performed without the owner's explicit command. Phase 06 (`06-theatre-player`) is
+> the next build phase after the owner commands Phase 05's PR and merge.
 > Authority order: `rule.md` → `docs/DECISIONS.md` (owner answers) →
 > `docs/phases-v2/` (phase contracts) → `docs/ROADMAP.md` (status) →
 > `docs/DATA-MODEL.md` (Firestore/backup shapes) → `docs/UI-REFERENCE.md`
@@ -98,9 +100,10 @@ Do **not** start coding before step 5 is read end-to-end.
   rules **v7** (18 emulator tests), guest `dsa-archive.quiz.v1` + explicit merge-on-sign-in,
   and backup **v6** (`quizResults[]`, schemas 1–5 accepted). Lossless build-time
   table-packing of `virtual:dsa-catalogue` keeps the total precached shell at
-  **375.96 kB gzip** (`4,036 B` below the frozen 380 kB cap). Local `npm run build`,
-  `npm test` (193), `test:data`, `check:content`, `check:rules`, `check:dist`,
-  `check:links`, and `check:budgets` are all green; 94 Playwright tests list cleanly.
+  **376.01 kB gzip** (`3,986 B` below the frozen 380 kB cap). Branch CI run
+  [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495)
+  (`cac1c7f`) is green across 194 unit tests, 18 emulator rules v7 tests, 94 Playwright
+  tests + axe 0, 64 visual baselines (`11,000,190` B), and `site-preview` (`435,685` B).
   Record: `docs/phases-v2/05-quiz-engine/RECORD.md`.
 - **v2-06 … v2-10 not started**: Phase 06 follows only after the owner reviews Phase 05,
   explicitly commands its PR/merge, and starts a new chat. The primer/statement/quiz-bank

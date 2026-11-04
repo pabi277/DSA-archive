@@ -1,8 +1,9 @@
 # Phase v2-05 — Quiz engine & theory MCQs record
 
-**Branch:** `arena/6327674f-dsa-archive` (cut from `main` at `f4fa993`, after Phases 01–04 merged) · **Status:** implemented locally; stopped at owner PR / merge gate
-**CI run id / `site-preview` bytes / `visual-baselines` bytes:** _pending owner command to open PR (sandbox has no Java or Chromium binaries; all local gates below are green)_
-**PR gate:** NOT opened yet — awaiting the owner's explicit command per `rule.md` §3. No merge, deploy or `main` push was performed.
+**Branch:** `arena/6327674f-dsa-archive` (cut from `main` at `f4fa993`, after Phases 01–04 merged) · **Status:** implemented and CI-verified on branch; stopped at owner PR / merge gate
+**Final green CI run id:** [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495) · **Green head:** `cac1c7f` (a metadata-only doc commit follows this record; its sha lands in chat) · **`site-preview` bytes:** 435,685 · **`visual-baselines` bytes:** 11,000,190
+**Earlier branch CI runs:** [`41792897385`](https://github.com/pabi277/DSA-archive/actions/runs/41792897385) surfaced one real WCAG 2.5.3 `label-content-name-mismatch` on `row-check` when expanded (`Hide` vs `aria-label="Check…"`, fixed in `067600e`) plus two test-only path/testId typos in `quiz.spec` and `topics.spec`; [`41793873436`](https://github.com/pabi277/DSA-archive/actions/runs/41793873436) passed 93/94 browser specs and caught a genuine React two-effect ordering bug in `QuizScreen` when `?seed=` changed across runs (fixed synchronously during render in `cac1c7f` with a regression test in `src/quiz/quiz.test.tsx`). Rules v7 (18 emulator tests), all 64 visual baselines, and all existing specs were green from the first run.
+**PR gate:** NOT opened yet — awaiting the owner's explicit command per `rule.md` §3. No PR, merge, deploy or `main` push was performed.
 
 ## What is now visible
 
@@ -33,9 +34,9 @@ All local gates are green on `arena/6327674f-dsa-archive`:
 - `npm run check:dist` — 21 files, zero `copy-web/` paths or assets.
 - `npm run check:links` — 16 built-page asset links + 2,161 outbound resource references (`1,157` unique URLs, `0` stale, 369 single-source video links untouched).
 - `npm run check:budgets` — all caps green (metrics below).
-- `npm test` — **193 tests across 22 files** passing (`engine.test.ts`, `results.test.ts`, `quiz.test.tsx`, updated `backup.test.ts`, `router.test.ts`, `load.test.ts`, `catalogue.test.ts`, `shell.test.tsx`).
-- `npx playwright test --list` — **94 tests across 12 files** parsed cleanly (`e2e/quiz.spec.ts` added; `topics.spec.ts`, `content.spec.ts`, `helpers.ts`, `visual.spec.ts`, and `schemaVersion: 6` assertions in `code/library/planner/sync.spec.ts` updated).
-- **Rules (CI emulator):** `tools/firestore-rules.test.mjs` grows from 15 to **18 tests** — owner valid `quizResults` write/read, invalid `bestScore > bestTotal` / `bestTotal > 12` / `attempts > 999` / unknown topic rejection, and stranger read/write denial.
+- `npm test` — **194 tests across 22 files** passing (`engine.test.ts`, `results.test.ts`, `quiz.test.tsx` incl. seed-transition regression test, updated `backup.test.ts`, `router.test.ts`, `load.test.ts`, `catalogue.test.ts`, `shell.test.tsx`).
+- **Rules (CI emulator — green in run `41794873495`):** `tools/firestore-rules.test.mjs` grows from 15 to **18 tests** — owner valid `quizResults` write/read, invalid `bestScore > bestTotal` / `bestTotal > 12` / `attempts > 999` / unknown topic rejection, and stranger read/write denial.
+- **Browser (CI Playwright — green in run `41794873495`):** **94 tests across 12 files** passing — new `e2e/quiz.spec.ts` (primer inline check zero-storage invariant + Practice `TheoryMcqCard` + axe 0; 390×844 phone 12-question Arrays run with `≥44 px` tap targets, pass, reseeded `?seed=1` retake, reload persistence, and axe 0; two-profile Emulator guest-merge + offline 12/12 reconnect sync + schema v6 backup export), updated `topics.spec.ts`, `content.spec.ts`, `helpers.ts`, `visual.spec.ts` (**64 baselines**: `16 routes × 2 viewports × 2 themes`), and `schemaVersion: 6` assertions in `code/library/planner/sync.spec.ts`.
 
 ## Performance & bundle budgets
 
@@ -44,17 +45,17 @@ Phase 04 left `35 B` of shell gzip headroom (`379,965 B / 380,000 B`), while Pha
 - **CSS:** `53.72 kB` raw / `9.43 kB` gzip (cap `60 / 18 kB`)
 - **Entry JS:** `111.56 kB` raw / `32.04 kB` gzip (cap `180 / 55 kB`)
 - **Largest JS (`firebase-firestore`):** `457.70 kB` raw / `129.86 kB` gzip (cap `520 / 165 kB`)
-- **Total precached shell:** **`375.96 kB` (`375,964 B`) gzip** against the frozen `380,000 B` cap (**`4,036 B` headroom** — `4,001 B` smaller than `main` before Phase 05)
+- **Total precached shell:** **`376.01 kB` (`376,014 B`) gzip** against the frozen `380,000 B` cap (**`3,986 B` headroom** — `3,951 B` smaller than `main` before Phase 05)
 - **Runtime fonts:** `57.50 kB` raw (cap `60 kB`, separate non-precached bucket)
 - Frozen token values in `src/design/tokens.css` are untouched (`0` bytes changed).
 
 ## Deviations, limits and honest notes
 
-- **Emulator + browser verification in CI:** Java and Playwright Chromium are unavailable in this sandbox (same constraint as Phases 03–04). All pure logic, jsdom component/shell flows, lossless catalogue unpacking, rules generation, link audits, and production bundle budgets are proven locally; the 18 Emulator rules tests, 3 new `e2e/quiz.spec.ts` flows, axe-core audits, and **64 visual baselines** (`16 routes × 2 viewports × 2 themes`, adding `quiz-home` and `quiz-runner`) execute in GitHub Actions CI once the owner commands opening the PR.
+- **Emulator + browser verification proven in CI:** Java and Playwright Chromium are unavailable in the local sandbox, so pushing `arena/6327674f-dsa-archive` executed the full `Site CI` matrix in GitHub Actions without opening a PR. Run [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495) at `cac1c7f` is 100% green across all 18 Emulator rules v7 tests, all 94 Playwright + axe checks, live-config budget re-verification, `site-preview` (`435,685` bytes), and **64 visual baselines** (`11,000,190` bytes, uploaded for owner review).
 - **Inline cards avoid competing primary CTAs:** `TheoryMcqCard` and `InlineCheckCard` use secondary/ghost buttons (`Button` default `secondary` / `ghost`) so embedding them inside `PrimerView`, `TopicPage`, `SheetScreen`, or `ProblemScreen` preserves the design-system rule of at most one `variant="primary"` button per view.
 - **Content scope:** Arrays has the full 12-item topic quiz + 3 primer inline checks; all 42 `kind: "theory"` rows across the sheet have live `TheoryMcq` cards; the remaining 19 topic quiz banks render honest `Coming soon` states until authored on the parallel content track.
 - No timers, leaderboards, anti-cheat, AI, analytics, transcripts, YouTube player modifications, remote code execution, new npm dependencies, or Blaze/non-whitelisted Firebase services were introduced.
 
 ## Exit gate
 
-Owner reviews `arena/6327674f-dsa-archive` and this record, then explicitly commands opening the PR so GitHub Actions CI runs the 18 Emulator rules tests, 94 Playwright + axe checks, and 64 visual baselines. **Stopped here before any PR, merge, `main` push, or deploy.**
+Owner reviews `arena/6327674f-dsa-archive`, CI run [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495) (`site-preview` + 64 `visual-baselines`), and this record, then explicitly commands opening and merging the PR. **Stopped here before any PR, merge, `main` push, or deploy.**

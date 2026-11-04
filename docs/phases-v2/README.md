@@ -23,7 +23,7 @@ performance targets, tests, risks, acceptance criteria, and exit gate.
 parallel from phase 02 onwards.
 
 
-**Execution status (2026-11-04):** Phases 01–04 are merged to `main` (PR #12 `558a25f`, PR #13 `bd9350b`, PR #14 `e51695a`, PR #15 `f4fa993` with CI run `41782795154` green). Phase 05 is implemented on `arena/6327674f-dsa-archive` with all local gates green (193 unit tests, data/content/rules/dist/links checks, and 375.96 kB / 380 kB gzip shell precache via lossless catalogue table-packing); its record is [`05-quiz-engine/RECORD.md`](05-quiz-engine/RECORD.md). Opening a PR and merging remain gated on the owner's explicit command. Latest *merged* versions on `main` are rules v6 / backup v5; Phase 05 advances them to rules v7 / backup v6 on its branch. The listed sequence continues 05 → 06 → 07 → 08 → 09 → 10.
+**Execution status (2026-11-04):** Phases 01–04 are merged to `main` (PR #12 `558a25f`, PR #13 `bd9350b`, PR #14 `e51695a`, PR #15 `f4fa993` with CI run `41782795154` green). Phase 05 is implemented on `arena/6327674f-dsa-archive` with CI run [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495) (`cac1c7f`) green across 194 unit tests, 18 emulator rules v7 tests, 94 Playwright + axe checks, 64 visual baselines, `site-preview` (435,685 B), and 376.01 kB / 380 kB gzip shell precache; its record is [`05-quiz-engine/RECORD.md`](05-quiz-engine/RECORD.md). Opening a PR and merging remain gated on the owner's explicit command. Latest *merged* versions on `main` are rules v6 / backup v5; Phase 05 advances them to rules v7 / backup v6 on its branch. The listed sequence continues 05 → 06 → 07 → 08 → 09 → 10.
 
 ## Owner additions 2026-11-03 (batch 2)
 
