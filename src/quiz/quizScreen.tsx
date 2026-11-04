@@ -40,20 +40,25 @@ export function QuizScreen({
   const [session, setSession] = useState(() =>
     createQuizSession(topic?.id ?? '', items, initialSeed),
   )
-  const recordedRef = useRef(false)
+  const recordedKeyRef = useRef<string | null>(null)
   const uid = useId()
 
-  useEffect(() => {
-    recordedRef.current = false
-    setSession(createQuizSession(topic?.id ?? '', topic ? getQuiz(topic.id) : [], initialSeed))
-  }, [topic?.id, initialSeed])
+  const sessionKey = `${session.topicId}:${session.seed}`
+  const expectedKey = `${topic?.id ?? ''}:${initialSeed}`
+  const [prevExpectedKey, setPrevExpectedKey] = useState(expectedKey)
+  if (prevExpectedKey !== expectedKey) {
+    setPrevExpectedKey(expectedKey)
+    setSession(createQuizSession(topic?.id ?? '', items, initialSeed))
+  }
 
   useEffect(() => {
-    if (!session.finished || recordedRef.current || !topic || session.items.length === 0) return
-    recordedRef.current = true
+    if (!session.finished || recordedKeyRef.current === sessionKey || !topic || session.items.length === 0) {
+      return
+    }
+    recordedKeyRef.current = sessionKey
     const summary = summarizeQuizSession(session)
     quiz.recordAttempt(topic.id, summary.score, summary.total)
-  }, [session, topic, quiz])
+  }, [session, sessionKey, topic, quiz])
 
   useEffect(() => {
     if (!topic || items.length === 0 || session.finished) return
@@ -137,7 +142,6 @@ export function QuizScreen({
 
   const handleRetake = () => {
     const nextSeed = Math.max(session.seed + 1, quiz.results[topic.id]?.attempts ?? 1)
-    recordedRef.current = false
     openHref(buildPath('quiz', topic.id, { seed: String(nextSeed) }), true)
     setSession(createQuizSession(topic.id, items, nextSeed))
   }

@@ -379,7 +379,9 @@ export function useQuizResults(account: AccountState): QuizDataState {
       const updatedMap = { ...cloudRef.current, [topicId]: next }
       cloudRef.current = updatedMap
       setCloudResults(updatedMap)
+      setPending(true)
       void setDoc(doc(firestore, 'users', uid, 'quizResults', topicId), firestorePayload(next)).catch((reason) => {
+        setPending(false)
         setError(`Could not save quiz score: ${messageFrom(reason)}`)
       })
     },

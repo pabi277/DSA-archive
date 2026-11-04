@@ -126,6 +126,7 @@ test.describe('emulator cloud sync', () => {
       await firstContext.setOffline(true)
       await page.evaluate(() => window.dispatchEvent(new Event('offline')))
       await open(page, '/#/quiz/arrays?seed=1')
+      await expect(page.getByTestId('quiz-progress-text')).toHaveText('1 / 12')
       await completeArraysQuiz(page, answerByPrompt, true)
       await firstContext.setOffline(false)
       await page.evaluate(() => window.dispatchEvent(new Event('online')))

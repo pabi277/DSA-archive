@@ -259,6 +259,39 @@ describe('QuizScreen & ResultScreen', () => {
     expect(session.bankIncomplete).toBe(true)
     expect(session.items).toHaveLength(5)
   })
+  it('records both attempts cleanly when navigating from seed=0 (0/12) to seed=1 (12/12)', () => {
+    const { state, recorded } = makeQuizState()
+    const items = getQuiz('arrays')
+    const seed0Order = createQuizSession('arrays', items, 0).items
+    const seed1Order = createQuizSession('arrays', items, 1).items
+
+    mount(<QuizScreen route={parseRoute('#/quiz/arrays')} quiz={state} />)
+    for (let i = 0; i < seed0Order.length; i += 1) {
+      const wrongIdx = ([0, 1, 2, 3] as const).find((idx) => idx !== seed0Order[i].answerIndex)!
+      click(qa('[role="radio"]')[wrongIdx])
+      click(q('[data-testid="quiz-submit"]'))
+      click(q('[data-testid="quiz-next"]'))
+    }
+    expect(recorded).toEqual([{ topicId: 'arrays', score: 0, total: 12 }])
+
+    mount(<QuizScreen route={parseRoute('#/quiz/arrays?seed=1')} quiz={state} />)
+    expect(q('[data-testid="quiz-progress-text"]').textContent).toBe('1 / 12')
+    for (let i = 0; i < seed1Order.length; i += 1) {
+      click(qa('[role="radio"]')[seed1Order[i].answerIndex])
+      click(q('[data-testid="quiz-submit"]'))
+      click(q('[data-testid="quiz-next"]'))
+    }
+    expect(recorded).toEqual([
+      { topicId: 'arrays', score: 0, total: 12 },
+      { topicId: 'arrays', score: 12, total: 12 },
+    ])
+    expect(state.results.arrays).toMatchObject({
+      bestScore: 12,
+      bestTotal: 12,
+      attempts: 2,
+      passed: true,
+    })
+  })
 })
 
 describe('QuizHome', () => {
