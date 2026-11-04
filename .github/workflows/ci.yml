@@ -102,8 +102,13 @@ jobs:
         run: |
           npm run runtime:fetch -- --pack cpp
           node tools/fetch-runtime.mjs --check
-      - name: Confirm the runner worker bundle is built and licensed
-        run: npm run runtime:check
+      - name: Build and verify the runner worker bundle + toolchain
+        # `runtime/runner/` is git-ignored like the packs, so CI builds it here;
+        # `runtime:check` then re-verifies the emitted bundle, its licence banner,
+        # the manifest and every pack byte on disk.
+        run: |
+          npm run runtime:worker
+          npm run runtime:check
       - name: Production build (emulator identifiers)
         env:
           VITE_FIREBASE_USE_EMULATOR: 'true'
