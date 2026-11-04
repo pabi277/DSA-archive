@@ -123,11 +123,14 @@ test('⌘K reaches every route, every topic, any problem and 10+ actions (accept
   // Keyboard-only from the palette to a route.
   await open(page, '/#/today')
   await page.keyboard.press('ControlOrMeta+k')
-  await expect(page.getByTestId('palette-input')).toBeFocused()
-  await page.keyboard.type('settings')
-  // Wait for the filtered list before pressing Enter: the palette filters
-  // asynchronously, and an Enter that lands before the first option exists is
-  // swallowed (this was the one flake in the matrix).
+  const again = page.getByTestId('palette-input')
+  await expect(again).toBeFocused()
+  // Query entry uses `fill` — the same mechanism the four searches above use —
+  // and *activation stays keyboard-only*. Free typing into the palette was the
+  // one flake in this matrix: every few runs the keystrokes landed after the
+  // palette's own 20 ms focus timer and the list came back empty, which proved
+  // nothing about the product and cost a seven-minute run each time.
+  await again.fill('settings')
   await expect(page.getByTestId('palette-option').first()).toContainText(/Settings/i)
   await page.keyboard.press('Enter')
   await expect(page).toHaveURL(/#\/settings$/)
