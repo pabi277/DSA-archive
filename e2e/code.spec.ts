@@ -136,7 +136,13 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await firstContext.setOffline(false)
     await page.evaluate(() => window.dispatchEvent(new Event('online')))
     await expect(page.getByTestId('code-save-status')).toContainText('Saved', { timeout: 20_000 })
+    // Device 2 was left on the problem page with this peek already revealed;
+    // leave and come back so the panel remounts and the peek hides again
+    // (reveal state is session-local), then reveal the synced offline edit.
+    await open(secondPage, '/#/code')
+    await expect(secondPage.getByTestId('code-row-two-sum')).toBeVisible()
     await open(secondPage, '/#/problem/two-sum')
+    await expect(secondPage.getByTestId('peek-code')).toHaveAttribute('aria-hidden', 'true')
     await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('peek-code')).toContainText('offline edit')
 
