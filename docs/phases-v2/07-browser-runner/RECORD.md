@@ -2,7 +2,9 @@
 
 **Branch:** `arena/435eaa93-dsa-archive` (cut from `main` at `d44b55a`, the merge of PR #17)
 **Contract:** [`PLAN.md`](PLAN.md) · **Status:** implemented; stopped at the owner's PR/merge gate
-**CI:** run [`41845242478`](https://github.com/pabi277/DSA-archive/actions/runs/41845242478) at
+**CI (tip `13f6cf6`):** run
+[`41847004468`](https://github.com/pabi277/DSA-archive/actions/runs/41847004468) — green, every step.
+**CI (the run that found the last two bugs):** run [`41845242478`](https://github.com/pabi277/DSA-archive/actions/runs/41845242478) at
 `4d321c3` — **every step green** (unit tests, toolchain fetch + verify, both production builds,
 budgets, emulator rules tests, the full phone/desktop browser matrix, visual baselines uploaded)
 **Preview:** `site-preview` **29,673,001 B** — it now carries the 29 MB C++ toolchain on purpose,
