@@ -109,9 +109,9 @@ Do **not** start coding before step 5 is read end-to-end.
   folder ships empty and titles fall back), the dead-link `Open on YouTube` card, opt-in
   auto-advance (default off), and a Settings card with the honest ads line + speed reset.
   Backup **v7** (reads 1–7). Theme screens lazy-load with the `content-ui` route chunk;
-  entry JS stays `32.84 kB` gzip. **Owner re-baselined the shell cap 380 → 386 kB gzip**
-  (measured `385,936 B`; rationale + rejected alternatives in the phase record; Phase 09
-  re-examines it). 231 unit tests; Playwright + axe + emulator rules run in CI.
+  entry JS stays `32.84 kB` gzip. **Owner re-baselined the shell cap 380 → 386 → 388 kB gzip**
+  (the 386 kB figure left the build exactly on the ceiling, so build variance failed CI;
+  rationale + rejected alternatives in the phase record; Phase 09 re-examines it). 231 unit tests; Playwright + axe + emulator rules run in CI.
   Record: `docs/phases-v2/06-theatre-player/RECORD.md`.
 - **v2-07 … v2-10 not started**: Phase 07 follows only after the owner reviews Phase 06,
   explicitly commands its PR/merge, and starts a new chat. The primer/statement/quiz-bank
@@ -138,13 +138,13 @@ Do **not** start coding before step 5 is read end-to-end.
 | 03 | `03-content-pipeline/` | ✅ **merged in PR #14** (`e51695a`) — schema v2 + safe renderers + validator/CI + **`resources[]` multi-source** + **136 drills** + 42 theory MCQs + Arrays primer/statements/quiz + coverage report; run `41696457606` green | 7–9 d + authoring | 01, 02 merged |
 | 04 | `04-code-notebooks/` | ✅ **merged in PR #15** (`f4fa993`) — **Delete notes** end-to-end; `snippets` collection, rules **v6**, backup **v5** (+v4 notes migration), `#/code`, small editor, peek/reveal; run `41782795154` green | 5–6 d | 01 |
 | 05 | `05-quiz-engine/` | ✅ **merged** (PR #16, `4741a1b`) — **Theory MCQ cards** (4 options, per-option explanations, always-available `Show solution`, `[Solve]` vs `[Check]`), 3 Arrays inline checks, 12-item topic quiz, 80% pass, `quizResults`, rules **v7**, backup **v6**, guest merge | 6–7 d | 02, 03 |
-| 06 | `06-theatre-player/` | 🟡 **implemented on `arena/c2fd0a14-dsa-archive`; owner PR/merge gate** — official IFrame player on `#/problem/<id>` only, our bar *below* the frame (play/pause, ±10 s, per-topic speed, Stamp, `c`/`f`, skip-to-stamp, watched ≥60%), one mini player across routes, stamps in `snippets[id].moments` (rules **v8**, backup **v7**, undoable), build-time oEmbed metadata, opt-in auto-advance, Settings card; shell re-baselined **380 → 386 kB** by owner decision (measured `385,936 B`) | 7–9 d | 01–03 |
+| 06 | `06-theatre-player/` | 🟡 **implemented on `arena/c2fd0a14-dsa-archive`; owner PR/merge gate** — official IFrame player on `#/problem/<id>` only, our bar *below* the frame (play/pause, ±10 s, per-topic speed, Stamp, `c`, skip-to-stamp, watched ≥60%; `f` consciously dropped), one mini player across routes, stamps in `snippets[id].moments` (rules **v8**, backup **v7**, undoable), build-time oEmbed metadata, opt-in auto-advance, Settings card; shell re-baselined **380 → 388 kB** by owner decision (`~2 kB` headroom) | 7–9 d | 01–03 |
 | 07 | `07-browser-runner/` | Local wasm C++/Python/JS runner in a Worker: Run, Stop, diagnostics, authored tests with first-diff, predict-the-output, 14 MB cache control, copy-out for Java/C# | 5–7 d | 04, 03 |
 | 08 | `08-insights-light/` | Reason vocabulary + chips, **momentum** (no punitive streak), one-line trajectory, "How this plan was made", 2 detectors, target date/list | 4–5 d | 01, 02, 05 |
 | 09 | `09-pwa-accessibility-hardening/` | Budgets re-baselined with published numbers, SW v2 exclusions, CSP (report-only → enforce), a11y × offline matrices, network assertion, dead-dependency decision | 4–5 d | 01–08 |
 | 10 | `10-release-v2/` | README v2, generated screenshots, DATA-MODEL v5, CHANGELOG, runbook, honest content-coverage table | 2–3 d | 09 |
 
-**Sequential ≈57–69 build days.** Phases 01–05 are merged; Phase 06 is implemented on `arena/c2fd0a14-dsa-archive` at its owner PR/review/merge gate. Rules **v7** / backup **v6** are the latest *merged* baseline on `main`; Phase 06 advances them to rules **v8** / backup **v7** on its branch, and the shell cap to **386 kB** gzip by owner decision of 2026-11-04 (Phase 09 re-examines it). Future rules/backup versions must increment from the actual merged baseline after each phase.
+**Sequential ≈57–69 build days.** Phases 01–05 are merged; Phase 06 is implemented on `arena/c2fd0a14-dsa-archive` at its owner PR/review/merge gate. Rules **v7** / backup **v6** are the latest *merged* baseline on `main`; Phase 06 advances them to rules **v8** / backup **v7** on its branch, and the shell cap to **388 kB** gzip by owner decision of 2026-11-04 (Phase 09 re-examines it). Future rules/backup versions must increment from the actual merged baseline after each phase.
 
 Each `PLAN.md` already contains: charter · current-state evidence (`file:line`) · scope in ·
 scope **out with reasons** · design spec/wireframes · file plan (`NEW`/`EDIT`/`DELETE`) ·
@@ -240,8 +240,8 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 > `docs/phases-v2/07-browser-runner/PLAN.md` in full — its acceptance list is the contract.
 > Phases 01–05 are merged; Phase 06 must be reviewed and merged by my explicit command before
 > starting a new phase. Advance from the actual merged state and **verify versions before
-> versioning anything** (Phase 06 ends at rules **v8** / backup **v7**, shell `385,936 B`
-> against the re-baselined **386 kB** cap — only `64 B` of slack, so the runner's wasm/worker
+> versioning anything** (Phase 06 ends at rules **v8** / backup **v7**, shell `~386,0xx B`
+> against the re-baselined **388 kB** cap — about `2 kB` of slack, so the runner's wasm/worker
 > payload must stay in the runtime bucket, never the precache; if it cannot, stop for a gate
 > instead of raising the cap again). Phase 07 adds the **Run** button to the theatre's own
 > rail, on the same problem page. Update `RECORD.md`, `docs/ROADMAP.md`,

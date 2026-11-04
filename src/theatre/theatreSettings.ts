@@ -18,12 +18,11 @@ import {
   readSpeeds,
   rememberRate,
   writeSpeeds,
-  forgetTopic,
   type PlaybackRate,
   type SpeedByTopic,
 } from './speedMemory'
 import { readAutoAdvance, writeAutoAdvance } from './autoAdvance'
-import { mergeWatchFlag, sanitizeWatchFlags, WATCH_STORAGE_KEY, type WatchFlag, type WatchFlags } from './video'
+import { mergeWatchFlag, sanitizeWatchFlags, WATCH_STORAGE_KEY, type WatchFlags } from './video'
 
 export type TheatreState = {
   speeds: SpeedByTopic
@@ -73,13 +72,6 @@ export function setTopicRate(topicId: string, rate: PlaybackRate) {
   commit({ ...state, speeds })
 }
 
-export function resetTopicRate(topicId: string) {
-  const state = current()
-  const speeds = forgetTopic(state.speeds, topicId)
-  writeSpeeds(speeds)
-  commit({ ...state, speeds })
-}
-
 export function resetAllRates() {
   const state = current()
   writeSpeeds({})
@@ -101,11 +93,6 @@ export function markWatched(videoId: string, percent: number) {
     // A blocked storage quota must never break playback.
   }
   commit({ ...state, watched })
-}
-
-export function watchFlagFor(videoId: string | null): WatchFlag | null {
-  if (!videoId) return null
-  return current().watched[videoId] ?? null
 }
 
 export function rateFor(topicId: string): PlaybackRate {

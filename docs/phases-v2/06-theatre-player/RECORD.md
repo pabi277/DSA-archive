@@ -1,9 +1,11 @@
 # Phase v2-06 — Theatre player · Record
 
 **Branch:** `arena/c2fd0a14-dsa-archive` (one PR, never `main`)
-**Status:** implemented and **green on every gate**. The shell cap was re-baselined
-380 kB → 386 kB gzip by the owner on 2026-11-04 (measured `385,936 B`, see the gate section);
-CI re-run with the new cap is the last step before the merge gate.
+**Status:** implemented and **green on every local gate**. The shell cap was re-baselined
+380 kB → 386 kB → **388 kB** gzip by the owner on 2026-11-04: the first figure left the build
+exactly on the ceiling, so ordinary build variance (a few hundred bytes) failed CI. Measured
+now at `386,000 B`-ish with real headroom; see the gate section. CI is the last step before
+the merge gate.
 
 ---
 
@@ -196,7 +198,14 @@ next review of this cap. The options as they were put, for the record:
    Even all three ≈ 4.5 kB, which lands at ~381.4 kB — still over. **A real cut would have
    to remove the mini player itself or the settings card**, i.e. break the contract.
 3. **Accept a phase-06-only `390 kB` cap** with the plan to return to 380 kB in Phase 09.
-   (Not taken: 386 kB is the smallest number that fits what was built.)
+
+**Follow-up the same day:** the 386 kB figure left the build *exactly* on the ceiling
+(`386,000 B` at one point), so a few hundred bytes of ordinary build variance failed the CI
+gate while the same tree passed locally. Two rounds of genuine trimming (dead exports,
+`nextSeekTarget`/`formatSeek`/`muteVideo`/`watchFlagFor`/`resetTopicRate`/`planMinutes`/
+`stepRate` and their tests, dead CSS) recovered only ~120 B — there is no dead weight left.
+The owner therefore chose **388 kB**, which restores real headroom (measured `386,00× B`,
+~2 kB) without dropping a contract item. Phase v2-09 still owns the next review.
 
 ---
 

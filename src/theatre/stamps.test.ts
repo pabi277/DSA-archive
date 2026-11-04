@@ -6,10 +6,8 @@ import {
   clampAt,
   clampMomentText,
   clearMomentUndoForTests,
-  formatSeek,
   momentsCountLabel,
   momentsOf,
-  nextSeekTarget,
   nextStamp,
   removeMoment,
   rememberMoments,
@@ -113,14 +111,9 @@ describe('stamp seeking', () => {
     expect(nextStamp(list, 5 * 60)?.text).toBe('c')
     expect(nextStamp(list, 20 * 60)?.text).toBe('a')
     expect(nextStamp([], 0)).toBeNull()
-    expect(nextSeekTarget(list, 10)?.text).toBe('a')
   })
 
-  it('labels the skip control with the next stamp clock', () => {
-    const list = [at(0, 30, 'a'), at(12, 34, 'b')]
-    expect(formatSeek(list, 0)).toBe('0:30')
-    expect(formatSeek(list, 60)).toBe('12:34')
-    expect(formatSeek([], 0)).toBe('no stamps')
+  it('labels the stamp list', () => {
     expect(momentsCountLabel(0)).toBe('No stamps')
     expect(momentsCountLabel(1)).toBe('1 stamp')
     expect(momentsCountLabel(3)).toBe('3 stamps')

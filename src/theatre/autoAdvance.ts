@@ -41,12 +41,6 @@ export function writeAutoAdvance(on: boolean, storage: Pick<Storage, 'setItem' |
   }
 }
 
-/** Minutes the plan recorded for a row, when it recorded any. */
-export function planMinutes(plan: { problemIds: string[]; minutes?: Record<string, number> } | null | undefined, problemId: string): number | null {
-  const value = plan?.minutes?.[problemId]
-  return typeof value === 'number' && Number.isFinite(value) && value > 0 ? Math.round(value) : null
-}
-
 /**
  * Today's plan first (the plan is the learner's own intent), then the next
  * unsolved row in the same topic. Returns null when there is nothing at all —

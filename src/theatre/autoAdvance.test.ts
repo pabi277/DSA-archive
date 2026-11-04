@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nextLine, nextUp, planMinutes, readAutoAdvance, writeAutoAdvance } from './autoAdvance'
+import { nextLine, nextUp, readAutoAdvance, writeAutoAdvance } from './autoAdvance'
 
 function fakeStorage(initial: Record<string, string> = {}) {
   const store = new Map(Object.entries(initial))
@@ -83,10 +83,4 @@ describe('the end-of-video offer', () => {
     expect(target?.reason).toBe('next in this topic')
   })
 
-  it('reads a positive plan estimate only', () => {
-    expect(planMinutes({ problemIds: [], minutes: { 'connected-components': 12 } }, 'connected-components')).toBe(12)
-    expect(planMinutes({ problemIds: [], minutes: { 'connected-components': 0 } }, 'connected-components')).toBeNull()
-    expect(planMinutes({ problemIds: [] }, 'connected-components')).toBeNull()
-    expect(planMinutes(null, 'connected-components')).toBeNull()
-  })
 })

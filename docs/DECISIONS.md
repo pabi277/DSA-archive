@@ -733,12 +733,21 @@ Dropping the catalogue's positional `rank` and deduping three `lcLabel` strings 
 
 **Owner chose "re-baseline to 386 kB now"** (2026-11-04), from four options that also included
 a phase-06-only 390 kB cap, cutting a piece of the contract, and leaving CI red for review.
+
+**Second re-baseline, same day: 386 kB → 388 kB.** The 386 kB figure put the build exactly on
+the ceiling, so a few hundred bytes of ordinary build-to-build variance failed CI while the
+identical tree passed locally. Trimming dead exports and dead CSS recovered only ~120 B, and
+the alternatives worth another 2 kB (moving the authored theory/practice content out of the
+precache, or cutting the stamps rail) trade away offline-first or contract items. The owner
+chose **388 kB**, which restores ~2 kB of real headroom and keeps every feature.
 Consequences, all recorded in `docs/phases-v2/06-theatre-player/RECORD.md`:
 
-- `tools/check-budgets.mjs` `maxShellGzipBytes` = `386_000` (was `380_000`); CSS 60 kB raw /
-  18 kB gz, entry 180 kB raw / 55 kB gz and the 520 kB largest-chunk caps are **unchanged**.
-- Measured: **`385,936 B`** gzip — the branch sits `64 B` under the new cap, so the next phase
-  starts with essentially no slack.
+- `tools/check-budgets.mjs` `maxShellGzipBytes` = `388_000` (was `380_000`, then `386_000`);
+  CSS 60 kB raw / 18 kB gz, entry 180 kB raw / 55 kB gz and the 520 kB largest-chunk caps are
+  **unchanged**.
+- Measured: **~`386,0xx B`** gzip — about `2 kB` of headroom, which is what a working gate
+  needs. Phase 07 must still treat the precache as full: the runner's wasm belongs in the
+  runtime bucket, never in the shell.
 - **Phase v2-09 still owns the cap review.** It is expected to tighten it again once the
   browser runner lands; this is a one-phase re-baseline, not a permanent 386 kB ceiling.
 

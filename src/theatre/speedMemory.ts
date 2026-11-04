@@ -36,13 +36,6 @@ export function clampRate(value: unknown): PlaybackRate {
   return (PLAYBACK_RATES as readonly number[]).includes(rate) ? (rate as PlaybackRate) : DEFAULT_RATE
 }
 
-/** Step one rung up or down through the documented list. */
-export function stepRate(rate: PlaybackRate, direction: 1 | -1): PlaybackRate {
-  const index = PLAYBACK_RATES.indexOf(clampRate(rate))
-  const next = Math.max(0, Math.min(PLAYBACK_RATES.length - 1, index + direction))
-  return PLAYBACK_RATES[next]
-}
-
 export function sanitizeSpeeds(raw: unknown): SpeedByTopic {
   if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) return {}
   const out: SpeedByTopic = {}

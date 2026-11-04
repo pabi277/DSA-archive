@@ -11,7 +11,6 @@ import {
   rememberRate,
   sanitizeSpeeds,
   SPEED_TOPIC_LIMIT,
-  stepRate,
   writeSpeeds,
 } from './speedMemory'
 
@@ -34,11 +33,7 @@ describe('playback speed remembered per topic', () => {
     expect(clampRate(Number.NaN)).toBe(DEFAULT_RATE)
   })
 
-  it('steps one rung and stops at the ends', () => {
-    expect(stepRate(1, 1)).toBe(1.25)
-    expect(stepRate(1, -1)).toBe(0.75)
-    expect(stepRate(0.5, -1)).toBe(0.5)
-    expect(stepRate(2, 1)).toBe(2)
+  it('labels every rate', () => {
     expect(rateLabel(1)).toBe('1×')
     expect(rateLabel(1.25)).toBe('1.25×')
   })

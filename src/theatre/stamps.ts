@@ -130,23 +130,6 @@ export function seekTarget(moment: Moment): number {
   return Math.max(0, moment.at - STAMP_LEAD_SECONDS)
 }
 
-/**
- * "Skip to next stamp" target: the first stamp ahead of the playhead, else the
- * first one. Null when the video has no stamps, so the caller can say so.
- */
-export function nextSeekTarget(moments: Moment[], currentTime: number): Moment | null {
-  return nextStamp(moments, currentTime)
-}
-
-/** The next stamp's clock, or `no stamps` — the control bar's hint text. */
-export function formatSeek(moments: Moment[], currentTime: number): string {
-  const target = nextStamp(moments, currentTime)
-  if (!target) return 'no stamps'
-  const total = Math.floor(target.at)
-  const minutes = Math.floor(total / 60)
-  return `${minutes}:${String(total % 60).padStart(2, '0')}`
-}
-
 /* --- in-memory undo (§ "every mutation undoable") ------------------------- */
 
 const undoMemory = new Map<string, Moment[][]>()

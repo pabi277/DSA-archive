@@ -425,8 +425,3 @@ export function toggleCaptions(current: boolean): boolean {
   return next
 }
 
-export function muteVideo(muted: boolean) {
-  if (!owned) return
-  if (muted) owned.player.mute?.()
-  else owned.player.unMute?.()
-}
