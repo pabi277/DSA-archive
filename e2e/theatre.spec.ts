@@ -158,9 +158,10 @@ test.describe('theatre shell', () => {
     await page.keyboard.press('ArrowLeft')
     await expect(page.getByTestId('theatre-clock')).toContainText('0:00')
 
-    // A stamp draft is a text field: `s` must type, never stamp.
-    await page.getByTestId('problem-tab-stamps').click({ timeout: 15_000 })
-    await page.getByTestId('stamp-input').click({ timeout: 15_000 })
+    // A stamp draft is a text field: `s` must type, never stamp. The phone tab
+    // strip is hidden at the desktop width this project runs at, so the form to
+    // type into is the rail's own.
+    await page.getByTestId('stamps-list').getByTestId('stamp-input').click({ timeout: 15_000 })
     await page.keyboard.type('s')
     await expect(page.getByTestId('stamp-input')).toHaveValue('s')
   })
