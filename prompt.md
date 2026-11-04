@@ -93,8 +93,9 @@ Do **not** start coding before step 5 is read end-to-end.
   peek-for-recall and copy-out. Local `npm run build`, `npm test` (173), `test:data`,
   `check:content`, `check:rules`, `check:dist`, `check:links`, `check:budgets` all green
   (shell 379,965 B gzip inside the frozen 380,000 B cap — the cap was not raised).
-  Emulator + Playwright + axe + visual proof runs in CI on the PR (the agent sandbox
-  has no Java/browser, as in Phase 03). No PR opened yet. Record:
+  PR [#15](https://github.com/pabi277/DSA-archive/pull/15) is open on the owner's
+  command and CI run `41782795154` is green (emulator rules v6, 83 Playwright tests,
+  axe 0, 56 visual baselines as a review artifact); merge remains gated. Record:
   `docs/phases-v2/04-code-notebooks/RECORD.md`.
 - **v2-05 … v2-10 not started**: Phase 05 follows only after the owner reviews Phase 04,
   explicitly commands its PR/merge, and starts a new chat. The primer/statement/quiz-bank
@@ -119,7 +120,7 @@ Do **not** start coding before step 5 is read end-to-end.
 | 01 | `01-foundation-router-shell/` | ✅ **merged in PR #12** — hash router + sidebar/bottom-bar shell + tokens v2 (Inter + JetBrains Mono, one accent / five semantic roles, density, motion, undo, skeletons, `⌘K`, `j/k/x`, sheet windowing) | 9–11 d | — |
 | 02 | `02-topics-browse/` | ✅ **merged in PR #13** (`bd9350b`) — `#/topics` + topic pages + practice/outcomes + Today + grouped search; run `41647413508` green | 5–6 d | 01 |
 | 03 | `03-content-pipeline/` | ✅ **merged in PR #14** (`e51695a`) — schema v2 + safe renderers + validator/CI + **`resources[]` multi-source** + **136 drills** + 42 theory MCQs + Arrays primer/statements/quiz + coverage report; run `41696457606` green | 7–9 d + authoring | 01, 02 merged |
-| 04 | `04-code-notebooks/` | 🟡 **implementation complete; owner review + merge gate** — **Delete notes** end-to-end; `snippets` collection, rules **v6**, backup **v5** (+v4 notes migration), `#/code`, small editor, peek/reveal | 5–6 d | 01 |
+| 04 | `04-code-notebooks/` | 🟡 **PR #15 open, CI green; owner review + merge gate** — **Delete notes** end-to-end; `snippets` collection, rules **v6**, backup **v5** (+v4 notes migration), `#/code`, small editor, peek/reveal | 5–6 d | 01 |
 | 05 | `05-quiz-engine/` | **Theory MCQ cards** (4 options, per-option explanations, always-available `Show solution`, `[Solve]` vs `[Check]`) + 12-item topic quiz, 80% pass, `quizResults`, guest merge | 6–7 d | 02, 03 |
 | 06 | `06-theatre-player/` | In-app YouTube theatre (official IFrame API, our chrome), mini player surviving routes, timeline **stamps**, speed memory, oEmbed metadata + dead-link badge | 7–9 d | 01–03 |
 | 07 | `07-browser-runner/` | Local wasm C++/Python/JS runner in a Worker: Run, Stop, diagnostics, authored tests with first-diff, predict-the-output, 14 MB cache control, copy-out for Java/C# | 5–7 d | 04, 03 |
