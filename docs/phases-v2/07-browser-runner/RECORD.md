@@ -2,8 +2,12 @@
 
 **Branch:** `arena/435eaa93-dsa-archive` (cut from `main` at `d44b55a`, the merge of PR #17)
 **Contract:** [`PLAN.md`](PLAN.md) · **Status:** implemented; stopped at the owner's PR/merge gate
-**CI:** run `{{CI_RUN_ID}}` on `{{CI_SHA}}` — {{CI_RESULT}}
-**Preview:** `site-preview` {{PREVIEW_BYTES}} B
+**CI:** run [`41845242478`](https://github.com/pabi277/DSA-archive/actions/runs/41845242478) at
+`4d321c3` — **every step green** (unit tests, toolchain fetch + verify, both production builds,
+budgets, emulator rules tests, the full phone/desktop browser matrix, visual baselines uploaded)
+**Preview:** `site-preview` **29,673,001 B** — it now carries the 29 MB C++ toolchain on purpose,
+so the downloadable preview can really compile C++ on a phone. CI fetches only the C++ pack, so
+Python honestly reads "not deployed with this build" there.
 
 ---
 
@@ -38,7 +42,7 @@ program executes.
 ```
 
 - **The shell did not pay for it.** The panel, the Settings card and the MCQ hook are
-  dynamic chunks renamed `assets/runner-*.js` (26,543 B raw / 9,907 B gzip, four files),
+  dynamic chunks renamed `assets/runner-*.js` (27,111 B raw / 10,024 B gzip, four files),
   excluded from the Service Worker precache and from the shell budget by prefix. The
   worker bundle (1,276,228 B) and both toolchains live in `public/runtime/`, which the
   Service Worker serves cache-first from `dsa-archive-runtime-v1`.
@@ -82,8 +86,8 @@ Notice text ships inside the worker bundle banner and in
 
 | Kind | What ran | Result |
 |---|---|---|
-| Unit (`vitest`) | 54 new tests in `src/runner/*.test.ts(x)`: output capping and the run line, first-diff and the case sequencer (pass/fail/timeout/compile-stop/30 s budget/no cases/non-zero exit), the manifest sanitiser (traversal and shape attacks), install plans and the support matrix, the JS sandbox (values, cycles, blocked network and timers, thrown errors), the worker client against a fake worker (spawn URL, single warm, progress relay, timeout → `terminate`, Stop → `stopped`, crash → `internal`, diagnostics), and the panel's designed states (unsupported language, download-not-auto-start, missing pack, compact mode) | **290 total, green** |
-| Playwright | `e2e/runner.spec.ts` at 390×844 and 1440×900 against the Auth emulator: unsupported language → copy-out; **JavaScript really runs** (`console.log` → output, `exit 0`); no request carries the code; Settings reports the cache and Clear empties it; with `RUNNER_CPP=1`: `std::sort` compile+run on a phone, a failing case with its first-diff, and a runaway loop stopped instantly | see §7 |
+| Unit (`vitest`) | 58 new tests in `src/runner/*.test.ts(x)`: output capping and the run line, first-diff and the case sequencer (pass/fail/timeout/compile-stop/30 s budget/no cases/non-zero exit), the manifest sanitiser (traversal and shape attacks), install plans and the support matrix, the JS sandbox (values, cycles, blocked network and timers, thrown errors), the worker client against a fake worker (spawn URL, single warm, progress relay, timeout → `terminate`, Stop → `stopped`, crash → `internal`, diagnostics), and the panel's designed states (unsupported language, download-not-auto-start, missing pack, compact mode) and the worker-bundle cache write | **294 total, green** |
+| Playwright | `e2e/runner.spec.ts`, 7 cases at 390×844 and 1440×900 against the Auth emulator: unsupported language → copy-out; **JavaScript really runs** (`console.log` → output, `exit 0`); no request carries the code; Settings reports the cache and Clear empties it; the honest "not deployed" state (skipped when the pack is present); with `RUNNER_CPP=1`: `std::sort` compile+run **on a phone**, a failing case with `✗ 1/3 — case 1 differs` and its first diff, and a runaway loop stopped instantly. **All green in CI** | green |
 | Visual | new baseline `runner-js-phone.png` (timing line masked), and the `settings` baseline now waits for the lazy runner card so it cannot race its own import | generated in CI for review |
 | Budgets | `check:budgets` now reports the runner in its **own** buckets (below) and asserts the Service Worker precaches none of it | green locally |
 | Data / rules | no Firestore change, therefore no rules tests (contract §8). `test:data`, `check:content`, `check:rules`, `check:dist`, `check:links` unchanged and green | green locally |
@@ -95,7 +99,7 @@ CSS          58.96 kB raw / 10.10 kB gzip   (cap 60 / 18)
 Entry JS    112.29 kB raw / 32.20 kB gzip   (cap 180 / 55)
 Largest JS  457.70 kB raw / 129.86 kB gzip  (cap 520 / 165)
 Shell       386.67 kB gzip                  (cap 388 — 1,326 B headroom)
-Runner UI    26.54 kB raw /  9.91 kB gzip   (cap 120 / 40 · lazy, never precached)
+Runner UI    27.11 kB raw / 10.02 kB gzip   (cap 120 / 40 · lazy, never precached)
 Toolchains   43.81 MB raw on disk           (cap 48 MB · downloaded per language)
 Fonts        57.50 kB raw                   (cap 60 kB)
 ```
@@ -143,7 +147,14 @@ Fonts        57.50 kB raw                   (cap 60 kB)
   (both packs, or `--pack cpp`); CI does the C++ pack and verifies every byte.
 - Owner review of the new visual baseline (panel + settings) is pending, as usual.
 
-## 7. Fill-in after CI
+## 7. What CI cost, and what it found
 
-- Run id / tip sha / preview bytes: `{{CI_RUN_ID}}` / `{{CI_SHA}}` / `{{PREVIEW_BYTES}}`.
-- Playwright matrix result: `{{CI_RESULT}}`.
+Four runs to green, each one finding something real rather than noise:
+
+| Run | Result | What it proved or found |
+|---|---|---|
+| [`41832653582`](https://github.com/pabi277/DSA-archive/actions/runs/41832653582) | red at step 16 | The worker bundle is git-ignored, so CI must *build* it before `runtime:check` verifies it. A check that needs an artifact has to come after the step that makes it. |
+| [`41833372038`](https://github.com/pabi277/DSA-archive/actions/runs/41833372038) | red, 6 runner cases | The spec's sign-in helper guarded its click with `if (visible)`, so a slow emulator boot silently produced a signed-out session and then a 300 s wait for a control that a signed-out panel does not have. Signing in unconditionally (the button only exists signed-out) fixed all six. |
+| [`41839682726`](https://github.com/pabi277/DSA-archive/actions/runs/41839682726) | red, 2 runner cases | Two real product/test findings: `Run tests` — not plain `Run` — is what produces a case summary; and JavaScript ran while Settings honestly reported "Nothing cached yet", because the worker script never passes through the fetch shim. The second one is a genuine bug: `cacheRunnerBundle()` now makes "runs work offline" true for JavaScript. |
+| [`41842721018`](https://github.com/pabi277/DSA-archive/actions/runs/41842721018) | red, 1 runner + 1 flake | The failing-case expectation was *wrong, not the panel*: a program that always prints `0` differs on cases 1 and 2 but matches case 3, so 1 of 3 passed. Also caught a pre-existing ⌘K flake (Enter pressed before the palette's filtered list existed). |
+| [`41845242478`](https://github.com/pabi277/DSA-archive/actions/runs/41845242478) | **green, every step, 6 min** | The full matrix: units, toolchain verify, both builds, budgets, emulator rules, 7 runner cases (3 of them compiling real C++), axe 0, visual baselines uploaded. |

@@ -130,7 +130,7 @@ Do **not** start coding before step 5 is read end-to-end.
   add-on**: `assets/runner-*` chunks and `runtime/` are never precached and are served
   cache-first from the runtime cache after install. **Shell measured 386,674 B gzip
   against the frozen 388,000 B cap (1,326 B headroom)** — no re-baseline was made. No
-  Firestore/rules/backup change (rules **v8** / backup **v7** stand). 290 unit tests;
+  Firestore/rules/backup change (rules **v8** / backup **v7** stand). 294 unit tests;
   Playwright + axe + emulator rules run in CI.
   Record: `docs/phases-v2/07-browser-runner/RECORD.md`.
 - **v2-08 … v2-10 not started**: Phase 08 follows only after the owner reviews Phase 07,
