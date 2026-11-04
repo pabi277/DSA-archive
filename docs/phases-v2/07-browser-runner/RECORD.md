@@ -168,3 +168,76 @@ Two of those seven findings were **product** bugs (the worker-bundle cache write
 undocumented `Run` vs `Run tests` split). Four were the test suite lying to itself in ways
 that would have hidden a real failure later. One was an axe false positive that needed
 naming as such rather than silencing.
+
+## 8. After the merge: the red run that named nothing (2026-11-04)
+
+PR [#18](https://github.com/pabi277/DSA-archive/pull/18) merged phase 07 into `main` as
+`ace2289`. Twenty minutes later the push run
+[`41864841877`](https://github.com/pabi277/DSA-archive/actions/runs/41864841877) failed at
+**Unit tests** — on a tree byte-identical to the branch tip that had just passed every
+step. The only annotation was `Process completed with exit code 1.`
+
+Locally the same tree passed **294/294, six times**, including shuffled and single-worker
+runs. The failure was therefore not reproducible by re-running the suite, and not
+diagnosable either: Actions logs and artifacts live on hosts this sandbox cannot reach,
+`gh run rerun` was refused, and the run could not be re-dispatched.
+
+### What was actually wrong
+
+Two layers, and the first one hid the second.
+
+1. **CI could not name its own failure.** That is the defect worth fixing on its own. The
+   unit step now writes a JUnit report, keeps the console output, and a follow-up step
+   (always on failure) emits each failing case — file, test name, assertion — as a
+   check-run annotation, plus `vitest ran N test cases, M failing`. When *no* case failed
+   it says so explicitly and falls back to the captured output.
+2. **The suite leaked console logs past teardown.** With (1) in place the failure became
+   legible in one run:
+
+   ```
+   Unhandled Rejection: [vitest-worker]: Closing rpc while "onUserConsoleLog" was pending
+   This error originated in "src/shell.test.tsx" test file.
+   ```
+
+   No test failed. vitest ships console output from the test thread to the main thread
+   over an async RPC; the worker was killed while one was in flight. Three sources of
+   console traffic were leaking into that window:
+   - **157 jsdom "Not implemented: Window's scrollTo()" writes per run.** The app calls
+     `scrollTo` on every route change; jsdom answers with a console message. Replaced by
+     no-op stubs in `src/testSetup.ts` — nothing in the suite asserts scroll position.
+   - **23 React act() warnings** from `runPanel.test.tsx`, which never set
+     `IS_REACT_ACT_ENVIRONMENT = true` the way the other three React suites do.
+   - **Intermittent suspense pings** (4 of 6 local `shell.test.tsx` runs): the route sweep
+     navigated to `#/settings` and `#/problem/*`, which mount `lazy()` chunks, and returned
+     while the `import()` was still resolving. `settleLazy()` now drains inside `act()`
+     after each lazy navigation and before unmount.
+
+That list is why the flake was rare and why it had no favourite victim: it needs any
+console write to be queued at exactly the moment a worker is torn down, and which file
+wins that race depends on machine speed.
+
+### The fix, and the evidence
+
+| Check | Before | After |
+|---|---|---|
+| jsdom "Not implemented" writes, one full run | 157 | **0** |
+| act() warnings, one full run | 23 | **0** |
+| `shell.test.tsx` runs with a suspense ping | 4 of 6 | **0 of 6** |
+| Full-suite runs (294 tests) | never reproduced — 6 of 6 green locally | **4 of 4 green**, plus 5 shuffled and 3 shuffled-under-load |
+| CI unit step | red at `ace2289` | **green**, `vitest exit=0, tee exit=0` |
+
+The last row is the one that matters and the one that deserves a caveat: this flake was
+never reproducible on this machine, so the fix cannot be *proved* by local runs going
+green — they always were. It is proved by the mechanism (the RPC that failed is no longer
+sent, because the console writes that produced it are gone) and confirmed by the CI step
+turning green on the same suite that had just failed twice in a row.
+
+One more truth learned the hard way: the first version of the new step went red on a
+*passing* suite, because `test-results/` is git-ignored and `tee` could not create its file
+in a directory a fresh checkout does not have. `pipefail` reported that as a test failure.
+The step now creates the directory and prints `vitest exit=N, tee exit=M`, so a missing log
+directory and a genuine failure never look alike again.
+
+A separate e2e case (`theatre.spec.ts`, stamps surviving a reload) failed in the same run
+for an unrelated reason — it reloaded while the fire-and-forget write was still in flight.
+It now waits for the app's own "Saved ✓" acknowledgement first.
