@@ -101,7 +101,19 @@ jobs:
         # step exists to prevent, not the flake itself.
         run: |
           set -o pipefail
+          # `test-results/` is git-ignored, so a fresh checkout does not have it.
+          # Without this line `tee` cannot create its file, exits 1, and pipefail
+          # turns a passing suite into a red step — which is exactly what happened
+          # on the first run of this very step.
+          mkdir -p test-results
           npm test -- --reporter=default --reporter=junit --outputFile.junit=test-results/unit.xml 2>&1 | tee test-results/unit-output.log
+          status=("${PIPESTATUS[@]}")
+          # Name both halves of the pipeline. "The step failed" is not a
+          # diagnosis: vitest exiting non-zero and `tee` failing to open its
+          # file look identical from the outside, and one of them is not a
+          # test failure at all.
+          echo "::notice::vitest exit=${status[0]}, tee exit=${status[1]}"
+          test "${status[0]}" -eq 0
       - name: Name what failed in the unit tests
         # A red unit run must be readable from the outside. Annotations are the
         # only channel this project's agent sandbox can read (Actions logs and
