@@ -146,8 +146,22 @@ jobs:
               block = [line.strip() for line in lines[start:end]
                        if line.strip() and not line.strip().startswith(('attachment #', 'Usage:', '─'))]
               failures.append(' | '.join(block)[:1800])
-          for block in failures[:10]:
+          for block in failures[:6]:
               print('::error::' + block.replace('%', '%25'))
+          # A failure can also come from the emulator rules tests (`node --test`)
+          # or from the emulator itself, which uses neither the Playwright block
+          # format nor `test-output.log` diagnostics. In that case the ten
+          # annotation slots above stay empty and the job fails silently, so
+          # always re-emit the most telling raw lines as well.
+          if not failures:
+              interesting = [
+                  line for line in lines
+                  if re.search(r'not ok|Error|error|FAIL|failed|Syntax|Expected|✖|✘', line)
+              ]
+              for line in interesting[:6]:
+                  print('::error::' + line.strip()[:900].replace('%', '%25'))
+              for line in [l for l in lines if l.strip()][-6:]:
+                  print('::notice::' + line.strip()[:900].replace('%', '%25'))
           PY
           exit 0
       - name: Publish browser failure digest on the pull request
