@@ -36,7 +36,9 @@ test('every screen has a URL, the back button works and the tab strip is gone (a
 
   // A deep link to a row lands on the problem screen.
   await open(page, '/#/problem/two-sum')
-  await expect(page.locator('.problem-screen-title')).toHaveText('Two Sum')
+  // The theatre renders the problem title once as the page's h2 (the rail shows
+  // it as plain text, so a bare class selector would match twice).
+  await expect(page.getByRole('heading', { name: 'Two Sum' })).toBeVisible()
 })
 
 test('navigation never needs scrolling on a phone and targets stay ≥44 px (acceptance 2)', async ({ page }) => {

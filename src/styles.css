@@ -3851,6 +3851,14 @@ body {
 
 /* --- mini player: one instance, docked, survives route changes ------------ */
 
+/* A docked player must not swallow the page's own last control — the phase-04
+   editor's Save row sits at the bottom of the column. While the dock is up, the
+   main column reserves room for it. `:has` keeps this CSS-only: no state, no
+   re-render, and it switches off the moment the dock closes. */
+.app-root:has(.mini-player) .app-main {
+  padding-bottom: 300px;
+}
+
 .mini-player {
   position: fixed;
   /* Above the phone bottom bar and clear of the page: a dock that covers the

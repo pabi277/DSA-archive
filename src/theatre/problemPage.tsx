@@ -89,8 +89,7 @@ export function ProblemScreen({
 
   const setTab = useCallback((next: ProblemTab) => {
     setTabState(next)
-    const base = window.location.hash.replace(/[?&]tab=[a-z]+/, '')
-    window.history.replaceState(null, '', next === 'problem' ? base : `${base}?tab=${next}`)
+    window.history.replaceState(null, '', next === 'problem' ? `#/problem/${problemId}` : `#/problem/${problemId}?tab=${next}`)
   }, [])
 
   const moments = useMemo(() => momentsOf(snippet), [snippet])
