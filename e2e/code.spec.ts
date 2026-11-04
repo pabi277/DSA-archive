@@ -123,14 +123,14 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await expect(secondPage.getByTestId('signed-in-banner')).toContainText('CI Owner')
     await open(secondPage, '/#/code')
     await expect(secondPage.getByTestId('code-row-two-sum')).toContainText('Two Sum')
-    await open(secondPage, '/#/problem/two-sum')
+    await open(secondPage, '/#/problem/two-sum?tab=code')
     await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('peek-code')).toContainText('vector<int> twoSum()')
 
     // --- offline save queues, then syncs on reconnect -----------------------
     await firstContext.setOffline(true)
     await page.evaluate(() => window.dispatchEvent(new Event('offline')))
-    await open(page, '/#/problem/two-sum')
+    await open(page, '/#/problem/two-sum?tab=code')
     await page.getByTestId('code-edit').click({ timeout: 15_000 })
     await page.getByTestId('code-input').fill('// offline edit\nclass Solution {};', { timeout: 15_000 })
     await page.getByTestId('code-save').click({ timeout: 15_000 })
@@ -143,7 +143,7 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     // (reveal state is session-local), then reveal the synced offline edit.
     await open(secondPage, '/#/code')
     await expect(secondPage.getByTestId('code-row-two-sum')).toBeVisible()
-    await open(secondPage, '/#/problem/two-sum')
+    await open(secondPage, '/#/problem/two-sum?tab=code')
     await expect(secondPage.getByTestId('peek-code')).toHaveAttribute('aria-hidden', 'true')
     await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('peek-code')).toContainText('offline edit')
@@ -193,7 +193,7 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await open(secondPage, '/#/code')
     await expect(secondPage.getByTestId('code-row-linear-search')).toContainText('Linear Search')
     await expect(secondPage.getByTestId('code-row-two-sum')).toHaveCount(0)
-    await open(secondPage, '/#/problem/linear-search')
+    await open(secondPage, '/#/problem/linear-search?tab=code')
     await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('peek-code')).toContainText('for (int i = 0')
 
@@ -204,7 +204,7 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
       new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('axe timed out on #/code')), 60_000)),
     ])
     expect(phoneAudit.violations).toEqual([])
-    await open(secondPage, '/#/problem/linear-search')
+    await open(secondPage, '/#/problem/linear-search?tab=code')
     const problemAudit = await Promise.race([
       new AxeBuilder({ page: secondPage }).analyze(),
       new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('axe timed out on the problem page')), 60_000)),

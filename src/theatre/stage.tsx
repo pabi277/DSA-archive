@@ -289,7 +289,7 @@ export function TheatreStage({
             <button
               type="button"
               className="theatre-btn theatre-btn-play"
-              aria-label={playing ? 'Pause the video' : 'Play, play the video'}
+              aria-label={playing ? 'Pause the video' : 'Play the video'}
               data-testid="theatre-toggle"
               onClick={() => togglePlay()}
             >
@@ -323,7 +323,7 @@ export function TheatreStage({
             <button
               type="button"
               className="theatre-btn"
-              aria-label={`Stamp at ${formatClock(current)} — ${stamps.length} of 30 used`}
+              aria-label={`Stamp — ${formatClock(current)}, ${stamps.length} of 30 used`}
               data-testid="theatre-stamp"
               onClick={() => onStamp(current)}
             >
@@ -333,7 +333,7 @@ export function TheatreStage({
               type="button"
               className="theatre-btn"
               aria-pressed={captions}
-              aria-label={`Captions ${captions ? 'on' : 'off'}`}
+              aria-label={`CC — captions ${captions ? 'on' : 'off'}`}
 
               data-testid="theatre-captions"
               onClick={() => {
@@ -341,7 +341,7 @@ export function TheatreStage({
                 setCaptions(captionsRef.current)
               }}
             >
-              <span aria-hidden="true">CC</span>
+              CC
             </button>
             <span className="theatre-watched num" data-testid="theatre-watched">
               {watched > 0 ? `${watched}% seen` : '0% seen'}
