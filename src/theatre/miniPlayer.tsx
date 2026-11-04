@@ -34,45 +34,41 @@ export function MiniPlayer({
 }) {
   const holderRef = useRef<HTMLDivElement>(null)
   const [snapshot, setSnapshot] = useState<PlayerSnapshot | null>(null)
-  const [visible, setVisible] = useState(false)
+  /** Render the dock as soon as a player exists off-stage; the frame move
+   *  happens a tick later, once the holder div exists. */
+  const [claimed, setClaimed] = useState(false)
   const [closed, setClosed] = useState(false)
 
   // The mini player only claims the frame when the stage is not showing it.
   useEffect(() => {
+    if (closed) {
+      setClaimed(false)
+      return
+    }
     const sync = () => {
-      if (closed) return
       const current = currentPlayer()
       const shouldShow = Boolean(current && current.slot !== 'stage')
-      if (!shouldShow) {
-        setVisible(false)
-        return
-      }
-      if (holderRef.current && adoptPlayer(holderRef.current, 'mini')) {
-        setVisible(true)
-        setSnapshot(pollPlayer())
-      }
+      setClaimed(shouldShow)
+      if (!shouldShow) return
+      if (holderRef.current) adoptPlayer(holderRef.current, 'mini')
+      const next = pollPlayer()
+      if (next) setSnapshot(next)
     }
     sync()
-    const unsubscribe = subscribePlayer((next) => {
-      if (next.slot === 'mini') {
-        setVisible(true)
-        setSnapshot(next)
-      } else {
-        setVisible(false)
-      }
-    })
-    const timer = window.setInterval(() => {
-      sync()
-      const next = pollPlayer()
-      if (next && next.slot === 'mini') setSnapshot(next)
-    }, 500)
+    const unsubscribe = subscribePlayer(setSnapshot)
+    const timer = window.setInterval(sync, 500)
     return () => {
       unsubscribe()
       window.clearInterval(timer)
     }
   }, [closed])
 
-  if (!visible || !snapshot || closed) return null
+  useEffect(() => {
+    if (!claimed || !holderRef.current) return
+    adoptPlayer(holderRef.current, 'mini')
+  }, [claimed])
+
+  if (!claimed || !snapshot || closed) return null
   const problemId = videoProblemId(snapshot.videoId) ?? ''
   const problemTitle = problemTitleOf(problemId)
   const playing = snapshot.state === 1
@@ -129,7 +125,6 @@ export function MiniPlayer({
             pause()
             destroyPlayer()
             setClosed(true)
-            setVisible(false)
           }}
         >
           <IconClose size={14} />

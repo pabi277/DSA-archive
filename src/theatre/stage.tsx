@@ -25,9 +25,8 @@ import {
 import { creditLine, mediaStatus, videoTitle, type MediaEntry } from './oembed'
 import {
   acquirePlayer,
-  currentPlayer,
-  pause,
   pollPlayer,
+  releaseSlot,
   setRate,
   skip,
   subscribePlayer,
@@ -139,9 +138,11 @@ export function TheatreStage({
       })
     return () => {
       cancelled = true
-      // Never destroy the frame on unmount: `app.tsx`'s mini player owns it
-      // once the route changes, so the video keeps playing.
-      if (currentPlayer()) pause()
+      // Never destroy the frame on unmount: the mini player adopts it when the
+      // route changes, so the video keeps playing. Hand the slot over *without*
+      // pausing (a paused video would make the dock look broken) and without
+      // clearing listeners the dock still needs.
+      releaseSlot('stage')
     }
     // The frame is built once per video and per connectivity change; a rate
     // change must never rebuild it (that would restart playback).
@@ -367,7 +368,6 @@ export function TheatreStage({
               aria-label={fill ? 'Leave fill-screen' : 'Fill the screen'}
               data-testid="theatre-fill"
               onClick={() => setFill((on) => !on)}
-              title={fill ? 'Leave fill-screen (Esc)' : 'Fill the screen (f)'}
             >
               {fill ? 'Exit ⛶' : '⛶'}
             </button>

@@ -131,21 +131,57 @@ service cloud.firestore {
     // document: ≤30 entries, each { at: 0…86400, text: 1…140, createdAt }.
     // A snippet that only carries stamps is valid (code and notes may be empty
     // *when* moments exist), so "empty" is decided across the three fields.
+    // Firestore Rules have no lambdas and no loops, so the list is unrolled:
+    // one short-circuiting clause per index, only evaluated when the list is
+    // actually that long. 30 clauses x ~11 expressions stays well inside the
+    // 1000-expression evaluation budget, and nobody can smuggle an unchecked
+    // stamp past index 29.
+    function validStamp(stamp) {
+      return stamp is map
+        && stamp.keys().hasOnly(['at', 'text', 'createdAt'])
+        && stamp.keys().hasAll(['at', 'text', 'createdAt'])
+        && stamp.at is number
+        && stamp.at >= 0
+        && stamp.at <= 86400
+        && stamp.text is string
+        && stamp.text.size() > 0
+        && stamp.text.size() <= 140
+        && (stamp.createdAt is string || stamp.createdAt is timestamp);
+    }
+
     function validMoments(moments) {
       return moments is list
         && moments.size() <= 30
-        && moments.all(function (moment) {
-          return moment is map
-            && moment.keys().hasOnly(['at', 'text', 'createdAt'])
-            && moment.keys().hasAll(['at', 'text', 'createdAt'])
-            && moment.at is number
-            && moment.at >= 0
-            && moment.at <= 86400
-            && moment.text is string
-            && moment.text.size() > 0
-            && moment.text.size() <= 140
-            && (moment.createdAt is string || moment.createdAt is timestamp);
-        });
+        && (moments.size() < 1 || validStamp(moments[0]))
+        && (moments.size() < 2 || validStamp(moments[1]))
+        && (moments.size() < 3 || validStamp(moments[2]))
+        && (moments.size() < 4 || validStamp(moments[3]))
+        && (moments.size() < 5 || validStamp(moments[4]))
+        && (moments.size() < 6 || validStamp(moments[5]))
+        && (moments.size() < 7 || validStamp(moments[6]))
+        && (moments.size() < 8 || validStamp(moments[7]))
+        && (moments.size() < 9 || validStamp(moments[8]))
+        && (moments.size() < 10 || validStamp(moments[9]))
+        && (moments.size() < 11 || validStamp(moments[10]))
+        && (moments.size() < 12 || validStamp(moments[11]))
+        && (moments.size() < 13 || validStamp(moments[12]))
+        && (moments.size() < 14 || validStamp(moments[13]))
+        && (moments.size() < 15 || validStamp(moments[14]))
+        && (moments.size() < 16 || validStamp(moments[15]))
+        && (moments.size() < 17 || validStamp(moments[16]))
+        && (moments.size() < 18 || validStamp(moments[17]))
+        && (moments.size() < 19 || validStamp(moments[18]))
+        && (moments.size() < 20 || validStamp(moments[19]))
+        && (moments.size() < 21 || validStamp(moments[20]))
+        && (moments.size() < 22 || validStamp(moments[21]))
+        && (moments.size() < 23 || validStamp(moments[22]))
+        && (moments.size() < 24 || validStamp(moments[23]))
+        && (moments.size() < 25 || validStamp(moments[24]))
+        && (moments.size() < 26 || validStamp(moments[25]))
+        && (moments.size() < 27 || validStamp(moments[26]))
+        && (moments.size() < 28 || validStamp(moments[27]))
+        && (moments.size() < 29 || validStamp(moments[28]))
+        && (moments.size() < 30 || validStamp(moments[29]));
     }
 
     function validSnippet(data) {

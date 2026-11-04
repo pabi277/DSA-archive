@@ -45,6 +45,8 @@ type YTPlayerLike = {
   loadModule?: (module: string) => void
   unloadModule?: (module: string) => void
   setOption?: (module: string, option: string, value: unknown) => void
+  /** Documented: returns the iframe node the player owns. */
+  getIframe?: () => HTMLElement | null
   destroy?: () => void
 }
 
@@ -112,6 +114,9 @@ export type PlayerListener = (snapshot: PlayerSnapshot) => void
 
 type Owned = {
   player: YTPlayerLike
+  /** The div the player built its iframe in. Move *this*, never the iframe:
+   *  an iframe re-parented directly reloads and playback dies. */
+  wrapper: HTMLElement | null
   slot: PlayerSlot
   videoId: string
   rate: number
@@ -129,6 +134,15 @@ type Owned = {
 
 let owned: Owned | null = null
 let mountToken = 0
+
+/** The IFrame API's `Player` is not a Node; only `getIframe()` is. */
+function frameOf(player: YTPlayerLike | null): HTMLElement | null {
+  try {
+    return player?.getIframe?.() ?? null
+  } catch {
+    return null
+  }
+}
 
 function snapshotOf(entry: Owned): PlayerSnapshot {
   return {
@@ -194,7 +208,11 @@ export async function acquirePlayer(options: {
     const previous = owned
     if (previous.videoId === options.videoId) {
       previous.slot = options.slot
-      options.host.replaceChildren(previous.player as unknown as Node)
+      if (previous.wrapper) options.host.replaceChildren(previous.wrapper)
+      else {
+        const frame = frameOf(previous.player)
+        if (frame) options.host.replaceChildren(frame)
+      }
       applyRate(previous, options.rate)
       emit(previous, { rate: previous.rate, state: previous.state })
       return snapshotOf(previous)
@@ -213,6 +231,7 @@ export async function acquirePlayer(options: {
   return await new Promise<PlayerSnapshot | null>((resolve) => {
     const entry: Owned = {
       player: null as unknown as YTPlayerLike,
+      wrapper: host,
       slot: options.slot,
       videoId: options.videoId,
       rate: options.rate,
@@ -272,8 +291,12 @@ export async function acquirePlayer(options: {
 /** Re-parent the live iframe into another holder without touching playback. */
 export function adoptPlayer(host: HTMLElement, slot: PlayerSlot): boolean {
   if (!owned) return false
+  // Before `onReady` the wrapper exists but is empty; moving it is still safe and
+  // the player fills it in place. Only a destroyed player has nothing to move.
+  const movable = owned.wrapper ?? frameOf(owned.player)
+  if (!movable) return false
   owned.slot = slot
-  host.replaceChildren(owned.player as unknown as Node)
+  host.replaceChildren(movable)
   emit(owned, {})
   return true
 }
@@ -304,7 +327,8 @@ export function releaseSlot(slot: PlayerSlot, destroy = false): boolean {
     destroyPlayer()
     return true
   }
-  owned.listeners.clear()
+  // Keep the listeners: the mini player is already subscribed and must see the
+  // slot change without re-subscribing.
   owned.slot = 'mini'
   return true
 }

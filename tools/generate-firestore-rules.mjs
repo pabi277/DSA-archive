@@ -38,6 +38,19 @@ function functionSuffix(topicId) {
   return topicId.replace(/[^a-zA-Z0-9]/g, '_')
 }
 
+/**
+ * One short-circuiting clause per possible stamp index. `MOMENT_LIMIT` mirrors
+ * `src/theatre/stamps.ts`; the rules cap and the client cap must agree.
+ */
+const MOMENT_LIMIT = 30
+
+function stampClauses(indent) {
+  return Array.from(
+    { length: MOMENT_LIMIT },
+    (_, index) => `${indent}&& (moments.size() < ${index + 1} || validStamp(moments[${index}]))`,
+  ).join('\n')
+}
+
 function changedValidator(topic) {
   const suffix = functionSuffix(topic.id)
   // Ternary short-circuits: only the one changed entry is validated, which
@@ -221,21 +234,28 @@ ${topics.map((topic) => `        && data.solvedByTopic[${literal(topic.id)}] is 
     // document: ≤30 entries, each { at: 0…86400, text: 1…140, createdAt }.
     // A snippet that only carries stamps is valid (code and notes may be empty
     // *when* moments exist), so "empty" is decided across the three fields.
+    // Firestore Rules have no lambdas and no loops, so the list is unrolled:
+    // one short-circuiting clause per index, only evaluated when the list is
+    // actually that long. 30 clauses x ~11 expressions stays well inside the
+    // 1000-expression evaluation budget, and nobody can smuggle an unchecked
+    // stamp past index 29.
+    function validStamp(stamp) {
+      return stamp is map
+        && stamp.keys().hasOnly(['at', 'text', 'createdAt'])
+        && stamp.keys().hasAll(['at', 'text', 'createdAt'])
+        && stamp.at is number
+        && stamp.at >= 0
+        && stamp.at <= 86400
+        && stamp.text is string
+        && stamp.text.size() > 0
+        && stamp.text.size() <= 140
+        && (stamp.createdAt is string || stamp.createdAt is timestamp);
+    }
+
     function validMoments(moments) {
       return moments is list
         && moments.size() <= 30
-        && moments.all(function (moment) {
-          return moment is map
-            && moment.keys().hasOnly(['at', 'text', 'createdAt'])
-            && moment.keys().hasAll(['at', 'text', 'createdAt'])
-            && moment.at is number
-            && moment.at >= 0
-            && moment.at <= 86400
-            && moment.text is string
-            && moment.text.size() > 0
-            && moment.text.size() <= 140
-            && (moment.createdAt is string || moment.createdAt is timestamp);
-        });
+${stampClauses('        ')};
     }
 
     function validSnippet(data) {

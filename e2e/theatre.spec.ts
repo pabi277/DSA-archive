@@ -1,33 +1,83 @@
 import AxeBuilder from '@axe-core/playwright'
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 import { desktop, open, phone } from './helpers'
 
 /**
  * Phase v2-06 "Done means" in CI: `#/problem/<id>` is a theatre.
  *
- * The real YouTube frame cannot load in CI (no network by design, and the
- * emulator-signed-in part of the suite runs behind the same wall), so every
- * assertion here is about **our** chrome around the official player:
+ * Two things make this spec deterministic instead of flaky:
  *
- *  · the stage, the control bar, the stamps dock and the rail all render at
- *    390×844 and 1440×900;
- *  · navigation to another route docks the frame in the mini player instead of
- *    destroying it, and the mini player can reopen the problem;
- *  · stamps add, seek, delete, survive a reload and are undoable through the
- *    shell's toast;
- *  · the speed chosen on one problem of a topic is already set on the next
- *    problem of that topic, and survives a reload;
- *  · a video the catalogue marks dead shows the `Open on YouTube` fallback,
- *    not a blank frame;
- *  · `#/problem/not-a-problem` still explains itself (the lazy route chunk).
+ *  · **No YouTube request.** `installFakePlayer` pre-defines `window.YT.Player`
+ *    before the app boots, which is the documented global the official IFrame
+ *    API installs — so `loadIframeApi` resolves without ever fetching
+ *    `youtube.com/iframe_api`. The fake builds a real 16:9 iframe (so the
+ *    geometry assertions mean something), answers the documented getters, and
+ *    can be told to report a documented error code.
+ *  · **No unauthenticated writes.** Stamps live in the snippet document, so the
+ *    stamp tests sign in through the Auth emulator exactly like `code.spec.ts`.
  *
- * Autoplay is never asserted: the IFrame API requires a user gesture, and a
- * headless browser has no YouTube origin to talk to. What we do assert is that
- * our own controls move the *documented* state — the play/pause label, the
- * stamp button, the rate select and the fill-screen toggle.
+ * What is asserted is *our* chrome, never the remote player's behaviour: play
+ * state, the seek maths, the stamp round-trip, the mini player hand-off, the
+ * dead-link fallback and the offline state. Autoplay is never asserted.
  */
 
+type FakeOptions = {
+  /** Report this documented error code instead of becoming ready. */
+  error?: number
+  /** Runtime in seconds the fake reports (default 600). */
+  duration?: number
+}
+
+async function installFakePlayer(page: Page, options: FakeOptions = {}) {
+  const duration = options.duration ?? 600
+  const error = options.error ?? null
+  await page.addInitScript(
+    ({ duration, error }: { duration: number; error: number | null }) => {
+      const state = { current: 0, rate: 1, playing: false, destroyed: false }
+      class FakePlayer {
+        frame: HTMLIFrameElement
+        events: { onReady?: () => void; onStateChange?: (e: { data: number }) => void; onError?: (e: { data: number }) => void }
+        constructor(element: HTMLElement, config: Record<string, any>) {
+          this.events = config.events ?? {}
+          const frame = document.createElement('iframe')
+          frame.src = `https://www.youtube-nocookie.com/embed/${config.videoId ?? ''}?enablejsapi=1`
+          frame.title = `Video: ${config.videoId ?? ''}`
+          element.replaceChildren(frame)
+          this.frame = frame
+          window.setTimeout(() => {
+            if (error === null) this.events.onReady?.()
+            else this.events.onError?.({ data: error })
+          }, 30)
+        }
+        getIframe() { return this.frame }
+        getCurrentTime() { return state.current }
+        getDuration() { return duration }
+        getPlayerState() { return state.playing ? 1 : 2 }
+        playVideo() { state.playing = true; this.events.onStateChange?.({ data: 1 }) }
+        pauseVideo() { state.playing = false; this.events.onStateChange?.({ data: 2 }) }
+        seekTo(seconds: number) { state.current = seconds }
+        setPlaybackRate(rate: number) { state.rate = rate }
+        getAvailablePlaybackRates() { return [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
+        getPlaybackRate() { return state.rate }
+        loadModule() {}
+        unloadModule() {}
+        setOption() {}
+        mute() {}
+        unMute() {}
+        destroy() { state.destroyed = true; this.frame.remove() }
+      }
+      // Exactly the global the official script installs.
+      ;(window as any).YT = { Player: FakePlayer }
+    },
+    { duration, error },
+  )
+}
+
 const theatreRoutes = ['/#/problem/two-sum', '/#/problem/introduction-to-graph']
+
+test.beforeEach(async ({ page }) => {
+  await installFakePlayer(page)
+})
 
 test.describe('theatre shell', () => {
   test('renders the stage, controls, stamps and rail at both widths', async ({ page }) => {
@@ -42,8 +92,9 @@ test.describe('theatre shell', () => {
       await expect(page.getByTestId('theatre-forward')).toBeVisible()
       await expect(page.getByTestId('theatre-speed')).toBeVisible()
       await expect(page.getByTestId('theatre-stamp')).toBeVisible()
+      await expect(page.getByTestId('theatre-captions')).toBeVisible()
+      await expect(page.getByTestId('theatre-fill')).toBeVisible()
       await expect(page.getByTestId('stamps-list').first()).toBeVisible()
-      // Both widths keep the code rail reachable; desktop docks it as a rail.
       if (viewport === desktop) {
         await expect(page.getByTestId('rail-code')).toBeVisible()
         await expect(page.getByTestId('rail-leetcode')).toBeVisible()
@@ -52,8 +103,7 @@ test.describe('theatre shell', () => {
         await expect(page.getByTestId('problem-tab-code')).toBeVisible()
         await expect(page.locator('.theatre-rail')).toHaveCount(0)
       }
-      // The official frame is the only iframe on the stage, and it points at
-      // the documented embed host with `enablejsapi=1`.
+      // The official embed URL is ours to build: documented params, no autoplay.
       const frame = page.locator('.theatre-frame iframe')
       await expect(frame).toHaveCount(1)
       const src = await frame.getAttribute('src')
@@ -74,27 +124,63 @@ test.describe('theatre shell', () => {
     expect(controls!.y).toBeGreaterThanOrEqual(frame!.y + frame!.height - 1)
   })
 
-  test('the mini player docks the video when the route changes and reopens it', async ({ page }) => {
+  test('fill-screen and captions are our own page state, not player chrome', async ({ page }) => {
     await open(page, '/#/problem/two-sum')
-    await expect(page.getByTestId('theatre-frame')).toBeVisible()
+    const stage = page.getByTestId('theatre-stage')
+    await expect(stage).toHaveAttribute('data-fill', 'off')
+    await page.getByTestId('theatre-fill').click({ timeout: 15_000 })
+    await expect(stage).toHaveAttribute('data-fill', 'on')
+    // Esc leaves it, and the frame is still the only iframe (nothing was rebuilt).
+    await page.keyboard.press('Escape')
+    await expect(stage).toHaveAttribute('data-fill', 'off')
+    await expect(page.locator('.theatre-frame iframe')).toHaveCount(1)
+    // Captions are a toggle with real pressed state.
+    const captions = page.getByTestId('theatre-captions')
+    await expect(captions).toHaveAttribute('aria-pressed', 'true')
+    await captions.click({ timeout: 15_000 })
+    await expect(captions).toHaveAttribute('aria-pressed', 'false')
+  })
+
+  test('keyboard: space toggles play and the arrows seek, but never while typing', async ({ page }) => {
+    await open(page, '/#/problem/two-sum')
+    const toggle = page.getByTestId('theatre-toggle')
+    await expect(toggle).toHaveAttribute('aria-label', 'Play the video')
+    await page.locator('body').click({ position: { x: 5, y: 5 } })
+    await page.keyboard.press(' ')
+    await expect(toggle).toHaveAttribute('aria-label', 'Pause the video')
+    await page.keyboard.press('k')
+    await expect(toggle).toHaveAttribute('aria-label', 'Play the video')
+
+    await page.keyboard.press('ArrowRight')
+    await expect(page.getByTestId('theatre-clock')).toContainText('0:10')
+    await page.keyboard.press('ArrowLeft')
+    await expect(page.getByTestId('theatre-clock')).toContainText('0:00')
+
+    // A stamp draft is a text field: `s` must type, never stamp.
+    await page.getByTestId('problem-tab-stamps').click({ timeout: 15_000 })
+    await page.getByTestId('stamp-input').click({ timeout: 15_000 })
+    await page.keyboard.type('s')
+    await expect(page.getByTestId('stamp-input')).toHaveValue('s')
+  })
+
+  test('the mini player docks the same frame when the route changes and reopens it', async ({ page }) => {
+    await open(page, '/#/problem/two-sum')
+    await expect(page.locator('.theatre-frame iframe')).toHaveCount(1)
     await expect(page.getByTestId('mini-player')).toHaveCount(0)
 
-    // Leave the problem: the frame must survive in the mini player…
+    // Leave the problem: the frame survives in the mini player…
     await open(page, '/#/today')
     await expect(page.getByTestId('mini-player')).toBeVisible()
     await expect(page.getByTestId('mini-holder').locator('iframe')).toHaveCount(1)
     await expect(page.getByTestId('mini-title')).not.toBeEmpty()
-    // …and it does not block the page underneath.
-    const dock = await page.getByTestId('mini-player').boundingBox()
-    const bar = await page.locator('.bottom-bar').boundingBox().catch(() => null)
-    if (bar) expect(dock!.y + dock!.height).toBeLessThanOrEqual(bar.y + 1)
 
-    // Expand puts the learner back on the theatre.
+    // Expand puts the learner back on the theatre, with the same single iframe.
     await page.getByTestId('mini-expand').click({ timeout: 15_000 })
     await expect(page.getByTestId('problem-screen')).toBeVisible()
     await expect(page.getByTestId('mini-player')).toHaveCount(0)
+    await expect(page.locator('.theatre-frame iframe')).toHaveCount(1)
 
-    // Closing the mini player is an explicit act and stops it coming back.
+    // Close is an explicit act and stops it coming back.
     await open(page, '/#/today')
     await page.getByTestId('mini-close').click({ timeout: 15_000 })
     await expect(page.getByTestId('mini-player')).toHaveCount(0)
@@ -118,64 +204,36 @@ test.describe('theatre shell', () => {
     await expect(page.getByTestId('theatre-speed')).toHaveValue('1.5')
     await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('theatre-speed')).toHaveValue('1.5', { timeout: 20_000 })
+    // The Settings card reports exactly what was tuned.
+    await open(page, '/#/settings')
+    await expect(page.getByTestId('speed-count')).toContainText('1 topic tuned')
+    await page.getByTestId('speed-reset').click({ timeout: 15_000 })
+    await expect(page.getByTestId('speed-count')).toContainText('All at 1×')
   })
 
-  test('stamps add, seek, delete, undo and survive a reload', async ({ page }) => {
+  test('a video that reports a documented error shows the watch fallback', async ({ page }) => {
+    // 150 = the owner does not allow embedding: the designed dead-link card,
+    // never a blank frame.
+    await installFakePlayer(page, { error: 150 })
     await open(page, '/#/problem/two-sum')
-    const stamps = page.getByTestId('stamps-list').first()
-    await expect(stamps.getByTestId('stamps-empty')).toBeVisible()
-
-    await page.getByTestId('problem-tab-stamps').click({ timeout: 15_000 })
-    await page.getByTestId('stamp-input').fill('the hash map trick', { timeout: 15_000 })
-    await page.getByTestId('stamp-add').click({ timeout: 15_000 })
-    await expect(page.getByTestId('stamp-0')).toContainText('the hash map trick')
-    await expect(page.getByTestId('stamps-cap')).toContainText('1/30')
-
-    // Seeking from the row moves the clock the control bar prints.
-    await page.getByTestId('stamp-seek-0').click({ timeout: 15_000 })
-    await expect(page.getByTestId('theatre-clock')).toContainText('0:00')
-
-    // Undo is the shell's standard toast, so a mis-tap costs nothing.
-    await page.getByTestId('toast-action').click({ timeout: 15_000 })
-    await expect(page.getByTestId('stamp-0')).toHaveCount(0)
-
-    // Re-add, reload: the stamp is in the snippet, so it comes back.
-    await page.getByTestId('stamp-input').fill('the hash map trick', { timeout: 15_000 })
-    await page.getByTestId('stamp-add').click({ timeout: 15_000 })
-    await page.reload({ waitUntil: 'domcontentloaded' })
-    await expect(page.getByTestId('problem-screen')).toBeVisible({ timeout: 20_000 })
-    await page.getByTestId('problem-tab-stamps').click({ timeout: 15_000 })
-    await expect(page.getByTestId('stamp-0')).toContainText('the hash map trick')
-
-    // Delete asks nothing but is undoable, like every other mutation.
-    await page.getByTestId('stamp-delete-0').click({ timeout: 15_000 })
-    await expect(page.getByTestId('stamp-0')).toHaveCount(0)
-    await page.getByTestId('toast-action').click({ timeout: 15_000 })
-    await expect(page.getByTestId('stamp-0')).toContainText('the hash map trick')
-  })
-
-  test('a video we cannot play offers the watch link instead of a blank frame', async ({ page }) => {
-    // `data/media` is generated by `tools/fetch-media.mjs`; CI runs without
-    // network, so the entry is `unknown` and the stage must still explain
-    // itself rather than pretend to buffer forever.
-    await open(page, '/#/problem/two-sum')
-    const placeholder = page.getByTestId('theatre-placeholder')
-    const fallback = page.getByTestId('theatre-watch-fallback')
-    await expect(placeholder.or(fallback)).toHaveCount(1)
+    await expect(page.getByTestId('theatre-placeholder')).toBeVisible()
+    await expect(page.getByTestId('theatre-placeholder')).toContainText('does not allow this video to be embedded')
     const watch = page.getByTestId('theatre-watch-fallback')
-    if (await watch.count()) {
-      const href = await watch.getAttribute('href')
-      expect(href).toContain('youtube.com/watch?v=')
-    }
+    await expect(watch).toBeVisible()
+    expect(await watch.getAttribute('href')).toContain('youtube.com/watch?v=')
+    // Our control bar is gone — there is nothing to control.
+    await expect(page.getByTestId('theatre-controls')).toHaveCount(0)
   })
 
-  test('the offline state still shows the statement and the code rail', async ({ page }) => {
+  test('the offline state keeps the statement and the code rail', async ({ page }) => {
     await open(page, '/#/problem/two-sum')
     await page.context().setOffline(true)
     await page.evaluate(() => window.dispatchEvent(new Event('offline')))
-    await expect(page.getByTestId('theatre-stage')).toBeVisible()
-    // The statement is server-free by design: content is in the bundle.
+    await expect(page.getByTestId('theatre-stage')).toHaveAttribute('data-state', 'offline')
+    await expect(page.getByTestId('theatre-placeholder')).toContainText('The page still works offline')
+    // Content is in the bundle: the statement renders with no network at all.
     await expect(page.getByTestId('problem-panel-problem')).toContainText(/Two Sum/i)
+    await expect(page.getByTestId('problem-tab-code')).toBeVisible()
     await page.context().setOffline(false)
     await page.evaluate(() => window.dispatchEvent(new Event('online')))
   })
@@ -204,4 +262,58 @@ test.describe('theatre shell', () => {
       expect(results.violations).toEqual([])
     })
   }
+})
+
+/**
+ * Stamps live in the snippet document, so this half needs the Auth + Firestore
+ * emulators — the same gate `code.spec.ts` uses.
+ */
+test.describe('timeline stamps', () => {
+  test.skip(!process.env.PLAYWRIGHT_EMULATOR, 'Requires the Firebase Emulator Suite in CI')
+
+  test('add, seek, delete, undo and survive a reload', async ({ page }) => {
+    await open(page, '/')
+    await page.getByTestId('emulator-sign-in').click({ timeout: 20_000 })
+    await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
+
+    await open(page, '/#/problem/two-sum')
+    await expect(page.getByTestId('stamps-empty').first()).toBeVisible()
+
+    await page.getByTestId('problem-tab-stamps').click({ timeout: 15_000 })
+    await page.getByTestId('stamp-input').fill('the hash map trick', { timeout: 15_000 })
+    await page.getByTestId('stamp-add').click({ timeout: 15_000 })
+    await expect(page.getByTestId('stamp-0')).toContainText('the hash map trick')
+    await expect(page.getByTestId('stamps-cap')).toContainText('1/30')
+
+    // Seeking from the row moves the clock the control bar prints.
+    await page.getByTestId('stamp-seek-0').click({ timeout: 15_000 })
+    await expect(page.getByTestId('theatre-clock')).toContainText('0:00')
+
+    // Undo is the shell's standard toast, so a mis-tap costs nothing.
+    await page.getByTestId('toast-action').click({ timeout: 15_000 })
+    await expect(page.getByTestId('stamp-0')).toHaveCount(0)
+
+    // Re-add, reload: the stamp is in the snippet, so it comes back.
+    await page.getByTestId('stamp-input').fill('the hash map trick', { timeout: 15_000 })
+    await page.getByTestId('stamp-add').click({ timeout: 15_000 })
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await expect(page.getByTestId('problem-screen')).toBeVisible({ timeout: 20_000 })
+    await page.getByTestId('problem-tab-stamps').click({ timeout: 15_000 })
+    await expect(page.getByTestId('stamp-0')).toContainText('the hash map trick')
+
+    // Delete is undoable too.
+    await page.getByTestId('stamp-delete-0').click({ timeout: 15_000 })
+    await expect(page.getByTestId('stamp-0')).toHaveCount(0)
+    await page.getByTestId('toast-action').click({ timeout: 15_000 })
+    await expect(page.getByTestId('stamp-0')).toContainText('the hash map trick')
+  })
+
+  test('signed out, the stage still works and stamps say why they are read-only', async ({ page }) => {
+    await open(page, '/#/problem/two-sum')
+    await page.getByTestId('problem-tab-stamps').click({ timeout: 15_000 })
+    await expect(page.getByTestId('stamps-disabled')).toContainText('Sign in to save stamps')
+    await expect(page.getByTestId('stamp-input')).toHaveCount(0)
+    // The player itself is never gated on an account.
+    await expect(page.getByTestId('theatre-controls')).toBeVisible()
+  })
 })

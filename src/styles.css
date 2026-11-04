@@ -415,12 +415,6 @@ body {
   color: var(--ink);
 }
 
-.btn-danger {
-  border-color: var(--danger);
-  color: var(--danger);
-  background: transparent;
-}
-
 .btn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -658,11 +652,6 @@ body {
   color: var(--muted);
   font-size: var(--text-xs);
   font-weight: 600;
-}
-
-.field-hint {
-  color: var(--subtle);
-  font-size: var(--text-2xs);
 }
 
 .avatar {
@@ -3541,11 +3530,11 @@ body {
 }
 
 .theatre-stage.is-fill {
+  /* Page-level fill-screen; the iframe is never covered, the bar stays below. */
   position: fixed;
   inset: 0;
   z-index: 25;
   align-content: start;
-  gap: 0;
   padding: var(--space-3);
   background: var(--bg);
   overflow: auto;
