@@ -329,9 +329,16 @@ test.describe('timeline stamps', () => {
     await page.getByTestId('toast-action').click({ timeout: 15_000 })
     await expect(page.getByTestId('stamp-0')).toHaveCount(0)
 
-    // Re-add, reload: the stamp is in the snippet, so it comes back.
+    // Re-add, then *wait for the write to be acknowledged* before reloading.
+    // The save is deliberately fire-and-forget (the snapshot listener applies it
+    // locally), so a reload issued right after the click can reach the emulator
+    // before the write does and come back with no stamp — which is what made
+    // this case fail intermittently in CI on 2026-11-04. "Saved ✓" means the
+    // server has the document (`hasPendingWrites` is false), which is exactly
+    // the condition a reload must be preceded by.
     await page.getByTestId('stamp-input').fill('the hash map trick', { timeout: 15_000 })
     await page.getByTestId('stamp-add').click({ timeout: 15_000 })
+    await expect(page.getByTestId('code-save-status')).toHaveText('Saved ✓', { timeout: 20_000 })
     await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('problem-screen')).toBeVisible({ timeout: 20_000 })
     await expect(page.getByTestId('stamp-0')).toContainText('the hash map trick')
