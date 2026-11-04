@@ -10,6 +10,37 @@ import { open, openTopic, auditPage } from './helpers'
  * v5 backup and the v4 notes migration (with its printed warning) import.
  */
 const emulatorProject = 'demo-dsa-archive'
+const firestore = `http://127.0.0.1:8080/v1/projects/${emulatorProject}/databases/(default)/documents`
+
+/**
+ * The signed-in learner's uid, read from the emulator's owner-token REST API
+ * (the same access `planner.spec.ts` uses). Retried because the profile document
+ * appears a moment after sign-in.
+ */
+async function ownerUid(): Promise<string> {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    const response = await fetch(`${firestore}/users`, {
+      headers: { Authorization: 'Bearer owner' },
+    })
+    if (response.ok) {
+      const body = (await response.json()) as { documents?: { name: string }[] }
+      const name = body.documents?.[0]?.name
+      if (name) return name.split('/').pop()!
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+  throw new Error('the signed-in profile document never appeared')
+}
+
+/** The saved `code` field of one snippet, straight from the emulator. */
+async function readSnippetCode(uid: string, problemId: string): Promise<string | null> {
+  const response = await fetch(`${firestore}/users/${uid}/snippets/${problemId}`, {
+    headers: { Authorization: 'Bearer owner' },
+  })
+  if (!response.ok) return null
+  const body = (await response.json()) as { fields?: { code?: { stringValue?: string } } }
+  return body.fields?.code?.stringValue ?? null
+}
 const phone = { width: 390, height: 844 }
 
 test.skip(!process.env.PLAYWRIGHT_EMULATOR, 'Requires the Firebase Emulator Suite in CI')
@@ -136,12 +167,19 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await expect(page.getByTestId('code-save-status')).toContainText('Offline — will sync')
     await firstContext.setOffline(false)
     await page.evaluate(() => window.dispatchEvent(new Event('online')))
-    // Coming back online must flush the queued write. The status line is driven
-    // by the snapshot's `hasPendingWrites`, so `Saved` means the server acked
-    // it. No navigation here: a reload mid-flush is a race, and the editor
-    // deliberately stays open after saving so the learner can keep iterating.
-    await expect(page.getByTestId('code-save-status')).toContainText('Saved', { timeout: 30_000 })
-    // Then prove the round-trip where it means something: device 2, a separate
+    // Coming back online must flush the queued write. Assert *server truth* by
+    // reading the emulator document directly (the same owner-token REST access
+    // `planner.spec.ts` uses): the cached snapshot can report whatever it likes
+    // and the editor deliberately stays open after a save, so neither the status
+    // label nor the mounted panel proves the write left the browser.
+    const uid = await ownerUid()
+    await expect
+      .poll(
+        async () => readSnippetCode(uid, 'two-sum'),
+        { timeout: 45_000, message: 'the offline write never reached the server' },
+      )
+      .toContain('offline edit')
+    // Then prove the read side where it means something: device 2, a separate
     // browser profile that never held this draft. It was left with the peek
     // revealed; leave and come back so the panel remounts and the peek hides
     // again (reveal state is session-local), then reveal the synced draft.

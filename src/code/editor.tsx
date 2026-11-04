@@ -337,7 +337,11 @@ export function CodePanel({
   if (editing || !snippet) {
     return (
       <CodeEditor
-        key={`${problemId}-${snippet?.updatedAt ?? 'new'}`}
+        // Keyed by identity, never by `updatedAt`: every save writes a fresh
+        // server timestamp, so keying on it remounted the editor mid-session —
+        // throwing away whatever was typed after the save (and, on a slow
+        // snapshot, unmounting the whole panel while a test was reading it).
+        key={problemId}
         problemId={problemId}
         problemTitle={problemTitle}
         snippet={snippet}

@@ -34,9 +34,8 @@ import { parseVideoId, formatClock } from './video'
 import { addMoment, removeMoment, momentsOf, rememberMoments, undoMoments } from './stamps'
 import { setTopicRate, useTheatreSettings, markWatched, setAutoAdvance } from './theatreSettings'
 import { seek } from './player'
+import { tabFromHash, tabHref, type ProblemTab } from './tab'
 import { rateLabel } from './speedMemory'
-
-export type ProblemTab = 'problem' | 'stamps' | 'code'
 
 export function ProblemScreen({
   problemId,
@@ -77,20 +76,30 @@ export function ProblemScreen({
   const wide = useWideLayout()
   // `?tab=code` is a real address, so the tab is URL state: deep link, reload and
   // back button all land on the tab they name.
-  const [tab, setTabState] = useState<ProblemTab>(tabFromLocation)
+  const [tab, setTabState] = useState<ProblemTab>(readTab)
   const [live, setLive] = useState({ current: 0, duration: 0 })
   const [, setComposing] = useState<number | null>(null)
   const railRef = useRef<HTMLElement>(null)
   const anchorRef = useRef<HTMLDivElement>(null)
 
+  // The tab *is* the address, so it has to follow the address: a hash navigation
+  // that changes only `?tab=` (back/forward, a pasted deep link, a bookmark) is
+  // the same document and does not remount this screen. Watching `problemId`
+  // alone left the panel on the previous tab, which made the back button lie.
   useEffect(() => {
-    setTabState(tabFromLocation())
+    const sync = () => setTabState(readTab())
+    sync()
+    window.addEventListener('hashchange', sync)
+    return () => window.removeEventListener('hashchange', sync)
   }, [problemId])
 
-  const setTab = useCallback((next: ProblemTab) => {
-    setTabState(next)
-    window.history.replaceState(null, '', next === 'problem' ? `#/problem/${problemId}` : `#/problem/${problemId}?tab=${next}`)
-  }, [])
+  const setTab = useCallback(
+    (next: ProblemTab) => {
+      setTabState(next)
+      window.history.replaceState(null, '', tabHref(problemId, next))
+    },
+    [problemId],
+  )
 
   const moments = useMemo(() => momentsOf(snippet), [snippet])
 
@@ -469,11 +478,9 @@ function AutoAdvanceToggle({ on, nextText, onChange }: { on: boolean; nextText: 
 
 /* --- helpers -------------------------------------------------------------- */
 
-/** `#/problem/two-sum?tab=code` opens the Code tab directly. */
-function tabFromLocation(): ProblemTab {
-  if (typeof window === 'undefined') return 'problem'
-  const match = window.location.hash.match(/[?&]tab=(problem|stamps|code)/)
-  return (match?.[1] as ProblemTab | undefined) ?? 'problem'
+/** `#/problem/two-sum?tab=code` opens the Code tab directly (see `./tab`). */
+function readTab(): ProblemTab {
+  return tabFromHash(typeof window === 'undefined' ? '' : window.location.hash)
 }
 
 /**

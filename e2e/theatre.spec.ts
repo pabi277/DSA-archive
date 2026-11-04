@@ -275,6 +275,13 @@ test.describe('theatre shell', () => {
     expect(page.url()).toContain('tab=code')
     await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('problem-panel-code')).toBeVisible({ timeout: 20_000 })
+
+    // A same-document hash change is the case that used to lie: the screen did
+    // not remount, so it kept showing the tab it started on.
+    await page.goto('/#/problem/two-sum', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByTestId('problem-panel-problem')).toBeVisible()
+    await page.goBack({ waitUntil: 'domcontentloaded' })
+    await expect(page.getByTestId('problem-panel-code')).toBeVisible()
   })
 
   test('an unknown problem explains itself (lazy route chunk resolves)', async ({ page }) => {
