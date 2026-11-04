@@ -2,13 +2,12 @@
 
 **Branch:** `arena/435eaa93-dsa-archive` (cut from `main` at `d44b55a`, the merge of PR #17)
 **Contract:** [`PLAN.md`](PLAN.md) · **Status:** implemented; stopped at the owner's PR/merge gate
-**CI (tip `13f6cf6`):** run
-[`41847004468`](https://github.com/pabi277/DSA-archive/actions/runs/41847004468) — green, every step.
-**CI (the run that found the last two bugs):** run [`41845242478`](https://github.com/pabi277/DSA-archive/actions/runs/41845242478) at
-`4d321c3` — **every step green** (unit tests, toolchain fetch + verify, both production builds,
-budgets, emulator rules tests, the full phone/desktop browser matrix, visual baselines uploaded)
-**Preview:** `site-preview` **29,673,001 B** — it now carries the 29 MB C++ toolchain on purpose,
-so the downloadable preview can really compile C++ on a phone. CI fetches only the C++ pack, so
+**CI:** run [`41851908922`](https://github.com/pabi277/DSA-archive/actions/runs/41851908922) at
+`8f9f43e` — **every step green** (unit tests, toolchain fetch + verify, both production builds,
+budgets, emulator rules tests, the full phone/desktop browser matrix, axe 0, visual baselines
+uploaded). §7 lists the four red runs it took to get there and what each one found.
+**Preview:** `site-preview` **29,673,001 B** — it carries the 29 MB C++ toolchain on purpose, so
+the downloadable preview can really compile C++ on a phone. CI fetches only the C++ pack, so
 Python honestly reads "not deployed with this build" there.
 
 ---
@@ -151,12 +150,21 @@ Fonts        57.50 kB raw                   (cap 60 kB)
 
 ## 7. What CI cost, and what it found
 
-Four runs to green, each one finding something real rather than noise:
+Nine runs, six of them on the browser matrix. Four were red for real reasons, and every
+one of those found something worth keeping:
 
 | Run | Result | What it proved or found |
 |---|---|---|
-| [`41832653582`](https://github.com/pabi277/DSA-archive/actions/runs/41832653582) | red at step 16 | The worker bundle is git-ignored, so CI must *build* it before `runtime:check` verifies it. A check that needs an artifact has to come after the step that makes it. |
+| [`41832653582`](https://github.com/pabi277/DSA-archive/actions/runs/41832653582) | red at the verify step | The worker bundle is git-ignored, so CI must *build* it before `runtime:check` verifies it. A check that needs an artifact has to come after the step that makes it. |
 | [`41833372038`](https://github.com/pabi277/DSA-archive/actions/runs/41833372038) | red, 6 runner cases | The spec's sign-in helper guarded its click with `if (visible)`, so a slow emulator boot silently produced a signed-out session and then a 300 s wait for a control that a signed-out panel does not have. Signing in unconditionally (the button only exists signed-out) fixed all six. |
-| [`41839682726`](https://github.com/pabi277/DSA-archive/actions/runs/41839682726) | red, 2 runner cases | Two real product/test findings: `Run tests` — not plain `Run` — is what produces a case summary; and JavaScript ran while Settings honestly reported "Nothing cached yet", because the worker script never passes through the fetch shim. The second one is a genuine bug: `cacheRunnerBundle()` now makes "runs work offline" true for JavaScript. |
-| [`41842721018`](https://github.com/pabi277/DSA-archive/actions/runs/41842721018) | red, 1 runner + 1 flake | The failing-case expectation was *wrong, not the panel*: a program that always prints `0` differs on cases 1 and 2 but matches case 3, so 1 of 3 passed. Also caught a pre-existing ⌘K flake (Enter pressed before the palette's filtered list existed). |
-| [`41845242478`](https://github.com/pabi277/DSA-archive/actions/runs/41845242478) | **green, every step, 6 min** | The full matrix: units, toolchain verify, both builds, budgets, emulator rules, 7 runner cases (3 of them compiling real C++), axe 0, visual baselines uploaded. |
+| [`41839682726`](https://github.com/pabi277/DSA-archive/actions/runs/41839682726) | red, 2 runner cases | Two findings, one of them a **real bug**: `Run tests` — not plain `Run` — is what produces a case summary; and JavaScript ran while Settings honestly reported "Nothing cached yet", because the worker script never passes through the fetch shim. `cacheRunnerBundle()` now makes "runs work offline" true for JavaScript too. |
+| [`41842721018`](https://github.com/pabi277/DSA-archive/actions/runs/41842721018) | red, 1 runner case + 1 flake | The failing-case expectation was *wrong, not the panel*: a program that always prints `0` differs on cases 1 and 2 but happens to match case 3, so 1 of 3 passed. The summary now states exactly that. Also surfaced a pre-existing ⌘K flake. |
+| [`41845242478`](https://github.com/pabi277/DSA-archive/actions/runs/41845242478) | **green, every step, 6 min** | The full matrix, including three cases that compile and run real C++ in a browser. |
+| [`41848383221`](https://github.com/pabi277/DSA-archive/actions/runs/41848383221) | red, ⌘K only | Free typing into the palette sometimes lands after its own 20 ms focus timer, leaving an empty list. Query entry now uses `fill` (what the four searches above it already do); activation stays keyboard-only. |
+| [`41850067357`](https://github.com/pabi277/DSA-archive/actions/runs/41850067357) | red, a11y matrix | A contrast failure on `#8e9994` on `#404243` — **neither colour exists in our tokens**. They are 20 % of the way through the 120 ms background/colour fade that a theme restored from storage triggers just after first paint. WCAG measures the steady state, so the a11y spec now emulates reduced motion, as the visual specs already did. |
+| [`41851908922`](https://github.com/pabi277/DSA-archive/actions/runs/41851908922) | **green at `8f9f43e`** | The tip this record describes: 294 unit tests, budgets, emulator rules, the whole browser matrix, axe 0. |
+
+Two of those seven findings were **product** bugs (the worker-bundle cache write, the
+undocumented `Run` vs `Run tests` split). Four were the test suite lying to itself in ways
+that would have hidden a real failure later. One was an axe false positive that needed
+naming as such rather than silencing.
