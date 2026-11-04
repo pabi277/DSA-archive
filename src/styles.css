@@ -2026,6 +2026,7 @@ body {
 }
 
 .problem-screen-title {
+  margin: 0;
   font-size: var(--text-xl);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -3689,10 +3690,12 @@ body {
   min-width: 0;
 }
 
-/* Phone: the tabs are the only way to reach stamps and code. */
+/* Phone: the tabs are the only way to reach stamps and code, so they sit above
+   the stage — below it they land under the fold once the player is mounted. */
 @media (max-width: 1079px) {
   .theatre-tabs {
     display: flex;
+    order: -1;
   }
 
   .theatre-rail {

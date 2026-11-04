@@ -192,7 +192,7 @@ export function ProblemScreen({
 
       <div className="theatre-layout">
         <div className="theatre-main" ref={anchorRef}>
-          {wide ? null : <h2 className="problem-screen-title">{problem.title}</h2>}
+          <h2 className="problem-screen-title theatre-title">{problem.title}</h2>
 
           <TheatreStage
             problemTitle={problem.title}
@@ -335,7 +335,7 @@ export function ProblemScreen({
         {wide ? (
         <aside className="theatre-rail" aria-label="Problem rail" ref={railRef}>
           <div className="theatre-rail-head">
-            <h2 className="problem-screen-title">{problem.title}</h2>
+            <p className="problem-screen-title">{problem.title}</p>
             <p className="quiet-note">
               {subtopicTitle} · {drill ? 'Pattern drill' : problem.kind === 'theory' ? 'Theory' : 'Problem'} ·{' '}
               <span className="num">{problem.lcLabel}</span> ·{' '}
