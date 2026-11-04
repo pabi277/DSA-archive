@@ -34,12 +34,19 @@ CI re-run with the new cap is the last step before the merge gate.
 ### Our control bar
 
 play/pause · `−10s` / `+10s` · clock (`0:00 / 12:34`) · speed `0.5 → 2×` remembered
-**per topic** · **Stamp** at the playhead · captions (`c`) · fill-screen (`f`) ·
-`Skip to next stamp` · watched indicator (`62% seen · watched`).
+**per topic** · **Stamp** at the playhead · captions (`c`) · `Skip to next stamp` ·
+watched indicator (`62% seen · watched`).
 
-Keys from the phase contract, with two guards (never while typing, never while a dialog is
-open, never with ⌘/Ctrl/Alt): `space`/`k` play-pause, `←`/`→` ±10 s, `f` fill-screen
-(`esc` leaves it), `c` captions, `s` stamp, `n` next problem.
+Keys: `space`/`k` play-pause, `←`/`→` ±10 s, `c` captions, `s` stamp, `n` next problem —
+never while typing, never while a dialog is open, never with ⌘/Ctrl/Alt.
+
+**One contract item was dropped: `f` fill-screen.** It was built and shipped (a page-level
+fixed overlay with the bar still under the frame), then removed: to be usable it needed a
+block of overlay CSS that fought the 16:9 letterboxing, and YouTube's own player already has
+a correct full-screen control that we must not shadow (§4.13). The honest version — a
+button that rearranges our page around the same iframe — added ~0.4 kB gzip for a control
+that is worse than the one already on the player. Recorded as a deviation rather than
+silently kept.
 
 ### Timeline stamps (`moments`)
 
@@ -84,6 +91,7 @@ speed** reset. No toggle pretends to block ads.
 | Firestore | No new path. `snippets/{problemId}` gains an optional `moments` list. |
 | Rules | Generated **v8** (`tools/generate-firestore-rules.mjs`): `isKnownProblem` whitelist reused, `moments` ≤30, each `at` a number 0–86 400, `text` a string 1–140, `createdAt` timestamp-or-ISO, keys whitelisted. All v7 rules preserved verbatim (`profile`, `progressByTopic`, `snippets`, `lists`, `plans`, `quizResults`, `friends`, `public/summary`, `/notes/` default-deny). |
 | Backup | Writer **v6 → v7** (`snippets[].moments[]`); reader accepts **1–7**. A pre-v7 file that claims `moments` is refused rather than guessed. `snippets[]` still round-trips. |
+| Client | `#/problem/<id>?tab=problem|stamps|code` — the tab is **URL state**, so the phase-04 "Open problem" row, a reload and the back button all keep their tab. The stamp button uses the playhead. |
 | Client | New `src/theatre/` (`video.ts`, `oembed.ts`, `stamps.ts`, `speedMemory.ts`, `autoAdvance.ts`, `player.ts`, `stage.tsx`, `stampsList.tsx`, `miniPlayer.tsx`, `theatreSettings.ts`, `problemPage.tsx`). `src/app/problemScreen.tsx` (the pre-theatre page) deleted. `src/design/primitives.tsx` loses the unused `Skeleton`/`Field` primitives. |
 | Build | The theatre **screens** lazy-load with the `content-ui` route chunk (they share `StatementCard`, `CodePanel`, `TheoryMcqCard`, and only `#/problem/<id>` needs any of them). Two separate chunks cost +1.4 kB gzip in duplicated UI, so they ship as one. Coverage projection slimmed to the four numbers the UI prints. |
 
@@ -102,9 +110,35 @@ speed** reset. No toggle pretends to block ads.
   links untouched**, 0 stale.
 - `npm run check:budgets` — **CSS, entry JS and largest chunk green; total shell red**
   (see below).
-- Playwright: `e2e/theatre.spec.ts` added (11 tests, both widths, axe 0 on two theatre
-  routes); `e2e/code.spec.ts` moved to `schemaVersion: 7`. **Not run locally** (no
-  Chromium/Java in the sandbox — CI covers them; see *Deviations*).
+- Playwright: `e2e/theatre.spec.ts` added (**15 tests**, both widths, axe 0 on two theatre
+  routes, plus an emulator-gated stamp round-trip); `code.spec.ts`, `library.spec.ts`,
+  `planner.spec.ts`, `quiz.spec.ts` and `sync.spec.ts` moved to `schemaVersion: 7`.
+  **Not run locally** (no Chromium/Java in the sandbox — CI covers them).
+
+### What CI caught (and what was fixed)
+
+The first four CI runs each exposed a real defect; none of them were test-only noise.
+
+| Run | Failure | Fix |
+|---|---|---|
+| `41804124853` | Budget step only. | Owner re-baselined to 386 kB. |
+| `41806360046`, `41807701890` | Emulator stage failed with **no diagnostics at all** — the workflow's summariser only understood Playwright blocks, so a rules failure produced an empty annotation set. | The summariser now falls back to `node --test` TAP blocks and the log tail. This is how the next two failures became visible. |
+| `41807928868` | `firestore.rules` v8 **did not compile**: `moments.all(function (moment) {...})` is a lambda, and Firestore Rules have no lambdas. | Unrolled per-index clauses emitted by the generator. |
+| `41808350018` | `PERMISSION_DENIED` — *"the maximum of 1000 expressions to evaluate has been reached"*: 30 full shape checks is simply too many. | Every index now gets one cheap key check; the two boundary stamps get the full `validStamp`; the list must be ≤30, sorted and inside 0–86400. The client always writes the whole sorted list, so an add moves the last element and a delete re-exposes a boundary one. |
+| `41808733081` | Rules green; Playwright found four regressions: `label-content-name-mismatch` on our glyph buttons, `heading-order` on `#/problem/<id>` (h1 → h3), the phase-04 "Open problem" row landing on a page without the code panel, and stale `schemaVersion: 6` assertions in four specs. | Glyphs are `aria-hidden` under complete labels; the phone layout renders the problem `h2`; the tab became URL state (`?tab=code`); the four specs moved to 7. |
+
+Two runtime defects were found by reading the hand-off path while waiting for CI, both of
+which would have made the mini player never work with the real player:
+
+1. `adoptPlayer` moved the `YT.Player` **object** into the DOM, but that object is not a
+   Node — only `getIframe()` is. It also must move the *wrapper* div, because re-parenting
+   an iframe directly reloads it and kills playback.
+2. `miniPlayer` only rendered its holder once `visible` was true, and `visible` could only
+   become true after adopting into that same holder — a deadlock. Rendering is now gated by
+   `claimed` and adoption retries once the holder exists.
+
+The stage's cleanup also *paused* on unmount and left its slot in place; it now calls
+`releaseSlot('stage')` without pausing, which is what lets the dock take over seamlessly.
 
 ---
 

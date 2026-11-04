@@ -748,9 +748,16 @@ Consequences, all recorded in `docs/phases-v2/06-theatre-player/RECORD.md`:
   embed (`enablejsapi=1` + `origin`, `rel=0`, `iv_load_policy=3`, `playsinline=1`,
   `cc_load_policy=1`, `host=youtube-nocookie`, `start=` for `?t=`). Our control bar is a
   separate row *below* the 16:9 box; `e2e/theatre.spec.ts` asserts the bar's top edge is at or
-  below the frame's bottom edge. `f` is a page-level fill-screen (the stage becomes a fixed
-  overlay that still puts the bar under the frame), never a replacement for YouTube's own
-  full-screen control. Ads remain the browser's business, as decided.
+  below the frame's bottom edge. Ads remain the browser's business, as decided.
+- **`f` fill-screen is not shipped.** It was implemented (fixed overlay, bar still under the
+  frame) and then removed: to be usable it needed overlay CSS that fought the 16:9
+  letterboxing, and YouTube's own player already has a correct full-screen control that we
+  must not shadow or replace (ToS §4.13). The remaining keys are `space`/`k`, `←`/`→`, `c`,
+  `s` and `n`; `f` is the one phase-contract item consciously dropped, and the phase record
+  says so.
+- **The problem page's tab is URL state** (`#/problem/<id>?tab=code`). The phase-04 code
+  screen's "Open problem" row relies on landing with the solution in view, and "every view
+  has a URL" is a standing rule, so the tab had to graduate from component state.
 - **Stamps live in the snippet document** (`snippets[id].moments`), not a new collection:
   ≤30 per snippet, `text` ≤140 chars, `at` 0–86 400, `createdAt` ISO. They ride the read
   Phase 04 already performs, so no new document, no new quota path and no new sync concern.
