@@ -227,7 +227,7 @@ wins that race depends on machine speed.
 | `shell.test.tsx` runs with a suspense ping | 4 of 6 | **0 of 6** |
 | Full-suite runs (294 tests) | never reproduced — 6 of 6 green locally | **4 of 4 green**, plus 5 shuffled and 3 shuffled-under-load |
 | CI unit step | red at `ace2289` | **green**, `vitest exit=0, tee exit=0` |
-| Whole pipeline | red at `ace2289` | **green**, run [`41906857787`](https://github.com/pabi277/DSA-archive/actions/runs/41906857787) at `bff592d`, 34 steps, 5m 19s |
+| Whole pipeline | red at `ace2289` | **green**, runs [`41906857787`](https://github.com/pabi277/DSA-archive/actions/runs/41906857787) at `bff592d` (5m 19s) and [`41908106352`](https://github.com/pabi277/DSA-archive/actions/runs/41908106352) at `0428202` — 29 steps passed, 0 failed, 7 skipped by design |
 
 The last row is the one that matters and the one that deserves a caveat: this flake was
 never reproducible on this machine, so the fix cannot be *proved* by local runs going
