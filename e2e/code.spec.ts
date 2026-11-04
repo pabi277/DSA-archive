@@ -20,12 +20,12 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
 
   const firestoreClear = await fetch(
     `http://127.0.0.1:8080/emulator/v1/projects/${emulatorProject}/databases/(default)/documents`,
-    { method: 'DELETE' },
+    { method: 'DELETE', signal: AbortSignal.timeout(30_000) },
   )
   expect(firestoreClear.ok).toBe(true)
   const authClear = await fetch(
     `http://127.0.0.1:9099/emulator/v1/projects/${emulatorProject}/accounts`,
-    { method: 'DELETE' },
+    { method: 'DELETE', signal: AbortSignal.timeout(30_000) },
   )
   expect(authClear.ok).toBe(true)
 
@@ -42,7 +42,7 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await expect(page.getByTestId('code-signed-out')).toBeVisible()
 
     await open(page, '/')
-    await page.getByTestId('emulator-sign-in').click()
+    await page.getByTestId('emulator-sign-in').click({ timeout: 15_000 })
     await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
     await expect(page.getByTestId('sync-pill')).toContainText('Synced')
 
@@ -52,14 +52,14 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     // --- write a solution inline from a sheet row ---------------------------
     await open(page, '/#/search')
     await openTopic(page)
-    await page.getByRole('button', { name: /More actions for Two Sum/ }).click()
-    await page.getByTestId('menu-code-two-sum').click()
+    await page.getByRole('button', { name: /More actions for Two Sum/ }).click({ timeout: 15_000 })
+    await page.getByTestId('menu-code-two-sum').click({ timeout: 15_000 })
     const editor = page.getByTestId('code-editor')
     await expect(editor).toBeVisible()
-    await page.getByTestId('code-language').selectOption('cpp')
-    await page.getByTestId('code-input').fill('class Solution {\n  vector<int> twoSum() { return {}; }\n};')
-    await page.getByTestId('code-notes').fill('Store the complement in a hash map.')
-    await page.getByTestId('code-save').click()
+    await page.getByTestId('code-language').selectOption('cpp', { timeout: 15_000 })
+    await page.getByTestId('code-input').fill('class Solution {\n  vector<int> twoSum() { return {}; }\n};', { timeout: 15_000 })
+    await page.getByTestId('code-notes').fill('Store the complement in a hash map.', { timeout: 15_000 })
+    await page.getByTestId('code-save').click({ timeout: 15_000 })
     await expect(page.getByTestId('account-notice')).toContainText('Code saved')
     await expect(page.getByTestId('code-save-status')).toContainText('Saved')
     await expect(page.getByTestId('has-code-two-sum')).toBeVisible()
@@ -72,34 +72,43 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await expect(row).toContainText('cpp')
     await expect(page.getByTestId('code-count')).toContainText('1 saved · 1 shown')
 
-    await page.getByTestId('code-search').fill('complement')
+    await page.getByTestId('code-search').fill('complement', { timeout: 15_000 })
     await expect(row).toBeVisible()
-    await page.getByTestId('code-search').fill('vector<int>')
+    await page.getByTestId('code-search').fill('vector<int>', { timeout: 15_000 })
     await expect(row).toBeVisible()
-    await page.getByTestId('code-search').fill('zzz-nothing-matches')
+    await page.getByTestId('code-search').fill('zzz-nothing-matches', { timeout: 15_000 })
     await expect(page.getByTestId('code-no-results')).toBeVisible()
-    await page.getByTestId('code-search').fill('')
-    await page.getByTestId('code-lang-filter').selectOption('python')
+    await page.getByTestId('code-search').fill('', { timeout: 15_000 })
+    await page.getByTestId('code-lang-filter').selectOption('python', { timeout: 15_000 })
     await expect(page.getByTestId('code-no-results')).toBeVisible()
-    await page.getByTestId('code-lang-filter').selectOption('cpp')
+    await page.getByTestId('code-lang-filter').selectOption('cpp', { timeout: 15_000 })
     await expect(row).toBeVisible()
-    await page.getByTestId('code-topic-filter').selectOption('graphs')
+    await page.getByTestId('code-topic-filter').selectOption('graphs', { timeout: 15_000 })
     await expect(page.getByTestId('code-no-results')).toBeVisible()
-    await page.getByTestId('code-topic-filter').selectOption('arrays')
+    await page.getByTestId('code-topic-filter').selectOption('arrays', { timeout: 15_000 })
     await expect(row).toBeVisible()
 
     // --- copy reaches the real clipboard ------------------------------------
-    await page.getByTestId('code-copy-two-sum').click()
+    await page.getByTestId('code-copy-two-sum').click({ timeout: 15_000 })
     await expect(page.getByTestId('code-copy-two-sum')).toContainText('Copied')
-    const clipboard = await page.evaluate(() => navigator.clipboard.readText())
+    await page.bringToFront()
+    const clipboard = await page.evaluate(
+      () =>
+        Promise.race([
+          navigator.clipboard.readText(),
+          new Promise<string>((_resolve, reject) =>
+            setTimeout(() => reject(new Error('clipboard readText timed out')), 10_000),
+          ),
+        ]),
+    )
     expect(clipboard).toContain('vector<int> twoSum()')
 
     // --- peek: hidden (and aria-hidden) until revealed ----------------------
-    await page.getByTestId('code-open-two-sum').click()
+    await page.getByTestId('code-open-two-sum').click({ timeout: 15_000 })
     await expect(page.getByTestId('code-panel')).toBeVisible()
     await expect(page.getByTestId('peek-code')).toHaveAttribute('aria-hidden', 'true')
     await page.screenshot({ path: 'test-results/code-peek-phone.png', fullPage: true })
-    await page.getByTestId('peek-reveal').click()
+    await page.getByTestId('peek-reveal').click({ timeout: 15_000 })
     await expect(page.getByTestId('peek-code')).not.toHaveAttribute('aria-hidden', 'true')
     await expect(page.getByTestId('peek-code')).toContainText('class Solution')
     await expect(page.getByTestId('code-leetcode')).toBeVisible()
@@ -108,35 +117,35 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     // --- the other device: a genuinely fresh browser profile ----------------
     const secondPage = await secondContext.newPage()
     await open(secondPage, '/')
-    await secondPage.getByTestId('emulator-sign-in').click()
+    await secondPage.getByTestId('emulator-sign-in').click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('signed-in-banner')).toContainText('CI Owner')
     await open(secondPage, '/#/code')
     await expect(secondPage.getByTestId('code-row-two-sum')).toContainText('Two Sum')
     await open(secondPage, '/#/problem/two-sum')
-    await secondPage.getByTestId('peek-reveal').click()
+    await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('peek-code')).toContainText('vector<int> twoSum()')
 
     // --- offline save queues, then syncs on reconnect -----------------------
     await firstContext.setOffline(true)
     await page.evaluate(() => window.dispatchEvent(new Event('offline')))
     await open(page, '/#/problem/two-sum')
-    await page.getByTestId('code-edit').click()
-    await page.getByTestId('code-input').fill('// offline edit\nclass Solution {};')
-    await page.getByTestId('code-save').click()
+    await page.getByTestId('code-edit').click({ timeout: 15_000 })
+    await page.getByTestId('code-input').fill('// offline edit\nclass Solution {};', { timeout: 15_000 })
+    await page.getByTestId('code-save').click({ timeout: 15_000 })
     await expect(page.getByTestId('code-save-status')).toContainText('Offline — will sync')
     await firstContext.setOffline(false)
     await page.evaluate(() => window.dispatchEvent(new Event('online')))
     await expect(page.getByTestId('code-save-status')).toContainText('Saved', { timeout: 20_000 })
     await open(secondPage, '/#/problem/two-sum')
-    await secondPage.getByTestId('peek-reveal').click()
+    await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('peek-code')).toContainText('offline edit')
 
     // --- backup v5 carries snippets; a v4 notes file migrates with warning --
     await open(secondPage, '/#/settings')
     await expect(secondPage.getByTestId('account-panel')).toBeVisible()
     await expect(secondPage.getByTestId('account-panel')).toContainText('1 saved solution')
-    const downloadPromise = secondPage.waitForEvent('download')
-    await secondPage.getByRole('button', { name: 'Export backup JSON' }).click()
+    const downloadPromise = secondPage.waitForEvent('download', { timeout: 30_000 })
+    await secondPage.getByRole('button', { name: 'Export backup JSON' }).click({ timeout: 15_000 })
     const download = await downloadPromise
     const path = await download.path()
     expect(path).toBeTruthy()
@@ -168,21 +177,27 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     const preview = secondPage.getByTestId('import-preview')
     await expect(preview).toContainText('saved solutions 1')
     await expect(secondPage.getByTestId('import-warning')).toContainText('linear-search')
-    await preview.getByRole('button', { name: 'Replace my progress' }).click()
+    await preview.getByRole('button', { name: 'Replace my progress' }).click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('account-notice')).toContainText('1 saved solution')
     await open(secondPage, '/#/code')
     await expect(secondPage.getByTestId('code-row-linear-search')).toContainText('Linear Search')
     await expect(secondPage.getByTestId('code-row-two-sum')).toHaveCount(0)
     await open(secondPage, '/#/problem/linear-search')
-    await secondPage.getByTestId('peek-reveal').click()
+    await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('peek-code')).toContainText('for (int i = 0')
 
     await open(secondPage, '/#/code')
     await secondPage.screenshot({ path: 'test-results/code-list-phone.png', fullPage: true })
-    const phoneAudit = await new AxeBuilder({ page: secondPage }).analyze()
+    const phoneAudit = await Promise.race([
+      new AxeBuilder({ page: secondPage }).analyze(),
+      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('axe timed out on #/code')), 60_000)),
+    ])
     expect(phoneAudit.violations).toEqual([])
     await open(secondPage, '/#/problem/linear-search')
-    const problemAudit = await new AxeBuilder({ page: secondPage }).analyze()
+    const problemAudit = await Promise.race([
+      new AxeBuilder({ page: secondPage }).analyze(),
+      new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('axe timed out on the problem page')), 60_000)),
+    ])
     expect(problemAudit.violations).toEqual([])
   } finally {
     for (const context of contexts) await context.close()
