@@ -712,3 +712,57 @@
   `quiz-runner` (`/#/quiz/arrays`) across phone/desktop × dark/light for CI
   generation and owner visual review.
 
+## Phase v2-06 implementation choices (2026-11-04)
+
+### Owner decision — the shell cap moved 380 kB → 386 kB gzip (2026-11-04)
+
+Asked, with measured numbers: Phase 05 ended at `376,014 B` (3,986 B of headroom under the
+frozen 380,000 B cap) and the theatre adds **~9.9 kB gzip** of new capability — the stage and
+its states, the control bar, the stamps list, the mini player, the per-topic speed store, the
+auto-advance offer, the Settings card and ~0.85 kB of CSS.
+
+Every byte that could be recovered without breaking the phase contract was recovered first:
+the coverage-report projection (1.2 kB), duplicate/dead CSS and the unused `Skeleton`/`Field`
+primitives (~1.5 kB raw), stamp *editing* (the contract only asks for add/delete), the stage's
+tick rail, and the second full player in the mini dock. Chunk reshuffles were measured and
+rejected — `${catalogue}+app-data`, `content-ui → entry`, one merged chunk and a separate
+`theatre` chunk all land between `362.9` and `386.1 kB`, i.e. they move bytes rather than
+remove them, and splitting the theatre from `content-ui` *adds* 1.4 kB of duplicated UI.
+Dropping the catalogue's positional `rank` and deduping three `lcLabel` strings buys 0.29 kB
+(gzip already absorbs the repetition).
+
+**Owner chose "re-baseline to 386 kB now"** (2026-11-04), from four options that also included
+a phase-06-only 390 kB cap, cutting a piece of the contract, and leaving CI red for review.
+Consequences, all recorded in `docs/phases-v2/06-theatre-player/RECORD.md`:
+
+- `tools/check-budgets.mjs` `maxShellGzipBytes` = `386_000` (was `380_000`); CSS 60 kB raw /
+  18 kB gz, entry 180 kB raw / 55 kB gz and the 520 kB largest-chunk caps are **unchanged**.
+- Measured: **`385,936 B`** gzip — the branch sits `64 B` under the new cap, so the next phase
+  starts with essentially no slack.
+- **Phase v2-09 still owns the cap review.** It is expected to tighten it again once the
+  browser runner lands; this is a one-phase re-baseline, not a permanent 386 kB ceiling.
+
+### Theatre architecture choices
+
+- **Our chrome never touches the player.** The IFrame player is the official, unmodified
+  embed (`enablejsapi=1` + `origin`, `rel=0`, `iv_load_policy=3`, `playsinline=1`,
+  `cc_load_policy=1`, `host=youtube-nocookie`, `start=` for `?t=`). Our control bar is a
+  separate row *below* the 16:9 box; `e2e/theatre.spec.ts` asserts the bar's top edge is at or
+  below the frame's bottom edge. `f` is a page-level fill-screen (the stage becomes a fixed
+  overlay that still puts the bar under the frame), never a replacement for YouTube's own
+  full-screen control. Ads remain the browser's business, as decided.
+- **Stamps live in the snippet document** (`snippets[id].moments`), not a new collection:
+  ≤30 per snippet, `text` ≤140 chars, `at` 0–86 400, `createdAt` ISO. They ride the read
+  Phase 04 already performs, so no new document, no new quota path and no new sync concern.
+  Rules **v8** whitelist the keys; backup **v7** carries them and still reads 1–7.
+- **Metadata is build-time only.** `tools/fetch-media.mjs` queries oEmbed once per unique
+  video and `vite.config.ts` folds `data/media/` into the existing content bundle. The runtime
+  never calls oEmbed, so real titles work in Airplane Mode with no CORS surface. When the
+  build machine has no egress (this sandbox), the tool writes nothing — no guessed metadata is
+  ever committed.
+- **The theatre screens are lazy, the models are eager.** `problemPage`/`stage`/`stamps`/
+  `player` load with the `content-ui` route chunk on `#/problem/<id>`; the models
+  (`video.ts`, `speedMemory.ts`, `stamps.ts`) and the mini player stay eager because a video
+  that keeps playing must be able to dock on any route. Entry JS therefore stays at
+  `32.84 kB` gzip.
+

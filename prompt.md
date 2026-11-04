@@ -64,7 +64,7 @@ Do **not** start coding before step 5 is read end-to-end.
 
 ---
 
-## 4. Where we are (2026-11-03)
+## 4. Where we are (2026-11-04)
 
 - **v1 complete** (`docs/phases/00…06`): 495 problems / 20 topics, Google Auth +
   Firestore progress sync, notes+snippets+lists, planner + 3/7/21 revision, friends,
@@ -90,22 +90,30 @@ Do **not** start coding before step 5 is read end-to-end.
   **v6**, backup **v5** (schemas 1–4 still import; legacy code kept byte-for-byte,
   markdown dropped with a named warning), `#/code` search + filters, small editor,
   peek-for-recall and copy-out. Record: `docs/phases-v2/04-code-notebooks/RECORD.md`.
-- **v2-05 implementation complete; owner PR/review/merge gate pending**: branch
-  `arena/6327674f-dsa-archive`; 42 `TheoryMcqCard`s (`[Check]` inline accordions on
-  Practice/Sheet + problem screen, always-available `Show solution → Mark as read` =
-  `hint`, right answer = `clean`, undoable), 3 Arrays primer inline checks (`≤1`/section,
-  `≤3`/topic enforced by `validate_data.py`), `#/quiz` + `#/quiz/<topicId>` Mulberry32
-  runner (`1–4` / `Enter` / `r`, `≥80%` pass + incomplete-bank scaling, per-kind
-  breakdown + primer section re-read links), `users/{uid}/quizResults/{topicId}` under
-  rules **v7** (18 emulator tests), guest `dsa-archive.quiz.v1` + explicit merge-on-sign-in,
-  and backup **v6** (`quizResults[]`, schemas 1–5 accepted). Lossless build-time
-  table-packing of `virtual:dsa-catalogue` keeps the total precached shell at
-  **376.01 kB gzip** (`3,986 B` below the frozen 380 kB cap). Branch CI run
-  [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495)
-  (`cac1c7f`) is green across 194 unit tests, 18 emulator rules v7 tests, 94 Playwright
-  tests + axe 0, 64 visual baselines (`11,000,190` B), and `site-preview` (`435,685` B).
-  Record: `docs/phases-v2/05-quiz-engine/RECORD.md`.
-- **v2-06 … v2-10 not started**: Phase 06 follows only after the owner reviews Phase 05,
+- **v2-05 complete and merged**: PR #16 → `main` at `4741a1b` (2026-11-04). 42
+  `TheoryMcqCard`s, 3 Arrays primer inline checks, `#/quiz` + `#/quiz/<topicId>` Mulberry32
+  runner (`1–4` / `Enter` / `r`, `≥80%` pass, per-kind breakdown + primer re-read links),
+  `users/{uid}/quizResults/{topicId}` under rules **v7** (18 emulator tests), guest
+  `dsa-archive.quiz.v1` + explicit merge-on-sign-in, backup **v6** (schemas 1–5 accepted),
+  total precached shell **376.01 kB** gzip. Record: `docs/phases-v2/05-quiz-engine/RECORD.md`.
+- **v2-06 implementation complete; owner PR/review/merge gate pending**: branch
+  `arena/c2fd0a14-dsa-archive`. `#/problem/<id>` is the theatre — the official IFrame
+  Player API loaded on that route only (`enablejsapi=1` + `origin`, `rel=0`,
+  `iv_load_policy=3`, `playsinline=1`, `cc_load_policy=1`, `host=youtube-nocookie`,
+  `start=` for `?t=`), our control bar **below** the frame (play/pause, ±10 s, clock,
+  per-topic speed 0.5–2×, Stamp, captions `c`, fill-screen `f`, skip-to-next-stamp,
+  watched ≥60%), keys `space/k ←/→ f c s n`, one mini player that docks the *same* frame
+  across routes, timeline stamps in `snippets[id].moments` (≤30 × ≤140 chars, add/delete
+  both undoable) under rules **v8**, build-time oEmbed metadata in
+  `data/media/<videoId>.json` (never fetched at runtime; the sandbox had no egress so the
+  folder ships empty and titles fall back), the dead-link `Open on YouTube` card, opt-in
+  auto-advance (default off), and a Settings card with the honest ads line + speed reset.
+  Backup **v7** (reads 1–7). Theme screens lazy-load with the `content-ui` route chunk;
+  entry JS stays `32.84 kB` gzip. **Owner re-baselined the shell cap 380 → 386 kB gzip**
+  (measured `385,936 B`; rationale + rejected alternatives in the phase record; Phase 09
+  re-examines it). 231 unit tests; Playwright + axe + emulator rules run in CI.
+  Record: `docs/phases-v2/06-theatre-player/RECORD.md`.
+- **v2-07 … v2-10 not started**: Phase 07 follows only after the owner reviews Phase 06,
   explicitly commands its PR/merge, and starts a new chat. The primer/statement/quiz-bank
   authoring track continues separately from the build phases.
 - **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
@@ -129,14 +137,14 @@ Do **not** start coding before step 5 is read end-to-end.
 | 02 | `02-topics-browse/` | ✅ **merged in PR #13** (`bd9350b`) — `#/topics` + topic pages + practice/outcomes + Today + grouped search; run `41647413508` green | 5–6 d | 01 |
 | 03 | `03-content-pipeline/` | ✅ **merged in PR #14** (`e51695a`) — schema v2 + safe renderers + validator/CI + **`resources[]` multi-source** + **136 drills** + 42 theory MCQs + Arrays primer/statements/quiz + coverage report; run `41696457606` green | 7–9 d + authoring | 01, 02 merged |
 | 04 | `04-code-notebooks/` | ✅ **merged in PR #15** (`f4fa993`) — **Delete notes** end-to-end; `snippets` collection, rules **v6**, backup **v5** (+v4 notes migration), `#/code`, small editor, peek/reveal; run `41782795154` green | 5–6 d | 01 |
-| 05 | `05-quiz-engine/` | 🟡 **implemented on `arena/6327674f-dsa-archive`; owner PR/merge gate** — **Theory MCQ cards** (4 options, per-option explanations, always-available `Show solution`, `[Solve]` vs `[Check]`), 3 Arrays inline checks, 12-item topic quiz, 80% pass, `quizResults`, rules **v7**, backup **v6**, guest merge | 6–7 d | 02, 03 |
-| 06 | `06-theatre-player/` | In-app YouTube theatre (official IFrame API, our chrome), mini player surviving routes, timeline **stamps**, speed memory, oEmbed metadata + dead-link badge | 7–9 d | 01–03 |
+| 05 | `05-quiz-engine/` | ✅ **merged** (PR #16, `4741a1b`) — **Theory MCQ cards** (4 options, per-option explanations, always-available `Show solution`, `[Solve]` vs `[Check]`), 3 Arrays inline checks, 12-item topic quiz, 80% pass, `quizResults`, rules **v7**, backup **v6**, guest merge | 6–7 d | 02, 03 |
+| 06 | `06-theatre-player/` | 🟡 **implemented on `arena/c2fd0a14-dsa-archive`; owner PR/merge gate** — official IFrame player on `#/problem/<id>` only, our bar *below* the frame (play/pause, ±10 s, per-topic speed, Stamp, `c`/`f`, skip-to-stamp, watched ≥60%), one mini player across routes, stamps in `snippets[id].moments` (rules **v8**, backup **v7**, undoable), build-time oEmbed metadata, opt-in auto-advance, Settings card; shell re-baselined **380 → 386 kB** by owner decision (measured `385,936 B`) | 7–9 d | 01–03 |
 | 07 | `07-browser-runner/` | Local wasm C++/Python/JS runner in a Worker: Run, Stop, diagnostics, authored tests with first-diff, predict-the-output, 14 MB cache control, copy-out for Java/C# | 5–7 d | 04, 03 |
 | 08 | `08-insights-light/` | Reason vocabulary + chips, **momentum** (no punitive streak), one-line trajectory, "How this plan was made", 2 detectors, target date/list | 4–5 d | 01, 02, 05 |
 | 09 | `09-pwa-accessibility-hardening/` | Budgets re-baselined with published numbers, SW v2 exclusions, CSP (report-only → enforce), a11y × offline matrices, network assertion, dead-dependency decision | 4–5 d | 01–08 |
 | 10 | `10-release-v2/` | README v2, generated screenshots, DATA-MODEL v5, CHANGELOG, runbook, honest content-coverage table | 2–3 d | 09 |
 
-**Sequential ≈57–69 build days.** Phases 01–04 are merged; Phase 05 is implemented on `arena/6327674f-dsa-archive` at its owner PR/review/merge gate. Rules v6 / backup v5 remain the latest *merged* baseline on `main`; Phase 05 advances them to rules v7 / backup v6 on its branch. Future rules/backup versions must increment from the actual merged baseline after each phase.
+**Sequential ≈57–69 build days.** Phases 01–05 are merged; Phase 06 is implemented on `arena/c2fd0a14-dsa-archive` at its owner PR/review/merge gate. Rules **v7** / backup **v6** are the latest *merged* baseline on `main`; Phase 06 advances them to rules **v8** / backup **v7** on its branch, and the shell cap to **386 kB** gzip by owner decision of 2026-11-04 (Phase 09 re-examines it). Future rules/backup versions must increment from the actual merged baseline after each phase.
 
 Each `PLAN.md` already contains: charter · current-state evidence (`file:line`) · scope in ·
 scope **out with reasons** · design spec/wireframes · file plan (`NEW`/`EDIT`/`DELETE`) ·
@@ -221,23 +229,24 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 > `docs/ROADMAP.md` status and `prompt.md` in the same commit. Stop at the merge gate —
 > no PR merge, no deploy, no `main` push without my explicit command.
 
-> **Ready-made next one (06, only after Phase 05 is reviewed, its PR opened and merged
-> by my explicit command, and its CI emulator/Playwright/axe/visual matrix is green):**
+> **Ready-made next one (07, only after Phase 06 is reviewed and merged by my explicit
+> command and its CI emulator/Playwright/axe/visual matrix is green):**
 >
-> Run v2 phase **06 — theatre-player** for `pabi277/DSA-archive`.
-> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches plus Phase 01–05
-> implementation choices — especially YouTube IFrame ToS §4.13: never modify, overlay,
-> or block the player, and keep video links single-source), `docs/phases-v2/README.md`,
-> `docs/phases-v2/00-overview/PLAN.md`, and
-> `docs/phases-v2/06-theatre-player/PLAN.md` in full. Phases 01–04 are merged; Phase 05
-> must be reviewed and merged by my explicit command before starting a new phase. Keep
-> Phase 06 to its own branch/PR; preserve the earlier phase plans as contracts and
-> advance from the latest merged baseline (rules v7 / backup v6 once Phase 05 lands —
-> verify the actual merged state before versioning anything). The shell sits ~4.0 kB
-> under the frozen 380 kB gzip cap (`375.96 kB`), so budget the theatre player carefully
-> inside `check:budgets` or stop for a gate. Update its `RECORD.md`, `docs/ROADMAP.md`,
-> `docs/DECISIONS.md` if needed, and `prompt.md`. No PR, merge, deploy, or `main` push
-> without my explicit command.
+> Run v2 phase **07 — browser-runner** for `pabi277/DSA-archive`.
+> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches, the Phase 01–06
+> implementation choices — especially YouTube IFrame ToS §4.13: never modify, overlay, or
+> block the player, and keep video links single-source — and the owner cap decision of
+> 2026-11-04), `docs/phases-v2/README.md`, `docs/phases-v2/00-overview/PLAN.md`, and
+> `docs/phases-v2/07-browser-runner/PLAN.md` in full — its acceptance list is the contract.
+> Phases 01–05 are merged; Phase 06 must be reviewed and merged by my explicit command before
+> starting a new phase. Advance from the actual merged state and **verify versions before
+> versioning anything** (Phase 06 ends at rules **v8** / backup **v7**, shell `385,936 B`
+> against the re-baselined **386 kB** cap — only `64 B` of slack, so the runner's wasm/worker
+> payload must stay in the runtime bucket, never the precache; if it cannot, stop for a gate
+> instead of raising the cap again). Phase 07 adds the **Run** button to the theatre's own
+> rail, on the same problem page. Update `RECORD.md`, `docs/ROADMAP.md`,
+> `docs/DECISIONS.md` if needed, and `prompt.md`. No PR, merge, deploy, `main` push, or any
+> live Firebase command without my explicit command.
 
 ---
 

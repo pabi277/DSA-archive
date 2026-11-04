@@ -1,8 +1,9 @@
 # Phase v2-06 — Theatre player · Record
 
 **Branch:** `arena/c2fd0a14-dsa-archive` (one PR, never `main`)
-**Status:** implemented and green on every gate **except the frozen shell cap**, which is
-`+5.94 kB` over. That single number is the owner gate below — nothing else is pending.
+**Status:** implemented and **green on every gate**. The shell cap was re-baselined
+380 kB → 386 kB gzip by the owner on 2026-11-04 (measured `385,936 B`, see the gate section);
+CI re-run with the new cap is the last step before the merge gate.
 
 ---
 
@@ -143,12 +144,16 @@ the phase contract. I did not raise the cap, because `docs/DECISIONS.md` says re
 is a **phase v2-09** decision that needs owner sign-off with published numbers — this record
 is that publication, and the PR is the gate.
 
-### Owner gate — pick one
+### Owner gate — answered 2026-11-04: re-baseline to 386 kB
 
-1. **Re-baseline now** (recommended): accept `386 kB` for phase 06 (the Phase 09 review can
-   tighten it again). One-line change in `tools/check-budgets.mjs` + this record.
-2. **Cut a piece to fit 380 kB** — each of these is a real regression, so I did not take
-   one unilaterally:
+The owner chose option 1. `maxShellGzipBytes` is now `386_000` in `tools/check-budgets.mjs`,
+`npm run check:budgets` is green (`385,936 B`, `64 B` of slack), and the decision is recorded
+in `docs/DECISIONS.md` under "Phase v2-06 implementation choices". Phase v2-09 still owns the
+next review of this cap. The options as they were put, for the record:
+
+1. **Re-baseline now** (chosen): accept `386 kB` for phase 06 (the Phase 09 review tightens it
+   again).
+2. **Cut a piece to fit 380 kB** — each of these is a real regression:
    - drop the per-video `data/media` metadata path (`oembed.ts` + stage titles): ~1.5 kB;
    - drop the mini player's timeline/next-stamp strip and the rail's duplicate stamps list
      on desktop: ~1.2 kB;
@@ -157,6 +162,7 @@ is that publication, and the PR is the gate.
    Even all three ≈ 4.5 kB, which lands at ~381.4 kB — still over. **A real cut would have
    to remove the mini player itself or the settings card**, i.e. break the contract.
 3. **Accept a phase-06-only `390 kB` cap** with the plan to return to 380 kB in Phase 09.
+   (Not taken: 386 kB is the smallest number that fits what was built.)
 
 ---
 
@@ -182,6 +188,6 @@ is that publication, and the PR is the gate.
 
 ## Exit gate
 
-Owner reviews this record and the numbers above, picks one of the three options for the
-shell cap, then explicitly commands the PR/merge. **Stopped here before any PR, merge,
-`main` push or deploy.**
+Owner reviews this record, the CI run on `arena/c2fd0a14-dsa-archive` and the `site-preview`
+artifact — including one full video watched at phone and desktop width — then explicitly
+commands the PR/merge. **Stopped here before any PR, merge, `main` push or deploy.**
