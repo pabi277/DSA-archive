@@ -290,5 +290,10 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    // jsdom's unimplemented `scrollTo` writes to the console on every route
+    // change; vitest forwards console output over an async RPC, and one still
+    // in flight at teardown fails the whole run while every test passes. See
+    // `src/testSetup.ts` for the full story.
+    setupFiles: ['./src/testSetup.ts'],
   },
 })

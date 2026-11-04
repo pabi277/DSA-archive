@@ -93,7 +93,115 @@ jobs:
       - name: Confirm generated Firestore rules match the catalogue
         run: npm run check:rules
       - name: Unit tests
-        run: npm test
+        # `--reporter=junit` is what makes a red run *nameable*: the next step
+        # turns each failing case into an annotation, which is the only channel
+        # this project's agent sandbox can read (Actions logs and artifacts live
+        # on a host outside its allowlist). On 2026-11-04 `main` failed here once
+        # with no way to learn which of 294 tests broke — that is the bug this
+        # step exists to prevent, not the flake itself.
+        run: |
+          set -o pipefail
+          # `test-results/` is git-ignored, so a fresh checkout does not have it.
+          # Without this line `tee` cannot create its file, exits 1, and pipefail
+          # turns a passing suite into a red step — which is exactly what happened
+          # on the first run of this very step.
+          mkdir -p test-results
+          npm test -- --reporter=default --reporter=junit --outputFile.junit=test-results/unit.xml 2>&1 | tee test-results/unit-output.log
+          status=("${PIPESTATUS[@]}")
+          # Name both halves of the pipeline. "The step failed" is not a
+          # diagnosis: vitest exiting non-zero and `tee` failing to open its
+          # file look identical from the outside, and one of them is not a
+          # test failure at all.
+          echo "::notice::vitest exit=${status[0]}, tee exit=${status[1]}"
+          test "${status[0]}" -eq 0
+      - name: Name what failed in the unit tests
+        # A red unit run must be readable from the outside. Annotations are the
+        # only channel this project's agent sandbox can read (Actions logs and
+        # artifacts live on hosts outside its allowlist), and on 2026-11-04
+        # `main` failed here with nothing but "Process completed with exit code 1".
+        # Two shapes of failure are named: failing test cases (from the JUnit
+        # report, when the runner got far enough to write one) and everything
+        # else — a collection error, a transform error, an unhandled rejection
+        # after teardown — which leaves no `<failure>` element at all and is
+        # recovered from the captured console output instead.
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          import os
+          import re
+          import xml.etree.ElementTree as ET
+
+          ANSI = re.compile(r'\x1b\[[0-9;]*[A-Za-z]')
+
+          def read_lines(path):
+              try:
+                  with open(path, encoding='utf-8', errors='replace') as handle:
+                      return [ANSI.sub('', line).rstrip() for line in handle]
+              except OSError:
+                  return []
+
+          def report(path):
+              try:
+                  return ET.parse(path).getroot()
+              except Exception:  # noqa: BLE001 - a missing/broken report is itself a finding
+                  return None
+
+          root = report('test-results/unit.xml')
+          total = failures = 0
+          messages = []
+          if root is not None:
+              for case in root.iter('testcase'):
+                  total += 1
+                  bad = list(case.iter('failure')) + list(case.iter('error'))
+                  if not bad:
+                      continue
+                  failures += 1
+                  where = (case.get('classname') or case.get('file') or '').split('/')[-1]
+                  detail = bad[0].get('message') or ''
+                  body = ' | '.join((bad[0].text or '').strip().splitlines()[:10])
+                  if body:
+                      detail = detail + ' || ' + body
+                  messages.append('%s :: %s :: %s' % (where, case.get('name', '?'), (detail or 'no message')[:1500]))
+              print('::notice::vitest ran %d test cases, %d failing' % (total, failures))
+          else:
+              print('::notice::vitest wrote no JUnit report — the run failed before or outside the test bodies')
+
+          for message in messages[:6]:
+              print('::error::' + message.replace('%', '%25').replace('\r', ' '))
+
+          if failures:
+              raise SystemExit(0)
+
+          # No named test case, so the reason is in the console: vitest prints
+          # "Unhandled Errors", "Failed Suites", transform errors and startup
+          # errors there, and those are exactly the failures that used to be
+          # invisible. Prefer the lines that say something over the last six.
+          lines = read_lines('test-results/unit-output.log') or read_lines('unit-output.log')
+          if not lines:
+              print('::error::no unit test output was captured at all — check that the step ran')
+              raise SystemExit(0)
+          interesting = [
+              line.strip() for line in lines
+              if re.search(r'(Unhandled|FAIL |Failed Suites|Error:|error TS|Cannot find|ERR_)', line)
+              and 'npm notice' not in line
+          ]
+          for line in interesting[-6:]:
+              print('::error::' + line[:900].replace('%', '%25'))
+          tail = [line.strip() for line in lines if line.strip()][-8:]
+          for line in tail[:6]:
+              print('::notice::' + line[:900].replace('%', '%25'))
+          PY
+          exit 0
+      - name: Upload the unit test report on failure
+        if: failure()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: unit-report
+          path: |
+            test-results/unit.xml
+            test-results/unit-output.log
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Fetch the local runner toolchain (C and C++)
         # Phase v2-07: the browser compiler is a static toolchain (~29 MB) that
         # git must not carry. CI downloads it from the pinned npm package, verifies

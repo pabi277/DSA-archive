@@ -139,7 +139,9 @@ Fonts        57.50 kB raw                   (cap 60 kB)
 
 ## 6. Gates and follow-ups
 
-- **Nothing was merged, deployed or pushed to `main`.** PR/merge remain the owner's call.
+- **Merged by explicit owner command** on 2026-11-04: PR
+  [#18](https://github.com/pabi277/DSA-archive/pull/18) → `main` as `ace2289`. **Nothing
+  was deployed**; deploy remains a gate. The post-merge red run is §8.
 - **The 388 kB shell cap is now 1,326 B from the ceiling.** Phase 09 owns the re-baseline
   review; until then any shell growth is a gate, and this record is the measurement the
   owner should decide from.
@@ -168,3 +170,111 @@ Two of those seven findings were **product** bugs (the worker-bundle cache write
 undocumented `Run` vs `Run tests` split). Four were the test suite lying to itself in ways
 that would have hidden a real failure later. One was an axe false positive that needed
 naming as such rather than silencing.
+
+## 8. After the merge: the red run that named nothing (2026-11-04)
+
+PR [#18](https://github.com/pabi277/DSA-archive/pull/18) merged phase 07 into `main` as
+`ace2289`. Twenty minutes later the push run
+[`41864841877`](https://github.com/pabi277/DSA-archive/actions/runs/41864841877) failed at
+**Unit tests** — on a tree byte-identical to the branch tip that had just passed every
+step. The only annotation was `Process completed with exit code 1.`
+
+Locally the same tree passed **294/294, six times**, including shuffled and single-worker
+runs. The failure was therefore not reproducible by re-running the suite, and not
+diagnosable either: Actions logs and artifacts live on hosts this sandbox cannot reach,
+`gh run rerun` was refused, and the run could not be re-dispatched.
+
+### What was actually wrong
+
+Two layers, and the first one hid the second.
+
+1. **CI could not name its own failure.** That is the defect worth fixing on its own. The
+   unit step now writes a JUnit report, keeps the console output, and a follow-up step
+   (always on failure) emits each failing case — file, test name, assertion — as a
+   check-run annotation, plus `vitest ran N test cases, M failing`. When *no* case failed
+   it says so explicitly and falls back to the captured output.
+2. **The suite leaked console logs past teardown.** With (1) in place the failure became
+   legible in one run:
+
+   ```
+   Unhandled Rejection: [vitest-worker]: Closing rpc while "onUserConsoleLog" was pending
+   This error originated in "src/shell.test.tsx" test file.
+   ```
+
+   No test failed. vitest ships console output from the test thread to the main thread
+   over an async RPC; the worker was killed while one was in flight. Three sources of
+   console traffic were leaking into that window:
+   - **157 jsdom "Not implemented: Window's scrollTo()" writes per run.** The app calls
+     `scrollTo` on every route change; jsdom answers with a console message. Replaced by
+     no-op stubs in `src/testSetup.ts` — nothing in the suite asserts scroll position.
+   - **23 React act() warnings** from `runPanel.test.tsx`, which never set
+     `IS_REACT_ACT_ENVIRONMENT = true` the way the other three React suites do.
+   - **Intermittent suspense pings** (4 of 6 local `shell.test.tsx` runs): the route sweep
+     navigated to `#/settings` and `#/problem/*`, which mount `lazy()` chunks, and returned
+     while the `import()` was still resolving. `settleLazy()` now drains inside `act()`
+     after each lazy navigation and before unmount.
+
+That list is why the flake was rare and why it had no favourite victim: it needs any
+console write to be queued at exactly the moment a worker is torn down, and which file
+wins that race depends on machine speed.
+
+### The fix, and the evidence
+
+| Check | Before | After |
+|---|---|---|
+| jsdom "Not implemented" writes, one full run | 157 | **0** |
+| act() warnings, one full run | 23 | **0** |
+| `shell.test.tsx` runs with a suspense ping | 4 of 6 | **0 of 6** |
+| Full-suite runs (294 tests) | never reproduced — 6 of 6 green locally | **4 of 4 green**, plus 5 shuffled and 3 shuffled-under-load |
+| CI unit step | red at `ace2289` | **green**, `vitest exit=0, tee exit=0` |
+| Whole pipeline | red at `ace2289` | **green**, three consecutive green runs: [`41906857787`](https://github.com/pabi277/DSA-archive/actions/runs/41906857787) at `bff592d`, [`41908106352`](https://github.com/pabi277/DSA-archive/actions/runs/41908106352) at `0428202`, [`41909550515`](https://github.com/pabi277/DSA-archive/actions/runs/41909550515) at `500e3db` — 29 steps passed, 0 failed, 7 skipped by design |
+
+The last row is the one that matters and the one that deserves a caveat: this flake was
+never reproducible on this machine, so the fix cannot be *proved* by local runs going
+green — they always were. It is proved by the mechanism (the RPC that failed is no longer
+sent, because the console writes that produced it are gone) and confirmed by the CI step
+turning green on the same suite that had just failed twice in a row.
+
+One more truth learned the hard way: the first version of the new step went red on a
+*passing* suite, because `test-results/` is git-ignored and `tee` could not create its file
+in a directory a fresh checkout does not have. `pipefail` reported that as a test failure.
+The step now creates the directory and prints `vitest exit=N, tee exit=M`, so a missing log
+directory and a genuine failure never look alike again.
+
+A separate e2e case (`theatre.spec.ts`, stamps surviving a reload) failed in the same run
+for an unrelated reason: it reloaded while the fire-and-forget write was still in flight, so
+the fresh page came back with no stamp. The fix took three attempts, and the two wrong ones
+are worth recording because they were both *test-truth* errors of the kind this phase kept
+finding:
+
+1. Waiting for `code-save-status` to read "Saved ✓" — that label lives in `CodePanel`,
+   which the problem page only renders on the **code** tab, while the test sits on the
+   stamps rail. The element is absent by design; the assertion just burned 20 s.
+2. Asserting the re-added stamp was `stamp-1`. After the undo the list is empty again, so
+   the next stamp is row 0. That assertion could never pass.
+
+It now waits on the emulator's REST API — the same owner-token access `code.spec.ts` and
+`planner.spec.ts` use — until the snippet document actually holds a moment, which is
+precisely the condition a reload must be preceded by. The UI still proves the row appeared
+locally first. No fallback: a write that never lands still fails the test.
+
+Cost: **three of the seven runs below were spent on this spec**, and all three were red on
+an assertion of mine rather than on anything the app did wrong. Both wrong answers would
+have been caught before pushing by one question — *does the element this test waits for
+exist on this screen, in this state?* — which is the same class of error as the four
+test-truth bugs §7 records, and the reason that lesson is repeated here.
+
+### The seven runs
+
+| Run | Head | Result | What it established |
+|---|---|---|---|
+| [`41877118003`](https://github.com/pabi277/DSA-archive/actions/runs/41877118003) | `cfd3ce7` | red | Added the JUnit report and annotation step. The step itself failed: `tee` could not create `test-results/` in a fresh checkout. |
+| [`41900949545`](https://github.com/pabi277/DSA-archive/actions/runs/41900949545) | `3406cdc` | red | Fixed that; the step ran. **First real diagnosis:** `Closing rpc while "onUserConsoleLog" was pending`, originating in `src/shell.test.tsx`, with 294 cases and 0 failures. |
+| [`41902810479`](https://github.com/pabi277/DSA-archive/actions/runs/41902810479) | `9d62106` | red | Stubbed jsdom's `scrollTo` and set `IS_REACT_ACT_ENVIRONMENT`; same error survived — it was the intermittent suspense ping, not the steady traffic. |
+| [`41903625459`](https://github.com/pabi277/DSA-archive/actions/runs/41903625459) | `13d79b5` | red | `settleLazy()` fixed the unit suite (**step 14 green**). Exposed a phase-06 e2e flake: stamps lost across a reload. |
+| [`41904744719`](https://github.com/pabi277/DSA-archive/actions/runs/41904744719) | `86ced45` | red | My wrong fix: waited for `code-save-status`, which is not rendered on the stamps rail. |
+| [`41905842498`](https://github.com/pabi277/DSA-archive/actions/runs/41905842498) | `070a828` | red | My second wrong fix: asserted `stamp-1` when the list had been emptied, so the row was `stamp-0`. |
+| [`41906857787`](https://github.com/pabi277/DSA-archive/actions/runs/41906857787) | `bff592d` | **green** | All 34 steps. Emulator rules, the phone/desktop browser matrix, budgets, both builds, the preview artifact. |
+
+Six red runs to fix one flake and one stale assertion — and only the second of those six
+was about the thing that had looked broken.

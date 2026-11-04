@@ -81,6 +81,26 @@ function mount() {
   })
 }
 
+/**
+ * Let suspended chunks finish *inside* `act`.
+ *
+ * `#/settings` and `#/problem/*` render `lazy()` route chunks. A test that
+ * asserts on the heading and returns leaves the dynamic `import()` resolving
+ * after the test ends; React then pings the suspended root and logs
+ * "A suspended resource finished loading inside a test, but the event was not
+ * wrapped in act(...)". vitest ships that log to the main thread over an async
+ * RPC, and one still in flight at worker teardown fails the entire run with no
+ * failing test — which is how `main` went red on 2026-11-04. Settling here
+ * costs a turn per navigation and removes the race.
+ */
+async function settleLazy() {
+  await act(async () => {
+    for (let turn = 0; turn < 3; turn += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
+  })
+}
+
 function openTopic(topicId: string) {
   click(q(`#topic-${topicId} > summary`))
 }
@@ -101,7 +121,10 @@ beforeEach(() => {
   mount()
 })
 
-afterEach(() => {
+afterEach(async () => {
+  // Drain first, unmount second: a chunk resolving between the two would ping a
+  // root that is already gone, and its console log would outlive the test.
+  await settleLazy()
   act(() => {
     root.unmount()
   })
@@ -122,7 +145,7 @@ describe('shell + routing (acceptance 1, 2, 8)', () => {
     expect(q('[data-testid="progress-pill"]').textContent).toBe('0/495 done')
   })
 
-  it('has a URL for every screen and a friendly 404', () => {
+  it('has a URL for every screen and a friendly 404', async () => {
     const routes = [
       ['#/today', 'Today'],
       ['#/topics', 'Topics'],
@@ -143,6 +166,7 @@ describe('shell + routing (acceptance 1, 2, 8)', () => {
     for (const [hash, title] of routes) {
       goto(hash)
       expect(q('h1').textContent).toBe(title)
+      await settleLazy()
     }
     expect(q('[data-testid="not-found-view"]').textContent).toContain('#/not-found')
   })
@@ -321,7 +345,7 @@ describe('undo (acceptance 5)', () => {
 })
 
 describe('command palette (acceptance 6)', () => {
-  it('opens with ⌘K, ranks by fuzzy score and runs the selected action', () => {
+  it('opens with ⌘K, ranks by fuzzy score and runs the selected action', async () => {
     press('k', { metaKey: true })
     const input = q('[data-testid="palette-input"]') as HTMLInputElement
     expect(document.querySelector('[data-testid="palette-list"]')).toBeTruthy()
@@ -333,6 +357,9 @@ describe('command palette (acceptance 6)', () => {
       input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     })
     expect(window.location.hash).toBe('#/problem/two-sum')
+    // The theatre screen is a lazy chunk; settle it before the test ends so the
+    // ping never lands after teardown.
+    await settleLazy()
   })
 
   it('reaches every route and at least ten actions', () => {

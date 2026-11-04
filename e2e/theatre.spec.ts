@@ -20,6 +20,53 @@ import { desktop, open, phone, auditPage } from './helpers'
  * dead-link fallback and the offline state. Autoplay is never asserted.
  */
 
+const emulatorProject = 'demo-dsa-archive'
+const firestoreRest = `http://127.0.0.1:8080/v1/projects/${emulatorProject}/databases/(default)/documents`
+
+/**
+ * The signed-in learner's uid, from the emulator's owner-token REST API (the
+ * same access `code.spec.ts` and `planner.spec.ts` use).
+ */
+async function ownerUid(): Promise<string> {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    const response = await fetch(`${firestoreRest}/users`, { headers: { Authorization: 'Bearer owner' } })
+    if (response.ok) {
+      const body = (await response.json()) as { documents?: { name: string }[] }
+      const name = body.documents?.[0]?.name
+      if (name) return name.split('/').pop()!
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+  throw new Error('the signed-in profile document never appeared')
+}
+
+/**
+ * Wait until the snippet document actually holds a stamp.
+ *
+ * Stamps are saved fire-and-forget: the snapshot listener applies the write
+ * locally, so the UI shows the stamp before the emulator has it. Reloading in
+ * that gap brings back no stamp — which is why this case flaked in CI on
+ * 2026-11-04. The status label that proves acknowledgement lives in `CodePanel`,
+ * which is only rendered on the *code* tab, so this asks the emulator directly —
+ * the same source of truth `code.spec.ts` reads.
+ */
+async function waitForSavedStamp(problemId: string): Promise<void> {
+  const uid = await ownerUid()
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    const response = await fetch(`${firestoreRest}/users/${uid}/snippets/${problemId}`, {
+      headers: { Authorization: 'Bearer owner' },
+    })
+    if (response.ok) {
+      const body = (await response.json()) as {
+        fields?: { moments?: { arrayValue?: { values?: unknown[] } } }
+      }
+      if ((body.fields?.moments?.arrayValue?.values?.length ?? 0) > 0) return
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+  throw new Error('the stamp never reached the emulator')
+}
+
 type FakeOptions = {
   /** Report this documented error code instead of becoming ready. */
   error?: number
@@ -329,9 +376,17 @@ test.describe('timeline stamps', () => {
     await page.getByTestId('toast-action').click({ timeout: 15_000 })
     await expect(page.getByTestId('stamp-0')).toHaveCount(0)
 
-    // Re-add, reload: the stamp is in the snippet, so it comes back.
+    // Re-add, then wait until the *emulator* holds the stamp before reloading.
+    // The save is deliberately fire-and-forget (the snapshot listener applies
+    // the write locally), so the row appears before the server has it, and a
+    // reload issued in that gap comes back with no stamp — which is what made
+    // this case fail intermittently in CI on 2026-11-04.
+    //
+    // After the undo the list is empty again, so the re-added stamp is row 0.
     await page.getByTestId('stamp-input').fill('the hash map trick', { timeout: 15_000 })
     await page.getByTestId('stamp-add').click({ timeout: 15_000 })
+    await expect(page.getByTestId('stamp-0')).toContainText('the hash map trick', { timeout: 15_000 })
+    await waitForSavedStamp('two-sum')
     await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('problem-screen')).toBeVisible({ timeout: 20_000 })
     await expect(page.getByTestId('stamp-0')).toContainText('the hash map trick')
