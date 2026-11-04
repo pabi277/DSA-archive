@@ -196,8 +196,9 @@ test.describe('theatre shell', () => {
     const speed = page.getByTestId('theatre-speed')
     await speed.selectOption('1.5', { timeout: 15_000 })
     await expect(speed).toHaveValue('1.5')
-    // A neighbouring problem of the same topic already reads 1.5×.
-    await open(page, '/#/problem/valid-anagram')
+    // A neighbouring problem of the same topic already reads 1.5×. Both rows
+    // must have a video — `valid-anagram` has none, so no control exists there.
+    await open(page, '/#/problem/largest-element')
     await expect(page.getByTestId('theatre-speed')).toHaveValue('1.5')
     // A different topic keeps its own pace (default 1×).
     await open(page, '/#/problem/introduction-to-graph')
@@ -229,13 +230,15 @@ test.describe('theatre shell', () => {
   })
 
   test('the offline state keeps the statement and the code rail', async ({ page }) => {
-    await open(page, '/#/problem/two-sum')
+    // A row with a video: a stage with no video renders `no-video`, never
+    // `offline`, so the assertion needs a playable row.
+    await open(page, '/#/problem/linear-search')
     await page.context().setOffline(true)
     await page.evaluate(() => window.dispatchEvent(new Event('offline')))
     await expect(page.getByTestId('theatre-stage')).toHaveAttribute('data-state', 'offline')
     await expect(page.getByTestId('theatre-placeholder')).toContainText('The page still works offline')
     // Content is in the bundle: the statement renders with no network at all.
-    await expect(page.getByTestId('problem-panel-problem')).toContainText(/Two Sum/i)
+    await expect(page.getByTestId('problem-panel-problem')).toContainText(/Linear Search/i)
     await expect(page.getByTestId('problem-tab-code')).toBeVisible()
     await page.context().setOffline(false)
     await page.evaluate(() => window.dispatchEvent(new Event('online')))
@@ -254,6 +257,8 @@ test.describe('theatre shell', () => {
   })
 
   test('?tab=code opens the code rail (the phase-04 deep link still works)', async ({ page }) => {
+    // The strip is visually hidden at desktop width (the rail carries the same
+    // panels) but it stays operable, so the URL round-trip is still testable.
     await open(page, '/#/problem/two-sum?tab=code')
     await expect(page.getByTestId('problem-panel-code')).toBeVisible()
     await expect(page.getByTestId('problem-tab-code')).toHaveAttribute('aria-selected', 'true')

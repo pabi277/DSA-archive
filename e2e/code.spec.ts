@@ -137,8 +137,10 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await firstContext.setOffline(false)
     await page.evaluate(() => window.dispatchEvent(new Event('online')))
     // Coming back online must flush the queued write. Phase 06 moved this panel
-    // behind the Code tab, so the queued editor may not be the mounted panel by
-    // then: assert on the *persisted* solution, which is what actually matters.
+    // behind the Code tab and the editor stays in edit mode after saving, so the
+    // peek only exists once the Code tab is re-opened: assert on the *persisted*
+    // solution, which is what actually matters.
+    await open(page, '/#/problem/two-sum?tab=code')
     await expect(page.getByTestId('peek-code')).toContainText('offline edit', { timeout: 30_000 })
     // Device 2 was left on the problem page with this peek already revealed;
     // leave and come back so the panel remounts and the peek hides again

@@ -3505,6 +3505,7 @@ body {
 }
 
 .theatre-main {
+  position: relative;
   display: grid;
   gap: var(--space-3);
   min-width: 0;
@@ -3661,9 +3662,15 @@ body {
 }
 
 .theatre-tabs {
-  display: none;
-  gap: 3px;
-  border-bottom: 1px solid var(--line);
+  /* Visually hidden at desktop width only: the rail carries stamps and code.
+     `display: none` would remove real, operable tab controls from the page for
+     keyboard users, so the strip keeps its box and its focusability. */
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .theatre-tab {
@@ -3694,8 +3701,15 @@ body {
    the stage — below it they land under the fold once the player is mounted. */
 @media (max-width: 1079px) {
   .theatre-tabs {
+    position: static !important;
     display: flex;
     order: -1;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip-path: none;
+    gap: 3px;
+    border-bottom: 1px solid var(--line);
   }
 
   .theatre-rail {
