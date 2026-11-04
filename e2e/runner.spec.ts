@@ -18,19 +18,31 @@ import { desktop, open, phone } from './helpers'
  */
 const cppRuntime = process.env.RUNNER_CPP === '1'
 
-/** Sign in through the Auth emulator (the code panel requires an account). */
+/**
+ * Sign in through the Auth emulator (the code surface requires an account).
+ * Same shape as `code.spec.ts`: the button only exists signed-out, so the click
+ * is unconditional and the banner is what proves it worked — a silent "if
+ * visible" guard turns a broken sign-in into an unrelated-looking timeout.
+ */
 async function signIn(page: Page) {
-  await open(page, '/#/today')
-  if (await page.getByTestId('emulator-sign-in').isVisible().catch(() => false)) {
-    await page.getByTestId('emulator-sign-in').click()
-    await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
-  }
+  await open(page, '/')
+  await page.getByTestId('emulator-sign-in').click({ timeout: 20_000 })
+  await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
 }
 
-/** `#/problem/<id>?tab=code` is where the runner lives. */
+/**
+ * `#/problem/<id>?tab=code` is where the runner lives. A signed-in learner with
+ * no saved solution lands straight in the editor (`code-editor`); one who has a
+ * solution lands on the read panel (`code-panel`). Both carry the runner.
+ */
 async function openCodeTab(page: Page, problemId = 'two-sum') {
   await open(page, `/#/problem/${problemId}?tab=code`)
-  await expect(page.getByTestId('code-panel')).toBeVisible()
+  await expect(page.getByTestId('code-editor').or(page.getByTestId('code-panel'))).toBeVisible({
+    timeout: 20_000,
+  })
+  // The runner is its own lazy chunk: waiting for it here means a chunk or
+  // import regression fails as itself, not as a mystery timeout on a button.
+  await expect(page.getByTestId('runner-panel')).toBeVisible({ timeout: 20_000 })
 }
 
 async function chooseLanguage(page: Page, language: string) {
@@ -192,8 +204,11 @@ test.describe('local runner', () => {
     await page.getByTestId('runner-download').click()
     const stop = page.getByTestId('runner-stop')
     await expect(stop).toBeVisible({ timeout: 240_000 })
-    await stop.click()
-    await expect(page.getByTestId('runner-status')).toContainText('Stopped')
+    // The program never terminates on its own, so the only way out is our Stop
+    // (or the client's own hard stop if this machine is very slow — either way
+    // the run must end and leave no Stop button behind).
+    await stop.click({ timeout: 30_000 }).catch(() => {})
+    await expect(page.getByTestId('runner-status')).toContainText('Stopped', { timeout: 30_000 })
     await expect(page.getByTestId('runner-stop')).toHaveCount(0)
   })
 })
