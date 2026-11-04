@@ -17,7 +17,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useId,
   useRef,
   useState,
   type ButtonHTMLAttributes,
@@ -320,7 +319,7 @@ export function ToastHost({ toasts, onDismiss }: { toasts: ToastMessage[]; onDis
   )
 }
 
-/* --- Empty / Skeleton / Field / Avatar ------------------------------------ */
+/* --- Empty / Avatar -------------------------------------------------------- */
 
 /**
  * Every view has a designed empty state with exactly one primary action.
@@ -355,41 +354,6 @@ export function Empty({
 }
 
 /** Shaped like the result it replaces: rows of text, not a spinner. */
-export function Skeleton({ rows = 3, height = 44, label = 'Loading' }: { rows?: number; height?: number; label?: string }) {
-  return (
-    <div className="skeleton" role="status" aria-live="polite" aria-label={label}>
-      {Array.from({ length: rows }, (_, index) => (
-        <span key={index} className="skeleton-row" style={{ height }} />
-      ))}
-      <span className="visually-hidden">{label}</span>
-    </div>
-  )
-}
-
-export function Field({
-  label,
-  hint,
-  children,
-  id,
-}: {
-  label: string
-  hint?: string
-  children: ReactNode
-  id?: string
-}) {
-  const generated = useId()
-  const fieldId = id ?? generated
-  return (
-    <div className="field">
-      <label className="field-label" htmlFor={fieldId}>
-        {label}
-      </label>
-      {children}
-      {hint ? <p className="field-hint">{hint}</p> : null}
-    </div>
-  )
-}
-
 export function Avatar({ initials, size = 32 }: { initials: string; size?: number }) {
   return (
     <span className="avatar" style={{ width: size, height: size }} aria-hidden="true">

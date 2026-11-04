@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { catalogue, summarizeCatalogue } from './catalogue'
 import { getProgressSnapshot, replaceGuestProgress, tallyCatalogue, tallyTopic } from './progress'
 import {
@@ -57,7 +57,12 @@ import {
   NotFoundScreen,
   SettingsScreen,
 } from './app/placeholderScreens'
-import { ProblemScreen } from './app/problemScreen'
+// The theatre's *screens* are a lazy route chunk (phase v2-06 §7): the
+// problem page is the only route that needs the player, and the shell must not
+// pay for it. Models + the mini player stay eager, because a video that keeps
+// playing has to dock on any route.
+const ProblemScreen = lazy(() => import('./theatre/problemPage').then((mod) => ({ default: mod.ProblemScreen })))
+import { MiniPlayer } from './theatre/miniPlayer'
 import { PracticeScreen } from './app/practiceScreen'
 import { getTheoryMcq, getTopicContent } from './content/load'
 import { TheoryMcqCard } from './quiz/mcqCard'
@@ -232,6 +237,18 @@ function AppShell() {
     return reasons
   }, [data.entries, hint, planner.plan, queue.due, suggestions])
   const continuePick = useMemo(() => continueWhereLeft(data.entries), [data.entries])
+
+  const [online, setOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine))
+  useEffect(() => {
+    const on = () => setOnline(true)
+    const off = () => setOnline(false)
+    window.addEventListener('online', on)
+    window.addEventListener('offline', off)
+    return () => {
+      window.removeEventListener('online', on)
+      window.removeEventListener('offline', off)
+    }
+  }, [])
 
   const signedIn = account.status === 'signed-in'
   const progressDisabled = (signedIn && !data.cloudReady) || data.busy
@@ -819,6 +836,7 @@ function AppShell() {
               />
             ) : null}
             {route.name === 'problem' ? (
+              <Suspense fallback={<Banner tone="neutral" testId="theatre-loading" title="Opening the theatre…">The player loads only on this route.</Banner>}>
               <ProblemScreen
                 problemId={route.param}
                 progress={(() => {
@@ -829,14 +847,21 @@ function AppShell() {
                 signedIn={code.signedIn}
                 codeDisabled={code.busy || !code.signedIn}
                 codeSync={codeSync}
+                planProblemIds={planner.plan?.problemIds ?? []}
+                online={online}
                 onMarkDoneWithOutcome={onMarkDoneWithOutcome}
+                onSetOutcome={data.setOutcome}
+                onPlan={onPlan}
                 onSaveCode={(draft) => {
                   void code.saveSnippet(route.param, draft)
                 }}
                 onDeleteCode={() => {
                   void code.deleteSnippet(route.param)
                 }}
+                onUndoable={feedback.undoable}
+                onNotify={feedback.notify}
               />
+              </Suspense>
             ) : null}
             {route.name === 'code' ? (
               <CodeScreen
@@ -939,6 +964,9 @@ function AppShell() {
           </footer>
         </div>
       </div>
+
+      {/* One mini player for the whole app: leaving a video's page keeps it playing. */}
+      <MiniPlayer onOpen={(problemId) => openProblem(problemId)} />
 
       <BottomBar route={route} counts={navCounts} />
 

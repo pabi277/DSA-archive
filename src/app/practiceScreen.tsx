@@ -40,8 +40,8 @@ export function PracticeScreen({ progress, disabled, onToggleStatus, onPlan, onO
       <Card title="Practice by pattern">
         <div className="stat-row">
           <Stat value={PRACTICE_SETS.length} label="patterns" detail="3–4 rungs each" />
-          <Stat value={`${doneCount}/${DRILLS.length}`} label="drills done" detail={`report ${coverage.practice.drills}`} />
-          <Stat value={coverage.resources.leetcodeExactOrNear} label="LC twins" detail="of 495 sheet rows" />
+          <Stat value={`${doneCount}/${DRILLS.length}`} label="drills done" detail={`report ${coverage.drills}`} />
+          <Stat value={coverage.leetcodeTwins} label="LC twins" detail="of 495 sheet rows" />
         </div>
         <p className="quiet-note" data-testid="practice-progress">
           {doneCount} of {DRILLS.length} drills done · progress uses <code>lc-&lt;n&gt;</code> keys in the same topic shards.

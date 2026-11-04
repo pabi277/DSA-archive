@@ -146,7 +146,7 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('peek-code')).toContainText('offline edit')
 
-    // --- backup v5 carries snippets; a v4 notes file migrates with warning --
+    // --- backup v7 carries snippets + stamps; a v4 notes file migrates ----
     await open(secondPage, '/#/settings')
     await expect(secondPage.getByTestId('account-panel')).toBeVisible()
     await expect(secondPage.getByTestId('account-panel')).toContainText('1 saved solution')
@@ -156,11 +156,14 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     const path = await download.path()
     expect(path).toBeTruthy()
     const backup = JSON.parse(await readFile(path!, 'utf8'))
-    expect(backup.schemaVersion).toBe(6)
+    expect(backup.schemaVersion).toBe(7)
     expect(backup.notes).toBeUndefined()
     expect(backup.snippets).toHaveLength(1)
     expect(backup.snippets[0]).toMatchObject({ problemId: 'two-sum', language: 'cpp' })
     expect(backup.snippets[0].code).toContain('offline edit')
+    // v7 (phase v2-06) adds `moments`, the video stamps. The field is optional,
+    // so a snippet written before the theatre existed still round-trips.
+    expect(backup.snippets[0].moments ?? []).toEqual([])
 
     const { snippets: _dropped, ...withoutSnippetsKey } = backup
     const legacyV4 = {

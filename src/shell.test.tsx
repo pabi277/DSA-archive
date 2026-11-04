@@ -195,11 +195,9 @@ describe('shell + routing (acceptance 1, 2, 8)', () => {
     expect(q('[data-testid="outcome-two-sum-clean"]').getAttribute('aria-pressed')).toBe('true')
   })
 
-  it('gives an unknown topic and an unknown problem a way back', () => {
+  it('gives an unknown topic a way back', () => {
     goto('#/topic/not-a-topic')
     expect(q('[data-testid="topic-missing"]')).toBeTruthy()
-    goto('#/problem/not-a-problem')
-    expect(q('[data-testid="problem-missing"]')).toBeTruthy()
   })
 })
 

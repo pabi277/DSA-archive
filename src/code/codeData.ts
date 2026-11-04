@@ -62,6 +62,8 @@ function snippetPayload(draft: SnippetDraft) {
     code: draft.code,
     notes: draft.notes,
     ...(draft.verdict ? { verdict: draft.verdict } : {}),
+    // Phase v2-06 stamps ride in this document; rules v8 caps them at 30 × 140.
+    ...(draft.moments && draft.moments.length > 0 ? { moments: draft.moments } : {}),
     updatedAt: serverTimestamp(),
   }
 }
@@ -152,12 +154,18 @@ export function useCode(account: AccountState): CodeState {
       // the local write immediately (latency compensation) and its
       // `hasPendingWrites` flag drives the Saving/Offline status. Awaiting
       // the server here would hang the editor until reconnect when offline.
-      const empty = snippetIsEmpty(clean.code, clean.notes)
+      const empty = snippetIsEmpty(clean.code, clean.notes, clean.moments ?? [])
       const write = empty ? deleteDoc(snippetRef) : setDoc(snippetRef, snippetPayload(clean))
       void write.catch((reason) => {
         setError(`Could not save code: ${messageFrom(reason)}`)
       })
-      setNotice(empty ? 'Empty solution removed.' : 'Code saved to your account.')
+      setNotice(
+        empty
+          ? 'Empty solution removed.'
+          : clean.moments && clean.moments.length > 0
+            ? 'Saved with your stamps.'
+            : 'Code saved to your account.',
+      )
       return true
     },
     [uid, firestore],

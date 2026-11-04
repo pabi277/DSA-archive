@@ -10,9 +10,8 @@
  */
 import contentBundle from 'virtual:dsa-content'
 import type { ResourceSource } from '../catalogue'
+import { sanitizeMediaIndex, type MediaEntry, type MediaIndex } from '../theatre/oembed'
 import type {
-  CoverageReport,
-  CoverageTopic,
   InlineCheck,
   PracticeProblem,
   PracticeSet,
@@ -335,103 +334,24 @@ export function sanitizePracticeSet(raw: unknown): PracticeSet | null {
   }
 }
 
-function sanitizeCoverageTopic(raw: unknown): CoverageTopic | null {
-  const item = record(raw)
-  if (!item) return null
-  const topicId = text(item.topicId, 80)
-  const title = text(item.title, 120)
-  const statements = integer(item.statements, 0, 500)
-  const hints = integer(item.hints, 0, 500)
-  const quizItems = integer(item.quizItems, 0, 500)
-  const theoryMcqs = integer(item.theoryMcqs, 0, 100)
-  const drills = integer(item.drills, 0, 200)
-  if (!topicId || !title || statements === null || hints === null || quizItems === null || theoryMcqs === null || drills === null) return null
-  return { topicId, title, primer: boolean(item.primer), statements, hints, quizItems, theoryMcqs, drills }
-}
-
-function emptyCoverage(): CoverageReport {
-  return {
-    schemaVersion: 1,
-    asOf: 'unknown',
-    catalogue: { rows: 0, topics: 0, theoryRows: 0 },
-    resources: {
-      rowsWithResources: 0,
-      multiPublisherRows: 0,
-      multiPublisherPercent: 0,
-      leetcodeExactOrNear: 0,
-      theoryLabelled: 0,
-      staleLinks: 0,
-      sources: [],
-    },
-    content: {
-      primers: 0,
-      primerWords: 0,
-      statements: 0,
-      hints: 0,
-      mistakes: 0,
-      testCases: 0,
-      quizItems: 0,
-      theoryMcqs: 0,
-      fullyAuthoredTopics: [],
-    },
-    practice: { patterns: 0, drills: 0, uniqueSlugs: 0, contiguousSets: false, sets: [] },
-    byTopic: [],
-  }
+/**
+ * The three published numbers any screen shows, plus the report's `asOf` day.
+ * `docs/content/coverage.md` and `tools/content-coverage.mjs --check` remain the
+ * full, checked-in source of truth; the bundle carries only this projection.
+ */
+export type CoverageFacts = {
+  asOf: string
+  leetcodeTwins: number
+  drills: number
+  quizItems: number
 }
 
 /** Exported so unit tests can feed deliberately broken JSON shapes. */
-export function sanitizeCoverage(raw: unknown): CoverageReport {
-  const empty = emptyCoverage()
-  const item = record(raw)
-  if (!item) return empty
-  const catalogue = record(item.catalogue)
-  const resources = record(item.resources)
-  const content = record(item.content)
-  const practice = record(item.practice)
-  if (!catalogue || !resources || !content || !practice) return empty
-  const asOf = text(item.asOf, 10) ?? 'unknown'
-  const count = (value: unknown) => integer(value, 0, 10000) ?? 0
-  return {
-    schemaVersion: 1,
-    asOf,
-    catalogue: {
-      rows: count(catalogue.rows),
-      topics: count(catalogue.topics),
-      theoryRows: count(catalogue.theoryRows),
-    },
-    resources: {
-      rowsWithResources: count(resources.rowsWithResources),
-      multiPublisherRows: count(resources.multiPublisherRows),
-      multiPublisherPercent: count(resources.multiPublisherPercent),
-      leetcodeExactOrNear: count(resources.leetcodeExactOrNear),
-      theoryLabelled: count(resources.theoryLabelled),
-      staleLinks: count(resources.staleLinks),
-      sources: stringList(resources.sources, 20),
-    },
-    content: {
-      primers: count(content.primers),
-      primerWords: count(content.primerWords),
-      statements: count(content.statements),
-      hints: count(content.hints),
-      mistakes: count(content.mistakes),
-      testCases: count(content.testCases),
-      quizItems: count(content.quizItems),
-      theoryMcqs: count(content.theoryMcqs),
-      fullyAuthoredTopics: stringList(content.fullyAuthoredTopics, 20),
-    },
-    practice: {
-      patterns: count(practice.patterns),
-      drills: count(practice.drills),
-      uniqueSlugs: count(practice.uniqueSlugs),
-      contiguousSets: boolean(practice.contiguousSets),
-      sets: Array.isArray(practice.sets)
-        ? practice.sets.slice(0, 20).map((value) => integer(value, 1, 20) ?? 0).filter((value) => value > 0)
-        : [],
-    },
-    byTopic: Array.isArray(item.byTopic)
-      ? item.byTopic.map(sanitizeCoverageTopic).filter((topic): topic is CoverageTopic => topic !== null)
-      : [],
-  }
+export function sanitizeCoverage(raw: unknown): CoverageFacts {
+  if (!Array.isArray(raw)) return { asOf: 'unknown', leetcodeTwins: 0, drills: 0, quizItems: 0 }
+  const number = (value: unknown) => (typeof value === 'number' && Number.isInteger(value) && value >= 0 ? value : 0)
+  const asOf = typeof raw[0] === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw[0]) ? raw[0] : 'unknown'
+  return { asOf, leetcodeTwins: number(raw[1]), drills: number(raw[2]), quizItems: number(raw[3]) }
 }
 
 function collect<T>(modules: Record<string, unknown>, sanitize: (raw: unknown) => T | null): Map<string, T> {
@@ -457,6 +377,7 @@ const [
   rawTheory,
   rawPractice,
   rawCoverage,
+  rawMedia,
 ] = contentBundle as [
   string[],
   Record<string, unknown>,
@@ -464,6 +385,7 @@ const [
   [string, string, string, string, string | 0, [string, string][], number, string, number, string, string, string | 0, string | 0][],
   [string, string, string, string, string[], string | 0, [number, string, string, number, number, number, string, number][]][],
   unknown,
+  [string, string, string, [string, number, number] | 0, string, number, number][],
 ]
 
 function unpackContentUrl(val: string): string {
@@ -529,8 +451,46 @@ const theoryMcqs = collect(unpackedTheory, sanitizeTheoryMcq)
 const practiceSets = collect(unpackedPractice, sanitizePracticeSet)
 const coverage = sanitizeCoverage(rawCoverage)
 
-export function contentCoverage(): CoverageReport {
+export function contentCoverage(): CoverageFacts {
   return coverage
+}
+
+/* --- phase v2-06 video metadata (build-time oEmbed, never a runtime fetch) -- */
+
+const mediaIndex: MediaIndex = (() => {
+  const bag: Record<string, unknown> = {}
+  for (const [videoId, title, author, thumb, fetched, dead, unknown] of rawMedia ?? []) {
+    bag[videoId] = {
+      videoId,
+      title,
+      author,
+      thumbnail: thumb ? { url: thumb[0], width: thumb[1], height: thumb[2] } : null,
+      fetched,
+      dead: dead === 1,
+      unknown: unknown === 1,
+    }
+  }
+  return sanitizeMediaIndex(bag)
+})()
+
+/**
+ * Cached oEmbed metadata for one video id, or null when `tools/fetch-media.mjs`
+ * has not run for it. Null is *not* an error: the player is still embedded and
+ * the title falls back to the problem title.
+ */
+export function mediaFor(videoId: string): MediaEntry | null {
+  return mediaIndex[videoId] ?? null
+}
+
+export function mediaCount(): number {
+  return Object.keys(mediaIndex).length
+}
+
+export function deadMediaIds(): string[] {
+  return Object.values(mediaIndex)
+    .filter((entry) => entry.dead)
+    .map((entry) => entry.videoId)
+    .sort()
 }
 
 export function getTopicContent(topicId: string): TopicContent | null {

@@ -1,8 +1,9 @@
 // GENERATED FILE — do not edit by hand.
 // Source: tools/generate-firestore-rules.mjs from data/problems.json + data/practice-sets/.
 // 20 topics · 495 catalogue ids · 136 synthetic lc-<n> drill keys.
-// Rules v7 (phase v2-05): adds quizResults/{topicId}; saved solutions in snippets;
-// the notes collection remains removed (default deny).
+// Rules v8 (phase v2-06): adds the bounded moments[] stamp list to snippets;
+// quizResults and saved solutions are unchanged; the notes collection remains
+// removed (default deny).
 rules_version = '2';
 
 service cloud.firestore {
@@ -126,15 +127,38 @@ service cloud.firestore {
     // the client only writes known ids and the backup parser re-checks them.
     // Sizes and enums are capped so a hostile client cannot bloat the free
     // tier, and an all-empty snippet must be deleted instead of stored.
+    // Phase v2-06 — one bounded list of video stamps rides in the snippet
+    // document: ≤30 entries, each { at: 0…86400, text: 1…140, createdAt }.
+    // A snippet that only carries stamps is valid (code and notes may be empty
+    // *when* moments exist), so "empty" is decided across the three fields.
+    function validMoments(moments) {
+      return moments is list
+        && moments.size() <= 30
+        && moments.all(function (moment) {
+          return moment is map
+            && moment.keys().hasOnly(['at', 'text', 'createdAt'])
+            && moment.keys().hasAll(['at', 'text', 'createdAt'])
+            && moment.at is number
+            && moment.at >= 0
+            && moment.at <= 86400
+            && moment.text is string
+            && moment.text.size() > 0
+            && moment.text.size() <= 140
+            && (moment.createdAt is string || moment.createdAt is timestamp);
+        });
+    }
+
     function validSnippet(data) {
-      return data.keys().hasOnly(['language', 'code', 'notes', 'verdict', 'updatedAt'])
+      return data.keys().hasOnly(['language', 'code', 'notes', 'verdict', 'moments', 'updatedAt'])
         && data.keys().hasAll(['language', 'code', 'notes', 'updatedAt'])
         && data.language in ['cpp', 'c', 'java', 'python', 'js', 'ts', 'go', 'rust', 'other']
         && data.code is string
         && data.code.size() <= 8000
         && data.notes is string
         && data.notes.size() <= 500
-        && (data.code.size() + data.notes.size()) > 0
+        && (!data.keys().hasAny(['moments']) || validMoments(data.moments))
+        && ((data.code.size() + data.notes.size()) > 0
+            || (data.keys().hasAny(['moments']) && data.moments.size() > 0))
         && (!data.keys().hasAny(['verdict']) || data.verdict in ['clean', 'hint', 'couldnt'])
         && data.updatedAt == request.time;
     }

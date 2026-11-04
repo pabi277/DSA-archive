@@ -36,7 +36,7 @@ describe('shape-sanitised learner content', () => {
     expect(topic?.primer).toBeNull()
     const coverage = sanitizeCoverage({ resources: 'broken' })
     expect(coverage.asOf).toBe('unknown')
-    expect(coverage.catalogue.rows).toBe(0)
+    expect(coverage.leetcodeTwins).toBe(0)
   })
 
   it('enforces exactly four explained options and an in-range answerIndex', () => {
@@ -56,23 +56,16 @@ describe('shape-sanitised learner content', () => {
   })
 })
 
-describe('coverage maths and authored sample', () => {
-  it('reports the checked Phase 03 totals', () => {
-    const report = contentCoverage()
-    expect(report.asOf).toBe('2026-11-03')
-    expect(report.catalogue.rows).toBe(495)
-    expect(report.resources.rowsWithResources).toBe(495)
-    expect(report.resources.multiPublisherRows).toBe(495)
-    expect(report.resources.leetcodeExactOrNear).toBe(420)
-    expect(report.resources.theoryLabelled).toBe(75)
-    expect(report.content.theoryMcqs).toBe(42)
-    expect(report.practice.patterns).toBe(34)
-    expect(report.practice.drills).toBe(136)
-    expect(report.practice.uniqueSlugs).toBe(136)
-    expect(report.practice.contiguousSets).toBe(true)
-    expect(report.byTopic.reduce((sum, topic) => sum + topic.theoryMcqs, 0)).toBe(42)
-    expect(report.byTopic.reduce((sum, topic) => sum + topic.quizItems, 0)).toBe(12)
-    expect(report.content.fullyAuthoredTopics).toContain('arrays')
+describe('coverage facts and authored sample', () => {
+  it('carries the four published numbers the screens show', () => {
+    // The full report (per-topic rows, source lists) stays in
+    // `data/content/coverage.json` + `docs/content/coverage.md`, checked by
+    // `npm run check:content`; only these four values enter the shell.
+    const facts = contentCoverage()
+    expect(facts.asOf).toBe('2026-11-03')
+    expect(facts.leetcodeTwins).toBe(420)
+    expect(facts.drills).toBe(136)
+    expect(facts.quizItems).toBe(12)
   })
 
   it('loads one fully authored topic end to end and leaves missing content designed', () => {
