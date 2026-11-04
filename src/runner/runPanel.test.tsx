@@ -38,6 +38,13 @@ function stubEnvironment(options: { packs?: unknown; runner?: unknown } = {}) {
 }
 
 beforeEach(() => {
+  // React 19 needs this flag to accept updates wrapped in `act`. Without it,
+  // every render logs "The current testing environment is not configured to
+  // support act(...)" — and vitest forwards each of those logs as an async RPC,
+  // which is exactly the traffic that can still be in flight when a worker
+  // tears down and takes the whole run with it. The other three React suites
+  // already set it; this one was simply missed in phase v2-07.
+  ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
   container = document.createElement('div')
   document.body.appendChild(container)
   root = createRoot(container)
@@ -55,10 +62,20 @@ function mount(node: React.ReactNode) {
   act(() => root.render(node))
 }
 
+/**
+ * Flush the panel's async start-up (two manifest fetches, then the cache probe)
+ * inside `act`. React 19 warns — and forwards that warning as an async console
+ * RPC — when a state update escapes `act`, which is what a fixed two-microtask
+ * flush allowed on a slower machine: the manifests resolve in a later turn than
+ * the flush, so `setAssets` fired outside it. Draining a real macrotask (the
+ * fetch stubs are `async`, so their continuations are already queued) settles
+ * however many turns the environment needs.
+ */
 async function settle() {
   await act(async () => {
-    await Promise.resolve()
-    await Promise.resolve()
+    for (let turn = 0; turn < 4; turn += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    }
   })
 }
 
