@@ -103,7 +103,7 @@ export function MiniPlayer({
             data-testid="mini-expand"
             onClick={() => onOpen(problemId)}
           >
-            ↗
+            <span aria-hidden="true">↗</span>
           </button>
         ) : null}
         <a

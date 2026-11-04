@@ -75,15 +75,23 @@ export function ProblemScreen({
   const location = locateProblem(problemId)
   const settings = useTheatreSettings()
   const wide = useWideLayout()
-  const [tab, setTab] = useState<ProblemTab>('problem')
+  // `?tab=code` is a real address, so the tab is URL state: deep link, reload and
+  // back button all land on the tab they name.
+  const [tab, setTabState] = useState<ProblemTab>(tabFromLocation)
   const [live, setLive] = useState({ current: 0, duration: 0 })
   const [, setComposing] = useState<number | null>(null)
   const railRef = useRef<HTMLElement>(null)
   const anchorRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    setTab('problem')
+    setTabState(tabFromLocation())
   }, [problemId])
+
+  const setTab = useCallback((next: ProblemTab) => {
+    setTabState(next)
+    const base = window.location.hash.replace(/[?&]tab=[a-z]+/, '')
+    window.history.replaceState(null, '', next === 'problem' ? base : `${base}?tab=${next}`)
+  }, [])
 
   const moments = useMemo(() => momentsOf(snippet), [snippet])
 
@@ -184,6 +192,8 @@ export function ProblemScreen({
 
       <div className="theatre-layout">
         <div className="theatre-main" ref={anchorRef}>
+          {wide ? null : <h2 className="problem-screen-title">{problem.title}</h2>}
+
           <TheatreStage
             problemTitle={problem.title}
             videoId={videoId}
@@ -449,6 +459,13 @@ function AutoAdvanceToggle({ on, nextText, onChange }: { on: boolean; nextText: 
 }
 
 /* --- helpers -------------------------------------------------------------- */
+
+/** `#/problem/two-sum?tab=code` opens the Code tab directly. */
+function tabFromLocation(): ProblemTab {
+  if (typeof window === 'undefined') return 'problem'
+  const match = window.location.hash.match(/[?&]tab=(problem|stamps|code)/)
+  return (match?.[1] as ProblemTab | undefined) ?? 'problem'
+}
 
 /**
  * Every catalogue row of one topic, in study order — the "next in this topic"

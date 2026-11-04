@@ -105,7 +105,9 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
 
     // --- peek: hidden (and aria-hidden) until revealed ----------------------
     await page.getByTestId('code-open-two-sum').click({ timeout: 15_000 })
-    await expect(page.getByTestId('code-panel')).toBeVisible()
+    // Phase 06: the problem page is a theatre with three tabs, and the phase-04
+    // row deep-links the Code tab so the reader lands on the solution.
+    await expect(page.getByTestId('code-panel')).toBeVisible({ timeout: 15_000 })
     await expect(page.getByTestId('peek-code')).toHaveAttribute('aria-hidden', 'true')
     await page.screenshot({ path: 'test-results/code-peek-phone.png', fullPage: true })
     await page.getByTestId('peek-reveal').click({ timeout: 15_000 })

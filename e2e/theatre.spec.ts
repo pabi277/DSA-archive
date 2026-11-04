@@ -93,7 +93,6 @@ test.describe('theatre shell', () => {
       await expect(page.getByTestId('theatre-speed')).toBeVisible()
       await expect(page.getByTestId('theatre-stamp')).toBeVisible()
       await expect(page.getByTestId('theatre-captions')).toBeVisible()
-      await expect(page.getByTestId('theatre-fill')).toBeVisible()
       await expect(page.getByTestId('stamps-list').first()).toBeVisible()
       if (viewport === desktop) {
         await expect(page.getByTestId('rail-code')).toBeVisible()
@@ -124,21 +123,17 @@ test.describe('theatre shell', () => {
     expect(controls!.y).toBeGreaterThanOrEqual(frame!.y + frame!.height - 1)
   })
 
-  test('fill-screen and captions are our own page state, not player chrome', async ({ page }) => {
+  test('captions are our own toggle and never rebuild the frame', async ({ page }) => {
     await open(page, '/#/problem/two-sum')
-    const stage = page.getByTestId('theatre-stage')
-    await expect(stage).toHaveAttribute('data-fill', 'off')
-    await page.getByTestId('theatre-fill').click({ timeout: 15_000 })
-    await expect(stage).toHaveAttribute('data-fill', 'on')
-    // Esc leaves it, and the frame is still the only iframe (nothing was rebuilt).
-    await page.keyboard.press('Escape')
-    await expect(stage).toHaveAttribute('data-fill', 'off')
-    await expect(page.locator('.theatre-frame iframe')).toHaveCount(1)
-    // Captions are a toggle with real pressed state.
     const captions = page.getByTestId('theatre-captions')
+    // On by default (`cc_load_policy=1`), which is what the phase contract asks for.
     await expect(captions).toHaveAttribute('aria-pressed', 'true')
     await captions.click({ timeout: 15_000 })
     await expect(captions).toHaveAttribute('aria-pressed', 'false')
+    await page.keyboard.press('c')
+    await expect(captions).toHaveAttribute('aria-pressed', 'true')
+    // Toggling captions moved nothing: still one iframe, same document.
+    await expect(page.locator('.theatre-frame iframe')).toHaveCount(1)
   })
 
   test('keyboard: space toggles play and the arrows seek, but never while typing', async ({ page }) => {
@@ -248,6 +243,18 @@ test.describe('theatre shell', () => {
     await page.getByTestId('auto-advance').uncheck({ timeout: 15_000 })
     await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('auto-advance')).not.toBeChecked({ timeout: 20_000 })
+  })
+
+  test('?tab=code opens the code rail (the phase-04 deep link still works)', async ({ page }) => {
+    await open(page, '/#/problem/two-sum?tab=code')
+    await expect(page.getByTestId('problem-panel-code')).toBeVisible()
+    await expect(page.getByTestId('problem-tab-code')).toHaveAttribute('aria-selected', 'true')
+    // Switching tab writes the address, so reload lands on the same tab.
+    await page.getByTestId('problem-tab-problem').click({ timeout: 15_000 })
+    expect(page.url()).not.toContain('tab=code')
+    await page.getByTestId('problem-tab-code').click({ timeout: 15_000 })
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await expect(page.getByTestId('problem-panel-code')).toBeVisible({ timeout: 20_000 })
   })
 
   test('an unknown problem explains itself (lazy route chunk resolves)', async ({ page }) => {

@@ -208,7 +208,7 @@ test('a study session runs Today → solve → revise, with stats and a v5 backu
     const path = await download.path()
     expect(path).toBeTruthy()
     const backup = JSON.parse(await readFile(path!, 'utf8'))
-    expect(backup.schemaVersion).toBe(6)
+    expect(backup.schemaVersion).toBe(7)
     expect(backup.profile.dailyGoal).toBe(5)
     expect(backup.plans).toHaveLength(1)
     expect(backup.plans[0].problemIds.length).toBeGreaterThanOrEqual(6)

@@ -87,7 +87,6 @@ export function TheatreStage({
     if (!online) return 'offline'
     return 'loading'
   })
-  const [fill, setFill] = useState(false)
   const [captions, setCaptions] = useState(true)
   const reportedRef = useRef(new Set<string>())
   const callbacks = useRef({ onWatched, onDeadLink, onStamp, onNextProblem })
@@ -184,16 +183,6 @@ export function TheatreStage({
     setRate(rate)
   }, [rate])
 
-  // `f` puts the stage in the page's own fill-screen; `esc` leaves it.
-  useEffect(() => {
-    if (!fill) return
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setFill(false)
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [fill])
-
   /**
    * The theatre keys from the phase contract: `space`/`k` play-pause, `←`/`→`
    * ±10 s, `f` fill-screen, `c` captions, `s` stamp, `n` next problem.
@@ -219,9 +208,6 @@ export function TheatreStage({
       } else if (key === 'ArrowRight') {
         event.preventDefault()
         skip(10)
-      } else if (key === 'f') {
-        event.preventDefault()
-        setFill((on) => !on)
       } else if (key === 'c') {
         event.preventDefault()
         // `c` flips captions; the ref is what the once-installed listener reads.
@@ -248,12 +234,7 @@ export function TheatreStage({
   embeddableRef.current = embeddable
 
   return (
-    <section
-      className={`theatre-stage${fill ? ' is-fill' : ''}`}
-      aria-label={`Video for ${problemTitle}`}
-      data-testid="theatre-stage"
-      data-fill={fill ? 'on' : 'off'}
-    >
+    <section className="theatre-stage" aria-label={`Video for ${problemTitle}`} data-testid="theatre-stage">
       <div
         className={`theatre-frame${embeddable ? '' : ' is-placeholder'}`}
         data-testid="theatre-frame"
@@ -342,7 +323,7 @@ export function TheatreStage({
             <button
               type="button"
               className="theatre-btn"
-              aria-label={`Stamp this moment — ${stamps.length} of 30 used`}
+              aria-label={`Stamp at ${formatClock(current)} — ${stamps.length} of 30 used`}
               data-testid="theatre-stamp"
               onClick={() => onStamp(current)}
             >
@@ -353,23 +334,14 @@ export function TheatreStage({
               className="theatre-btn"
               aria-pressed={captions}
               aria-label={`Captions ${captions ? 'on' : 'off'}`}
+
               data-testid="theatre-captions"
               onClick={() => {
                 captionsRef.current = toggleCaptions(captionsRef.current)
                 setCaptions(captionsRef.current)
               }}
             >
-              CC
-            </button>
-            <button
-              type="button"
-              className="theatre-btn"
-              aria-pressed={fill}
-              aria-label={fill ? 'Leave fill-screen' : 'Fill the screen'}
-              data-testid="theatre-fill"
-              onClick={() => setFill((on) => !on)}
-            >
-              {fill ? 'Exit ⛶' : '⛶'}
+              <span aria-hidden="true">CC</span>
             </button>
             <span className="theatre-watched num" data-testid="theatre-watched">
               {watched > 0 ? `${watched}% seen` : '0% seen'}

@@ -147,7 +147,7 @@ test.describe('emulator cloud sync', () => {
       const backupPath = await download.path()
       expect(backupPath).toBeTruthy()
       const backup = JSON.parse(await readFile(backupPath!, 'utf8'))
-      expect(backup.schemaVersion).toBe(6)
+      expect(backup.schemaVersion).toBe(7)
       expect(backup.quizResults).toEqual([
         expect.objectContaining({
           topicId: 'arrays',
