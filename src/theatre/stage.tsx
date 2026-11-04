@@ -234,7 +234,12 @@ export function TheatreStage({
   embeddableRef.current = embeddable
 
   return (
-    <section className="theatre-stage" aria-label={`Video for ${problemTitle}`} data-testid="theatre-stage">
+    <section
+      className="theatre-stage"
+      aria-label={`Video for ${problemTitle}`}
+      data-testid="theatre-stage"
+      data-state={state}
+    >
       <div
         className={`theatre-frame${embeddable ? '' : ' is-placeholder'}`}
         data-testid="theatre-frame"

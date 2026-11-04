@@ -264,7 +264,7 @@ export function CodeEditor({
               onCancel={() => setConfirmDiscard(false)}
             />
           ) : (
-            <Button onClick={requestClose}>Close</Button>
+            <Button data-testid="code-edit-done" onClick={requestClose}>Close</Button>
           )
         ) : null}
         {snippet && !confirmDelete ? (

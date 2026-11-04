@@ -193,6 +193,28 @@ export function ProblemScreen({
         <div className="theatre-main" ref={anchorRef}>
           <h2 className="problem-screen-title theatre-title">{problem.title}</h2>
 
+          <div className="theatre-tabs" role="tablist" aria-label="Problem page sections">
+            {([
+              ['problem', 'Problem'],
+              ['stamps', `Stamps${moments.length ? ` · ${moments.length}` : ''}`],
+              ['code', 'Code'],
+            ] as const).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                id={`problem-tab-${value}-button`}
+                aria-selected={tab === value}
+                aria-controls={`problem-panel-${value}`}
+                className="theatre-tab"
+                data-testid={`problem-tab-${value}`}
+                onClick={() => setTab(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <TheatreStage
             problemTitle={problem.title}
             videoId={videoId}
@@ -248,28 +270,6 @@ export function ProblemScreen({
               problemId={problemId}
             />
           </TheatreStage>
-
-          <div className="theatre-tabs" role="tablist" aria-label="Problem page sections">
-            {([
-              ['problem', 'Problem'],
-              ['stamps', `Stamps${moments.length ? ` · ${moments.length}` : ''}`],
-              ['code', 'Code'],
-            ] as const).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                role="tab"
-                id={`problem-tab-${value}-button`}
-                aria-selected={tab === value}
-                aria-controls={`problem-panel-${value}`}
-                className="theatre-tab"
-                data-testid={`problem-tab-${value}`}
-                onClick={() => setTab(value)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
 
           <div
             className="theatre-panel"

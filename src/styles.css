@@ -3664,8 +3664,11 @@ body {
 .theatre-tabs {
   /* Visually hidden at desktop width only: the rail carries stamps and code.
      `display: none` would remove real, operable tab controls from the page for
-     keyboard users, so the strip keeps its box and its focusability. */
-  position: absolute !important;
+     keyboard users, so the strip keeps its box, its focusability and its
+     activation — it is parked out of the flow instead. */
+  position: fixed !important;
+  top: 0;
+  left: 0;
   width: 1px;
   height: 1px;
   overflow: hidden;
@@ -3703,7 +3706,6 @@ body {
   .theatre-tabs {
     position: static !important;
     display: flex;
-    order: -1;
     width: auto;
     height: auto;
     overflow: visible;
