@@ -126,12 +126,15 @@ async function readJsonDir(relDir: string): Promise<Record<string, unknown>> {
 }
 
 async function buildContentBundle() {
-  const [topics, problems, theory, practice, coverageText] = await Promise.all([
+  const [topics, problems, theory, practice, coverageText, media] = await Promise.all([
     readJsonDir('data/content/topics'),
     readJsonDir('data/content/problems'),
     readJsonDir('data/content/theory'),
     readJsonDir('data/practice-sets'),
     readFile(path.resolve('data/content/coverage.json'), 'utf8'),
+    // Phase v2-06: build-time oEmbed metadata (`tools/fetch-media.mjs`). An
+    // empty folder is fine — the theatre then shows the plain player.
+    readJsonDir('data/media').catch(() => ({})),
   ])
   const packedTheory = Object.values(theory).map((raw) => {
     const m = raw as Record<string, unknown>
@@ -176,7 +179,31 @@ async function buildContentBundle() {
       probs,
     ]
   })
-  return [URL_PREFIXES, topics, problems, packedTheory, packedPractice, JSON.parse(coverageText)]
+  const packedMedia = Object.values(media).map((raw) => {
+    const m = raw as Record<string, unknown>
+    const thumb = m.thumbnail as Record<string, unknown> | null
+    return [
+      m.videoId,
+      m.title ?? '',
+      m.author ?? '',
+      thumb ? [thumb.url, thumb.width, thumb.height] : 0,
+      m.fetched ?? '',
+      m.dead === true ? 1 : 0,
+      m.unknown === true ? 1 : 0,
+    ]
+  })
+  // The runtime uses exactly three numbers from the coverage report; the full
+  // report (byTopic, source lists, counts) is generated, checked in and
+  // published by CI. Packing only what a screen renders keeps ~1.3 kB gzip of
+  // per-topic JSON out of the precached shell.
+  const coverage = JSON.parse(coverageText)
+  const slimCoverage = [
+    coverage.asOf ?? '',
+    coverage.resources?.leetcodeExactOrNear ?? 0,
+    coverage.practice?.drills ?? 0,
+    coverage.content?.quizItems ?? 0,
+  ]
+  return [URL_PREFIXES, topics, problems, packedTheory, packedPractice, slimCoverage, packedMedia]
 }
 
 export default defineConfig({
@@ -224,6 +251,12 @@ export default defineConfig({
             { name: 'firebase-firestore', test: /node_modules[\\/](?:@firebase[\\/]firestore|firebase[\\/])/ },
             { name: 'react-vendor', test: /node_modules[\\/](?:react|react-dom|scheduler)[\\/]/ },
             { name: 'catalogue', test: /virtual:dsa-(?:catalogue|content)/ },
+            // Phase v2-06: the theatre screens (problem page, stage, stamps,
+            // player controller) ride in the lazy `content-ui` route chunk,
+            // because `StatementCard` + `CodePanel` + `TheoryMcqCard` are only
+            // ever needed by the same `#/problem/<id>` route. Two chunks would
+            // duplicate that UI and cost ~1.4 kB gzip more than one.
+            { name: 'content-ui', test: /src[\\/](?:content[\\/]|quiz[\\/]|theatre[\\/]|backup\.ts|app[\\/](?:practiceScreen)\.tsx|topics[\\/]topicPage\.tsx)/ },
             { name: 'content-ui', test: /src[\\/](?:content[\\/]|quiz[\\/]|backup\.ts|app[\\/](?:problemScreen|practiceScreen)\.tsx|topics[\\/]topicPage\.tsx)/ },
           ],
         },

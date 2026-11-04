@@ -4,13 +4,15 @@
  * Schema v1 shipped with empty library arrays, v2 added library data, v3
  * added plans and revision counts, v4 added the optional self-assessed
  * outcome, v5 (phase v2-04) replaced the removed markdown `notes[]`
- * with saved solutions in `snippets[]`, and v6 (phase v2-05) adds
- * per-topic quiz scores in `quizResults[]`. All prior schemas (1–5)
- * remain importable unchanged. Friends/summaries stay excluded.
+ * with saved solutions in `snippets[]`, v6 (phase v2-05) added
+ * per-topic quiz scores in `quizResults[]`, and v7 (phase v2-06) adds optional
+ * video stamps as `snippets[].moments[]`. All prior schemas (1–6) remain
+ * importable unchanged. Friends/summaries stay excluded.
  */
 import { catalogue } from './catalogue'
 import {
   CODE_LIMIT,
+  MOMENT_LIMIT,
   SNIPPET_NOTES_LIMIT,
   isCodeLanguage,
   isSnippetVerdict,
@@ -18,6 +20,7 @@ import {
   snippetIsEmpty,
   type BackupSnippet,
 } from './code/codeStore'
+import { MOMENT_AT_LIMIT, MOMENT_TEXT_LIMIT, type Moment } from './theatre/stamps'
 import { DRILLS_BY_TOPIC } from './content/practice'
 import {
   countCloudRows,
@@ -43,9 +46,9 @@ import {
   type BackupList,
 } from './library'
 
-export const BACKUP_SCHEMA_VERSION = 6
-/** Schemas 1–5 import unchanged; legacy fields are normalized or migrated. */
-export const SUPPORTED_BACKUP_SCHEMAS = [1, 2, 3, 4, 5, 6] as const
+export const BACKUP_SCHEMA_VERSION = 7
+/** Schemas 1–6 import unchanged; legacy fields are normalized or migrated. */
+export const SUPPORTED_BACKUP_SCHEMAS = [1, 2, 3, 4, 5, 6, 7] as const
 /** Room for many saved solutions; each field is individually capped below. */
 const MAX_BACKUP_BYTES = 4_000_000
 
@@ -155,7 +158,7 @@ const knownIds = new Map(
   ]),
 )
 
-const SNIPPET_KEYS = ['problemId', 'language', 'code', 'notes', 'verdict', 'updatedAt']
+const SNIPPET_KEYS = ['problemId', 'language', 'code', 'notes', 'verdict', 'moments', 'updatedAt']
 const LEGACY_NOTE_KEYS = ['problemId', 'markdown', 'snippet', 'updatedAt']
 const LIST_KEYS = ['listId', 'title', 'problemIds', 'updatedAt']
 
@@ -208,7 +211,26 @@ function parseTimestamp(value: unknown, label: string): string | null {
   return value
 }
 
-/** Schema v5+ saved solutions, validated exactly as rules v6/v7 store them. */
+/** Schema v7 stamps: the same caps rules v8 enforce (30 × 140, at ≤ 86 400). */
+function parseMoments(raw: unknown, index: number): Moment[] | undefined {
+  if (raw === undefined) return undefined
+  if (!Array.isArray(raw)) fail(`snippets[${index}].moments must be an array`)
+  if (raw.length > MOMENT_LIMIT) fail(`snippets[${index}].moments has more than ${MOMENT_LIMIT} stamps`)
+  const moments = raw.map((item, position) => {
+    if (!isRecord(item)) fail(`snippets[${index}].moments[${position}] must be an object`)
+    const { at, text, createdAt } = item
+    if (typeof at !== 'number' || !Number.isFinite(at) || at < 0 || at > MOMENT_AT_LIMIT) {
+      fail(`snippets[${index}].moments[${position}].at must be 0–${MOMENT_AT_LIMIT} seconds`)
+    }
+    if (typeof text !== 'string' || text.trim() === '' || text.length > MOMENT_TEXT_LIMIT) {
+      fail(`snippets[${index}].moments[${position}].text must be 1–${MOMENT_TEXT_LIMIT} characters`)
+    }
+    return { at: Math.floor(at), text, createdAt: parseTimestamp(createdAt, `snippets[${index}].moments[${position}].createdAt`) ?? '' }
+  })
+  return moments.length > 0 ? moments : undefined
+}
+
+/** Schema v5+ saved solutions, validated exactly as rules v6/v7/v8 store them. */
 function parseSnippets(raw: unknown, schemaVersion: number): BackupSnippet[] {
   if (raw === undefined) return []
   if (!Array.isArray(raw)) fail('snippets must be an array')
@@ -227,13 +249,20 @@ function parseSnippets(raw: unknown, schemaVersion: number): BackupSnippet[] {
     if (entry.verdict !== undefined && !isSnippetVerdict(entry.verdict)) {
       fail(`snippets[${index}].verdict must be clean, hint or couldnt`)
     }
-    if (snippetIsEmpty(code, notes)) fail(`snippets[${index}] is empty`)
+    if (entry.moments !== undefined && schemaVersion < 7) {
+      // v6 and earlier never carried stamps: an unknown field there is not
+      // something we produced, so it is refused rather than guessed at.
+      fail(`a schemaVersion ${schemaVersion} backup cannot contain stamps`)
+    }
+    const moments = parseMoments(entry.moments, index)
+    if (snippetIsEmpty(code, notes, moments ?? [])) fail(`snippets[${index}] is empty`)
     return {
       problemId,
       language: entry.language,
       code,
       notes,
       ...(isSnippetVerdict(entry.verdict) ? { verdict: entry.verdict } : {}),
+      ...(moments ? { moments } : {}),
       updatedAt: parseTimestamp(entry.updatedAt, `snippets[${index}].updatedAt`),
     }
   })

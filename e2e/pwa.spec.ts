@@ -1,6 +1,5 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { ALL_ROUTES, open, openTopic } from './helpers'
+import { ALL_ROUTES, open, openTopic, auditPage } from './helpers'
 
 /**
  * Roadmap phase 6 acceptance in real Chromium:
@@ -51,7 +50,7 @@ async function expectFitsAndAccessible(page: Page) {
     () => document.documentElement.scrollWidth <= window.innerWidth,
   )
   expect(fits).toBe(true)
-  const audit = await new AxeBuilder({ page }).analyze()
+  const audit = await auditPage(page).analyze()
   expect(audit.violations).toEqual([])
 }
 

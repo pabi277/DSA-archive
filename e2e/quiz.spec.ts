@@ -1,7 +1,6 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
-import { desktop, open, phone } from './helpers'
+import { desktop, open, phone, auditPage } from './helpers'
 
 const emulatorProject = 'demo-dsa-archive'
 
@@ -51,7 +50,7 @@ test('primer inline checks and Practice theory MCQ cards work with zero axe viol
   await page.getByTestId('mcq-mark-read-basic-arrays').click()
   await expect(page.getByTestId('progress-pill')).toHaveText('1/495 done')
 
-  const audit = await new AxeBuilder({ page }).analyze()
+  const audit = await auditPage(page).analyze()
   expect(audit.violations).toEqual([])
 })
 
@@ -68,13 +67,13 @@ test('phone quiz runner: 12 questions, >=44px options, pass, reseeded retake, re
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 
-  const runnerAudit = await new AxeBuilder({ page }).analyze()
+  const runnerAudit = await auditPage(page).analyze()
   expect(runnerAudit.violations).toEqual([])
 
   await completeArraysQuiz(page, answerByPrompt, true)
   await expect(page.getByTestId('quiz-verdict-badge')).toHaveText('Passed')
 
-  const resultAudit = await new AxeBuilder({ page }).analyze()
+  const resultAudit = await auditPage(page).analyze()
   expect(resultAudit.violations).toEqual([])
 
   // Retake reseeds the question order deterministically.
@@ -147,7 +146,7 @@ test.describe('emulator cloud sync', () => {
       const backupPath = await download.path()
       expect(backupPath).toBeTruthy()
       const backup = JSON.parse(await readFile(backupPath!, 'utf8'))
-      expect(backup.schemaVersion).toBe(6)
+      expect(backup.schemaVersion).toBe(7)
       expect(backup.quizResults).toEqual([
         expect.objectContaining({
           topicId: 'arrays',

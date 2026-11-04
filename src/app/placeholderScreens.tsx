@@ -9,7 +9,9 @@
  * replaces the quiz home below.
  */
 import { buildPath } from './router'
-import { Button, Card, Empty } from '../design/primitives'
+import { Button, Card, Empty, Tag } from '../design/primitives'
+import { useTheatreSettings, resetAllRates } from '../theatre/theatreSettings'
+import { memorisedTopics, rateLabel } from '../theatre/speedMemory'
 import { IconSpark, IconToday } from '../design/icons'
 
 export function InsightsScreen({ signedIn }: { signedIn: boolean }) {
@@ -115,6 +117,8 @@ export function SettingsScreen({
         </div>
       </Card>
 
+      <TheatreSettingsCard />
+
       <Card title="Your data">
         <p className="quiet-note">
           Progress, saved code and lists sync to your own Firestore documents; JSON backup and import live
@@ -148,6 +152,52 @@ export function SettingsScreen({
         </dl>
       </Card>
     </div>
+  )
+}
+
+/**
+ * Phase v2-06 §9: one honest theatre card. It states the player's terms once,
+ * lists the device-local speeds the learner actually chose, and offers the one
+ * reset that matters — "forget them all". No toggle pretends to block ads.
+ */
+function TheatreSettingsCard() {
+  const theatre = useTheatreSettings()
+  const tuned = memorisedTopics(theatre.speeds)
+  return (
+    <Card title="Video"
+      data-testid="theatre-settings">
+      <p className="quiet-note">
+        Videos play through YouTube&rsquo;s official player in its own frame. Ads are handled by your browser;
+        the app doesn&rsquo;t block them, and nothing is ever drawn over the video.
+      </p>
+      <div className="setting-row">
+        <div>
+          <strong>Playback speed</strong>
+          <p className="quiet-note">
+            Remembered per topic, on this device only{theatre.autoAdvance ? ' · auto-advance is on' : ''}.
+          </p>
+        </div>
+        <Tag tone={tuned.length ? 'info' : 'neutral'} data-testid="speed-count">
+          {tuned.length === 0 ? 'All at 1×' : `${tuned.length} topic${tuned.length === 1 ? '' : 's'} tuned`}
+        </Tag>
+      </div>
+      {tuned.length > 0 ? (
+        <>
+          <ul className="quiet-note speed-list" data-testid="speed-list">
+            {tuned.map(({ topicId, rate }) => (
+              <li key={topicId}>
+                <code>{topicId}</code> at {rateLabel(rate)}
+              </li>
+            ))}
+          </ul>
+          <div className="inline-actions">
+            <Button size="sm" data-testid="speed-reset" onClick={() => resetAllRates()}>
+              Forget every speed
+            </Button>
+          </div>
+        </>
+      ) : null}
+    </Card>
   )
 }
 

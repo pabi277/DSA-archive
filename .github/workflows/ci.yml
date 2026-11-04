@@ -146,8 +146,30 @@ jobs:
               block = [line.strip() for line in lines[start:end]
                        if line.strip() and not line.strip().startswith(('attachment #', 'Usage:', '─'))]
               failures.append(' | '.join(block)[:1800])
-          for block in failures[:10]:
+          for block in failures[:6]:
               print('::error::' + block.replace('%', '%25'))
+          # A failure can also come from the emulator rules tests (`node --test`)
+          # or from the emulator itself, which uses neither the Playwright block
+          # format nor `test-output.log` diagnostics. In that case the ten
+          # annotation slots above stay empty and the job fails silently, so
+          # always re-emit the most telling raw lines as well.
+          if not failures:
+              # `npm run test:rules` uses node --test (TAP). A failing case is a
+              # `not ok N - name` line followed by an indented YAML diagnostic;
+              # everything mentioning Firestore `PERMISSION_DENIED` is the
+              # *expected* output of an `assertFails`, so it is not a signal.
+              tap = [i for i, line in enumerate(lines) if re.match(r'^\s*not ok\s+\d+', line)]
+              for position, start in enumerate(tap[:6]):
+                  end = tap[position + 1] if position + 1 < len(tap) else min(len(lines), start + 40)
+                  block = [line.strip() for line in lines[start:end]
+                           if line.strip() and 'GrpcConnection' not in line]
+                  print('::error::' + ' | '.join(block)[:1800].replace('%', '%25'))
+              counts = [line.strip() for line in lines if re.match(r'^\s*# (pass|fail|tests) ', line)]
+              for line in counts[:4]:
+                  print('::notice::' + line[:900].replace('%', '%25'))
+              if not tap:
+                  for line in [l for l in lines if l.strip()][-6:]:
+                      print('::notice::' + line.strip()[:900].replace('%', '%25'))
           PY
           exit 0
       - name: Publish browser failure digest on the pull request

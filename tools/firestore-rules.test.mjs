@@ -643,3 +643,61 @@ describe('Firestore rules v7 — Phase v2-05 quizResults', () => {
     await assertSucceeds(setDoc(quizRef, quizDoc({ bestScore: 4, bestTotal: 5, lastScore: 4, attempts: 999 })))
   })
 })
+
+describe('Firestore rules v8 — phase v2-06 video stamps (snippets[].moments)', () => {
+  const stamp = (overrides = {}) => ({ at: 754, text: 'shrink from the left', createdAt: '2026-11-04T00:00:00.000Z', ...overrides })
+
+  it('accepts a bounded stamp list, including a snippet that only carries stamps', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+
+    await assertSucceeds(setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: [stamp()] })))
+    await assertSucceeds(
+      setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: [stamp({ at: 0 }), stamp({ at: 86400, text: 'end' })] })),
+    )
+    // Stamps-only snippet: code and notes empty but the document is not empty.
+    await assertSucceeds(setDoc(snippetRef(alice, 'alice'), snippetDoc({ code: '', notes: '', moments: [stamp()] })))
+    // Thirty is the cap and must pass.
+    await assertSucceeds(
+      setDoc(
+        snippetRef(alice, 'alice'),
+        snippetDoc({ moments: Array.from({ length: 30 }, (_, index) => stamp({ at: index * 10, text: `moment ${index}` })) }),
+      ),
+    )
+    const snap = await assertSucceeds(getDoc(snippetRef(alice, 'alice')))
+    assert.equal(snap.data().moments.length, 30)
+  })
+
+  it('rejects 31 stamps, out-of-range seconds, empty/oversized text, missing createdAt and extra keys', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+
+    await assertFails(
+      setDoc(
+        snippetRef(alice, 'alice'),
+        snippetDoc({ moments: Array.from({ length: 31 }, (_, index) => stamp({ at: index })) }),
+      ),
+    )
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: [stamp({ at: -1 })] })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: [stamp({ at: 86401 })] })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: [stamp({ at: '12:34' })] })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: [stamp({ text: '' })] })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: [stamp({ text: 'x'.repeat(141) })] })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: [{ at: 10, text: 'no createdAt' }] })))
+    await assertFails(
+      setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: [{ ...stamp(), colour: 'red' }] })),
+    )
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: 'not-a-list' })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: [], code: '', notes: '' })))
+  })
+
+  it('keeps stamps owner-only: a stranger cannot read or write them', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const bob = env.authenticatedContext('bob').firestore()
+    const stranger = env.unauthenticatedContext().firestore()
+
+    await assertSucceeds(setDoc(snippetRef(alice, 'alice'), snippetDoc({ moments: [stamp()] })))
+    await assertFails(getDoc(snippetRef(bob, 'alice')))
+    await assertFails(setDoc(snippetRef(bob, 'alice'), snippetDoc({ moments: [stamp()] })))
+    await assertFails(getDoc(snippetRef(stranger, 'alice')))
+    await assertFails(setDoc(snippetRef(stranger, 'alice'), snippetDoc({ moments: [stamp()] })))
+  })
+})

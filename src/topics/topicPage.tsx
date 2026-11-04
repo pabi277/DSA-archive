@@ -349,7 +349,7 @@ function DrillsPanel({
 function QuizPanel({ topic, quizResult }: { topic: Topic; quizResult?: QuizResult }) {
   const authored = getQuiz(topic.id).length
   const theory = getTheoryMcqCount(topic.id)
-  const bank = contentCoverage().content.quizItems
+  const bank = contentCoverage().quizItems
   if (authored === 0) {
     return (
       <Empty

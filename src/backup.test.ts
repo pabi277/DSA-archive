@@ -103,12 +103,12 @@ function v5Copy() {
   return backup
 }
 
-describe('JSON backup (schema v6, reading 1–5)', () => {
+describe('JSON backup (schema v7, reading 1–6)', () => {
   it('round-trips profile, progress, snippets, lists, plans and quizResults with preview counts', () => {
     const parsed = parseBackup(createBackup(input))
     expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 1, lists: 1, plans: 1, quizResults: 1 })
     expect(parsed.warnings).toEqual([])
-    expect(parsed.backup.schemaVersion).toBe(6)
+    expect(parsed.backup.schemaVersion).toBe(7)
     expect(parsed.backup.profile).toMatchObject({
       theme: 'dark',
       largeText: false,
@@ -145,7 +145,7 @@ describe('JSON backup (schema v6, reading 1–5)', () => {
 
   it('migrates a schemaVersion 4 backup: code kept exactly, markdown shortened with a named warning', () => {
     const parsed = parseBackup(JSON.stringify(v4Copy()))
-    expect(parsed.backup.schemaVersion).toBe(6)
+    expect(parsed.backup.schemaVersion).toBe(7)
     expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 1, lists: 1, plans: 1, quizResults: 0 })
     expect(parsed.backup.snippets).toEqual([
       {
@@ -166,7 +166,7 @@ describe('JSON backup (schema v6, reading 1–5)', () => {
 
   it('imports a schemaVersion 5 backup cleanly with empty quizResults', () => {
     const parsed = parseBackup(JSON.stringify(v5Copy()))
-    expect(parsed.backup.schemaVersion).toBe(6)
+    expect(parsed.backup.schemaVersion).toBe(7)
     expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 1, lists: 1, plans: 1, quizResults: 0 })
     expect(parsed.backup.snippets).toEqual(snippets)
     expect(parsed.backup.quizResults).toEqual([])
@@ -183,7 +183,7 @@ describe('JSON backup (schema v6, reading 1–5)', () => {
   it('still imports a phase-2 schemaVersion 1 file — the recorded migration', () => {
     const parsed = parseBackup(JSON.stringify(v1Copy()))
     expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 0, lists: 0, plans: 0, quizResults: 0 })
-    expect(parsed.backup.schemaVersion).toBe(6)
+    expect(parsed.backup.schemaVersion).toBe(7)
     expect(parsed.backup.snippets).toEqual([])
     expect(parsed.backup.lists).toEqual([])
     expect(parsed.backup.plans).toEqual([])

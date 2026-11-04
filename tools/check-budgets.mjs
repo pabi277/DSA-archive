@@ -14,7 +14,15 @@ const root = path.resolve('dist')
 /**
  * v2 budgets, re-baselined once in phase v2-01 with the numbers approved in
  * docs/DECISIONS.md (2026-11-03, "CI budgets"): CSS 60 kB raw / 18 kB gzip,
- * entry JS 180 kB raw / 55 kB gzip, one 520 kB raw chunk cap, shell 380 kB gzip.
+ * entry JS 180 kB raw / 55 kB gzip, one 520 kB raw chunk cap.
+ *
+ * The shell cap moved 380 kB → 386 kB → 388 kB in phase v2-06, both on the
+ * owner's explicit decision (2026-11-04). The theatre costs ~9.9 kB gzip of new
+ * capability and Phase 05 had only 3.99 kB of headroom; the first re-baseline
+ * left the build exactly on the ceiling, so ordinary few-hundred-byte build
+ * variance failed CI. The measured numbers, the rejected alternatives and the
+ * option list are published in docs/phases-v2/06-theatre-player/RECORD.md;
+ * phase v2-09 re-examines this cap with the runner in place.
  * Runtime assets that are fetched on demand (the phase-07 wasm compiler, ~14 MB,
  * and the two font subsets, ~45 kB) live in their OWN bucket below and are never
  * counted as shell transfer — and the Service Worker must never precache them.
@@ -26,7 +34,7 @@ export const BUDGETS = {
   maxEntryJsGzipBytes: 55_000,
   maxSingleJsRawBytes: 520_000,
   maxSingleJsGzipBytes: 165_000,
-  maxShellGzipBytes: 380_000,
+  maxShellGzipBytes: 388_000,
   /** Runtime bucket: fonts + future compiler payload, never precached. */
   maxRuntimeAssetRawBytes: 15_000_000,
   maxFontRawBytes: 60_000,

@@ -1,7 +1,6 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
-import { open, openTopic } from './helpers'
+import { open, openTopic, auditPage } from './helpers'
 
 /**
  * Roadmap phase 2 "Done means" in CI: solve at phone width, merge guest rows,
@@ -102,7 +101,7 @@ test('cloud progress survives relogin, offline reconnect and backup restore', as
     expect(downloadPath).toBeTruthy()
     const exported = await readFile(downloadPath!, 'utf8')
     // Phase v2-05 bumped the writer to schema v6 (quizResults included).
-    expect(JSON.parse(exported).schemaVersion).toBe(6)
+    expect(JSON.parse(exported).schemaVersion).toBe(7)
 
     const fileInput = verifyPage.getByLabel('Import backup JSON')
     await fileInput.setInputFiles({
@@ -126,7 +125,7 @@ test('cloud progress survives relogin, offline reconnect and backup restore', as
     await expect(verifyPage.getByTestId('progress-pill')).toHaveText('1/495 done')
 
     await verifyPage.screenshot({ path: 'test-results/sync-phone.png', fullPage: true })
-    const phoneAudit = await new AxeBuilder({ page: verifyPage }).analyze()
+    const phoneAudit = await auditPage(verifyPage).analyze()
     expect(phoneAudit.violations).toEqual([])
   } finally {
     for (const context of contexts) await context.close()

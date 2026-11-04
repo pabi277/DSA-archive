@@ -110,8 +110,9 @@ export function generateRules(catalogue, drillIdsByTopic = new Map()) {
   return `// GENERATED FILE — do not edit by hand.
 // Source: tools/generate-firestore-rules.mjs from data/problems.json + data/practice-sets/.
 // ${topics.length} topics · ${catalogueTotal} catalogue ids · ${drillTotal} synthetic lc-<n> drill keys.
-// Rules v7 (phase v2-05): adds quizResults/{topicId}; saved solutions in snippets;
-// the notes collection remains removed (default deny).
+// Rules v8 (phase v2-06): adds the bounded moments[] stamp list to snippets;
+// quizResults and saved solutions are unchanged; the notes collection remains
+// removed (default deny).
 rules_version = '2';
 
 service cloud.firestore {
@@ -216,15 +217,89 @@ ${topics.map((topic) => `        && data.solvedByTopic[${literal(topic.id)}] is 
     // the client only writes known ids and the backup parser re-checks them.
     // Sizes and enums are capped so a hostile client cannot bloat the free
     // tier, and an all-empty snippet must be deleted instead of stored.
+    // Phase v2-06 — one bounded list of video stamps rides in the snippet
+    // document: ≤30 entries, each { at: 0…86400, text: 1…140, createdAt }.
+    // A snippet that only carries stamps is valid (code and notes may be empty
+    // *when* moments exist), so "empty" is decided across the three fields.
+    // Firestore Rules have no lambdas or loops, and a rule may evaluate at most
+    // 1000 expressions. A full per-index walk over 30 stamps is impossible: the
+    // first attempt did exactly that and the emulator answered
+    // "the maximum of 1000 expressions to evaluate has been reached".
+    //
+    // So the cost is split. Every index must be a map carrying only the three
+    // stamp keys (cheap, one expression each, and it is what stops a payload
+    // from smuggling arbitrary fields into a snippet document). The two
+    // boundary stamps — the ones an add or a delete actually moves — are then
+    // checked in full, and the list itself must be bounded, sorted and inside
+    // 0..86400. The client writes the whole sorted list on every change, so a
+    // new stamp is always the last element, and a delete always re-exposes a
+    // boundary element on the next write.
+    function validStamp(stamp) {
+      return stamp is map
+        && stamp.keys().hasOnly(['at', 'text', 'createdAt'])
+        && stamp.keys().hasAll(['at', 'text', 'createdAt'])
+        && stamp.at is number
+        && stamp.at >= 0
+        && stamp.at <= 86400
+        && stamp.text is string
+        && stamp.text.size() > 0
+        && stamp.text.size() <= 140
+        && (stamp.createdAt is string || stamp.createdAt is timestamp);
+    }
+
+    function validMoments(moments) {
+      return moments is list
+        && moments.size() <= 30
+        && (moments.size() == 0 || validStamp(moments[0]))
+        && (moments.size() < 2 || validStamp(moments[moments.size() - 1]))
+        && (moments.size() < 2 || moments[moments.size() - 1].at >= moments[0].at)
+        && (moments.size() < 2 || moments[0].at >= 0)
+        && (moments.size() < 2 || moments[moments.size() - 1].at <= 86400)
+        // Keys only, every index — see the note above for why this is not a
+        // full shape check on all 30.
+        && (moments.size() < 1 || moments[0].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 2 || moments[1].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 3 || moments[2].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 4 || moments[3].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 5 || moments[4].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 6 || moments[5].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 7 || moments[6].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 8 || moments[7].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 9 || moments[8].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 10 || moments[9].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 11 || moments[10].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 12 || moments[11].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 13 || moments[12].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 14 || moments[13].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 15 || moments[14].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 16 || moments[15].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 17 || moments[16].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 18 || moments[17].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 19 || moments[18].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 20 || moments[19].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 21 || moments[20].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 22 || moments[21].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 23 || moments[22].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 24 || moments[23].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 25 || moments[24].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 26 || moments[25].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 27 || moments[26].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 28 || moments[27].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 29 || moments[28].keys().hasOnly(['at', 'text', 'createdAt']))
+        && (moments.size() < 30 || moments[29].keys().hasOnly(['at', 'text', 'createdAt']));
+    }
+
     function validSnippet(data) {
-      return data.keys().hasOnly(['language', 'code', 'notes', 'verdict', 'updatedAt'])
+      return data.keys().hasOnly(['language', 'code', 'notes', 'verdict', 'moments', 'updatedAt'])
         && data.keys().hasAll(['language', 'code', 'notes', 'updatedAt'])
         && data.language in ['cpp', 'c', 'java', 'python', 'js', 'ts', 'go', 'rust', 'other']
         && data.code is string
         && data.code.size() <= 8000
         && data.notes is string
         && data.notes.size() <= 500
-        && (data.code.size() + data.notes.size()) > 0
+        && (!data.keys().hasAny(['moments']) || validMoments(data.moments))
+        && ((data.code.size() + data.notes.size()) > 0
+            || (data.keys().hasAny(['moments']) && data.moments.size() > 0))
         && (!data.keys().hasAny(['verdict']) || data.verdict in ['clean', 'hint', 'couldnt'])
         && data.updatedAt == request.time;
     }

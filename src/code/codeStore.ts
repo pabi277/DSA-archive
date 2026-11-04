@@ -10,9 +10,12 @@
  */
 import { locateProblem, timestampToIso } from '../library'
 import type { Outcome } from '../progress'
+import { sanitizeMoments, type Moment } from '../theatre/stamps'
 
 export const CODE_LIMIT = 8000
 export const SNIPPET_NOTES_LIMIT = 500
+/** Rules v8: at most 30 video stamps per snippet (phase v2-06). */
+export const MOMENT_LIMIT = 30
 
 export const CODE_LANGUAGES = [
   'cpp',
@@ -63,6 +66,12 @@ export type Snippet = {
   /** Plain text only, ≤500 characters. Never markdown, never rendered as HTML. */
   notes: string
   verdict?: SnippetVerdict
+  /**
+   * Phase v2-06 timeline stamps: `{ at, text, createdAt }`, ≤30, stored in this
+   * same document so the theatre costs one extra field (and zero extra reads).
+   * Absent — not `[]` — when a snippet has none, which is what rules v8 accept.
+   */
+  moments?: Moment[]
   /** ISO string from the Firestore server timestamp; null when unreadable. */
   updatedAt: string | null
 }
@@ -74,6 +83,7 @@ export type SnippetDraft = {
   code: string
   notes: string
   verdict?: SnippetVerdict
+  moments?: Moment[]
 }
 
 export type BackupSnippet = {
@@ -82,6 +92,7 @@ export type BackupSnippet = {
   code: string
   notes: string
   verdict?: SnippetVerdict
+  moments?: Moment[]
   updatedAt: string | null
 }
 
@@ -101,8 +112,13 @@ export function clampLanguage(value: unknown): CodeLanguage {
   return isCodeLanguage(value) ? value : 'other'
 }
 
-export function snippetIsEmpty(code: string, notes: string) {
-  return code.trim() === '' && notes.trim() === ''
+/**
+ * A snippet is empty only when it has no code, no reminder **and** no stamps: a
+ * snippet that exists purely to carry stamps must not be deleted (rules v8
+ * accept it, and the theatre reads it).
+ */
+export function snippetIsEmpty(code: string, notes: string, moments: Moment[] = []) {
+  return code.trim() === '' && notes.trim() === '' && moments.length === 0
 }
 
 /**
@@ -115,24 +131,28 @@ export function sanitizeSnippet(problemId: string, raw: unknown): Snippet | null
   if (!isRecord(raw)) return null
   const code = typeof raw.code === 'string' ? raw.code.slice(0, CODE_LIMIT) : ''
   const notes = typeof raw.notes === 'string' ? raw.notes.slice(0, SNIPPET_NOTES_LIMIT) : ''
-  if (snippetIsEmpty(code, notes)) return null
+  const moments = sanitizeMoments(raw.moments)
+  if (snippetIsEmpty(code, notes, moments)) return null
   return {
     problemId,
     language: clampLanguage(raw.language),
     code,
     notes,
     ...(isSnippetVerdict(raw.verdict) ? { verdict: raw.verdict } : {}),
+    ...(moments.length > 0 ? { moments } : {}),
     updatedAt: timestampToIso(raw.updatedAt),
   }
 }
 
-/** Clamp a draft to exactly what rules v6 accept, before any write. */
+/** Clamp a draft to exactly what rules v8 accept, before any write. */
 export function clampDraft(draft: SnippetDraft): SnippetDraft {
+  const moments = sanitizeMoments(draft.moments)
   return {
     language: clampLanguage(draft.language),
     code: draft.code.slice(0, CODE_LIMIT),
     notes: draft.notes.slice(0, SNIPPET_NOTES_LIMIT),
     ...(draft.verdict && isSnippetVerdict(draft.verdict) ? { verdict: draft.verdict } : {}),
+    ...(moments.length > 0 ? { moments } : {}),
   }
 }
 
@@ -168,7 +188,8 @@ export function filterSnippets(snippets: SnippetsById, filters: SnippetFilters):
     const location = locateProblem(snippet.problemId)
     if (filters.topicId && location?.topicId !== filters.topicId) return false
     if (needle === '') return true
-    return [snippet.code, snippet.notes, location?.problem.title ?? '']
+    const stampText = (snippet.moments ?? []).map((moment) => moment.text).join(' ')
+    return [snippet.code, snippet.notes, stampText, location?.problem.title ?? '']
       .join(' ')
       .toLowerCase()
       .includes(needle)
@@ -182,6 +203,7 @@ export function snippetsForBackup(snippets: SnippetsById): BackupSnippet[] {
     code: snippet.code,
     notes: snippet.notes,
     ...(snippet.verdict ? { verdict: snippet.verdict } : {}),
+    ...(snippet.moments && snippet.moments.length > 0 ? { moments: snippet.moments } : {}),
     updatedAt: snippet.updatedAt,
   }))
 }

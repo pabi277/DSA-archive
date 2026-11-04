@@ -112,13 +112,20 @@ export function CodeEditor({
     language !== (snippet?.language ?? 'cpp') ||
     code !== (snippet?.code ?? '') ||
     notes !== (snippet?.notes ?? '')
-  const empty = snippetIsEmpty(code, notes)
+  const empty = snippetIsEmpty(code, notes, snippet?.moments ?? [])
   const lines = code === '' ? 1 : code.split('\n').length
 
   const save = () => {
     // The optional verdict is preserved untouched: it records how the last
-    // run went and is set from the Phase 07 runner, not picked here.
-    onSave({ language, code, notes, ...(snippet?.verdict ? { verdict: snippet.verdict } : {}) })
+    // run went and is set from the Phase 07 runner, not picked here. Phase 06
+    // stamps are preserved untouched: they belong to the video, not the editor.
+    onSave({
+      language,
+      code,
+      notes,
+      ...(snippet?.verdict ? { verdict: snippet.verdict } : {}),
+      ...(snippet?.moments && snippet.moments.length > 0 ? { moments: snippet.moments } : {}),
+    })
     setConfirmDiscard(false)
   }
 
@@ -330,7 +337,11 @@ export function CodePanel({
   if (editing || !snippet) {
     return (
       <CodeEditor
-        key={`${problemId}-${snippet?.updatedAt ?? 'new'}`}
+        // Keyed by identity, never by `updatedAt`: every save writes a fresh
+        // server timestamp, so keying on it remounted the editor mid-session —
+        // throwing away whatever was typed after the save (and, on a slow
+        // snapshot, unmounting the whole panel while a test was reading it).
+        key={problemId}
         problemId={problemId}
         problemTitle={problemTitle}
         snippet={snippet}

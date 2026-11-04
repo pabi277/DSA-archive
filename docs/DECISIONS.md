@@ -712,3 +712,85 @@
   `quiz-runner` (`/#/quiz/arrays`) across phone/desktop × dark/light for CI
   generation and owner visual review.
 
+## Phase v2-06 implementation choices (2026-11-04)
+
+### Owner decision — the shell cap moved 380 kB → 386 kB gzip (2026-11-04)
+
+Asked, with measured numbers: Phase 05 ended at `376,014 B` (3,986 B of headroom under the
+frozen 380,000 B cap) and the theatre adds **~9.9 kB gzip** of new capability — the stage and
+its states, the control bar, the stamps list, the mini player, the per-topic speed store, the
+auto-advance offer, the Settings card and ~0.85 kB of CSS.
+
+Every byte that could be recovered without breaking the phase contract was recovered first:
+the coverage-report projection (1.2 kB), duplicate/dead CSS and the unused `Skeleton`/`Field`
+primitives (~1.5 kB raw), stamp *editing* (the contract only asks for add/delete), the stage's
+tick rail, and the second full player in the mini dock. Chunk reshuffles were measured and
+rejected — `${catalogue}+app-data`, `content-ui → entry`, one merged chunk and a separate
+`theatre` chunk all land between `362.9` and `386.1 kB`, i.e. they move bytes rather than
+remove them, and splitting the theatre from `content-ui` *adds* 1.4 kB of duplicated UI.
+Dropping the catalogue's positional `rank` and deduping three `lcLabel` strings buys 0.29 kB
+(gzip already absorbs the repetition).
+
+**Owner chose "re-baseline to 386 kB now"** (2026-11-04), from four options that also included
+a phase-06-only 390 kB cap, cutting a piece of the contract, and leaving CI red for review.
+
+**Second re-baseline, same day: 386 kB → 388 kB.** The 386 kB figure put the build exactly on
+the ceiling, so a few hundred bytes of ordinary build-to-build variance failed CI while the
+identical tree passed locally. Trimming dead exports and dead CSS recovered only ~120 B, and
+the alternatives worth another 2 kB (moving the authored theory/practice content out of the
+precache, or cutting the stamps rail) trade away offline-first or contract items. The owner
+chose **388 kB**, which restores ~2 kB of real headroom and keeps every feature.
+Consequences, all recorded in `docs/phases-v2/06-theatre-player/RECORD.md`:
+
+- `tools/check-budgets.mjs` `maxShellGzipBytes` = `388_000` (was `380_000`, then `386_000`);
+  CSS 60 kB raw / 18 kB gz, entry 180 kB raw / 55 kB gz and the 520 kB largest-chunk caps are
+  **unchanged**.
+- Measured: **~`386,0xx B`** gzip — about `2 kB` of headroom, which is what a working gate
+  needs. Phase 07 must still treat the precache as full: the runner's wasm belongs in the
+  runtime bucket, never in the shell.
+- **Phase v2-09 still owns the cap review.** It is expected to tighten it again once the
+  browser runner lands; this is a one-phase re-baseline, not a permanent 386 kB ceiling.
+
+### Theatre architecture choices
+
+- **Our chrome never touches the player.** The IFrame player is the official, unmodified
+  embed (`enablejsapi=1` + `origin`, `rel=0`, `iv_load_policy=3`, `playsinline=1`,
+  `cc_load_policy=1`, `host=youtube-nocookie`, `start=` for `?t=`). Our control bar is a
+  separate row *below* the 16:9 box; `e2e/theatre.spec.ts` asserts the bar's top edge is at or
+  below the frame's bottom edge. Ads remain the browser's business, as decided.
+- **`f` fill-screen is not shipped.** It was implemented (fixed overlay, bar still under the
+  frame) and then removed: to be usable it needed overlay CSS that fought the 16:9
+  letterboxing, and YouTube's own player already has a correct full-screen control that we
+  must not shadow or replace (ToS §4.13). The remaining keys are `space`/`k`, `←`/`→`, `c`,
+  `s` and `n`; `f` is the one phase-contract item consciously dropped, and the phase record
+  says so.
+- **The problem page's tab is URL state** (`#/problem/<id>?tab=code`). The phase-04 code
+  screen's "Open problem" row relies on landing with the solution in view, and "every view
+  has a URL" is a standing rule, so the tab had to graduate from component state.
+- **The tab strip is phone-only UI; the tab itself is never phone-only.** Above 1080 px the
+  strip is `display: none`, because the rail carries the same two destinations (the stamps
+  list and `⌨ Code`) and a second control would be duplicate navigation. It was briefly kept
+  in the DOM as a 1×1 `clip-path` box to stay keyboard-operable; that was removed after CI
+  showed it still intercepting pointer events — a control that is invisible but in the way is
+  worse than no control. Because the tab is the address, nothing is lost at any width, and
+  the screen listens for `hashchange` so back/forward and pasted deep links land on the panel
+  they name.
+- **An editor is keyed by identity, never by a save timestamp.** Keying `CodeEditor` on
+  `problemId-updatedAt` made every save remount it, discarding whatever was typed after the
+  save and (on a slow snapshot) unmounting the panel mid-read. `updatedAt` is data, not
+  identity.
+- **Stamps live in the snippet document** (`snippets[id].moments`), not a new collection:
+  ≤30 per snippet, `text` ≤140 chars, `at` 0–86 400, `createdAt` ISO. They ride the read
+  Phase 04 already performs, so no new document, no new quota path and no new sync concern.
+  Rules **v8** whitelist the keys; backup **v7** carries them and still reads 1–7.
+- **Metadata is build-time only.** `tools/fetch-media.mjs` queries oEmbed once per unique
+  video and `vite.config.ts` folds `data/media/` into the existing content bundle. The runtime
+  never calls oEmbed, so real titles work in Airplane Mode with no CORS surface. When the
+  build machine has no egress (this sandbox), the tool writes nothing — no guessed metadata is
+  ever committed.
+- **The theatre screens are lazy, the models are eager.** `problemPage`/`stage`/`stamps`/
+  `player` load with the `content-ui` route chunk on `#/problem/<id>`; the models
+  (`video.ts`, `speedMemory.ts`, `stamps.ts`) and the mini player stay eager because a video
+  that keeps playing must be able to dock on any route. Entry JS therefore stays at
+  `32.84 kB` gzip.
+

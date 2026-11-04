@@ -1,7 +1,6 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
-import { open, openTopic } from './helpers'
+import { open, openTopic, auditPage } from './helpers'
 
 /**
  * Phase v2-04 "Done means" in CI, at phone width against the Auth +
@@ -11,6 +10,37 @@ import { open, openTopic } from './helpers'
  * v5 backup and the v4 notes migration (with its printed warning) import.
  */
 const emulatorProject = 'demo-dsa-archive'
+const firestore = `http://127.0.0.1:8080/v1/projects/${emulatorProject}/databases/(default)/documents`
+
+/**
+ * The signed-in learner's uid, read from the emulator's owner-token REST API
+ * (the same access `planner.spec.ts` uses). Retried because the profile document
+ * appears a moment after sign-in.
+ */
+async function ownerUid(): Promise<string> {
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    const response = await fetch(`${firestore}/users`, {
+      headers: { Authorization: 'Bearer owner' },
+    })
+    if (response.ok) {
+      const body = (await response.json()) as { documents?: { name: string }[] }
+      const name = body.documents?.[0]?.name
+      if (name) return name.split('/').pop()!
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+  throw new Error('the signed-in profile document never appeared')
+}
+
+/** The saved `code` field of one snippet, straight from the emulator. */
+async function readSnippetCode(uid: string, problemId: string): Promise<string | null> {
+  const response = await fetch(`${firestore}/users/${uid}/snippets/${problemId}`, {
+    headers: { Authorization: 'Bearer owner' },
+  })
+  if (!response.ok) return null
+  const body = (await response.json()) as { fields?: { code?: { stringValue?: string } } }
+  return body.fields?.code?.stringValue ?? null
+}
 const phone = { width: 390, height: 844 }
 
 test.skip(!process.env.PLAYWRIGHT_EMULATOR, 'Requires the Firebase Emulator Suite in CI')
@@ -105,7 +135,9 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
 
     // --- peek: hidden (and aria-hidden) until revealed ----------------------
     await page.getByTestId('code-open-two-sum').click({ timeout: 15_000 })
-    await expect(page.getByTestId('code-panel')).toBeVisible()
+    // Phase 06: the problem page is a theatre with three tabs, and the phase-04
+    // row deep-links the Code tab so the reader lands on the solution.
+    await expect(page.getByTestId('code-panel')).toBeVisible({ timeout: 15_000 })
     await expect(page.getByTestId('peek-code')).toHaveAttribute('aria-hidden', 'true')
     await page.screenshot({ path: 'test-results/code-peek-phone.png', fullPage: true })
     await page.getByTestId('peek-reveal').click({ timeout: 15_000 })
@@ -121,32 +153,44 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await expect(secondPage.getByTestId('signed-in-banner')).toContainText('CI Owner')
     await open(secondPage, '/#/code')
     await expect(secondPage.getByTestId('code-row-two-sum')).toContainText('Two Sum')
-    await open(secondPage, '/#/problem/two-sum')
+    await open(secondPage, '/#/problem/two-sum?tab=code')
     await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('peek-code')).toContainText('vector<int> twoSum()')
 
     // --- offline save queues, then syncs on reconnect -----------------------
     await firstContext.setOffline(true)
     await page.evaluate(() => window.dispatchEvent(new Event('offline')))
-    await open(page, '/#/problem/two-sum')
+    await open(page, '/#/problem/two-sum?tab=code')
     await page.getByTestId('code-edit').click({ timeout: 15_000 })
     await page.getByTestId('code-input').fill('// offline edit\nclass Solution {};', { timeout: 15_000 })
     await page.getByTestId('code-save').click({ timeout: 15_000 })
     await expect(page.getByTestId('code-save-status')).toContainText('Offline — will sync')
     await firstContext.setOffline(false)
     await page.evaluate(() => window.dispatchEvent(new Event('online')))
-    await expect(page.getByTestId('code-save-status')).toContainText('Saved', { timeout: 20_000 })
-    // Device 2 was left on the problem page with this peek already revealed;
-    // leave and come back so the panel remounts and the peek hides again
-    // (reveal state is session-local), then reveal the synced offline edit.
+    // Coming back online must flush the queued write. Assert *server truth* by
+    // reading the emulator document directly (the same owner-token REST access
+    // `planner.spec.ts` uses): the cached snapshot can report whatever it likes
+    // and the editor deliberately stays open after a save, so neither the status
+    // label nor the mounted panel proves the write left the browser.
+    const uid = await ownerUid()
+    await expect
+      .poll(
+        async () => readSnippetCode(uid, 'two-sum'),
+        { timeout: 45_000, message: 'the offline write never reached the server' },
+      )
+      .toContain('offline edit')
+    // Then prove the read side where it means something: device 2, a separate
+    // browser profile that never held this draft. It was left with the peek
+    // revealed; leave and come back so the panel remounts and the peek hides
+    // again (reveal state is session-local), then reveal the synced draft.
     await open(secondPage, '/#/code')
     await expect(secondPage.getByTestId('code-row-two-sum')).toBeVisible()
-    await open(secondPage, '/#/problem/two-sum')
+    await open(secondPage, '/#/problem/two-sum?tab=code')
     await expect(secondPage.getByTestId('peek-code')).toHaveAttribute('aria-hidden', 'true')
     await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
-    await expect(secondPage.getByTestId('peek-code')).toContainText('offline edit')
+    await expect(secondPage.getByTestId('peek-code')).toContainText('offline edit', { timeout: 30_000 })
 
-    // --- backup v5 carries snippets; a v4 notes file migrates with warning --
+    // --- backup v7 carries snippets + stamps; a v4 notes file migrates ----
     await open(secondPage, '/#/settings')
     await expect(secondPage.getByTestId('account-panel')).toBeVisible()
     await expect(secondPage.getByTestId('account-panel')).toContainText('1 saved solution')
@@ -156,11 +200,14 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     const path = await download.path()
     expect(path).toBeTruthy()
     const backup = JSON.parse(await readFile(path!, 'utf8'))
-    expect(backup.schemaVersion).toBe(6)
+    expect(backup.schemaVersion).toBe(7)
     expect(backup.notes).toBeUndefined()
     expect(backup.snippets).toHaveLength(1)
     expect(backup.snippets[0]).toMatchObject({ problemId: 'two-sum', language: 'cpp' })
     expect(backup.snippets[0].code).toContain('offline edit')
+    // v7 (phase v2-06) adds `moments`, the video stamps. The field is optional,
+    // so a snippet written before the theatre existed still round-trips.
+    expect(backup.snippets[0].moments ?? []).toEqual([])
 
     const { snippets: _dropped, ...withoutSnippetsKey } = backup
     const legacyV4 = {
@@ -188,20 +235,20 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await open(secondPage, '/#/code')
     await expect(secondPage.getByTestId('code-row-linear-search')).toContainText('Linear Search')
     await expect(secondPage.getByTestId('code-row-two-sum')).toHaveCount(0)
-    await open(secondPage, '/#/problem/linear-search')
+    await open(secondPage, '/#/problem/linear-search?tab=code')
     await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
     await expect(secondPage.getByTestId('peek-code')).toContainText('for (int i = 0')
 
     await open(secondPage, '/#/code')
     await secondPage.screenshot({ path: 'test-results/code-list-phone.png', fullPage: true })
     const phoneAudit = await Promise.race([
-      new AxeBuilder({ page: secondPage }).analyze(),
+      auditPage(secondPage).analyze(),
       new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('axe timed out on #/code')), 60_000)),
     ])
     expect(phoneAudit.violations).toEqual([])
-    await open(secondPage, '/#/problem/linear-search')
+    await open(secondPage, '/#/problem/linear-search?tab=code')
     const problemAudit = await Promise.race([
-      new AxeBuilder({ page: secondPage }).analyze(),
+      auditPage(secondPage).analyze(),
       new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('axe timed out on the problem page')), 60_000)),
     ])
     expect(problemAudit.violations).toEqual([])

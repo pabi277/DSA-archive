@@ -1,6 +1,5 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
-import { open, openTopic } from './helpers'
+import { open, openTopic, auditPage } from './helpers'
 
 /**
  * Phase 1 acceptance, re-checked against the v2 shell (phase v2-01): the full
@@ -43,7 +42,7 @@ test('the full sheet is browsable signed out and rows keep their actions (1.1 + 
   }
 
   await page.screenshot({ path: 'test-results/sheet-desktop.png', fullPage: true })
-  const desktopAudit = await new AxeBuilder({ page }).analyze()
+  const desktopAudit = await auditPage(page).analyze()
   expect(desktopAudit.violations).toEqual([])
 })
 
@@ -117,6 +116,6 @@ test('the sheet is usable at phone width in light and large-text variants', asyn
   expect(fitsPhone).toBe(true)
 
   await page.screenshot({ path: 'test-results/sheet-phone-light.png', fullPage: true })
-  const phoneAudit = await new AxeBuilder({ page }).analyze()
+  const phoneAudit = await auditPage(page).analyze()
   expect(phoneAudit.violations).toEqual([])
 })
