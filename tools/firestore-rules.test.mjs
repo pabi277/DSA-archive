@@ -1,6 +1,6 @@
 /**
  * Firestore Security Rules — Emulator Suite proof (roadmap 2.3, extended in
- * phases 3.1/3.3 and 4.1/4.2).
+ * phases 3.3, 4.1/4.2 and v2-04 rules v6).
  * Run by `npm run test:emulator`; CI starts Auth + Firestore emulators first.
  *
  * No Admin SDK and no service-account key: @firebase/rules-unit-testing
@@ -89,10 +89,11 @@ function progressWrite(problemId, value) {
   return { [problemId]: value, updatedAt: serverTimestamp() }
 }
 
-function noteDoc(overrides = {}) {
+function snippetDoc(overrides = {}) {
   return {
-    markdown: '## Two sum\nUse a **hash map** and store the complement.',
-    snippet: 'const seen = new Map()',
+    language: 'js',
+    code: 'const seen = new Map()',
+    notes: 'Store the complement.',
     updatedAt: serverTimestamp(),
     ...overrides,
   }
@@ -102,7 +103,12 @@ function listDoc(problemIds = [arraysIds[0], arraysIds[1]], overrides = {}) {
   return { title: 'Interview warmup', problemIds, updatedAt: serverTimestamp(), ...overrides }
 }
 
-function noteRef(db, uid, problemId = arraysIds[0]) {
+function snippetRef(db, uid, problemId = arraysIds[0]) {
+  return doc(db, `users/${uid}/snippets/${problemId}`)
+}
+
+/** The removed v1 collection: every access must now be default-denied. */
+function legacyNoteRef(db, uid, problemId = arraysIds[0]) {
   return doc(db, `users/${uid}/notes/${problemId}`)
 }
 
@@ -278,47 +284,68 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
   })
 })
 
-describe('Firestore rules v2 — phase-3 notes (3.1)', () => {
-  it('lets the owner write, list, update and delete notes; strangers are denied', async () => {
+describe('Firestore rules v6 — phase v2-04 saved solutions (snippets)', () => {
+  it('lets the owner write, list, update and delete snippets; strangers are denied', async () => {
     const alice = env.authenticatedContext('alice').firestore()
     const bob = env.authenticatedContext('bob').firestore()
     const stranger = env.unauthenticatedContext().firestore()
 
-    await assertSucceeds(setDoc(noteRef(alice, 'alice'), noteDoc()))
-    const snap = await assertSucceeds(getDoc(noteRef(alice, 'alice')))
-    assert.equal(snap.data().markdown.includes('hash map'), true)
-    await assertSucceeds(getDocs(collection(alice, 'users/alice/notes')))
+    await assertSucceeds(setDoc(snippetRef(alice, 'alice'), snippetDoc()))
+    const snap = await assertSucceeds(getDoc(snippetRef(alice, 'alice')))
+    assert.equal(snap.data().code.includes('new Map()'), true)
+    await assertSucceeds(getDocs(collection(alice, 'users/alice/snippets')))
     await assertSucceeds(
-      setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: 'Shrunk note' }), { merge: true }),
+      setDoc(snippetRef(alice, 'alice'), snippetDoc({ code: 'class Solution {}', language: 'cpp' }), { merge: true }),
     )
-    await assertSucceeds(deleteDoc(noteRef(alice, 'alice')))
+    await assertSucceeds(deleteDoc(snippetRef(alice, 'alice')))
 
-    await assertFails(getDoc(noteRef(bob, 'alice')))
-    await assertFails(getDocs(collection(bob, 'users/alice/notes')))
-    await assertFails(setDoc(noteRef(bob, 'alice'), noteDoc()))
-    await assertFails(deleteDoc(noteRef(bob, 'alice')))
-    await assertFails(getDoc(noteRef(stranger, 'alice')))
-    await assertFails(setDoc(noteRef(stranger, 'alice'), noteDoc()))
+    await assertFails(getDoc(snippetRef(bob, 'alice')))
+    await assertFails(getDocs(collection(bob, 'users/alice/snippets')))
+    await assertFails(setDoc(snippetRef(bob, 'alice'), snippetDoc()))
+    await assertFails(deleteDoc(snippetRef(bob, 'alice')))
+    await assertFails(getDoc(snippetRef(stranger, 'alice')))
+    await assertFails(setDoc(snippetRef(stranger, 'alice'), snippetDoc()))
   })
 
-  it('validates note field types, size caps, doc ids and the empty-note rule', async () => {
+  it('validates language/verdict enums, size caps, doc ids and the empty-snippet rule', async () => {
     const alice = env.authenticatedContext('alice').firestore()
 
-    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: 'x'.repeat(5001) })))
-    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ snippet: 'x'.repeat(8001) })))
-    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ extra: 'field' })))
-    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: 42 })))
-    await assertFails(setDoc(noteRef(alice, 'alice'), { markdown: 'no snippet key' }))
-    // An all-empty note must be deleted instead of stored (the client does).
-    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: '', snippet: '' })))
-    await assertFails(setDoc(noteRef(alice, 'alice'), noteDoc({ updatedAt: '2026-11-02T00:00:00.000Z' })))
-    await assertFails(setDoc(noteRef(alice, 'alice', 'Not A Slug!'), noteDoc()))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ language: 'cobol' })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ verdict: 'lucky-guess' })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ code: 'x'.repeat(8001) })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ notes: 'x'.repeat(501) })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ extra: 'field' })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ code: 42 })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), { language: 'js', code: 'no notes key' }))
+    // An all-empty snippet must be deleted instead of stored (the client does).
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ code: '', notes: '' })))
+    await assertFails(setDoc(snippetRef(alice, 'alice'), snippetDoc({ updatedAt: '2026-11-02T00:00:00.000Z' })))
+    await assertFails(setDoc(snippetRef(alice, 'alice', 'Not A Slug!'), snippetDoc()))
 
-    // A snippet-only note is a real note; the row shows the code card.
+    // Every language, an optional verdict, note-only and full-size code pass.
+    for (const language of ['cpp', 'c', 'java', 'python', 'js', 'ts', 'go', 'rust', 'other']) {
+      await assertSucceeds(setDoc(snippetRef(alice, 'alice'), snippetDoc({ language, verdict: 'hint' })))
+    }
     await assertSucceeds(
-      setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: '', snippet: 'while (lo < hi) {}' })),
+      setDoc(snippetRef(alice, 'alice'), snippetDoc({ code: '', notes: 'Reminder before I re-solve it.' })),
     )
-    await assertSucceeds(setDoc(noteRef(alice, 'alice'), noteDoc({ markdown: 'x'.repeat(5000) })))
+    await assertSucceeds(setDoc(snippetRef(alice, 'alice'), snippetDoc({ code: 'x'.repeat(8000), notes: 'y'.repeat(500) })))
+    // Synthetic drill ids are catalogue-shaped slugs and can hold solutions.
+    assert.ok(arraysDrillId, 'an arrays practice drill must exist')
+    await assertSucceeds(setDoc(snippetRef(alice, 'alice', arraysDrillId), snippetDoc()))
+  })
+
+  it('proves the removed notes collection is default-denied, even for its owner', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    await assertFails(
+      setDoc(legacyNoteRef(alice, 'alice'), {
+        markdown: '## Two sum',
+        snippet: 'const seen = new Map()',
+        updatedAt: serverTimestamp(),
+      }),
+    )
+    await assertFails(getDoc(legacyNoteRef(alice, 'alice')))
+    await assertFails(getDocs(collection(alice, 'users/alice/notes')))
   })
 })
 
@@ -478,14 +505,14 @@ describe('Firestore rules v4 — invitation and summary privacy', () => {
     await assertSucceeds(batch.commit())
     await assertSucceeds(setDoc(doc(alice, 'users/alice'), { shareSummary: true, updatedAt: serverTimestamp() }, { merge: true }))
     await assertSucceeds(setDoc(summaryRef, summary))
-    await assertFails(setDoc(summaryRef, { ...summary, notes: 'private' }))
+    await assertFails(setDoc(summaryRef, { ...summary, snippets: 'private' }))
     await assertFails(setDoc(summaryRef, { ...summary, solvedCount: 5 }))
     await assertSucceeds(getDoc(doc(bob, 'users/alice/public/summary')))
     await assertFails(getDoc(doc(eve, 'users/alice/public/summary')))
     await assertFails(getDoc(doc(anon, 'users/alice/public/summary')))
     await assertFails(getDoc(doc(bob, 'users/alice')))
-    await assertFails(getDoc(noteRef(bob, 'alice')))
-    await assertFails(getDocs(collection(bob, 'users/alice/notes')))
+    await assertFails(getDoc(snippetRef(bob, 'alice')))
+    await assertFails(getDocs(collection(bob, 'users/alice/snippets')))
     await assertFails(getDoc(ref(bob, 'alice')))
     await assertFails(getDocs(collection(bob, 'users/alice/progressByTopic')))
     await assertSucceeds(setDoc(doc(alice, 'users/alice'), { shareSummary: false, updatedAt: serverTimestamp() }, { merge: true }))

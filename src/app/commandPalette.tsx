@@ -123,11 +123,10 @@ export function buildActions(config: PaletteConfig): PaletteAction[] {
   const routes: { label: string; name: Parameters<typeof navigate>[0]; detail: string }[] = [
     { label: 'Today', name: 'today', detail: 'Planned rows and the daily goal' },
     { label: 'Topics', name: 'topics', detail: 'All 20 topics' },
-    { label: 'Code', name: 'code', detail: 'Saved solutions' },
+    { label: 'Code', name: 'code', detail: 'Your saved solutions, searchable' },
     { label: 'Review', name: 'review', detail: 'Revision queue' },
     { label: 'Search the sheet', name: 'search', detail: 'Search and filter 495 rows' },
     { label: 'My lists', name: 'lists', detail: 'Custom lists' },
-    { label: 'Notes', name: 'notes', detail: 'Your written notes and snippets' },
     { label: 'Stats', name: 'stats', detail: 'Streak and weekly counts' },
     { label: 'Friends', name: 'friends', detail: 'Opt-in summaries' },
     { label: 'Settings', name: 'settings', detail: 'Theme, density, backup' },

@@ -630,3 +630,47 @@
 - **Visual baselines remain a human gate.** The matrix grows from 32 to 48 generated
   baselines (statement, hint open, primer, practice grid added); owner visual review
   remains outstanding before merge.
+
+## Phase v2-04 implementation choices (2026-11-04)
+
+- **No owner answer was changed.** "Notes section removed → Code section" (2026-11-03)
+  is implemented as recorded; snippets stay private (own-data path only, never in
+  `public/summary`, never shared with friends by default), and snippets require
+  sign-in while the sheet keeps working signed out — the same split lists already had.
+- **Explicit save, no autosave.** The editor saves on the Save button or ⌘S/Ctrl+S;
+  the `Saving… / Saved ✓ / Offline — will sync` line is driven by the Firestore
+  snapshot's `hasPendingWrites` plus `navigator.onLine` read at render (no listener
+  state, no awaited writes), so an offline save queues in the persistent cache and
+  syncs on reconnect exactly like progress. Saving an emptied solution deletes it.
+- **The verdict is runner data, not an editor picker.** `verdict`
+  (`clean|hint|couldnt`, the same enum as progress `o`) records how the last run went.
+  The Phase 04 editor preserves an existing verdict untouched and the UI displays it
+  as a chip; writing it belongs to the Phase 07 runner. A verdict picker in the
+  editor was cut — it is outside the Phase 04 editor spec and the frozen shell
+  budget left no room for extras.
+- **`#/notes` is gone, not redirected.** The route, nav item and palette destination
+  were deleted with the feature; an old `#/notes` bookmark lands on the designed
+  not-found screen. There is no nested `#/problem/<id>/code` route — code lives in
+  the problem page's panel and at `#/code`.
+- **Legacy backup migration is lossless for code, honest about markdown.** Schemas
+  1–4 still import. A legacy note's `snippet` field was already code and becomes
+  `code` byte-for-byte (`language: "other"`); the markdown body is dropped except a
+  ≤500-char plain-text tail kept as the reminder, and every shortened note's id is
+  named in a printed import warning. Progress outcomes are preserved. A pre-v5 file
+  claiming `snippets`, or a v5 file claiming `notes`, is refused, not guessed.
+- **The frozen 380 kB shell cap was met, not moved — by 35 bytes.** Landing at
+  379,965 B gzip took dead-code deletion (the never-imported v1 `SheetList.tsx`,
+  already-tree-shaken placeholder bodies, dead CSS), scope-minimum choices (no
+  title-sort on `#/code` — newest first per the PLAN scope text; `⌨ has code` badge
+  on sheet/topic rows, not drill rows; clipboard-API-only copy; CSS
+  `content-visibility` instead of JS windowing for 631 rows), and a build-baseline
+  tightening (modulepreload polyfill off, `target: 'esnext'` — the app already
+  requires evergreen browsers for React 19 + PWA; pinning `es2022` instead costs
+  ~38 B and would tip the shell over the cap). The optional `highlight.ts`
+  tokenizer was skipped. The next phase must budget against equal cuts or stop
+  for a cap gate — the approved one-time re-baseline remains Phase 09's.
+- **Visual baselines remain a human gate.** The matrix grows from 48 to 56
+  baselines (signed-out `code` and `problem-code` routes added), generated in CI
+  as artifacts for owner review per the standing flow; contentful signed-in
+  editor/peek shots ride in the emulator spec's screenshots. Owner visual review
+  remains outstanding before merge.

@@ -11,6 +11,7 @@ import { drillsForTopic, type Drill } from '../content/practice'
 import { levelOf } from '../sheet'
 import { isDone, type Outcome, type ProgressByTopic } from '../progress'
 import { buildPath, navigate } from '../app/router'
+import type { SnippetsById } from '../code/codeStore'
 import { learningOrderedSubtopics } from './learnOrder'
 
 export type TopicTab = 'learn' | 'practice' | 'quiz'
@@ -18,6 +19,8 @@ export type PracticeFilter = 'all' | 'not-started' | 'shaky' | 'done'
 
 export type TopicPageProps = {
   topicId: string
+  /** Saved solutions, for the `⌨ has code` row badge (v2-04). */
+  snippets?: SnippetsById
   tabQuery?: string
   progress: ProgressByTopic
   entries: CloudProgressByTopic
@@ -228,8 +231,8 @@ function PracticePanel(props: TopicPageProps & { topic: Topic }) {
                           revealed={false}
                           focused={false}
                           age={ageLabel(entry?.lr ?? entry?.fd, props.today)}
-                          canEditNotes={false}
-                          hasNote={false}
+                          canEditCode={false}
+                          hasCode={Boolean(props.snippets?.[problem.id])}
                           listCount={0}
                           onToggleStatus={props.onToggleStatus}
                           onToggleBookmark={props.onToggleBookmark}

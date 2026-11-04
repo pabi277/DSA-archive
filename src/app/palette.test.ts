@@ -57,9 +57,10 @@ describe('palette ranking (§3.10)', () => {
       (sum, topic) => sum + topic.subtopics.reduce((inner, subtopic) => inner + subtopic.problems.length, 0),
       0,
     )
-    // 10 destinations: the 4 primary areas, search, lists, notes, stats,
-    // friends and settings. Not-found is deliberately not a destination.
-    expect(groups('Go to')).toHaveLength(10)
+    // 9 destinations: the 4 primary areas, search, lists, stats, friends
+    // and settings. Not-found is deliberately not a destination, and the
+    // old notes destination was deleted with that feature in v2-04.
+    expect(groups('Go to')).toHaveLength(9)
     expect(groups('Topic')).toHaveLength(catalogue.topics.length)
     expect(groups('Problem')).toHaveLength(rows)
     expect(groups('Action').length).toBeGreaterThanOrEqual(10)

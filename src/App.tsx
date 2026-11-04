@@ -20,13 +20,14 @@ import {
   type RandomPick,
   type SheetQuery,
 } from './sheet'
-import { NoteEditor } from './NoteEditor'
-import { NotesView } from './NotesView'
 import { ListsView } from './ListsView'
 import { ListPicker } from './ListPicker'
 import { locateProblem, sortLists } from './library'
 import { useAccount } from './account'
 import { useLibrary } from './libraryData'
+import { useCode } from './code/codeData'
+import { CodeScreen } from './code/codeScreen'
+import { CodePanel } from './code/editor'
 import { useAccountData } from './accountData'
 import { usePlanner } from './plannerData'
 import { useFriends } from './friendsData'
@@ -52,7 +53,6 @@ import { SheetScreen, WINDOW_SIZE, topicRingValue } from './app/sheetScreen'
 import { TopicsScreen } from './app/topicsScreen'
 import { TopicPage } from './topics/topicPage'
 import {
-  CodeScreen,
   InsightsScreen,
   NotFoundScreen,
   QuizHome,
@@ -85,7 +85,6 @@ const ROUTE_TITLES: Record<RouteName, string> = {
   insights: 'Insights',
   settings: 'Settings',
   lists: 'My lists',
-  notes: 'Notes',
   friends: 'Friends',
   stats: 'Stats',
   'not-found': 'Page not found',
@@ -113,8 +112,11 @@ function AppShell() {
   const installPrompt = useInstallPrompt()
   const account = useAccount()
   const library = useLibrary(account)
+  const code = useCode(account)
+  const codeSync = { busy: code.busy, pending: code.pending, online: code.online }
+  const codeCount = Object.keys(code.snippets).length
   const planner = usePlanner(account)
-  const data = useAccountData(account, library, planner)
+  const data = useAccountData(account, library, code, planner)
   const friends = useFriends(account, data.entries, data.cloudReady, planner.today)
   const { progress, settings: syncedSettings } = data
   void syncedSettings
@@ -128,12 +130,11 @@ function AppShell() {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [shortcutsOpen, setShortcutsOpen] = useState(false)
   const [searchSignal, setSearchSignal] = useState(0)
-  const [rowPanel, setRowPanel] = useState<{ problemId: string; kind: 'note' | 'lists' } | null>(null)
+  const [rowPanel, setRowPanel] = useState<{ problemId: string; kind: 'code' | 'lists' } | null>(null)
   const [openTopics, setOpenTopics] = useState<ReadonlySet<string>>(() => new Set())
   const [pick, setPick] = useState<RandomPick | null>(null)
   const [revealed, setRevealed] = useState<string | null>(null)
   const [sessionMinutes, setSessionMinutes] = useState<number | null>(null)
-  const [noteQuery, setNoteQuery] = useState('')
   const triageFocus = useTriageFocus()
 
   /* --- routing ----------------------------------------------------------- */
@@ -161,13 +162,13 @@ function AppShell() {
     return unsubscribe
   }, [])
 
-  // Old v1 bookmarks were path-based (`/notes`); translate them to hash routes.
+  // Old v1 bookmarks were path-based (`/lists`); translate them to hash routes.
+  // `/notes` is deliberately absent: that feature was deleted in v2-04.
   useEffect(() => {
     if (typeof window === 'undefined') return
     const path = window.location.pathname.replace(/\/+$/, '')
     if (path && path !== '' && path !== '/index.html' && !window.location.hash) {
       const map: Record<string, RouteName> = {
-        '/notes': 'notes',
         '/lists': 'lists',
         '/today': 'today',
         '/sheet': 'search',
@@ -229,9 +230,10 @@ function AppShell() {
 
   const signedIn = account.status === 'signed-in'
   const progressDisabled = (signedIn && !data.cloudReady) || data.busy
-  const error = data.error ?? planner.error ?? library.error
-  const notice = data.notice ?? planner.notice ?? library.notice
-  const syncLabel = data.syncState === 'synced' && library.pending ? 'Changes pending' : data.syncLabel
+  const error = data.error ?? planner.error ?? library.error ?? code.error
+  const notice = data.notice ?? planner.notice ?? library.notice ?? code.notice
+  const syncLabel =
+    data.syncState === 'synced' && (library.pending || code.pending) ? 'Changes pending' : data.syncLabel
   const syncTone =
     data.syncState === 'error'
       ? 'danger'
@@ -389,23 +391,26 @@ function AppShell() {
 
   /* --- panel renderers --------------------------------------------------- */
 
-  const renderPanel = (problemId: string, kind: 'note' | 'lists') => {
+  const renderPanel = (problemId: string, kind: 'code' | 'lists') => {
     const location = locateProblem(problemId)
     if (!location) return null
-    if (kind === 'note') {
-      const note = library.notes[problemId] ?? null
+    if (kind === 'code') {
+      const snippet = code.snippets[problemId] ?? null
       return (
-        <NoteEditor
-          key={`${problemId}-${note?.updatedAt ?? 'new'}`}
+        <CodePanel
+          key={`${problemId}-${snippet?.updatedAt ?? 'new'}`}
           problemId={problemId}
           problemTitle={location.problem.title}
-          note={note}
-          disabled={library.busy || !library.signedIn}
-          onSave={(markdown, snippet) => {
-            void library.saveNote(problemId, markdown, snippet)
+          snippet={snippet}
+          signedIn={code.signedIn}
+          disabled={code.busy || !code.signedIn}
+          sync={codeSync}
+          initialMode="edit"
+          onSave={(draft) => {
+            void code.saveSnippet(problemId, draft)
           }}
           onDelete={() => {
-            void library.deleteNote(problemId)
+            void code.deleteSnippet(problemId)
           }}
           onClose={() => setRowPanel(null)}
         />
@@ -433,7 +438,7 @@ function AppShell() {
   const navCounts = {
     today: `${dayTally.movedToday}/${dayTally.goal}`,
     topics: `${tally.done}/${tally.total}`,
-    code: undefined,
+    code: codeCount > 0 ? String(codeCount) : undefined,
     review: queue.due.length > 0 ? String(queue.due.length) : undefined,
   }
 
@@ -530,6 +535,7 @@ function AppShell() {
                       data.dismissError()
                       planner.dismissError()
                       library.dismissError()
+                      code.dismissError()
                     }}
                   >
                     Dismiss
@@ -553,6 +559,7 @@ function AppShell() {
                       data.dismissNotice()
                       planner.dismissNotice()
                       library.dismissNotice()
+                      code.dismissNotice()
                     }}
                   >
                     Dismiss
@@ -594,7 +601,7 @@ function AppShell() {
                 testId="signed-in-banner"
                 title={`Signed in as ${account.user.displayName}`}
               >
-                Progress, notes and lists follow this account · offline changes sync on reconnect
+                Progress, saved code and lists follow this account · offline changes sync on reconnect
               </Banner>
             ) : null}
 
@@ -622,7 +629,7 @@ function AppShell() {
                 }
               >
                 Guest rows stay on this device until you choose to merge them. Browse and search signed out —
-                progress, notes and lists follow an account.
+                progress, saved code and lists follow an account.
               </Banner>
             ) : null}
 
@@ -701,7 +708,7 @@ function AppShell() {
                   )
                 }
                 renderPanel={renderPanel}
-                notes={library.notes}
+                snippets={code.snippets}
                 lists={library.lists}
                 signedIn={library.signedIn}
                 onToggleStatus={onToggleStatus}
@@ -723,6 +730,7 @@ function AppShell() {
             {route.name === 'topics' ? <TopicsScreen progress={progress} entries={data.entries} today={today} /> : null}
             {route.name === 'topic' ? (
               <TopicPage
+                snippets={code.snippets}
                 topicId={route.param}
                 tabQuery={route.query.tab}
                 progress={progress}
@@ -737,8 +745,30 @@ function AppShell() {
                 onPlan={onPlan}
               />
             ) : null}
-            {route.name === 'problem' ? <ProblemScreen problemId={route.param} /> : null}
-            {route.name === 'code' ? <CodeScreen signedIn={signedIn} /> : null}
+            {route.name === 'problem' ? (
+              <ProblemScreen
+                problemId={route.param}
+                snippet={code.snippets[route.param] ?? null}
+                signedIn={code.signedIn}
+                codeDisabled={code.busy || !code.signedIn}
+                codeSync={codeSync}
+                onSaveCode={(draft) => {
+                  void code.saveSnippet(route.param, draft)
+                }}
+                onDeleteCode={() => {
+                  void code.deleteSnippet(route.param)
+                }}
+              />
+            ) : null}
+            {route.name === 'code' ? (
+              <CodeScreen
+                signedIn={code.signedIn}
+                ready={code.ready}
+                snippets={code.snippets}
+                query={route.query}
+                onOpenProblem={(problemId) => openProblem(problemId)}
+              />
+            ) : null}
             {route.name === 'practice' ? (
               <PracticeScreen
                 progress={progress}
@@ -796,23 +826,6 @@ function AppShell() {
                 />
             ) : null}
 
-            {/* Searchable notes keep their own URL in v2 (`#/notes`) even though
-                the v1 tab strip showed them beside lists. Nothing about the data
-                moved — only where the two lists are addressed. */}
-            {route.name === 'notes' ? (
-                <NotesView
-                  signedIn={library.signedIn}
-                  notes={library.notes}
-                  query={noteQuery}
-                  onQueryChange={setNoteQuery}
-                  onEdit={(problemId) => {
-                    navigate('search', '', { q: locateProblem(problemId)?.problem.title ?? '' })
-                    setRowPanel({ problemId, kind: 'note' })
-                  }}
-                  onOpen={(problemId) => openProblem(problemId)}
-                />
-            ) : null}
-
             {route.name === 'friends' ? <FriendsView friends={friends} today={today} /> : null}
 
             {route.name === 'settings' ? (
@@ -832,7 +845,7 @@ function AppShell() {
               <AccountPanel
                 account={account}
                 data={data}
-                noteTotal={Object.keys(library.notes).length}
+                codeTotal={codeCount}
                 listTotal={listChoices.length}
               />
             ) : null}
@@ -988,12 +1001,12 @@ function TodayScreen({
 function AccountPanel({
   account,
   data,
-  noteTotal,
+  codeTotal,
   listTotal,
 }: {
   account: ReturnType<typeof useAccount>
   data: ReturnType<typeof useAccountData>
-  noteTotal: number
+  codeTotal: number
   listTotal: number
 }) {
   return (
@@ -1004,7 +1017,7 @@ function AccountPanel({
       </div>
       <p className="quiet-note">
         {data.cloudRows} cloud row{data.cloudRows === 1 ? '' : 's'} · {data.guestRows} guest row
-        {data.guestRows === 1 ? '' : 's'} · {noteTotal} note{noteTotal === 1 ? '' : 's'} · {listTotal} list
+        {data.guestRows === 1 ? '' : 's'} · {codeTotal} saved solution{codeTotal === 1 ? '' : 's'} · {listTotal} list
         {listTotal === 1 ? '' : 's'} · friends and summaries are excluded from backups.
       </p>
       <div className="inline-actions">
@@ -1033,9 +1046,15 @@ function AccountPanel({
             <strong>Backup looks valid</strong>
             <span>
               {data.importPreview.counts.rows} row{data.importPreview.counts.rows === 1 ? '' : 's'} across{' '}
-              {data.importPreview.counts.topics} topic{data.importPreview.counts.topics === 1 ? '' : 's'} · notes{' '}
-              {data.importPreview.counts.notes} · lists {data.importPreview.counts.lists} · plans{' '}
+              {data.importPreview.counts.topics} topic{data.importPreview.counts.topics === 1 ? '' : 's'} · saved
+              solutions {data.importPreview.counts.snippets} · lists {data.importPreview.counts.lists} · plans{' '}
               {data.importPreview.counts.plans}. Replacing happens only after confirmation.
+              {data.importPreview.warnings.map((warning) => (
+                <span key={warning} className="import-warning" data-testid="import-warning">
+                  {' '}
+                  {warning}
+                </span>
+              ))}
             </span>
           </div>
           <div className="banner-actions">

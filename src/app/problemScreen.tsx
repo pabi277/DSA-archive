@@ -1,6 +1,7 @@
 /**
  * `#/problem/<id>` — Phase 03 statement surface for catalogue rows and the
- * synthetic `lc-<n>` drills. Execution (quiz, theatre, runner) stays in its
+ * synthetic `lc-<n>` drills, plus the Phase v2-04 saved-solution panel
+ * (view with peek, or edit). Execution (quiz, theatre, runner) stays in its
  * own phase; this page never shows a dead primary control for it.
  */
 import { locateProblem } from '../library'
@@ -10,8 +11,26 @@ import { StatementCard } from '../content/statement'
 import { Button, Empty, Tag } from '../design/primitives'
 import { IconArrowLeft } from '../design/icons'
 import { buildPath } from './router'
+import { CodePanel, type CodeSync } from '../code/editor'
+import type { Snippet, SnippetDraft } from '../code/codeStore'
 
-export function ProblemScreen({ problemId }: { problemId: string }) {
+export function ProblemScreen({
+  problemId,
+  snippet,
+  signedIn,
+  codeDisabled,
+  codeSync,
+  onSaveCode,
+  onDeleteCode,
+}: {
+  problemId: string
+  snippet: Snippet | null
+  signedIn: boolean
+  codeDisabled: boolean
+  codeSync: CodeSync
+  onSaveCode: (draft: SnippetDraft) => void
+  onDeleteCode: () => void
+}) {
   const location = locateProblem(problemId)
   if (!location) {
     return (
@@ -61,6 +80,17 @@ export function ProblemScreen({ problemId }: { problemId: string }) {
       ) : null}
 
       <StatementCard problem={problem} />
+
+      <CodePanel
+        problemId={problemId}
+        problemTitle={problem.title}
+        snippet={snippet}
+        signedIn={signedIn}
+        disabled={codeDisabled}
+        sync={codeSync}
+        onSave={onSaveCode}
+        onDelete={onDeleteCode}
+      />
     </div>
   )
 }

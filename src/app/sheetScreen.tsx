@@ -2,7 +2,7 @@
  * `#/search` — the sheet, re-chromed for v2 (phase v2-01 §3.6 + §3.12).
  *
  * Everything the v1 sheet could do still works (search, topic/level/link
- * filters, list filter, random pick, weakest-topic hint, note/list panels). What
+ * filters, list filter, random pick, weakest-topic hint, code/list panels). What
  * changes is the shell around it: the query lives in the URL, rows use the v2
  * anatomy (`src/design/row.tsx`), and only a *window* of rows is mounted per open
  * topic.
@@ -34,7 +34,8 @@ import { setTriageFocus } from './triage'
 import { Button, Chip, Empty, Ring, Tag } from '../design/primitives'
 import { IconChevron, IconClose, IconFilter, IconSearch } from '../design/icons'
 import type { CloudProgressByTopic } from '../cloudProgress'
-import { sortLists, type CustomList, type ListsById, type NotesById } from '../library'
+import { sortLists, type CustomList, type ListsById } from '../library'
+import type { SnippetsById } from '../code/codeStore'
 import { locateProblem } from '../library'
 
 export const WINDOW_SIZE = 40
@@ -60,7 +61,7 @@ export function SheetScreen({
   rowPanel,
   onTogglePanel,
   renderPanel,
-  notes,
+  snippets,
   lists,
   signedIn,
   onToggleStatus,
@@ -87,10 +88,10 @@ export function SheetScreen({
   revealed: string | null
   onRandomPick: () => void
   onDismissPick: () => void
-  rowPanel: { problemId: string; kind: 'note' | 'lists' } | null
-  onTogglePanel: (problemId: string, kind: 'note' | 'lists') => void
-  renderPanel: (problemId: string, kind: 'note' | 'lists') => ReactNode
-  notes: NotesById
+  rowPanel: { problemId: string; kind: 'code' | 'lists' } | null
+  onTogglePanel: (problemId: string, kind: 'code' | 'lists') => void
+  renderPanel: (problemId: string, kind: 'code' | 'lists') => ReactNode
+  snippets: SnippetsById
   lists: ListsById
   signedIn: boolean
   onToggleStatus: (topicId: string, problemId: string) => void
@@ -301,7 +302,7 @@ export function SheetScreen({
               rowPanel={rowPanel}
               onTogglePanel={onTogglePanel}
               renderPanel={renderPanel}
-              notes={notes}
+              snippets={snippets}
               lists={lists}
               signedIn={signedIn}
               onToggleStatus={onToggleStatus}
@@ -331,7 +332,7 @@ function TopicGroup({
   rowPanel,
   onTogglePanel,
   renderPanel,
-  notes,
+  snippets,
   lists,
   signedIn,
   onToggleStatus,
@@ -349,10 +350,10 @@ function TopicGroup({
   today: string
   progressDisabled: boolean
   revealed: string | null
-  rowPanel: { problemId: string; kind: 'note' | 'lists' } | null
-  onTogglePanel: (problemId: string, kind: 'note' | 'lists') => void
-  renderPanel: (problemId: string, kind: 'note' | 'lists') => ReactNode
-  notes: NotesById
+  rowPanel: { problemId: string; kind: 'code' | 'lists' } | null
+  onTogglePanel: (problemId: string, kind: 'code' | 'lists') => void
+  renderPanel: (problemId: string, kind: 'code' | 'lists') => ReactNode
+  snippets: SnippetsById
   lists: ListsById
   signedIn: boolean
   onToggleStatus: (topicId: string, problemId: string) => void
@@ -449,8 +450,8 @@ function TopicGroup({
                   revealed={revealed === problem.id}
                   focused={triageFocus === problem.id}
                   age={ageLabel(entry?.lr ?? entry?.fd ?? null, today)}
-                  canEditNotes={signedIn}
-                  hasNote={Boolean(notes[problem.id])}
+                  canEditCode={signedIn}
+                  hasCode={Boolean(snippets[problem.id])}
                   listCount={Object.values(lists).filter((list) => list.problemIds.includes(problem.id)).length}
                   onToggleStatus={onToggleStatus}
                   onToggleBookmark={onToggleBookmark}

@@ -16,6 +16,10 @@ export default defineConfig({
   server: { allowedHosts: ['.e2b.app'] },
   preview: { allowedHosts: ['.e2b.app'] },
   build: {
+    // Modern-evergreen baseline (React 19 + PWA already require it): keeps
+    // the modulepreload polyfill and down-level helpers out of the shell.
+    target: 'esnext',
+    modulePreload: { polyfill: false },
     rolldownOptions: {
       output: {
         codeSplitting: {

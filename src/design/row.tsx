@@ -96,7 +96,7 @@ export function LeetCodeBadge({ problem }: { problem: Problem }) {
   return <span className="row-slug num">#{match[1]}</span>
 }
 
-export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, revealed, focused, age, canEditNotes, hasNote, listCount, onToggleStatus, onToggleBookmark, onSetOutcome, onOpen, onOpenPanel, onPlan, onFocus, listPosition, listSize, panel }: {
+export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, revealed, focused, age, canEditCode, hasCode, listCount, onToggleStatus, onToggleBookmark, onSetOutcome, onOpen, onOpenPanel, onPlan, onFocus, listPosition, listSize, panel }: {
   topicId: string
   topicTitle: string
   problem: Problem
@@ -105,14 +105,14 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
   revealed: boolean
   focused: boolean
   age: string | null
-  canEditNotes: boolean
-  hasNote: boolean
+  canEditCode: boolean
+  hasCode: boolean
   listCount: number
   onToggleStatus: (topicId: string, problemId: string) => void
   onToggleBookmark: (topicId: string, problemId: string) => void
   onSetOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
   onOpen: (problemId: string, mode: 'problem' | 'sheet') => void
-  onOpenPanel: (problemId: string, kind: 'note' | 'lists') => void
+  onOpenPanel: (problemId: string, kind: 'code' | 'lists') => void
   onPlan: (problemId: string) => void
   onFocus: (problemId: string) => void
   listPosition?: number
@@ -174,6 +174,9 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
           <span className="row-kind">{problem.kind === 'theory' ? 'Theory' : 'Problem'}</span>
           <span className="row-topic-label">{topicTitle}</span>
           <LeetCodeBadge problem={problem} />
+          {hasCode ? (
+            <Tag tone="neutral" data-testid={`has-code-${problem.id}`}>⌨ has code</Tag>
+          ) : null}
           {age ? <span className="row-age num">{age}</span> : null}
         </span>
       </div>
@@ -261,10 +264,10 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
               {LINK_LABELS_FOR_ROW[entry.linkType]} · {entry.publisher} · {problem.title}
             </MenuItem>
           ))}
-          {canEditNotes ? (
+          {canEditCode ? (
             <>
-              <MenuItem onClick={() => onOpenPanel(problem.id, 'note')} testId={`menu-note-${problem.id}`}>
-                {hasNote ? 'Edit note ✓' : 'Add note'}
+              <MenuItem onClick={() => onOpenPanel(problem.id, 'code')} testId={`menu-code-${problem.id}`}>
+                {hasCode ? 'Edit code ⌨' : 'Add code'}
               </MenuItem>
               <MenuItem onClick={() => onOpenPanel(problem.id, 'lists')} testId={`menu-lists-${problem.id}`}>
                 Lists{listCount > 0 ? ` · ${listCount}` : ''}

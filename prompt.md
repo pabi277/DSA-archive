@@ -78,17 +78,27 @@ Do **not** start coding before step 5 is read end-to-end.
   passed with emulator rules, Playwright phone/desktop, axe, bundle, and catalogue
   checks. All 20 topics, topic tabs/practice/outcomes, grouped search, and Today
   updates are implemented. No deployment occurred.
-- **v2-03 implementation complete; owner review/merge gate pending**: branch
-  `arena/cae52fb6-dsa-archive`; `schemaVersion: 2`, 495 ranked resource rows with ≥2
+- **v2-03 complete and merged**: PR #14 → `main` at `e51695a` (2026-11-03); `main` CI
+  run `41696457606` passed. `schemaVersion: 2`, 495 ranked resource rows with ≥2
   publishers, 420/495 exact-or-near LeetCode twins, 136 drills, 42 theory MCQ cards, one
   fully authored Arrays topic, statement/practice screens, coverage CI and a scheduled
-  link audit. Local `npm run build`, `npm test` (170), `test:data`, `check:content`,
-  `check:rules`, `check:dist`, `check:links`, `check:budgets` all green. CI run id, tip sha
-  and `site-preview` bytes are in
-  `docs/phases-v2/03-content-pipeline/RECORD.md`. PR
-  [#14](https://github.com/pabi277/DSA-archive/pull/14) is open; no merge, no deploy.
-- **v2-04 … v2-10 not started**: Phase 04 follows only after the owner reviews PR #14,
-  explicitly commands its merge, and starts a new chat. Its primer/statement/quiz-bank
+  link audit. Closure is recorded in `docs/phases-v2/03-content-pipeline/RECORD.md`.
+  No deployment occurred.
+- **v2-04 implementation complete; owner review/merge gate pending**: branch
+  `arena/25c78974-dsa-archive`; notes deleted end-to-end (UI, data layer, backup field,
+  rules block, `#/notes` route), `users/{uid}/snippets/{problemId}` under rules **v6**,
+  backup **v5** (schemas 1–4 still import; legacy code kept byte-for-byte, markdown
+  dropped with a named warning), `#/code` search + filters, the deliberately small
+  editor (line numbers, Tab/Enter indent, ⌘S, snapshot-driven save status),
+  peek-for-recall and copy-out. Local `npm run build`, `npm test` (173), `test:data`,
+  `check:content`, `check:rules`, `check:dist`, `check:links`, `check:budgets` all green
+  (shell 379,965 B gzip inside the frozen 380,000 B cap — the cap was not raised).
+  PR [#15](https://github.com/pabi277/DSA-archive/pull/15) is open on the owner's
+  command and CI run `41782795154` is green (emulator rules v6, 83 Playwright tests,
+  axe 0, 56 visual baselines as a review artifact); merge remains gated. Record:
+  `docs/phases-v2/04-code-notebooks/RECORD.md`.
+- **v2-05 … v2-10 not started**: Phase 05 follows only after the owner reviews Phase 04,
+  explicitly commands its PR/merge, and starts a new chat. The primer/statement/quiz-bank
   authoring track continues separately from the build phases.
 - **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
   topics (Basic 84 · Core 287 · Pro 109 · 15 null; 453 `problem` + 42 `theory`).
@@ -109,8 +119,8 @@ Do **not** start coding before step 5 is read end-to-end.
 |---|---|---|---|---|
 | 01 | `01-foundation-router-shell/` | ✅ **merged in PR #12** — hash router + sidebar/bottom-bar shell + tokens v2 (Inter + JetBrains Mono, one accent / five semantic roles, density, motion, undo, skeletons, `⌘K`, `j/k/x`, sheet windowing) | 9–11 d | — |
 | 02 | `02-topics-browse/` | ✅ **merged in PR #13** (`bd9350b`) — `#/topics` + topic pages + practice/outcomes + Today + grouped search; run `41647413508` green | 5–6 d | 01 |
-| 03 | `03-content-pipeline/` | 🟡 **implementation complete; owner accuracy/visual review + merge gate** — schema v2 + safe renderers + validator/CI + **`resources[]` multi-source** + **136 drills** + 42 theory MCQs + Arrays primer/statements/quiz + coverage report | 7–9 d + authoring | 01, 02 merged |
-| 04 | `04-code-notebooks/` | **Delete notes** end-to-end; add `snippets` collection, rules **v6**, backup **v5** (+v4 notes migration), `#/code`, small editor, peek/reveal | 5–6 d | 01 |
+| 03 | `03-content-pipeline/` | ✅ **merged in PR #14** (`e51695a`) — schema v2 + safe renderers + validator/CI + **`resources[]` multi-source** + **136 drills** + 42 theory MCQs + Arrays primer/statements/quiz + coverage report; run `41696457606` green | 7–9 d + authoring | 01, 02 merged |
+| 04 | `04-code-notebooks/` | 🟡 **PR #15 open, CI green; owner review + merge gate** — **Delete notes** end-to-end; `snippets` collection, rules **v6**, backup **v5** (+v4 notes migration), `#/code`, small editor, peek/reveal | 5–6 d | 01 |
 | 05 | `05-quiz-engine/` | **Theory MCQ cards** (4 options, per-option explanations, always-available `Show solution`, `[Solve]` vs `[Check]`) + 12-item topic quiz, 80% pass, `quizResults`, guest merge | 6–7 d | 02, 03 |
 | 06 | `06-theatre-player/` | In-app YouTube theatre (official IFrame API, our chrome), mini player surviving routes, timeline **stamps**, speed memory, oEmbed metadata + dead-link badge | 7–9 d | 01–03 |
 | 07 | `07-browser-runner/` | Local wasm C++/Python/JS runner in a Worker: Run, Stop, diagnostics, authored tests with first-diff, predict-the-output, 14 MB cache control, copy-out for Java/C# | 5–7 d | 04, 03 |
@@ -118,7 +128,7 @@ Do **not** start coding before step 5 is read end-to-end.
 | 09 | `09-pwa-accessibility-hardening/` | Budgets re-baselined with published numbers, SW v2 exclusions, CSP (report-only → enforce), a11y × offline matrices, network assertion, dead-dependency decision | 4–5 d | 01–08 |
 | 10 | `10-release-v2/` | README v2, generated screenshots, DATA-MODEL v5, CHANGELOG, runbook, honest content-coverage table | 2–3 d | 09 |
 
-**Sequential ≈57–69 build days.** Phases 01 and 02 are merged; Phase 03 is at its owner review/merge gate. Rules v5 / backup v4 remain the latest merged baseline (Phase 03 adds only generated `lc-<n>` whitelist keys). Future rules/backup versions must increment from the actual merged baseline after each phase.
+**Sequential ≈57–69 build days.** Phases 01–03 are merged; Phase 04 is implemented on `arena/25c78974-dsa-archive` at its owner review/merge gate. Rules v5 / backup v4 remain the latest *merged* baseline; Phase 04 advances them to rules v6 / backup v5 on its branch. Future rules/backup versions must increment from the actual merged baseline after each phase.
 
 Each `PLAN.md` already contains: charter · current-state evidence (`file:line`) · scope in ·
 scope **out with reasons** · design spec/wireframes · file plan (`NEW`/`EDIT`/`DELETE`) ·
@@ -203,19 +213,21 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 > `docs/ROADMAP.md` status and `prompt.md` in the same commit. Stop at the merge gate —
 > no PR merge, no deploy, no `main` push without my explicit command.
 
-> **Ready-made next one (04, only after Phase 03 is reviewed and merged by my explicit command):**
+> **Ready-made next one (05, only after Phase 04 is reviewed, its PR opened and merged
+> by my explicit command, and its CI emulator/Playwright/axe/visual matrix is green):**
 >
-> Run v2 phase **04 — code-notebooks** for `pabi277/DSA-archive`.
-> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches plus Phase 01–03
+> Run v2 phase **05 — quiz-engine** for `pabi277/DSA-archive`.
+> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches plus Phase 01–04
 > implementation choices), `docs/phases-v2/README.md`,
 > `docs/phases-v2/00-overview/PLAN.md`, and
-> `docs/phases-v2/04-code-notebooks/PLAN.md` in full. Phases 01 and 02 are merged; Phase 03
-> must be reviewed and merged by my explicit command before starting a new phase. Keep Phase
-> 04 to its own branch/PR; preserve the earlier phase plans as contracts and advance rules
-> v6 / backup v5 from the latest merged baseline (including the Phase 03 `lc-<n>` whitelist
-> if Phase 03 lands first). Update its `RECORD.md`, `docs/ROADMAP.md`,
-> `docs/DECISIONS.md` if needed, and `prompt.md`. No merge, deploy, or `main` push without
-> my explicit command.
+> `docs/phases-v2/05-quiz-engine/PLAN.md` in full. Phases 01–03 are merged; Phase 04
+> must be reviewed and merged by my explicit command before starting a new phase. Keep
+> Phase 05 to its own branch/PR; preserve the earlier phase plans as contracts and
+> advance from the latest merged baseline (rules v6 / backup v5 once Phase 04 lands —
+> verify the actual merged state before versioning anything). The shell sits ~35 bytes
+> under the frozen 380 kB gzip cap, so budget the quiz engine against equal cuts or
+> stop for a gate. Update its `RECORD.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md` if
+> needed, and `prompt.md`. No merge, deploy, or `main` push without my explicit command.
 
 ---
 

@@ -2,13 +2,15 @@
 
 > **v2 data-model work is landing phase by phase.** Phase 02 merged in PR #13:
 > progress entries now support optional `o: clean|hint|couldnt`, Firestore rules are v5,
-> and backups are schema v4. Phase 03 (implemented on `arena/cae52fb6-dsa-archive`,
-> owner accuracy review + merge gate pending) upgrades the git catalogue to `schemaVersion: 2`,
-> adds own-written learner-content JSON and practice-set files, and admits synthetic `lc-<n>`
-> keys to the **existing** `progressByTopic` docs via a regenerated rules whitelist. There is
-> no new collection, Firestore schema version, backup version or quota path. Later changes
-> remain planned: phase 04 replaces notes with snippets; phase 05 adds quiz results; phase 06
-> adds snippet moments; phase 08 adds target settings.
+> and backups are schema v4. Phase 03 merged in PR #14 (`e51695a`): the git catalogue is
+> `schemaVersion: 2`, with own-written learner-content JSON and practice-set files, and
+> synthetic `lc-<n>` keys admitted to the **existing** `progressByTopic` docs via a
+> regenerated rules whitelist. Phase 04 (implemented on `arena/25c78974-dsa-archive`,
+> owner merge gate pending) replaces the phase-3 `notes` collection with `snippets`
+> (saved solutions), advances the generated rules to **v6** and the backup to
+> **schema v5**; schemas 1–4 still import, with legacy notes migrated in §6. Later
+> changes remain planned: phase 05 adds quiz results; phase 06 adds snippet moments;
+> phase 08 adds target settings.
 
 
 > Plan-stage sketch (revised 2026-11-02 for the owner's Firebase
@@ -23,7 +25,7 @@
 | World | Lives in | Who writes | Backup |
 |---|---|---|---|
 | **Sheet catalogue** (topics, problems, links) | `data/problems.json` in git, bundled at build | Owner/agent data edits (reviewed diffs) | Git history |
-| **Per-user data** (progress, notes, plans, friends) | Cloud Firestore, `users/{uid}/…` (§3) | That signed-in user only (security rules) | Export/import JSON (phase 2) |
+| **Per-user data** (progress, snippets, lists, plans, friends) | Cloud Firestore, `users/{uid}/…` (§3) | That signed-in user only (security rules) | Export/import JSON (phase 2) |
 | **Local cache** | Firestore persistent cache + tiny settings in `localStorage` | The SDK / app automatically | Re-syncs from Firestore on login |
 
 Catalogue ids are the join key everywhere. Progress never references
@@ -82,7 +84,7 @@ designed state. See `docs/content/AUTHORING.md` and the Phase 03 phase record.
 
 Design driver: **Spark-quota frugality** (§4). One fat read on login
 beats 495 small ones, so progress is sharded per topic (20 docs),
-while notes (sparse, larger) get one doc each.
+while saved solutions (sparse, larger) get one doc each.
 
 ```text
 users/{uid}                                  // profile + settings (1 doc)
@@ -101,10 +103,14 @@ users/{uid}/progressByTopic/{topicId}        // ≤20 docs — the login read se
                  "o": "hint" }, … }         // phase 02: clean | hint | couldnt; absent on todo
   updatedAt
 
-users/{uid}/notes/{problemId}                // phase 3 — created only when a note exists
-  markdown: "…",                             // ≤ 5,000 chars
-  snippet: "…",                              // ≤ 8,000 chars
+users/{uid}/snippets/{problemId}             // phase v2-04 — one saved solution per problem
+  language: "cpp",                           // cpp|c|java|python|js|ts|go|rust|other
+  code: "…",                                 // ≤ 8,000 chars
+  notes: "…",                                // ≤ 500 chars, plain text (optional content, field always present)
+  verdict?: "hint",                          // clean|hint|couldnt — set by the phase-07 runner; preserved on edit
   updatedAt                                  // serverTimestamp, enforced by rules
+  // phase 3's `notes/{problemId}` (markdown + snippet) was deleted end-to-end in
+  // v2-04; rules v6 removes its match block, so the path is default-deny.
 
 users/{uid}/lists/{listId}                   // phase 3 — custom lists
   title: "…",                                // 1–60 chars
@@ -133,7 +139,7 @@ allowed to signed-in code holders, listing is denied. A recipient atomically
 creates both friend documents; rules verify the invite owner, requester and
 reciprocal `getAfter` state. Either party can remove the link. Summary reads
 require both friend documents and the target profile's opt-in flag; profile,
-notes and progress remain private. The optional profile `friendCode` tracks the
+saved code and progress remain private. The optional profile `friendCode` tracks the
 current code for rotation. Backups exclude invites, friend documents and
 summaries and do not restore sharing. Summary `asOf` is the author's local day;
 weekly counts are rolling seven days, and stale summaries are excluded from
@@ -169,7 +175,7 @@ catalogue denominator stays 495.
   **iff** a `friends` doc links them **and** the owner's
   `shareSummary` is true (rules check both — the client toggle alone
   is never trusted).
-- Validation in rules: field types + size caps (note length, list
+- Validation in rules: field types + size caps (code/reminder length, list
   length) so a buggy/hostile client can't bloat the free quota.
 - Rules are versioned in git, **proven by Emulator-Suite tests in CI**
   (stranger-read, friend-overreach, oversized-write cases) before any
@@ -221,7 +227,8 @@ phase-2 rules above:
 - `notes/{problemId}` — readable/listed/deletable by the owner; writes need a
   catalogue-shaped doc id (`^[a-z0-9][a-z0-9-]{0,79}$`), exactly
   `markdown`/`snippet`/`updatedAt`, string types, 5,000/8,000 caps, a
-  non-empty note, and `updatedAt == request.time`.
+  non-empty note, and `updatedAt == request.time`. **Deleted by rules v6
+  (phase v2-04)** — the match block is gone, so the path is default-deny.
 - `lists/{listId}` — readable/listed/deletable by the owner; writes need an id
   matching `^[a-z0-9-]{8,40}$`, exactly `title`/`problemIds`/`updatedAt`, a
   1–60 character title, a list of ≤200 ids whose joined text is ≤12,000
@@ -239,14 +246,28 @@ touching anything above except the entry field list:
   (readers default it to 0) and the backup parser normalizes it on import,
   because every v3 write must carry it.
 
+**Rules v5 (phase v2-02)** added the optional progress `o` outcome. **Rules v6
+(phase v2-04)** replaces notes with saved solutions:
+
+- `snippets/{problemId}` — owner-only get/list/create/update/delete; writes need
+  the catalogue-shaped doc id (`^[a-z0-9][a-z0-9-]{0,79}$`), required
+  `language`/`code`/`notes`/`updatedAt` and no other keys except optional
+  `verdict`; `language` in the 9-value enum above; `code` ≤ 8,000 chars and
+  `notes` ≤ 500, with at least one of them non-empty; `verdict` in
+  `clean|hint|couldnt` when present; `updatedAt == request.time`.
+- The `notes/{problemId}` match block is deleted, so every notes path falls to
+  the default deny. Old note *documents*, if any exist in a live project, simply
+  become unreachable — they are never read by v2-04 clients.
+
 Rules have no loops and only 1,000 evaluated expressions per request, so
-catalogue membership for these two collections is enforced by the client and
+catalogue membership for these collections is enforced by the client and
 the backup parser (recorded in `DECISIONS.md`), while the rules bound every
-document's shape and size. The emulator suite (10 tests) covers stranger and
-unauthenticated denial on both collections, invalid/oversized fields, unknown
-extra keys, a non-server `updatedAt`, malformed note/list ids, over-long
-titles, >200 ids, oversized joined id text, plus owner create/update/delete, and — since phase 4 — owner-only plan days,
-day-id/field/size/subset validation and stranger denial on `plans`, with
+document's shape and size. The emulator suite (15 tests) covers stranger and
+unauthenticated denial, invalid/oversized fields, unknown extra keys, a
+non-server `updatedAt`, malformed snippet/list ids, over-long titles, >200 ids,
+oversized joined id text, plus owner create/update/delete, owner-only plan
+days with day-id/field/size/subset validation, snippet language/verdict enums
+and 8,000/500 caps, the deleted `/notes/` path staying denied, and
 `friends`/`public/summary` still proving that unknown collections stay denied.
 
 ## 4. Spark quota budget (official limits checked 2026-11-02)
@@ -259,9 +280,9 @@ Rough day for owner + 5 friends, cache misses only (cache hits = 0):
 
 | Action | Reads | Writes |
 |---|---|---|
-| Login / app open (profile + 20 topic docs + notes/lists collections + today's plan) | ~24 | 0 |
+| Login / app open (profile + 20 topic docs + snippets/lists collections + today's plan) | ~24 | 0 |
 | Solve/revise 10 problems (same 2–3 topics, batched per topic doc) | 0 | ≤10 |
-| Notes: read 5, write 2 | 5 | 2 |
+| Saved code: read 5, write 2 | 5 | 2 |
 | Planner: tick 3 rows, revise 2 (plan writes + 2 progress writes) | 0 | ~5 |
 | Friends screen (6 summaries) | 6 | 0 (summary write rides solved-count change only; deduplicated in phase 6.2) |
 | **Per user/day (3 sessions)** | **~100** | **~40** |
@@ -298,26 +319,35 @@ its phase record before it is built.
    owner command); keep it there, outside every build, and never as
    a runtime input.
 
-## 6. Export / import (anti-lock-in — schema v4 since phase 02)
+## 6. Export / import (anti-lock-in — schema v5 since phase v2-04)
 
-Export = one JSON file: `schemaVersion: 4`, `generatedBy`, `exportedAt`,
+Export = one JSON file: `schemaVersion: 5`, `generatedBy`, `exportedAt`,
 profile settings (including the real `dailyGoal`), all `progressByTopic` rows
-(with `a`/`fd`/`lr`, `rc`, and optional `o`), the real `notes[]` array (`problemId`,
-`markdown`, `snippet`, `updatedAt`), the real `lists[]` array (`listId`,
+(with `a`/`fd`/`lr`, `rc`, and optional `o`), the real `snippets[]` array
+(`problemId`, `language`, `code`, `notes`, optional `verdict`, `updatedAt` — there
+is no top-level `notes[]` any more; the ≤500-char `notes` field *inside* a
+snippet is its plain-text reminder), the real `lists[]` array (`listId`,
 `title`, `problemIds`, `updatedAt`), the real `plans[]` array (`date`,
 `problemIds`, `doneIds`, `updatedAt` — every day, read on demand at export), and
 an `excluded` list naming friends/summary
 (they're social, not study data). `src/backup.ts` validates schema version,
-catalogue ids, field types, per-note/per-list caps and a 4 MB file cap; the UI
-previews row/topic/note/list/plan counts and only then replaces. Invalid files
-show an explicit error. Import deletes existing topic shards, replays one-key
-writes, restores profile settings (and the daily goal), then replaces notes,
-lists and plan days one document per item.
+catalogue ids, field types, per-snippet/per-list caps and a 4 MB file cap; the UI
+previews row/topic/snippet/list/plan counts (plus any migration `warnings`) and
+only then replaces. Invalid files show an explicit error. Import deletes existing
+topic shards, replays one-key writes, restores profile settings (and the daily
+goal), then replaces snippets, lists and plan days one document per item.
 
-**Recorded migration:** `parseBackup` accepts **schema 1, 2, 3 and 4**. Phase-2
+**Recorded migration:** `parseBackup` accepts **schemas 1, 2, 3, 4 and 5**. Phase-2
 (v1 app) files wrote empty `notes`/`lists`/`plans` arrays, so they import unchanged
 and simply restore none of them; a v1 or v2 file that claims note/list/plan content
 is refused rather than guessed. Missing `rc` defaults to 0; legacy solved rows
-without `o` default to `clean`, and `todo` rows never receive an outcome. This is
-also the migration path off Firebase if the owner
+without `o` default to `clean`, and `todo` rows never receive an outcome.
+**Schemas ≤4 carry the removed `notes[]` (phase v2-04):** each legacy note becomes
+one snippet — its old `snippet` field was already code and is kept **byte-for-byte**
+as `code` with `language: "other"`; the markdown body is dropped except a ≤500-char
+plain-text tail kept as the snippet's `notes` reminder, and every shortened note's
+problem id is named in a printed `warnings` line before anything is replaced.
+Progress outcomes (`o`) are preserved untouched. Symmetrically, a pre-v5 file that
+claims `snippets` content, or a v5 file that claims `notes` content, is refused
+rather than guessed. This is also the migration path off Firebase if the owner
 ever wants one — powerful must never mean trapped.
