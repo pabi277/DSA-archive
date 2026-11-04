@@ -1,12 +1,24 @@
 import { describe, expect, it } from 'vitest'
 import { BackupError, createBackup, parseBackup } from './backup'
 import type { CloudProgressEntry } from './cloudProgress'
-import type { BackupList, BackupNote } from './library'
+import type { BackupSnippet } from './code/codeStore'
+import type { BackupList } from './library'
 import type { BackupPlan } from './planner'
 
 const now = '2026-11-02T12:00:00.000Z'
 const cloudEntry: CloudProgressEntry = { s: 'done', b: true, a: 2, fd: now, lr: null, rc: 0, o: 'clean' }
-const notes: BackupNote[] = [
+const snippets: BackupSnippet[] = [
+  {
+    problemId: 'two-sum',
+    language: 'cpp',
+    code: 'unordered_map<int, int> seen;',
+    notes: 'Store the complement.',
+    verdict: 'hint',
+    updatedAt: now,
+  },
+]
+/** The pre-v5 shape: one markdown body + one code field per problem. */
+const legacyNotes = [
   {
     problemId: 'two-sum',
     markdown: '# Two sum\nUse a **hash map** and store the complement.',
@@ -40,7 +52,7 @@ const input = {
     railCollapsed: true,
   },
   progressByTopic: { arrays: { 'two-sum': cloudEntry } },
-  notes,
+  snippets,
   lists,
   plans,
   dailyGoal: 7,
@@ -54,26 +66,27 @@ function copy() {
 function v1Copy() {
   const backup = copy()
   backup.schemaVersion = 1
+  delete backup.snippets
   backup.notes = []
   backup.lists = []
   backup.plans = []
   return backup
 }
 
-function v2Copy() {
+function v4Copy() {
   const backup = copy()
-  backup.schemaVersion = 2
-  backup.plans = []
-  // Phase-3 entries predate the revision counter.
-  delete backup.progressByTopic.arrays['two-sum'].rc
+  backup.schemaVersion = 4
+  delete backup.snippets
+  backup.notes = legacyNotes.map((entry) => ({ ...entry }))
   return backup
 }
 
-describe('JSON backup (schema v4, phases 2–4)', () => {
-  it('round-trips profile, progress, notes, lists and plans with preview counts', () => {
+describe('JSON backup (schema v5, reading 1–4)', () => {
+  it('round-trips profile, progress, snippets, lists and plans with preview counts', () => {
     const parsed = parseBackup(createBackup(input))
-    expect(parsed.counts).toEqual({ topics: 1, rows: 1, notes: 1, lists: 1, plans: 1 })
-    expect(parsed.backup.schemaVersion).toBe(4)
+    expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 1, lists: 1, plans: 1 })
+    expect(parsed.warnings).toEqual([])
+    expect(parsed.backup.schemaVersion).toBe(5)
     expect(parsed.backup.profile).toMatchObject({
       theme: 'dark',
       largeText: false,
@@ -82,12 +95,15 @@ describe('JSON backup (schema v4, phases 2–4)', () => {
       shareSummary: false,
     })
     expect(parsed.backup.progressByTopic.arrays['two-sum']).toEqual(cloudEntry)
-    expect(parsed.backup.notes).toEqual(notes)
+    expect(parsed.backup.snippets).toEqual(snippets)
     expect(parsed.backup.lists).toEqual(lists)
     expect(parsed.backup.plans).toEqual(plans)
     expect(parsed.backup.excluded).toContain('friends')
-    // v2-01 device preferences ride along in v3 without a schema bump.
+    // v2-01 device preferences ride along without a schema bump of their own.
     expect(parsed.backup.profile).toMatchObject({ density: 'compact', railCollapsed: true })
+    // The exported file has no top-level notes array (the ≤500 `notes` field
+    // *inside* a snippet is part of the new schema, not the removed feature).
+    expect('notes' in JSON.parse(createBackup(input))).toBe(false)
   })
 
   it('defaults density and the rail on files written before v2-01 (device prefs are not data)', () => {
@@ -104,35 +120,63 @@ describe('JSON backup (schema v4, phases 2–4)', () => {
     })
   })
 
-  it('imports a schemaVersion 2 file and defaults the missing revision and outcome fields', () => {
-    const parsed = parseBackup(JSON.stringify(v2Copy()))
-    expect(parsed.backup.schemaVersion).toBe(4)
-    expect(parsed.counts).toEqual({ topics: 1, rows: 1, notes: 1, lists: 1, plans: 0 })
+  it('migrates a schemaVersion 4 backup: code kept exactly, markdown shortened with a named warning', () => {
+    const parsed = parseBackup(JSON.stringify(v4Copy()))
+    expect(parsed.backup.schemaVersion).toBe(5)
+    expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 1, lists: 1, plans: 1 })
+    expect(parsed.backup.snippets).toEqual([
+      {
+        problemId: 'two-sum',
+        language: 'other',
+        code: 'const seen = new Map()',
+        notes: 'Two sum Use a hash map and store the complement.',
+        updatedAt: now,
+      },
+    ])
+    expect(parsed.warnings).toHaveLength(1)
+    expect(parsed.warnings[0]).toContain('two-sum')
+    expect(parsed.warnings[0]).toContain('markdown dropped')
+    // Progress normalization from earlier schemas is unchanged.
     expect(parsed.backup.progressByTopic.arrays['two-sum'].rc).toBe(0)
     expect(parsed.backup.progressByTopic.arrays['two-sum'].o).toBe('clean')
-    expect(parsed.backup.plans).toEqual([])
+  })
+
+  it('migrates a code-only legacy note without a warning', () => {
+    const legacy = v4Copy()
+    legacy.notes = [{ problemId: 'two-sum', markdown: '', snippet: 'int main() {}', updatedAt: now }]
+    const parsed = parseBackup(JSON.stringify(legacy))
+    expect(parsed.warnings).toEqual([])
+    expect(parsed.backup.snippets[0]).toMatchObject({ code: 'int main() {}', notes: '' })
   })
 
   it('still imports a phase-2 schemaVersion 1 file — the recorded migration', () => {
     const parsed = parseBackup(JSON.stringify(v1Copy()))
-    expect(parsed.counts).toEqual({ topics: 1, rows: 1, notes: 0, lists: 0, plans: 0 })
-    expect(parsed.backup.schemaVersion).toBe(4)
-    expect(parsed.backup.notes).toEqual([])
+    expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 0, lists: 0, plans: 0 })
+    expect(parsed.backup.schemaVersion).toBe(5)
+    expect(parsed.backup.snippets).toEqual([])
     expect(parsed.backup.lists).toEqual([])
     expect(parsed.backup.plans).toEqual([])
   })
 
-  it('refuses a v1 file that claims to carry notes, lists or plans', () => {
-    const withNotes = v1Copy()
-    withNotes.notes = notes
-    expect(() => parseBackup(JSON.stringify(withNotes))).toThrowError(/cannot contain notes/)
+  it('refuses cross-generation library claims instead of guessing', () => {
+    const v1WithNotes = v1Copy()
+    v1WithNotes.notes = legacyNotes
+    expect(() => parseBackup(JSON.stringify(v1WithNotes))).toThrowError(/cannot contain notes/)
 
-    const withLists = v1Copy()
-    withLists.lists = lists
-    expect(() => parseBackup(JSON.stringify(withLists))).toThrowError(/cannot contain lists/)
+    const v1WithLists = v1Copy()
+    v1WithLists.lists = lists
+    expect(() => parseBackup(JSON.stringify(v1WithLists))).toThrowError(/cannot contain lists/)
 
-    const v2WithPlans = v2Copy()
-    v2WithPlans.plans = plans
+    const v4WithSnippets = v4Copy()
+    v4WithSnippets.snippets = snippets
+    expect(() => parseBackup(JSON.stringify(v4WithSnippets))).toThrowError(/cannot contain snippets/)
+
+    const v5WithNotes = copy()
+    v5WithNotes.notes = legacyNotes
+    expect(() => parseBackup(JSON.stringify(v5WithNotes))).toThrowError(/cannot contain notes/)
+
+    const v2WithPlans = v4Copy()
+    v2WithPlans.schemaVersion = 2
     expect(() => parseBackup(JSON.stringify(v2WithPlans))).toThrowError(/cannot contain plans/)
   })
 
@@ -163,37 +207,64 @@ describe('JSON backup (schema v4, phases 2–4)', () => {
     expect(() => parseBackup(JSON.stringify(badRevisionCount))).toThrowError(/invalid progress entry/)
   })
 
-  it('validates every note: ids, sizes, emptiness and field set', () => {
+  it('validates every snippet: ids, languages, verdicts, sizes, emptiness and field set', () => {
     const base = copy
 
     const unknown = base()
-    unknown.notes[0].problemId = 'not-a-problem'
+    unknown.snippets[0].problemId = 'not-a-problem'
     expect(() => parseBackup(JSON.stringify(unknown))).toThrowError(/does not name a problem/)
 
-    const oversized = base()
+    const badLanguage = base()
+    badLanguage.snippets[0].language = 'cobol'
+    expect(() => parseBackup(JSON.stringify(badLanguage))).toThrowError(/not a supported language/)
+
+    const badVerdict = base()
+    badVerdict.snippets[0].verdict = 'lucky-guess'
+    expect(() => parseBackup(JSON.stringify(badVerdict))).toThrowError(/clean, hint or couldnt/)
+
+    const oversizedCode = base()
+    oversizedCode.snippets[0].code = 'x'.repeat(8001)
+    expect(() => parseBackup(JSON.stringify(oversizedCode))).toThrowError(/over 8000/)
+
+    const oversizedNotes = base()
+    oversizedNotes.snippets[0].notes = 'x'.repeat(501)
+    expect(() => parseBackup(JSON.stringify(oversizedNotes))).toThrowError(/over 500/)
+
+    const empty = base()
+    empty.snippets[0].code = '   '
+    empty.snippets[0].notes = ''
+    expect(() => parseBackup(JSON.stringify(empty))).toThrowError(/is empty/)
+
+    const extra = base()
+    extra.snippets[0].colour = 'red'
+    expect(() => parseBackup(JSON.stringify(extra))).toThrowError(/unexpected fields/)
+
+    const duplicate = base()
+    duplicate.snippets.push({ ...duplicate.snippets[0] })
+    expect(() => parseBackup(JSON.stringify(duplicate))).toThrowError(/duplicate snippet/)
+
+    const badStamp = base()
+    badStamp.snippets[0].updatedAt = 'x'.repeat(41)
+    expect(() => parseBackup(JSON.stringify(badStamp))).toThrowError(/ISO timestamp/)
+
+    const notArray = base()
+    notArray.snippets = 'two-sum'
+    expect(() => parseBackup(JSON.stringify(notArray))).toThrowError(/snippets must be an array/)
+  })
+
+  it('validates legacy notes before migrating them', () => {
+    const oversized = v4Copy()
     oversized.notes[0].markdown = 'x'.repeat(5001)
     expect(() => parseBackup(JSON.stringify(oversized))).toThrowError(/over 5000/)
 
-    const empty = base()
+    const empty = v4Copy()
     empty.notes[0].markdown = '   '
     empty.notes[0].snippet = ''
     expect(() => parseBackup(JSON.stringify(empty))).toThrowError(/is empty/)
 
-    const extra = base()
-    extra.notes[0].colour = 'red'
-    expect(() => parseBackup(JSON.stringify(extra))).toThrowError(/unexpected fields/)
-
-    const duplicate = base()
+    const duplicate = v4Copy()
     duplicate.notes.push({ ...duplicate.notes[0] })
     expect(() => parseBackup(JSON.stringify(duplicate))).toThrowError(/duplicate note/)
-
-    const badStamp = base()
-    badStamp.notes[0].updatedAt = 'x'.repeat(41)
-    expect(() => parseBackup(JSON.stringify(badStamp))).toThrowError(/ISO timestamp/)
-
-    const notArray = base()
-    notArray.notes = 'two-sum'
-    expect(() => parseBackup(JSON.stringify(notArray))).toThrowError(/notes must be an array/)
   })
 
   it('validates every list: ids, titles, sizes and known problems', () => {

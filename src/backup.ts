@@ -1,12 +1,25 @@
 /**
  * Anti-lock-in JSON backup.
  *
- * Schema v1 shipped with empty notes/lists, v2 added library data, v3 added
- * plans and revision counts, and v4 adds the optional self-assessed outcome.
- * All prior schemas remain importable; missing revision counts default to 0
- * and legacy solved rows default to a clean outcome. Friends/summaries stay excluded.
+ * Schema v1 shipped with empty library arrays, v2 added library data, v3
+ * added plans and revision counts, v4 added the optional self-assessed
+ * outcome, and v5 (phase v2-04) replaces the removed markdown `notes[]`
+ * with saved solutions in `snippets[]`. All prior schemas remain
+ * importable: a legacy note's code field becomes a snippet's `code`
+ * unchanged, and its markdown body is dropped except a ≤500 character
+ * plain-text tail kept as the snippet's `notes` reminder — with the
+ * affected ids listed in `warnings`. Friends/summaries stay excluded.
  */
 import { catalogue } from './catalogue'
+import {
+  CODE_LIMIT,
+  SNIPPET_NOTES_LIMIT,
+  isCodeLanguage,
+  isSnippetVerdict,
+  legacyNoteToSnippet,
+  snippetIsEmpty,
+  type BackupSnippet,
+} from './code/codeStore'
 import { DRILLS_BY_TOPIC } from './content/practice'
 import {
   countCloudRows,
@@ -26,19 +39,19 @@ import {
   LIST_ID_PATTERN,
   LIST_MAX_PROBLEMS,
   LIST_TITLE_LIMIT,
-  NOTE_MARKDOWN_LIMIT,
-  NOTE_SNIPPET_LIMIT,
   isKnownProblemId,
-  noteIsEmpty,
   type BackupList,
-  type BackupNote,
 } from './library'
 
-export const BACKUP_SCHEMA_VERSION = 4
-/** Schemas 1–3 import unchanged; missing outcome and revision fields are normalized. */
-export const SUPPORTED_BACKUP_SCHEMAS = [1, 2, 3, 4] as const
-/** Room for many notes/snippets; each field is individually capped below. */
+export const BACKUP_SCHEMA_VERSION = 5
+/** Schemas 1–4 import unchanged; legacy fields are normalized or migrated. */
+export const SUPPORTED_BACKUP_SCHEMAS = [1, 2, 3, 4, 5] as const
+/** Room for many saved solutions; each field is individually capped below. */
 const MAX_BACKUP_BYTES = 4_000_000
+
+/** Legacy schema ≤4 field caps, kept only to validate old files honestly. */
+const LEGACY_NOTE_MARKDOWN_LIMIT = 5000
+const LEGACY_NOTE_SNIPPET_LIMIT = 8000
 
 export type BackupProfile = {
   displayName: string
@@ -47,9 +60,9 @@ export type BackupProfile = {
   largeText: boolean
   hideDone: boolean
   /**
-   * Device preferences added in v2-01. Optional on purpose: older v3 files (and
-   * any file written by a v1 app) lack them, and both are re-sanitised on
-   * import, so a backup that predates them still imports unchanged.
+   * Device preferences added in v2-01. Optional on purpose: older files lack
+   * them, and both are re-sanitised on import, so a backup that predates
+   * them still imports unchanged.
    */
   density?: Density
   railCollapsed?: boolean
@@ -63,7 +76,7 @@ export type Backup = {
   exportedAt: string
   profile: BackupProfile
   progressByTopic: CloudProgressByTopic
-  notes: BackupNote[]
+  snippets: BackupSnippet[]
   lists: BackupList[]
   plans: BackupPlan[]
   excluded: string[]
@@ -72,7 +85,7 @@ export type Backup = {
 export type BackupCounts = {
   topics: number
   rows: number
-  notes: number
+  snippets: number
   lists: number
   plans: number
 }
@@ -81,7 +94,7 @@ export type BackupInput = {
   account: { displayName: string; email: string }
   settings: Pick<Settings, 'theme' | 'largeText' | 'hideDone' | 'density' | 'railCollapsed'>
   progressByTopic: CloudProgressByTopic
-  notes?: BackupNote[]
+  snippets?: BackupSnippet[]
   lists?: BackupList[]
   plans?: BackupPlan[]
   dailyGoal?: number
@@ -120,7 +133,7 @@ export function createBackup(input: BackupInput): string {
       shareSummary: false,
     },
     progressByTopic: input.progressByTopic,
-    notes: input.notes ?? [],
+    snippets: input.snippets ?? [],
     lists: input.lists ?? [],
     plans: input.plans ?? [],
     excluded: ['friends', 'public/summary'],
@@ -138,8 +151,50 @@ const knownIds = new Map(
   ]),
 )
 
-const NOTE_KEYS = ['problemId', 'markdown', 'snippet', 'updatedAt']
+const SNIPPET_KEYS = ['problemId', 'language', 'code', 'notes', 'verdict', 'updatedAt']
+const LEGACY_NOTE_KEYS = ['problemId', 'markdown', 'snippet', 'updatedAt']
 const LIST_KEYS = ['listId', 'title', 'problemIds', 'updatedAt']
+
+/**
+ * Shared head of the per-problem row parsers (snippets + legacy notes):
+ * object shape, key whitelist, catalogue id, de-duplication.
+ */
+function rowProblemId(
+  entry: unknown,
+  label: string,
+  noun: string,
+  index: number,
+  keys: string[],
+  seen: Set<string>,
+): { record: Record<string, unknown>; problemId: string } {
+  if (!isRecord(entry)) fail(`${label}[${index}] must be an object`)
+  if (!Object.keys(entry).every((key) => keys.includes(key))) {
+    fail(`${label}[${index}] has unexpected fields`)
+  }
+  const problemId = entry.problemId
+  if (typeof problemId !== 'string' || !isKnownProblemId(problemId)) {
+    fail(`${label}[${index}] does not name a problem in this catalogue`)
+  }
+  if (seen.has(problemId)) fail(`duplicate ${noun} for "${problemId}"`)
+  seen.add(problemId)
+  return { record: entry, problemId }
+}
+
+/** A required text field, optionally length-capped, with the row's error text. */
+function textField(
+  record: Record<string, unknown>,
+  key: string,
+  label: string,
+  index: number,
+  limit?: number,
+): string {
+  const value = record[key]
+  if (typeof value !== 'string') fail(`${label}[${index}].${key} must be text`)
+  if (limit !== undefined && value.length > limit) {
+    fail(`${label}[${index}].${key} is over ${limit} characters`)
+  }
+  return value
+}
 
 function parseTimestamp(value: unknown, label: string): string | null {
   if (value === undefined || value === null) return null
@@ -149,38 +204,74 @@ function parseTimestamp(value: unknown, label: string): string | null {
   return value
 }
 
-function parseNotes(raw: unknown, schemaVersion: number): BackupNote[] {
+/** Schema v5 saved solutions, validated exactly as rules v6 will store them. */
+function parseSnippets(raw: unknown, schemaVersion: number): BackupSnippet[] {
   if (raw === undefined) return []
+  if (!Array.isArray(raw)) fail('snippets must be an array')
+  if (schemaVersion < BACKUP_SCHEMA_VERSION && raw.length > 0) {
+    // Files before v5 never carried a snippets array; content there is not a
+    // shape we ever produced, so refuse it instead of guessing.
+    fail(`a schemaVersion ${schemaVersion} backup cannot contain snippets`)
+  }
+  const seen = new Set<string>()
+  return raw.map((entry, index) => {
+    const { record, problemId } = rowProblemId(entry, 'snippets', 'snippet', index, SNIPPET_KEYS, seen)
+    entry = record
+    if (!isCodeLanguage(entry.language)) fail(`snippets[${index}].language is not a supported language`)
+    const code = textField(entry, 'code', 'snippets', index, CODE_LIMIT)
+    const notes = entry.notes === undefined ? '' : textField(entry, 'notes', 'snippets', index, SNIPPET_NOTES_LIMIT)
+    if (entry.verdict !== undefined && !isSnippetVerdict(entry.verdict)) {
+      fail(`snippets[${index}].verdict must be clean, hint or couldnt`)
+    }
+    if (snippetIsEmpty(code, notes)) fail(`snippets[${index}] is empty`)
+    return {
+      problemId,
+      language: entry.language,
+      code,
+      notes,
+      ...(isSnippetVerdict(entry.verdict) ? { verdict: entry.verdict } : {}),
+      updatedAt: parseTimestamp(entry.updatedAt, `snippets[${index}].updatedAt`),
+    }
+  })
+}
+
+/**
+ * Schema ≤4 markdown notes, migrated to saved solutions. The old `snippet`
+ * field was already code and is kept byte-for-byte; the markdown body is
+ * dropped except its plain-text tail. Every affected id is named in one
+ * warning so nothing is lost silently.
+ */
+function migrateLegacyNotes(raw: unknown, schemaVersion: number): { snippets: BackupSnippet[]; warnings: string[] } {
+  if (raw === undefined) return { snippets: [], warnings: [] }
   if (!Array.isArray(raw)) fail('notes must be an array')
   if (schemaVersion === 1 && raw.length > 0) {
     // Phase-2 files always wrote this array empty; content there is not a
     // shape we ever produced, so refuse it instead of guessing.
     fail('a schemaVersion 1 backup cannot contain notes')
   }
+  if (schemaVersion === BACKUP_SCHEMA_VERSION && raw.length > 0) {
+    fail('a schemaVersion 5 backup cannot contain notes')
+  }
   const seen = new Set<string>()
-  return raw.map((entry, index) => {
-    if (!isRecord(entry)) fail(`notes[${index}] must be an object`)
-    if (!Object.keys(entry).every((key) => NOTE_KEYS.includes(key))) {
-      fail(`notes[${index}] has unexpected fields`)
-    }
-    const problemId = entry.problemId
-    if (typeof problemId !== 'string' || !isKnownProblemId(problemId)) {
-      fail(`notes[${index}] does not name a problem in this catalogue`)
-    }
-    if (seen.has(problemId)) fail(`duplicate note for "${problemId}"`)
-    seen.add(problemId)
-    const markdown = typeof entry.markdown === 'string' ? entry.markdown : fail(`notes[${index}].markdown must be text`)
-    const snippet = typeof entry.snippet === 'string' ? entry.snippet : fail(`notes[${index}].snippet must be text`)
-    if (markdown.length > NOTE_MARKDOWN_LIMIT) fail(`notes[${index}].markdown is over ${NOTE_MARKDOWN_LIMIT} characters`)
-    if (snippet.length > NOTE_SNIPPET_LIMIT) fail(`notes[${index}].snippet is over ${NOTE_SNIPPET_LIMIT} characters`)
-    if (noteIsEmpty(markdown, snippet)) fail(`notes[${index}] is empty`)
-    return {
-      problemId,
-      markdown,
-      snippet,
-      updatedAt: parseTimestamp(entry.updatedAt, `notes[${index}].updatedAt`),
-    }
-  })
+  const snippets: BackupSnippet[] = []
+  const shortened: string[] = []
+  for (const [index, rawEntry] of raw.entries()) {
+    const { record: entry, problemId } = rowProblemId(rawEntry, 'notes', 'note', index, LEGACY_NOTE_KEYS, seen)
+    const markdown = textField(entry, 'markdown', 'notes', index, LEGACY_NOTE_MARKDOWN_LIMIT)
+    const code = textField(entry, 'snippet', 'notes', index, LEGACY_NOTE_SNIPPET_LIMIT)
+    if (markdown.trim() === '' && code.trim() === '') fail(`notes[${index}] is empty`)
+    const updatedAt = parseTimestamp(entry.updatedAt, `notes[${index}].updatedAt`)
+    const { snippet, bodyDropped } = legacyNoteToSnippet(problemId, markdown, code)
+    if (bodyDropped) shortened.push(problemId)
+    if (snippet) snippets.push({ ...snippet, updatedAt })
+  }
+  const warnings =
+    shortened.length > 0
+      ? [
+          `Old notes became ${SNIPPET_NOTES_LIMIT}-character reminders beside your code (markdown dropped) for: ${shortened.join(', ')}. Code kept exactly.`,
+        ]
+      : []
+  return { snippets, warnings }
 }
 
 function parseLists(raw: unknown, schemaVersion: number): BackupList[] {
@@ -276,7 +367,7 @@ function parsePlans(raw: unknown, schemaVersion: number): BackupPlan[] {
   })
 }
 
-export function parseBackup(text: string): { backup: Backup; counts: BackupCounts } {
+export function parseBackup(text: string): { backup: Backup; counts: BackupCounts; warnings: string[] } {
   if (text.length > MAX_BACKUP_BYTES) {
     throw new BackupError('file is larger than the 4 MB backup limit')
   }
@@ -347,7 +438,9 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
     if (Object.keys(nextShard).length > 0) progressByTopic[topicId] = nextShard
   }
 
-  const notes = parseNotes(raw.notes, schemaVersion)
+  const currentSnippets = parseSnippets(raw.snippets, schemaVersion)
+  const legacy = migrateLegacyNotes(raw.notes, schemaVersion)
+  const snippets = schemaVersion === BACKUP_SCHEMA_VERSION ? currentSnippets : legacy.snippets
   const lists = parseLists(raw.lists, schemaVersion)
   const plans = parsePlans(raw.plans, schemaVersion)
 
@@ -357,7 +450,7 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
     exportedAt: raw.exportedAt,
     profile,
     progressByTopic,
-    notes,
+    snippets,
     lists,
     plans,
     excluded: Array.isArray(raw.excluded) ? raw.excluded.filter((item): item is string => typeof item === 'string') : [],
@@ -367,9 +460,10 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
     counts: {
       topics: Object.keys(progressByTopic).length,
       rows: countCloudRows(progressByTopic),
-      notes: notes.length,
+      snippets: snippets.length,
       lists: lists.length,
       plans: plans.length,
     },
+    warnings: schemaVersion === BACKUP_SCHEMA_VERSION ? [] : legacy.warnings,
   }
 }

@@ -23,8 +23,8 @@ function ListCard({
 
   return (
     <article className="card list-card" data-testid={`list-card-${list.id}`}>
-      <div className="note-card-head">
-        <div className="note-card-copy">
+      <div className="list-card-head">
+        <div className="list-card-copy">
           <strong>{list.title}</strong>
           <p className="fine-print">
             {list.problemIds.length} problem{list.problemIds.length === 1 ? '' : 's'}

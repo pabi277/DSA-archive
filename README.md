@@ -1,6 +1,6 @@
 # DSA Archive — personal offline-first DSA workspace
 
-> **Status: v1 is complete and deployed-ready; v2 is fully planned and not started.**
+> **Status: v1 is complete and deployed-ready; v2 phases 01–03 are merged, and phase 04 (Notes → Code) is implemented on its branch at the owner merge gate.**
 > v2 turns this from a 495-row sheet tracker into a **beginner-first workspace**:
 > a routed shell with a real design system, all 20 topics as pages, in-app problem
 > statements and quizzes, a **Code** section replacing Notes, an **in-app video
@@ -20,7 +20,7 @@
 | 01 | Router, shell, **design tokens v2** | Every screen has a URL · sidebar/bottom bar · Inter + JetBrains Mono · one accent / five semantic roles · density · motion · undo · `⌘K` · keyboard triage |
 | 02 | Topic spine | `#/topics` (all 20 always visible) · topic pages with Learn/Practice/Quiz · learning order · 3-way outcome (clean/hint/couldn't) |
 | 03 | Content pipeline | Our own statements, hints, mistakes, primers · **ranked multi-source resources** (no single publisher) · **+120–140 LeetCode drills** by pattern · 42 theory MCQs · validator + coverage report |
-| 04 | Notes → **Code** | `snippets` in Firestore, rules v5, backup v4, `#/code`, peek-for-recall editor |
+| 04 | Notes → **Code** | `snippets` in Firestore, rules v6, backup v5, `#/code`, peek-for-recall editor |
 | 05 | Quiz engine | Theory MCQ cards with an always-available solution · 12-item topic quizzes, 80% pass, synced results |
 | 06 | Theatre | Video plays inside our screen: our chrome, mini player, timeline stamps, speed memory, dead-link badge |
 | 07 | Browser runner | Compile + run C++/Python/JS locally in a Web Worker · authored tests with first-diff · runaway loops stopped · code never leaves the device |

@@ -1704,18 +1704,9 @@ body {
 
 /* --- topics grid --------------------------------------------------------- */
 
-.screen-lede,
-.screen-foot-note {
+.screen-lede {
   color: var(--muted);
   font-size: var(--text-sm);
-}
-
-.screen-foot-note {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin-top: var(--space-4);
-  font-size: var(--text-xs);
 }
 
 .topic-grid {
@@ -1951,7 +1942,6 @@ body {
 
 /* --- topic / problem / settings screens --------------------------------- */
 
-.topic-screen,
 .topic-page,
 .problem-screen,
 .settings-screen,
@@ -1961,14 +1951,6 @@ body {
 .insights-screen {
   display: grid;
   gap: var(--space-3);
-}
-
-.topic-screen-head,
-.topic-page-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
 }
 
 .topic-page-heading {
@@ -2086,45 +2068,6 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-}
-
-.problem-links {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-card);
-  padding: var(--space-4);
-  background: var(--surface);
-}
-
-.problem-links h2 {
-  margin-bottom: var(--space-2);
-  font-size: var(--text-sm);
-  font-weight: 680;
-}
-
-.problem-links ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
-  margin: var(--space-3) 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.problem-links a {
-  display: inline-flex;
-  min-height: 34px;
-  align-items: center;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-pill);
-  padding: 0 var(--space-3);
-  color: var(--ink);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.problem-links a:hover {
-  background: var(--surface-2);
 }
 
 .setting-row {
@@ -2400,8 +2343,9 @@ body {
   color: var(--ink);
 }
 
-.note-editor,
-.list-picker {
+.list-picker,
+.code-editor,
+.code-panel {
   display: grid;
   gap: var(--space-1);
   border: 1px solid var(--line);
@@ -2410,8 +2354,7 @@ body {
   background: var(--surface-2);
 }
 
-.note-editor-head,
-.note-card-head {
+.code-panel-head {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -2419,11 +2362,26 @@ body {
   gap: var(--space-2);
 }
 
-.note-editor-head strong {
+.code-panel-head strong,
+.code-row-main strong,
+.list-card-copy strong {
   font-size: var(--text-sm);
 }
 
-.note-counter {
+.code-save-status {
+  color: var(--muted);
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.code-panel-meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.code-counter {
   margin: 0 0 4px;
   color: var(--subtle);
   font-size: var(--text-2xs);
@@ -2431,58 +2389,169 @@ body {
   text-align: right;
 }
 
-.code-input {
-  min-height: 90px;
+.code-editor-area {
+  display: flex;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+}
+
+.code-editor-area:focus-within {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+}
+
+.code-gutter,
+.code-textarea {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.6;
+}
+
+.code-gutter {
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-right: 1px solid var(--line);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+  color: var(--subtle);
+  text-align: right;
+  white-space: pre-line;
+  user-select: none;
+}
+
+.code-textarea {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 160px;
+  border: 0;
+  padding: var(--space-2);
+  background: transparent;
+  color: var(--ink);
+  white-space: pre;
+  overflow-wrap: normal;
+}
+
+.code-textarea:focus {
+  outline: none;
+}
+
+.code-note-input {
+  min-height: 52px;
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
   padding: var(--space-2);
   background: var(--surface);
   color: var(--ink);
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-}
-
-.note-preview {
-  overflow-wrap: anywhere;
   font-size: var(--text-sm);
 }
 
-.note-preview p {
-  margin: 0 0 var(--space-2);
-}
-
-.note-preview .md-heading {
-  font-weight: 700;
-}
-
-.note-preview ul {
-  margin: 0 0 var(--space-2);
-  padding-left: 20px;
-}
-
-.note-preview code {
-  font-family: var(--font-mono);
-  font-size: 0.92em;
-}
-
-.note-preview pre,
-.md-code {
-  overflow-x: auto;
-  margin: 0 0 var(--space-2);
-  border-radius: var(--radius-control);
-  padding: var(--space-2);
-  background: var(--surface);
-  font-family: var(--font-mono);
+.code-discard {
+  margin: 0;
+  color: var(--caution);
   font-size: var(--text-xs);
 }
 
-.note-list,
+.code-view {
+  background: var(--surface);
+  white-space: pre;
+}
+
+.code-peek-body {
+  position: relative;
+  width: 100%;
+}
+
+.code-peek-body:not(.is-revealed) .code-view {
+  filter: blur(7px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.code-peek-cover {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  text-align: center;
+}
+
+.code-reminder {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  overflow-wrap: anywhere;
+}
+
+.code-row-note {
+  font-size: var(--text-xs);
+}
+
+.code-screen {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.code-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.code-toolbar .search-field {
+  flex: 1 1 220px;
+}
+
+.code-list {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.code-row {
+  /* Browser-level render virtualization: 631 saved solutions can all be in
+     the DOM without paying layout/paint for off-screen rows. */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 76px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  padding: var(--space-3);
+  background: var(--surface);
+}
+
+.code-row-main {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.code-row-main p {
+  margin: 2px 0 0;
+}
+
+.code-row-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.import-warning {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--caution);
+}
+
 .list-cards {
   display: grid;
   gap: var(--space-3);
 }
 
-.note-card,
 .list-card {
   display: grid;
   gap: var(--space-2);
@@ -2492,22 +2561,16 @@ body {
   background: var(--surface);
 }
 
-.note-card-copy strong {
-  font-size: var(--text-sm);
+.list-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
 }
 
-.note-card-copy p {
+.list-card-copy p {
   margin-top: 2px;
-}
-
-.note-excerpt {
-  color: var(--muted);
-  font-size: var(--text-xs);
-}
-
-.note-card-code {
-  max-height: 120px;
-  margin: 0;
 }
 
 .list-problems {
@@ -2549,27 +2612,10 @@ body {
   font-size: var(--text-xs);
 }
 
-.profile-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.avatar-placeholder {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  background: var(--surface-2);
-  font-weight: 700;
-}
-
 /* --- carried-over v1 view internals (still on the tokens) ----------------- */
 
 /* v1 button classes still used by the not-yet-migrated views (Friends, Lists,
-   Notes, NoteEditor, ListPicker). They map onto the v2 button roles, so a
+   ListPicker). They map onto the v2 button roles, so a
    carried-over view cannot drift from the shell's button metrics. */
 .button {
   display: inline-flex;
@@ -2689,76 +2735,6 @@ body {
 .notice-error {
   border-color: color-mix(in srgb, var(--danger) 45%, var(--line));
   color: var(--danger);
-}
-
-/**
- * The classes below belong to `src/SheetList.tsx`, the v1 row renderer that is
- * still imported but is no longer mounted (the shipping sheet is
- * `src/design/row.tsx` with `.row`/`.row-*`, and phase v2-02 removes the file).
- * They are defined once, in tokens, so the module keeps rendering legibly if a
- * later phase reuses it, and so returning classes have a visual contract.
- */
-.status-check {
-  display: inline-grid;
-  place-items: center;
-  width: var(--control-height);
-  height: var(--control-height);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius-control);
-  background: var(--surface);
-  color: var(--ink);
-  cursor: pointer;
-}
-
-.status-check:hover {
-  border-color: var(--action);
-}
-
-.problem-copy {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-}
-
-.problem-title {
-  overflow: hidden;
-  color: var(--ink);
-  font-size: var(--text-base);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.problem-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-2);
-  color: var(--subtle);
-  font-size: var(--text-2xs);
-}
-
-.row-tools,
-.row-links {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.bookmark-button,
-.row-tools button,
-.row-links a {
-  min-height: var(--control-height);
-  border-radius: var(--radius-control);
-  padding: 0 var(--space-2);
-  color: var(--muted);
-  font-size: var(--text-2xs);
-}
-
-.subtopic-content {
-  display: grid;
-  gap: var(--space-2);
-  padding-left: var(--space-3);
 }
 
 .list-create {

@@ -110,7 +110,8 @@ export function generateRules(catalogue, drillIdsByTopic = new Map()) {
   return `// GENERATED FILE — do not edit by hand.
 // Source: tools/generate-firestore-rules.mjs from data/problems.json + data/practice-sets/.
 // ${topics.length} topics · ${catalogueTotal} catalogue ids · ${drillTotal} synthetic lc-<n> drill keys.
-// Rules v5 (phase 02) + Phase 03 drill whitelist; prior rules remain backward compatible.
+// Rules v6 (phase v2-04): saved solutions in snippets; the notes collection is removed
+// (default deny). Prior rules designs are otherwise unchanged.
 rules_version = '2';
 
 service cloud.firestore {
@@ -210,18 +211,21 @@ ${topics.map((topic) => `        && data.solvedByTopic[${literal(topic.id)}] is 
       return !data.keys().hasAny([id]) || validCloudEntry(data.get(id, {}));
     }
 
-    // Phase 3.1 — one note document per problem, created only when written.
-    // The doc id is a catalogue slug; the client only writes known ids and the
-    // backup parser re-checks them. Sizes are capped so a hostile client cannot
-    // bloat the free tier, and an all-empty note must be deleted instead.
-    function validNote(data) {
-      return data.keys().hasOnly(['markdown', 'snippet', 'updatedAt'])
-        && data.keys().hasAll(['markdown', 'snippet', 'updatedAt'])
-        && data.markdown is string
-        && data.markdown.size() <= 5000
-        && data.snippet is string
-        && data.snippet.size() <= 8000
-        && (data.markdown.size() + data.snippet.size()) > 0
+    // Phase v2-04 — one saved solution per problem, created only when written.
+    // The doc id is a catalogue slug (synthetic lc-<n> drills match it too);
+    // the client only writes known ids and the backup parser re-checks them.
+    // Sizes and enums are capped so a hostile client cannot bloat the free
+    // tier, and an all-empty snippet must be deleted instead of stored.
+    function validSnippet(data) {
+      return data.keys().hasOnly(['language', 'code', 'notes', 'verdict', 'updatedAt'])
+        && data.keys().hasAll(['language', 'code', 'notes', 'updatedAt'])
+        && data.language in ['cpp', 'c', 'java', 'python', 'js', 'ts', 'go', 'rust', 'other']
+        && data.code is string
+        && data.code.size() <= 8000
+        && data.notes is string
+        && data.notes.size() <= 500
+        && (data.code.size() + data.notes.size()) > 0
+        && (!data.keys().hasAny(['verdict']) || data.verdict in ['clean', 'hint', 'couldnt'])
         && data.updatedAt == request.time;
     }
 
@@ -288,14 +292,15 @@ ${topics.map(progressValidator).join('\n')}
       }
 
 ${topics.map(topicBlock).join('\n')}
-      // Notes and lists are personal data: own-data-only, one document per
-      // write. Note ids are catalogue problem slugs; list ids are generated
-      // lowercase UUIDs. Both collections are readable by their owner only.
-      match /notes/{problemId} {
+      // Saved solutions and lists are personal data: own-data-only, one
+      // document per write. Snippet ids are catalogue problem slugs; list ids
+      // are generated lowercase UUIDs. Snippets are never shared with
+      // friends (the v1 privacy rule) — only the owner can reach them.
+      match /snippets/{problemId} {
         allow get, list: if isOwner(uid);
         allow create, update: if isOwner(uid)
           && problemId.matches('^[a-z0-9][a-z0-9-]{0,79}$')
-          && validNote(request.resource.data);
+          && validSnippet(request.resource.data);
         allow delete: if isOwner(uid);
       }
 

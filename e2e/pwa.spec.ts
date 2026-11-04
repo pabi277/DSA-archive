@@ -195,7 +195,7 @@ test('dark, light, phone, desktop, large-text and 404/offline variants pass a11y
   await expectFitsAndAccessible(page)
 })
 
-test('signed-in airplane-mode cold open preserves cloud progress and notes and syncs on reconnect (6.1 + 6.2)', async ({
+test('signed-in airplane-mode cold open preserves cloud progress and saved code and syncs on reconnect (6.1 + 6.2)', async ({
   browser,
 }) => {
   test.skip(!process.env.PLAYWRIGHT_EMULATOR, 'Requires the Firebase Emulator Suite in CI')
@@ -229,10 +229,11 @@ test('signed-in airplane-mode cold open preserves cloud progress and notes and s
     await expect(page.getByTestId('progress-pill')).toHaveText('1/495 done')
 
     await page.getByRole('button', { name: /More actions for Two Sum/ }).click()
-    await page.getByTestId('menu-note-two-sum').click()
-    await page.getByTestId('note-markdown').fill('Saved before airplane mode.')
-    await page.getByTestId('note-save').click()
-    await expect(page.getByTestId('account-notice')).toContainText('Note saved')
+    await page.getByTestId('menu-code-two-sum').click()
+    await page.getByTestId('code-input').fill('class Solution {};')
+    await page.getByTestId('code-notes').fill('Saved before airplane mode.')
+    await page.getByTestId('code-save').click()
+    await expect(page.getByTestId('account-notice')).toContainText('Code saved')
     await expect(page.getByTestId('sync-pill')).toContainText('Synced')
 
     // Audit signed-in Friends & Today views in large-text mode on phone width.
@@ -257,9 +258,9 @@ test('signed-in airplane-mode cold open preserves cloud progress and notes and s
     await expect(coldPage.getByTestId('progress-pill')).toHaveText('1/495 done')
     await expect(coldPage.getByTestId('sync-pill')).toContainText('Offline')
 
-    // Saved note is readable from IndexedDB persistent cache while completely offline.
-    await open(coldPage, '/#/notes')
-    await expect(coldPage.getByTestId('note-card-two-sum')).toContainText('Saved before airplane mode.')
+    // Saved code is readable from IndexedDB persistent cache while completely offline.
+    await open(coldPage, '/#/code')
+    await expect(coldPage.getByTestId('code-row-two-sum')).toContainText('Saved before airplane mode.')
 
     // Solve another problem while in airplane mode, then reconnect and verify sync.
     await open(coldPage, '/#/search?q=linear+search')
@@ -277,8 +278,8 @@ test('signed-in airplane-mode cold open preserves cloud progress and notes and s
     await open(verifyPage, '/')
     await verifyPage.getByTestId('emulator-sign-in').click()
     await expect(verifyPage.getByTestId('progress-pill')).toHaveText('2/495 done')
-    await open(verifyPage, '/#/notes')
-    await expect(verifyPage.getByTestId('note-card-two-sum')).toContainText('Saved before airplane mode.')
+    await open(verifyPage, '/#/code')
+    await expect(verifyPage.getByTestId('code-row-two-sum')).toContainText('Saved before airplane mode.')
   } finally {
     await context.close()
     await verifyContext.close()

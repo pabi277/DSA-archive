@@ -4,154 +4,13 @@
  * is a *designed* state, not "coming soon" filler: it says what will live here,
  * what you can do right now instead, and offers exactly one primary action.
  *
- * Phase contract: 01 ships the routes + the states; 02 turns `topic` into the
- * Learn · Practice · Quiz body, 04 fills `code`, 05 the quiz home and checks,
- * 03 the drills (whose source of truth is takeuforward — the video links stay
- * single-source by owner decision and are never re-hosted here).
+ * Phase contract: 01 shipped the routes + the states; the problem, practice
+ * and code bodies graduated to their own modules in phases 03–04, and 05
+ * replaces the quiz home below.
  */
-import { catalogue } from '../catalogue'
-import { tallyTopic } from '../progress'
 import { buildPath } from './router'
-import { Button, Card, Empty, Stat } from '../design/primitives'
-import { IconArrowLeft, IconCheck, IconCode, IconSpark, IconToday } from '../design/icons'
-
-export function ProblemScreen({ problemId }: { problemId: string }) {
-  const rows = catalogue.topics.flatMap((topic) =>
-    topic.subtopics.flatMap((subtopic) => subtopic.problems.map((problem) => ({ topic, subtopic, problem }))),
-  )
-  const match = rows.find((row) => row.problem.id === problemId)
-  if (!match) {
-    return (
-      <Empty
-        title="That problem does not exist"
-        mark="?"
-        testId="problem-missing"
-        action={
-          <Button variant="primary" onClick={() => { window.location.hash = buildPath('topics') }}>
-            Browse all topics
-          </Button>
-        }
-      >
-        <code>{problemId}</code> is not in this archive.
-      </Empty>
-    )
-  }
-  const { topic, subtopic, problem } = match
-  const links = ['practice', 'article', 'video', 'leetcode'] as const
-  return (
-    <div className="problem-screen">
-      <a className="back-link" href={buildPath('topic', topic.id)}>
-        <IconArrowLeft size={14} /> {topic.title}
-      </a>
-      {/* The page header owns the only h1 on every route (a11y rule 1); the
-          problem title is the document's second level. */}
-      <h2 className="problem-screen-title">{problem.title}</h2>
-      <p className="quiet-note">
-        {subtopic.title} · {problem.kind === 'theory' ? 'Theory' : 'Problem'} ·{' '}
-        <span className="num">{tallyTopic({}, topic).total}</span> rows in this topic
-      </p>
-
-      <div className="problem-actions">
-        {problem.kind === 'theory' ? (
-          <Button variant="primary" disabled>
-            <IconCheck size={16} /> Check (phase 05)
-          </Button>
-        ) : (
-          <Button variant="primary" disabled>
-            <IconCode size={16} /> Solve in the runner (phase 07)
-          </Button>
-        )}
-        <Button onClick={() => { window.location.hash = buildPath('search', '', { q: problem.title }) }}>
-          Find it in the sheet
-        </Button>
-      </div>
-
-      <section className="problem-links" aria-label="Sources for this row">
-        <h2>Sources</h2>
-        <p className="quiet-note">
-          Articles and videos are ranked across publishers in phase 03. Until then the bundled
-          single-source links are shown exactly as extracted — never rewritten.
-        </p>
-        <ul>
-          {links.map((linkType) => {
-            const href = problem.links[linkType]
-            if (!href) return null
-            return (
-              <li key={linkType}>
-                <a href={href} target="_blank" rel="noopener noreferrer">
-                  {linkType === 'practice' ? 'Practice' : linkType === 'article' ? 'Article' : linkType === 'video' ? 'Video' : 'LeetCode'}
-                </a>
-              </li>
-            )
-          })}
-          {links.every((linkType) => !problem.links[linkType]) ? <li className="quiet-note">No outbound link for this row.</li> : null}
-        </ul>
-      </section>
-
-      <Empty
-        title="Statement, hint and tests arrive with the content pipeline"
-        mark={<IconSpark size={20} />}
-        testId="problem-content-pending"
-      >
-        Phase 03 writes our own statement, hint and common-mistake text per row; phase 06 adds the
-        in-app video theatre and phase 07 the local runner. This page exists now so every row has a
-        URL you can bookmark and share.
-      </Empty>
-    </div>
-  )
-}
-
-export function CodeScreen({ signedIn }: { signedIn: boolean }) {
-  return (
-    <div className="code-screen">
-      <Empty
-        title={signedIn ? 'No saved solutions yet' : 'Sign in to keep your code'}
-        mark={<IconCode size={20} />}
-        testId="code-view"
-        action={
-          signedIn ? (
-            <a className="btn btn-primary" href={buildPath('topics')}>
-              Pick a problem to start
-            </a>
-          ) : (
-            <Button variant="primary" disabled>
-              Sign in from the top bar
-            </Button>
-          )
-        }
-      >
-        {signedIn
-          ? 'The Code section stores one snippet per problem in Firestore, synced and included in your JSON backup. Phase 04 replaces the old notes store with it.'
-          : 'Notes and snippets are personal data, so they need an account. The sheet and its search keep working signed out.'}
-      </Empty>
-      <div className="stat-row">
-        <Stat value="0" label="saved solutions" detail="phase 04" />
-        <Stat value="3" label="supported languages" detail="C++ · Python · JS" />
-        <Stat value="1" label="backup file" detail="schema v4" />
-      </div>
-    </div>
-  )
-}
-
-export function PracticeScreen() {
-  return (
-    <div className="practice-screen">
-      <Empty
-        title="Drills arrive with the practice sets"
-        mark={<IconSpark size={20} />}
-        testId="practice-view"
-        action={
-          <a className="btn btn-primary" href={buildPath('search')}>
-            Browse the 495-row sheet
-          </a>
-        }
-      >
-        Phase 03 adds +120–140 LeetCode drills grouped by pattern in <code>data/practice-sets/</code>.
-        Progress reuses the same topic shards — no new schema, no new rules.
-      </Empty>
-    </div>
-  )
-}
+import { Button, Card, Empty } from '../design/primitives'
+import { IconCheck, IconSpark, IconToday } from '../design/icons'
 
 export function QuizHome({ signedIn }: { signedIn: boolean }) {
   return (
@@ -279,7 +138,7 @@ export function SettingsScreen({
 
       <Card title="Your data">
         <p className="quiet-note">
-          Progress, notes and lists sync to your own Firestore documents; JSON backup and import live
+          Progress, saved code and lists sync to your own Firestore documents; JSON backup and import live
           in the account panel so nobody's progress is locked into Firebase.
         </p>
         <div className="inline-actions">

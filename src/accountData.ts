@@ -19,6 +19,7 @@ import {
 } from 'firebase/firestore'
 import type { AccountState } from './account'
 import type { LibraryState } from './libraryData'
+import type { CodeState } from './code/codeData'
 import { db } from './firebase'
 import {
   applyProfileSettings,
@@ -58,7 +59,7 @@ import type { PlannerState } from './plannerData'
 
 export type SyncState = 'local' | 'local-offline' | 'syncing' | 'synced' | 'pending' | 'offline' | 'error'
 export type MergeProposal = Omit<MergePlan, 'writes'>
-export type ImportPreview = { backup: Backup; counts: BackupCounts }
+export type ImportPreview = { backup: Backup; counts: BackupCounts; warnings: string[] }
 
 export type AccountData = {
   account: AccountState
@@ -130,6 +131,7 @@ async function commitWrite(firestore: Firestore, uid: string, write: CloudWrite)
 export function useAccountData(
   account: AccountState,
   library: LibraryState,
+  code: CodeState,
   planner: PlannerState,
 ): AccountData {
   const settings = useSettings()
@@ -464,8 +466,8 @@ export function useAccountData(
       setDataError('Wait for the signed-in sheet to finish syncing before exporting.')
       return
     }
-    if (!library.ready) {
-      setDataError('Wait for notes and lists to finish syncing before exporting.')
+    if (!library.ready || !code.ready) {
+      setDataError('Wait for lists and saved code to finish syncing before exporting.')
       return
     }
     setBusy(true)
@@ -474,11 +476,12 @@ export function useAccountData(
       // Plan days are read on demand: the app subscribes to today only, and a
       // backup must still carry the whole planner history.
       const plans = await planner.collectPlansForBackup()
+      const snippets = code.snippetsSnapshot()
       const text = createBackup({
         account: { displayName: account.user.displayName, email: account.user.email },
         settings: getSettingsSnapshot(),
         progressByTopic: cloudRef.current,
-        notes: library.notesSnapshot(),
+        snippets,
         lists: library.listsSnapshot(),
         plans,
         dailyGoal,
@@ -493,7 +496,7 @@ export function useAccountData(
       anchor.remove()
       setTimeout(() => URL.revokeObjectURL(url), 0)
       setNotice(
-        `Backup exported with ${countCloudRows(cloudRef.current)} progress rows, ${library.notesSnapshot().length} notes and ${plans.length} plan day${plans.length === 1 ? '' : 's'}.`,
+        `Backup exported with ${countCloudRows(cloudRef.current)} progress rows, ${snippets.length} saved solution${snippets.length === 1 ? '' : 's'} and ${plans.length} plan day${plans.length === 1 ? '' : 's'}.`,
       )
     } catch (reason) {
       setDataError(`Could not export the backup: ${messageFrom(reason)}`)
@@ -561,13 +564,15 @@ export function useAccountData(
           preview.backup.profile.largeText,
         )
         setDailyGoalState(clampGoal(preview.backup.profile.dailyGoal))
-        // Notes, lists and plan days are part of backup schemas v2/v3; a v1
+        // Saved solutions, lists and plan days ride the backup; a schema v1
         // file restores none of them, which clears them as its preview says.
-        await library.applyBackup(preview.backup.notes, preview.backup.lists)
+        // Schema ≤4 files arrive here already migrated to `snippets`.
+        await library.applyBackup(preview.backup.lists)
+        await code.applyBackup(preview.backup.snippets)
         await planner.applyPlanBackup(preview.backup.plans)
         setImportPreview(null)
         setNotice(
-          `Imported ${preview.counts.rows} row${preview.counts.rows === 1 ? '' : 's'} across ${preview.counts.topics} topic${preview.counts.topics === 1 ? '' : 's'} · ${preview.counts.notes} note${preview.counts.notes === 1 ? '' : 's'} · ${preview.counts.lists} list${preview.counts.lists === 1 ? '' : 's'} · ${preview.counts.plans} plan day${preview.counts.plans === 1 ? '' : 's'}.`,
+          `Imported ${preview.counts.rows} row${preview.counts.rows === 1 ? '' : 's'} across ${preview.counts.topics} topic${preview.counts.topics === 1 ? '' : 's'} · ${preview.counts.snippets} saved solution${preview.counts.snippets === 1 ? '' : 's'} · ${preview.counts.lists} list${preview.counts.lists === 1 ? '' : 's'} · ${preview.counts.plans} plan day${preview.counts.plans === 1 ? '' : 's'}.`,
         )
       } catch (reason) {
         setDataError(`Import failed: ${messageFrom(reason)}`)

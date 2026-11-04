@@ -101,8 +101,8 @@ test('cloud progress survives relogin, offline reconnect and backup restore', as
     const downloadPath = await download.path()
     expect(downloadPath).toBeTruthy()
     const exported = await readFile(downloadPath!, 'utf8')
-    // Phase 3 bumped the writer to schema v2 (notes and lists included).
-    expect(JSON.parse(exported).schemaVersion).toBe(4)
+    // Phase v2-04 bumped the writer to schema v5 (saved solutions included).
+    expect(JSON.parse(exported).schemaVersion).toBe(5)
 
     const fileInput = verifyPage.getByLabel('Import backup JSON')
     await fileInput.setInputFiles({

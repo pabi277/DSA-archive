@@ -19,7 +19,8 @@
  *   #/insights               light insight screen (phase 08)
  *   #/settings               settings
  *   #/search?q=…             full-sheet search (the v1 sheet, re-chromed)
- *   #/lists, #/notes, #/friends, #/stats   carried over from v1
+ *   #/lists, #/friends, #/stats   carried over from v1 (`#/notes` was
+ *   deleted with the notes feature in v2-04 and now lands on the 404)
  *   #/not-found              friendly 404 — also the parse fallback
  */
 
@@ -36,7 +37,6 @@ export const ROUTE_NAMES = [
   'insights',
   'settings',
   'lists',
-  'notes',
   'friends',
   'stats',
   'not-found',
@@ -70,7 +70,6 @@ const KNOWN_PATHS: Record<string, RouteName> = {
   insights: 'insights',
   settings: 'settings',
   lists: 'lists',
-  notes: 'notes',
   friends: 'friends',
   stats: 'stats',
   'not-found': 'not-found',

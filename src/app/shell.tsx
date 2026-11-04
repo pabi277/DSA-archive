@@ -19,7 +19,6 @@ import {
   IconReview,
   IconSearch,
   IconSettings,
-  IconStar,
   IconToday,
   IconTopics,
 } from '../design/icons'
@@ -43,7 +42,6 @@ const NAV: { name: RouteName; label: string; Icon: typeof IconToday; shortcut: s
 const SECONDARY: { name: RouteName; label: string; Icon: typeof IconToday }[] = [
   { name: 'search', label: 'Search sheet', Icon: IconSearch },
   { name: 'lists', label: 'My lists', Icon: IconTopics },
-  { name: 'notes', label: 'Notes', Icon: IconStar },
   { name: 'stats', label: 'Stats', Icon: IconTopics },
   { name: 'friends', label: 'Friends', Icon: IconTopics },
   { name: 'settings', label: 'Settings', Icon: IconSettings },
