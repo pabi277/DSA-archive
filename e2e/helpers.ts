@@ -1,3 +1,4 @@
+import AxeBuilder from '@axe-core/playwright'
 import { expect, type Page } from '@playwright/test'
 
 /**
@@ -82,4 +83,17 @@ export async function markDone(page: Page, problemId: string) {
 /** Deep link to a single row: `#/search?q=<title>` opens and reveals it. */
 export async function findRow(page: Page, title: string) {
   await open(page, `/#/search?q=${encodeURIComponent(title)}`)
+}
+
+/**
+ * Audit *our* document, never YouTube's.
+ *
+ * Since phase v2-06 a real `#/problem/<id>` may carry YouTube's own iframe, and
+ * its document ships attributes axe flags (`aria-level` on an anchor, for one).
+ * We do not own that markup and must not modify or inhibit the player
+ * (ToS §4.13), so the frame's wrapper is excluded by the one class that is ours.
+ * The rule set stays exactly as strict for every node we do write.
+ */
+export function auditPage(page: Page) {
+  return new AxeBuilder({ page }).exclude('.theatre-frame').exclude('.mini-holder')
 }

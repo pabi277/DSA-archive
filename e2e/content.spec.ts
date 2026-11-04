@@ -1,6 +1,5 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
-import { desktop, open, phone } from './helpers'
+import { desktop, open, phone, auditPage } from './helpers'
 
 /**
  * Phase 03 acceptance in a real browser: statement blocks, local hints, primer
@@ -95,7 +94,7 @@ test('content surfaces have zero axe violations and no phone overflow', async ({
     await page.setViewportSize(viewport.size)
     for (const route of routes) {
       await open(page, route)
-      const audit = await new AxeBuilder({ page }).analyze()
+      const audit = await auditPage(page).analyze()
       expect(audit.violations, `${route} @ ${viewport.name}`).toEqual([])
       if (viewport.name === 'phone') {
         const fits = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)

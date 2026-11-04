@@ -1,7 +1,6 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
-import { open, openTopic } from './helpers'
+import { open, openTopic, auditPage } from './helpers'
 
 /**
  * Phase v2-04 "Done means" in CI, at phone width against the Auth +
@@ -200,13 +199,13 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await open(secondPage, '/#/code')
     await secondPage.screenshot({ path: 'test-results/code-list-phone.png', fullPage: true })
     const phoneAudit = await Promise.race([
-      new AxeBuilder({ page: secondPage }).analyze(),
+      auditPage(secondPage).analyze(),
       new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('axe timed out on #/code')), 60_000)),
     ])
     expect(phoneAudit.violations).toEqual([])
     await open(secondPage, '/#/problem/linear-search?tab=code')
     const problemAudit = await Promise.race([
-      new AxeBuilder({ page: secondPage }).analyze(),
+      auditPage(secondPage).analyze(),
       new Promise<never>((_resolve, reject) => setTimeout(() => reject(new Error('axe timed out on the problem page')), 60_000)),
     ])
     expect(problemAudit.violations).toEqual([])

@@ -1,6 +1,5 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
-import { ALL_ROUTES, desktop, open, openTopic, phone } from './helpers'
+import { ALL_ROUTES, desktop, open, openTopic, phone, auditPage } from './helpers'
 
 /**
  * Phase v2-01 acceptance in a real browser. Mirrors `src/shell.test.tsx` (jsdom)
@@ -186,7 +185,7 @@ test('tokens v2: one accent, five roles, contrast pairs and 0 axe violations (ac
     for (const route of ALL_ROUTES) {
       await open(page, route)
       if (route === '/#/search') await openTopic(page)
-      const audit = await new AxeBuilder({ page }).analyze()
+      const audit = await auditPage(page).analyze()
       expect(audit.violations, `${route} @ ${viewport.width}`).toEqual([])
     }
   }

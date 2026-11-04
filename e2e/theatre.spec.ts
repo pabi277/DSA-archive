@@ -1,6 +1,5 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
-import { desktop, open, phone } from './helpers'
+import { desktop, open, phone, auditPage } from './helpers'
 
 /**
  * Phase v2-06 "Done means" in CI: `#/problem/<id>` is a theatre.
@@ -93,7 +92,8 @@ test.describe('theatre shell', () => {
       await expect(page.getByTestId('theatre-speed')).toBeVisible()
       await expect(page.getByTestId('theatre-stamp')).toBeVisible()
       await expect(page.getByTestId('theatre-captions')).toBeVisible()
-      await expect(page.getByTestId('stamps-list').first()).toBeVisible()
+      // Stamps live in the rail (desktop) or the Stamps tab (phone), never both.
+      if (viewport === desktop) await expect(page.getByTestId('stamps-list').first()).toBeVisible()
       if (viewport === desktop) {
         await expect(page.getByTestId('rail-code')).toBeVisible()
         await expect(page.getByTestId('rail-leetcode')).toBeVisible()
@@ -101,6 +101,8 @@ test.describe('theatre shell', () => {
       } else {
         await expect(page.getByTestId('problem-tab-code')).toBeVisible()
         await expect(page.locator('.theatre-rail')).toHaveCount(0)
+        await page.getByTestId('problem-tab-stamps').click({ timeout: 15_000 })
+        await expect(page.getByTestId('stamps-list')).toBeVisible()
       }
       // The official embed URL is ours to build: documented params, no autoplay.
       const frame = page.locator('.theatre-frame iframe')
@@ -137,6 +139,11 @@ test.describe('theatre shell', () => {
   })
 
   test('keyboard: space toggles play and the arrows seek, but never while typing', async ({ page }) => {
+    // Signed in, because the typing half needs a stamp form to type into.
+    test.skip(!process.env.PLAYWRIGHT_EMULATOR, 'Requires the Firebase Emulator Suite in CI')
+    await open(page, '/')
+    await page.getByTestId('emulator-sign-in').click({ timeout: 20_000 })
+    await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
     await open(page, '/#/problem/two-sum')
     const toggle = page.getByTestId('theatre-toggle')
     await expect(toggle).toHaveAttribute('aria-label', 'Play the video')
@@ -265,7 +272,7 @@ test.describe('theatre shell', () => {
   for (const route of theatreRoutes) {
     test(`axe: no violations on ${route}`, async ({ page }) => {
       await open(page, route)
-      const results = await new AxeBuilder({ page }).analyze()
+      const results = await auditPage(page).analyze()
       expect(results.violations).toEqual([])
     })
   }

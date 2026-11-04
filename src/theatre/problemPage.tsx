@@ -260,7 +260,9 @@ export function ProblemScreen({
                 key={value}
                 type="button"
                 role="tab"
+                id={`problem-tab-${value}-button`}
                 aria-selected={tab === value}
+                aria-controls={`problem-panel-${value}`}
                 className="theatre-tab"
                 data-testid={`problem-tab-${value}`}
                 onClick={() => setTab(value)}
@@ -270,7 +272,13 @@ export function ProblemScreen({
             ))}
           </div>
 
-          <div className="theatre-panel" role="tabpanel" data-testid={`problem-panel-${tab}`}>
+          <div
+            className="theatre-panel"
+            role="tabpanel"
+            id={`problem-panel-${tab}`}
+            aria-labelledby={`problem-tab-${tab}-button`}
+            data-testid={`problem-panel-${tab}`}
+          >
             {tab === 'problem' ? (
               <>
                 {theoryMcq ? (

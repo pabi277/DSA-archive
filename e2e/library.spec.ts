@@ -1,7 +1,6 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { readFile } from 'node:fs/promises'
-import { open } from './helpers'
+import { open, auditPage } from './helpers'
 
 /**
  * Custom lists (roadmap phase 3, trimmed in v2-04 when the notes half of
@@ -133,7 +132,7 @@ test('custom lists sync across devices, filter the sheet and survive backup', as
 
     await open(secondPage, '/#/lists')
     await secondPage.screenshot({ path: 'test-results/library-phone.png', fullPage: true })
-    const phoneAudit = await new AxeBuilder({ page: secondPage }).analyze()
+    const phoneAudit = await auditPage(secondPage).analyze()
     expect(phoneAudit.violations).toEqual([])
   } finally {
     for (const context of contexts) await context.close()

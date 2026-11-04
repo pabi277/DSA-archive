@@ -1,7 +1,6 @@
-import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type Page } from '@playwright/test'
 import { readFile, readdir } from 'node:fs/promises'
-import { open, openTopic } from './helpers'
+import { open, openTopic, auditPage } from './helpers'
 
 /**
  * Roadmap phase 4 "Done means" in CI, at phone width against the Auth +
@@ -196,7 +195,7 @@ test('a study session runs Today → solve → revise, with stats and a v5 backu
     await expect(page.getByTestId('bar-arrays')).toBeVisible()
     await expect(page.getByTestId('level-split')).toContainText('Basic')
     await page.screenshot({ path: 'test-results/planner-phone.png', fullPage: true })
-    const phoneAudit = await new AxeBuilder({ page }).analyze()
+    const phoneAudit = await auditPage(page).analyze()
     expect(phoneAudit.violations).toEqual([])
 
     // --- backup schema v3 carries the plan day and the revision counter -----

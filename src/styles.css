@@ -3850,9 +3850,12 @@ body {
 
 .mini-player {
   position: fixed;
+  /* Above the phone bottom bar and clear of the page: a dock that covers the
+     Save button is a dock that steals clicks (the phase-04 editor runs to the
+     bottom of the page). */
   z-index: 70;
   right: var(--space-4);
-  bottom: var(--space-4);
+  bottom: calc(var(--bottom-bar-height) + var(--space-4) + env(safe-area-inset-bottom, 0px));
   display: grid;
   width: min(360px, calc(100vw - 24px));
   overflow: hidden;
@@ -3863,6 +3866,7 @@ body {
 }
 
 .mini-holder {
+  max-height: 30vh;
   aspect-ratio: 16 / 9;
   background: #000;
 }
