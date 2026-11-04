@@ -289,16 +289,16 @@ export function TheatreStage({
             <button
               type="button"
               className="theatre-btn theatre-btn-play"
-              aria-label={playing ? 'Pause the video' : 'Play the video'}
+              aria-label={playing ? 'Pause the video' : 'Play, play the video'}
               data-testid="theatre-toggle"
               onClick={() => togglePlay()}
             >
               {playing ? '❚❚' : <IconPlay size={15} />}
             </button>
-            <button type="button" className="theatre-btn num" aria-label="Back ten seconds" data-testid="theatre-back" onClick={() => skip(-10)}>
+            <button type="button" className="theatre-btn num" aria-label="−10s, back ten seconds" data-testid="theatre-back" onClick={() => skip(-10)}>
               −10s
             </button>
-            <button type="button" className="theatre-btn num" aria-label="Forward ten seconds" data-testid="theatre-forward" onClick={() => skip(10)}>
+            <button type="button" className="theatre-btn num" aria-label="+10s, forward ten seconds" data-testid="theatre-forward" onClick={() => skip(10)}>
               +10s
             </button>
             <span className="theatre-clock num" data-testid="theatre-clock">

@@ -379,9 +379,14 @@ function AppShell() {
 
   /* --- keyboard layer (acceptance: full keyboard path) ------------------- */
 
-  const openProblem = useCallback((problemId: string | undefined) => {
+  /**
+   * Open a problem, optionally on one of its tabs. The tab is URL state
+   * (phase v2-06), and `navigate` is a no-op when the hash is unchanged — so the
+   * code screen's row link must carry `?tab=code` for the page to land there.
+   */
+  const openProblem = useCallback((problemId: string | undefined, tab?: 'code') => {
     if (!problemId) return
-    navigate('problem', problemId)
+    navigate('problem', problemId, tab ? { tab } : {})
   }, [])
 
   useEffect(
@@ -869,7 +874,7 @@ function AppShell() {
                 ready={code.ready}
                 snippets={code.snippets}
                 query={route.query}
-                onOpenProblem={(problemId) => openProblem(problemId)}
+                onOpenProblem={(problemId) => openProblem(problemId, 'code')}
               />
             ) : null}
             {route.name === 'practice' ? (

@@ -93,7 +93,7 @@ export function MiniPlayer({
           data-testid="mini-toggle"
           onClick={() => togglePlay()}
         >
-          {playing ? '❚❚' : '▶'}
+          <span aria-hidden="true">{playing ? '❚❚' : '▶'}</span>
         </button>
         {problemId ? (
           <button
@@ -114,7 +114,7 @@ export function MiniPlayer({
           aria-label="Open this video on YouTube in a new tab"
           data-testid="mini-youtube"
         >
-          <IconExternal size={13} />
+          <IconExternal size={13} aria-hidden="true" />
         </a>
         <button
           type="button"
