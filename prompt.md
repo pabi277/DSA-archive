@@ -2,17 +2,17 @@
 
 # DSA Archive — continuation prompt (v2 programme, one phase per chat)
 
-> **Self-contained handoff.** v1 is complete. v2 Phase 01 is merged to `main` in PR #12
-> (`558a25f`; CI run `41635438159` passed). Phase 02 is merged to `main` in PR #13
-> (`bd9350b`; CI run `41647413508` passed, including emulator rules and Playwright/axe).
-> Phase 03 is **implemented** on `arena/cae52fb6-dsa-archive`; its local validation is
-> green and CI/owner-review metadata is recorded in
-> `docs/phases-v2/03-content-pipeline/RECORD.md`. PR
-> [#14](https://github.com/pabi277/DSA-archive/pull/14) is open on the owner's explicit
-> command; merging remains a standing owner gate. The owner's sample-batch content-accuracy
-> review and generated visual-baseline review are still pending. No deployment or `main`
-> push was performed. Phase 04 is the next build phase after the owner commands Phase 03's
-> merge.
+> **Self-contained handoff.** v1 is complete. v2 Phases 01–04 are merged to `main`
+> (PR #12 `558a25f`, PR #13 `bd9350b`, PR #14 `e51695a`, PR #15 `f4fa993` with CI run
+> `41782795154` green). Phase 05 (`05-quiz-engine`) is **implemented** on
+> `arena/6327674f-dsa-archive` with CI run
+> [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495)
+> (`cac1c7f`) green across 194 unit tests, 18 emulator rules v7 tests, 94 Playwright +
+> axe checks, 64 visual baselines, `site-preview` (435,685 B), and 376.01 kB / 380 kB
+> gzip shell precache, recorded in `docs/phases-v2/05-quiz-engine/RECORD.md`. Opening a
+> PR and merging remain standing owner gates; no PR, merge, deployment, or `main` push
+> was performed without the owner's explicit command. Phase 06 (`06-theatre-player`) is
+> the next build phase after the owner commands Phase 05's PR and merge.
 > Authority order: `rule.md` → `docs/DECISIONS.md` (owner answers) →
 > `docs/phases-v2/` (phase contracts) → `docs/ROADMAP.md` (status) →
 > `docs/DATA-MODEL.md` (Firestore/backup shapes) → `docs/UI-REFERENCE.md`
@@ -84,20 +84,28 @@ Do **not** start coding before step 5 is read end-to-end.
   fully authored Arrays topic, statement/practice screens, coverage CI and a scheduled
   link audit. Closure is recorded in `docs/phases-v2/03-content-pipeline/RECORD.md`.
   No deployment occurred.
-- **v2-04 implementation complete; owner review/merge gate pending**: branch
-  `arena/25c78974-dsa-archive`; notes deleted end-to-end (UI, data layer, backup field,
-  rules block, `#/notes` route), `users/{uid}/snippets/{problemId}` under rules **v6**,
-  backup **v5** (schemas 1–4 still import; legacy code kept byte-for-byte, markdown
-  dropped with a named warning), `#/code` search + filters, the deliberately small
-  editor (line numbers, Tab/Enter indent, ⌘S, snapshot-driven save status),
-  peek-for-recall and copy-out. Local `npm run build`, `npm test` (173), `test:data`,
-  `check:content`, `check:rules`, `check:dist`, `check:links`, `check:budgets` all green
-  (shell 379,965 B gzip inside the frozen 380,000 B cap — the cap was not raised).
-  PR [#15](https://github.com/pabi277/DSA-archive/pull/15) is open on the owner's
-  command and CI run `41782795154` is green (emulator rules v6, 83 Playwright tests,
-  axe 0, 56 visual baselines as a review artifact); merge remains gated. Record:
-  `docs/phases-v2/04-code-notebooks/RECORD.md`.
-- **v2-05 … v2-10 not started**: Phase 05 follows only after the owner reviews Phase 04,
+- **v2-04 complete and merged**: PR #15 → `main` at `f4fa993` (2026-11-04); CI run
+  `41782795154` green (emulator rules v6, 83 Playwright tests, axe 0, 56 visual
+  baselines). Notes deleted end-to-end; `users/{uid}/snippets/{problemId}` under rules
+  **v6**, backup **v5** (schemas 1–4 still import; legacy code kept byte-for-byte,
+  markdown dropped with a named warning), `#/code` search + filters, small editor,
+  peek-for-recall and copy-out. Record: `docs/phases-v2/04-code-notebooks/RECORD.md`.
+- **v2-05 implementation complete; owner PR/review/merge gate pending**: branch
+  `arena/6327674f-dsa-archive`; 42 `TheoryMcqCard`s (`[Check]` inline accordions on
+  Practice/Sheet + problem screen, always-available `Show solution → Mark as read` =
+  `hint`, right answer = `clean`, undoable), 3 Arrays primer inline checks (`≤1`/section,
+  `≤3`/topic enforced by `validate_data.py`), `#/quiz` + `#/quiz/<topicId>` Mulberry32
+  runner (`1–4` / `Enter` / `r`, `≥80%` pass + incomplete-bank scaling, per-kind
+  breakdown + primer section re-read links), `users/{uid}/quizResults/{topicId}` under
+  rules **v7** (18 emulator tests), guest `dsa-archive.quiz.v1` + explicit merge-on-sign-in,
+  and backup **v6** (`quizResults[]`, schemas 1–5 accepted). Lossless build-time
+  table-packing of `virtual:dsa-catalogue` keeps the total precached shell at
+  **376.01 kB gzip** (`3,986 B` below the frozen 380 kB cap). Branch CI run
+  [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495)
+  (`cac1c7f`) is green across 194 unit tests, 18 emulator rules v7 tests, 94 Playwright
+  tests + axe 0, 64 visual baselines (`11,000,190` B), and `site-preview` (`435,685` B).
+  Record: `docs/phases-v2/05-quiz-engine/RECORD.md`.
+- **v2-06 … v2-10 not started**: Phase 06 follows only after the owner reviews Phase 05,
   explicitly commands its PR/merge, and starts a new chat. The primer/statement/quiz-bank
   authoring track continues separately from the build phases.
 - **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
@@ -120,15 +128,15 @@ Do **not** start coding before step 5 is read end-to-end.
 | 01 | `01-foundation-router-shell/` | ✅ **merged in PR #12** — hash router + sidebar/bottom-bar shell + tokens v2 (Inter + JetBrains Mono, one accent / five semantic roles, density, motion, undo, skeletons, `⌘K`, `j/k/x`, sheet windowing) | 9–11 d | — |
 | 02 | `02-topics-browse/` | ✅ **merged in PR #13** (`bd9350b`) — `#/topics` + topic pages + practice/outcomes + Today + grouped search; run `41647413508` green | 5–6 d | 01 |
 | 03 | `03-content-pipeline/` | ✅ **merged in PR #14** (`e51695a`) — schema v2 + safe renderers + validator/CI + **`resources[]` multi-source** + **136 drills** + 42 theory MCQs + Arrays primer/statements/quiz + coverage report; run `41696457606` green | 7–9 d + authoring | 01, 02 merged |
-| 04 | `04-code-notebooks/` | 🟡 **PR #15 open, CI green; owner review + merge gate** — **Delete notes** end-to-end; `snippets` collection, rules **v6**, backup **v5** (+v4 notes migration), `#/code`, small editor, peek/reveal | 5–6 d | 01 |
-| 05 | `05-quiz-engine/` | **Theory MCQ cards** (4 options, per-option explanations, always-available `Show solution`, `[Solve]` vs `[Check]`) + 12-item topic quiz, 80% pass, `quizResults`, guest merge | 6–7 d | 02, 03 |
+| 04 | `04-code-notebooks/` | ✅ **merged in PR #15** (`f4fa993`) — **Delete notes** end-to-end; `snippets` collection, rules **v6**, backup **v5** (+v4 notes migration), `#/code`, small editor, peek/reveal; run `41782795154` green | 5–6 d | 01 |
+| 05 | `05-quiz-engine/` | 🟡 **implemented on `arena/6327674f-dsa-archive`; owner PR/merge gate** — **Theory MCQ cards** (4 options, per-option explanations, always-available `Show solution`, `[Solve]` vs `[Check]`), 3 Arrays inline checks, 12-item topic quiz, 80% pass, `quizResults`, rules **v7**, backup **v6**, guest merge | 6–7 d | 02, 03 |
 | 06 | `06-theatre-player/` | In-app YouTube theatre (official IFrame API, our chrome), mini player surviving routes, timeline **stamps**, speed memory, oEmbed metadata + dead-link badge | 7–9 d | 01–03 |
 | 07 | `07-browser-runner/` | Local wasm C++/Python/JS runner in a Worker: Run, Stop, diagnostics, authored tests with first-diff, predict-the-output, 14 MB cache control, copy-out for Java/C# | 5–7 d | 04, 03 |
 | 08 | `08-insights-light/` | Reason vocabulary + chips, **momentum** (no punitive streak), one-line trajectory, "How this plan was made", 2 detectors, target date/list | 4–5 d | 01, 02, 05 |
 | 09 | `09-pwa-accessibility-hardening/` | Budgets re-baselined with published numbers, SW v2 exclusions, CSP (report-only → enforce), a11y × offline matrices, network assertion, dead-dependency decision | 4–5 d | 01–08 |
 | 10 | `10-release-v2/` | README v2, generated screenshots, DATA-MODEL v5, CHANGELOG, runbook, honest content-coverage table | 2–3 d | 09 |
 
-**Sequential ≈57–69 build days.** Phases 01–03 are merged; Phase 04 is implemented on `arena/25c78974-dsa-archive` at its owner review/merge gate. Rules v5 / backup v4 remain the latest *merged* baseline; Phase 04 advances them to rules v6 / backup v5 on its branch. Future rules/backup versions must increment from the actual merged baseline after each phase.
+**Sequential ≈57–69 build days.** Phases 01–04 are merged; Phase 05 is implemented on `arena/6327674f-dsa-archive` at its owner PR/review/merge gate. Rules v6 / backup v5 remain the latest *merged* baseline on `main`; Phase 05 advances them to rules v7 / backup v6 on its branch. Future rules/backup versions must increment from the actual merged baseline after each phase.
 
 Each `PLAN.md` already contains: charter · current-state evidence (`file:line`) · scope in ·
 scope **out with reasons** · design spec/wireframes · file plan (`NEW`/`EDIT`/`DELETE`) ·
@@ -213,21 +221,23 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 > `docs/ROADMAP.md` status and `prompt.md` in the same commit. Stop at the merge gate —
 > no PR merge, no deploy, no `main` push without my explicit command.
 
-> **Ready-made next one (05, only after Phase 04 is reviewed, its PR opened and merged
+> **Ready-made next one (06, only after Phase 05 is reviewed, its PR opened and merged
 > by my explicit command, and its CI emulator/Playwright/axe/visual matrix is green):**
 >
-> Run v2 phase **05 — quiz-engine** for `pabi277/DSA-archive`.
-> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches plus Phase 01–04
-> implementation choices), `docs/phases-v2/README.md`,
+> Run v2 phase **06 — theatre-player** for `pabi277/DSA-archive`.
+> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches plus Phase 01–05
+> implementation choices — especially YouTube IFrame ToS §4.13: never modify, overlay,
+> or block the player, and keep video links single-source), `docs/phases-v2/README.md`,
 > `docs/phases-v2/00-overview/PLAN.md`, and
-> `docs/phases-v2/05-quiz-engine/PLAN.md` in full. Phases 01–03 are merged; Phase 04
+> `docs/phases-v2/06-theatre-player/PLAN.md` in full. Phases 01–04 are merged; Phase 05
 > must be reviewed and merged by my explicit command before starting a new phase. Keep
-> Phase 05 to its own branch/PR; preserve the earlier phase plans as contracts and
-> advance from the latest merged baseline (rules v6 / backup v5 once Phase 04 lands —
-> verify the actual merged state before versioning anything). The shell sits ~35 bytes
-> under the frozen 380 kB gzip cap, so budget the quiz engine against equal cuts or
-> stop for a gate. Update its `RECORD.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md` if
-> needed, and `prompt.md`. No merge, deploy, or `main` push without my explicit command.
+> Phase 06 to its own branch/PR; preserve the earlier phase plans as contracts and
+> advance from the latest merged baseline (rules v7 / backup v6 once Phase 05 lands —
+> verify the actual merged state before versioning anything). The shell sits ~4.0 kB
+> under the frozen 380 kB gzip cap (`375.96 kB`), so budget the theatre player carefully
+> inside `check:budgets` or stop for a gate. Update its `RECORD.md`, `docs/ROADMAP.md`,
+> `docs/DECISIONS.md` if needed, and `prompt.md`. No PR, merge, deploy, or `main` push
+> without my explicit command.
 
 ---
 

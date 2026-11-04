@@ -582,3 +582,64 @@ describe('Firestore rules — Phase 03 synthetic drill ids', () => {
     )
   })
 })
+
+describe('Firestore rules v7 — Phase v2-05 quizResults', () => {
+  function quizDoc(overrides = {}) {
+    return {
+      bestScore: 11,
+      bestTotal: 12,
+      attempts: 1,
+      lastScore: 11,
+      lastAt: serverTimestamp(),
+      passed: true,
+      ...overrides,
+    }
+  }
+
+  it('lets the owner create, update, list and delete a valid quizResults document', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const quizRef = doc(alice, 'users/alice/quizResults/arrays')
+
+    await assertSucceeds(setDoc(quizRef, quizDoc()))
+    await assertSucceeds(setDoc(quizRef, quizDoc({ attempts: 2, lastScore: 9 })))
+    const snap = await assertSucceeds(getDoc(quizRef))
+    assert.equal(snap.data().bestScore, 11)
+    assert.equal(snap.data().attempts, 2)
+    await assertSucceeds(getDocs(collection(alice, 'users/alice/quizResults')))
+    await assertSucceeds(deleteDoc(quizRef))
+  })
+
+  it('blocks strangers and other signed-in users from reading, listing, writing or deleting quizResults', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const bob = env.authenticatedContext('bob').firestore()
+    const stranger = env.unauthenticatedContext().firestore()
+
+    await assertSucceeds(setDoc(doc(alice, 'users/alice/quizResults/arrays'), quizDoc()))
+
+    await assertFails(getDoc(doc(bob, 'users/alice/quizResults/arrays')))
+    await assertFails(getDocs(collection(bob, 'users/alice/quizResults')))
+    await assertFails(setDoc(doc(bob, 'users/alice/quizResults/arrays'), quizDoc()))
+    await assertFails(deleteDoc(doc(bob, 'users/alice/quizResults/arrays')))
+    await assertFails(getDoc(doc(stranger, 'users/alice/quizResults/arrays')))
+    await assertFails(setDoc(doc(stranger, 'users/alice/quizResults/arrays'), quizDoc()))
+  })
+
+  it('validates topic ids, score bounds, attempts cap (<= 999), boolean passed and server timestamps', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const quizRef = doc(alice, 'users/alice/quizResults/arrays')
+
+    await assertFails(setDoc(doc(alice, 'users/alice/quizResults/not-a-topic'), quizDoc()))
+    await assertFails(setDoc(quizRef, quizDoc({ bestScore: 12, bestTotal: 10 })))
+    await assertFails(setDoc(quizRef, quizDoc({ bestTotal: 13 })))
+    await assertFails(setDoc(quizRef, quizDoc({ bestTotal: 0, bestScore: 0, lastScore: 0 })))
+    await assertFails(setDoc(quizRef, quizDoc({ lastScore: 11, bestTotal: 10, bestScore: 10 })))
+    await assertFails(setDoc(quizRef, quizDoc({ bestScore: -1 })))
+    await assertFails(setDoc(quizRef, quizDoc({ attempts: 0 })))
+    await assertFails(setDoc(quizRef, quizDoc({ attempts: 1000 })))
+    await assertFails(setDoc(quizRef, quizDoc({ passed: 'yes' })))
+    await assertFails(setDoc(quizRef, quizDoc({ lastAt: '2026-11-04T00:00:00.000Z' })))
+    await assertFails(setDoc(quizRef, quizDoc({ extra: true })))
+
+    await assertSucceeds(setDoc(quizRef, quizDoc({ bestScore: 4, bestTotal: 5, lastScore: 4, attempts: 999 })))
+  })
+})

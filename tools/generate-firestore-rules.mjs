@@ -110,8 +110,8 @@ export function generateRules(catalogue, drillIdsByTopic = new Map()) {
   return `// GENERATED FILE — do not edit by hand.
 // Source: tools/generate-firestore-rules.mjs from data/problems.json + data/practice-sets/.
 // ${topics.length} topics · ${catalogueTotal} catalogue ids · ${drillTotal} synthetic lc-<n> drill keys.
-// Rules v6 (phase v2-04): saved solutions in snippets; the notes collection is removed
-// (default deny). Prior rules designs are otherwise unchanged.
+// Rules v7 (phase v2-05): adds quizResults/{topicId}; saved solutions in snippets;
+// the notes collection remains removed (default deny).
 rules_version = '2';
 
 service cloud.firestore {
@@ -229,6 +229,29 @@ ${topics.map((topic) => `        && data.solvedByTopic[${literal(topic.id)}] is 
         && data.updatedAt == request.time;
     }
 
+    // Phase v2-05 — one quiz result document per topic, owner-only.
+    // Scores stay bounded by bestTotal <= 12, attempts stay in 1..999,
+    // and lastAt must equal server request.time.
+    function validQuizResult(data, topicId) {
+      return topicId in ${list(topics.map((topic) => topic.id))}
+        && data.keys().hasOnly(['bestScore', 'bestTotal', 'attempts', 'lastScore', 'lastAt', 'passed'])
+        && data.keys().hasAll(['bestScore', 'bestTotal', 'attempts', 'lastScore', 'lastAt', 'passed'])
+        && data.bestTotal is int
+        && data.bestTotal >= 1
+        && data.bestTotal <= 12
+        && data.bestScore is int
+        && data.bestScore >= 0
+        && data.bestScore <= data.bestTotal
+        && data.lastScore is int
+        && data.lastScore >= 0
+        && data.lastScore <= data.bestTotal
+        && data.attempts is int
+        && data.attempts >= 1
+        && data.attempts <= 999
+        && data.passed is bool
+        && data.lastAt == request.time;
+    }
+
     // Phase 4.1 — one planner document per day. The doc id is a yyyy-mm-dd day
     // key; the lists are bounded and doneIds must stay a subset of
     // problemIds, so a day can never claim work it never planned.
@@ -318,6 +341,14 @@ ${topics.map(topicBlock).join('\n')}
         allow get, list: if isOwner(uid);
         allow create, update: if isOwner(uid)
           && validPlan(request.resource.data, date);
+        allow delete: if isOwner(uid);
+      }
+
+      // Phase v2-05 — per-topic quiz best/last score, owner-only.
+      match /quizResults/{topicId} {
+        allow get, list: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && validQuizResult(request.resource.data, topicId);
         allow delete: if isOwner(uid);
       }
     }

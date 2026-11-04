@@ -96,14 +96,23 @@ export function RichText({
   text,
   className,
   testId,
+  inline: asInline = false,
 }: {
   text: string
   className?: string
   testId?: string
+  inline?: boolean
 }) {
   // Escape the whole document once, then parse semantic constructs. A raw
   // `<script>` or `<img ...>` survives as visible text, never as an element.
   const escaped = escapeText(text)
+  if (asInline) {
+    return (
+      <span className={className} data-testid={testId}>
+        {inline(escaped.replace(/\n+/g, ' '), 'in')}
+      </span>
+    )
+  }
   const lines = escaped.split('\n')
   const blocks: ReactNode[] = []
   let bullets: string[] = []

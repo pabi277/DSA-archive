@@ -98,6 +98,17 @@ for (const name of (await readdir(theoryDir)).filter((item) => item.endsWith('.j
   addTarget(reference.source, reference.url, `${mcq.problemId} · theory reference`, reference.verified)
 }
 
+const topicsDir = path.join(root, 'data/content/topics')
+for (const name of (await readdir(topicsDir)).filter((item) => item.endsWith('.json')).sort()) {
+  const topicDoc = await readJson(path.join(topicsDir, name))
+  for (const section of topicDoc.sections ?? []) {
+    const reference = section.check?.reveal?.reference
+    if (reference) {
+      addTarget(reference.source, reference.url, `${topicDoc.topicId} · ${section.id} check reference`, reference.verified)
+    }
+  }
+}
+
 // One live request per unique URL. Fragments are browser-only navigation hints.
 const unique = new Map()
 for (const target of targets) {

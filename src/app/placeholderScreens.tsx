@@ -10,28 +10,7 @@
  */
 import { buildPath } from './router'
 import { Button, Card, Empty } from '../design/primitives'
-import { IconCheck, IconSpark, IconToday } from '../design/icons'
-
-export function QuizHome({ signedIn }: { signedIn: boolean }) {
-  return (
-    <div className="quiz-screen">
-      <Empty
-        title="Topic quizzes arrive in phase 05"
-        mark={<IconCheck size={20} />}
-        testId="quiz-view"
-        action={
-          <a className="btn btn-primary" href={buildPath('topics')}>
-            Study a topic first
-          </a>
-        }
-      >
-        Each topic gets 12 checkable items at 80% to pass, built from our own writing. Theory rows
-        become 4-option cards with a solution you can always reveal — never a quiz on a coding row.
-        {signedIn ? null : ' Results sync once you sign in.'}
-      </Empty>
-    </div>
-  )
-}
+import { IconSpark, IconToday } from '../design/icons'
 
 export function InsightsScreen({ signedIn }: { signedIn: boolean }) {
   return (

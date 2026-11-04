@@ -18,6 +18,15 @@ describe('hash router: parsing (§3.1, A1)', () => {
   it('parses dynamic segments and keeps them decoded', () => {
     expect(parseRoute('#/topic/arrays')).toMatchObject({ name: 'topic', param: 'arrays' })
     expect(parseRoute('#/problem/two-sum')).toMatchObject({ name: 'problem', param: 'two-sum' })
+    expect(parseRoute('#/quiz')).toMatchObject({ name: 'quiz', param: '', path: '#/quiz' })
+    expect(parseRoute('#/quiz/arrays')).toMatchObject({ name: 'quiz', param: 'arrays', path: '#/quiz/arrays' })
+    expect(parseRoute('#/quiz/arrays?seed=2')).toMatchObject({
+      name: 'quiz',
+      param: 'arrays',
+      query: { seed: '2' },
+      path: '#/quiz/arrays?seed=2',
+    })
+    expect(parseRoute('#/quiz/arrays/extra').name).toBe('not-found')
     expect(parseRoute('#/topic/strings-basic-and-medium').param).toBe('strings-basic-and-medium')
     expect(parseRoute('#/topic/a%2Fb').param).toBe('a/b')
   })

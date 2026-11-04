@@ -14,3 +14,13 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+declare module 'virtual:dsa-catalogue' {
+  const packed: unknown[]
+  export default packed
+}
+
+declare module 'virtual:dsa-content' {
+  const bundle: unknown[]
+  export default bundle
+}

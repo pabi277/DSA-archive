@@ -1,4 +1,6 @@
-/** Phase v2-03 learner-content schema. Mirrors the JSON in `data/content/`. */
+import type { ResourceSource } from '../catalogue'
+
+/** Phase v2-03 / v2-05 learner-content schema. Mirrors the JSON in `data/content/`. */
 export type QuizKind = 'pattern' | 'dryrun' | 'complexity' | 'bug' | 'edge'
 
 export type QuizOption = { text: string; explain: string }
@@ -10,6 +12,44 @@ export type QuizItem = {
   codeSnippet: string | null
   options: [QuizOption, QuizOption, QuizOption, QuizOption]
   answerIndex: 0 | 1 | 2 | 3
+}
+
+export type TheoryReference = {
+  source: ResourceSource
+  url: string
+  label: string
+  verified: string
+}
+
+export type TheoryReveal = {
+  alwaysAvailable: true
+  solution: string
+  reference: TheoryReference
+}
+
+export type InlineCheck = {
+  id: string
+  prompt: string
+  codeSnippet: string | null
+  options: [QuizOption, QuizOption, QuizOption, QuizOption]
+  answerIndex: 0 | 1 | 2 | 3
+  rereadSectionId: string
+  rereadSectionTitle: string
+  reveal: TheoryReveal
+}
+
+export type TheoryMcq = {
+  schemaVersion: 1
+  problemId: string
+  topicId: string
+  id: string
+  kind: 'theory' | QuizKind
+  prompt: string
+  codeSnippet: string | null
+  options: [QuizOption, QuizOption, QuizOption, QuizOption]
+  answerIndex: 0 | 1 | 2 | 3
+  reveal: TheoryReveal
+  verified: string
 }
 
 export type Example = { input: string; output: string; why: string }
@@ -35,7 +75,12 @@ export type Primer = {
   example: PrimerExample
   practice: string
 }
-export type PrimerSection = { title: string; text: string }
+export type PrimerSection = {
+  id: string
+  title: string
+  text: string
+  check: InlineCheck | null
+}
 export type TopicContent = {
   topicId: string
   patterns: string[]

@@ -88,9 +88,9 @@ export function SheetScreen({
   revealed: string | null
   onRandomPick: () => void
   onDismissPick: () => void
-  rowPanel: { problemId: string; kind: 'code' | 'lists' } | null
-  onTogglePanel: (problemId: string, kind: 'code' | 'lists') => void
-  renderPanel: (problemId: string, kind: 'code' | 'lists') => ReactNode
+  rowPanel: { problemId: string; kind: 'code' | 'lists' | 'theory' } | null
+  onTogglePanel: (problemId: string, kind: 'code' | 'lists' | 'theory') => void
+  renderPanel: (problemId: string, kind: 'code' | 'lists' | 'theory') => ReactNode
   snippets: SnippetsById
   lists: ListsById
   signedIn: boolean
@@ -350,9 +350,9 @@ function TopicGroup({
   today: string
   progressDisabled: boolean
   revealed: string | null
-  rowPanel: { problemId: string; kind: 'code' | 'lists' } | null
-  onTogglePanel: (problemId: string, kind: 'code' | 'lists') => void
-  renderPanel: (problemId: string, kind: 'code' | 'lists') => ReactNode
+  rowPanel: { problemId: string; kind: 'code' | 'lists' | 'theory' } | null
+  onTogglePanel: (problemId: string, kind: 'code' | 'lists' | 'theory') => void
+  renderPanel: (problemId: string, kind: 'code' | 'lists' | 'theory') => ReactNode
   snippets: SnippetsById
   lists: ListsById
   signedIn: boolean
@@ -453,6 +453,7 @@ function TopicGroup({
                   canEditCode={signedIn}
                   hasCode={Boolean(snippets[problem.id])}
                   listCount={Object.values(lists).filter((list) => list.problemIds.includes(problem.id)).length}
+                  theoryExpanded={panelKind === 'theory'}
                   onToggleStatus={onToggleStatus}
                   onToggleBookmark={onToggleBookmark}
                   onSetOutcome={onSetOutcome}

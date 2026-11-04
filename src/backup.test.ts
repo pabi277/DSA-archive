@@ -4,6 +4,7 @@ import type { CloudProgressEntry } from './cloudProgress'
 import type { BackupSnippet } from './code/codeStore'
 import type { BackupList } from './library'
 import type { BackupPlan } from './planner'
+import type { BackupQuizResult } from './quiz/results'
 
 const now = '2026-11-02T12:00:00.000Z'
 const cloudEntry: CloudProgressEntry = { s: 'done', b: true, a: 2, fd: now, lr: null, rc: 0, o: 'clean' }
@@ -42,6 +43,17 @@ const plans: BackupPlan[] = [
     updatedAt: now,
   },
 ]
+const quizResults: BackupQuizResult[] = [
+  {
+    topicId: 'arrays',
+    bestScore: 11,
+    bestTotal: 12,
+    attempts: 2,
+    lastScore: 10,
+    lastAt: now,
+    passed: true,
+  },
+]
 const input = {
   account: { displayName: 'CI Owner', email: 'ci.owner@example.test' },
   settings: {
@@ -55,6 +67,7 @@ const input = {
   snippets,
   lists,
   plans,
+  quizResults,
   dailyGoal: 7,
   exportedAt: now,
 }
@@ -67,6 +80,7 @@ function v1Copy() {
   const backup = copy()
   backup.schemaVersion = 1
   delete backup.snippets
+  delete backup.quizResults
   backup.notes = []
   backup.lists = []
   backup.plans = []
@@ -77,16 +91,24 @@ function v4Copy() {
   const backup = copy()
   backup.schemaVersion = 4
   delete backup.snippets
+  delete backup.quizResults
   backup.notes = legacyNotes.map((entry) => ({ ...entry }))
   return backup
 }
 
-describe('JSON backup (schema v5, reading 1–4)', () => {
-  it('round-trips profile, progress, snippets, lists and plans with preview counts', () => {
+function v5Copy() {
+  const backup = copy()
+  backup.schemaVersion = 5
+  delete backup.quizResults
+  return backup
+}
+
+describe('JSON backup (schema v6, reading 1–5)', () => {
+  it('round-trips profile, progress, snippets, lists, plans and quizResults with preview counts', () => {
     const parsed = parseBackup(createBackup(input))
-    expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 1, lists: 1, plans: 1 })
+    expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 1, lists: 1, plans: 1, quizResults: 1 })
     expect(parsed.warnings).toEqual([])
-    expect(parsed.backup.schemaVersion).toBe(5)
+    expect(parsed.backup.schemaVersion).toBe(6)
     expect(parsed.backup.profile).toMatchObject({
       theme: 'dark',
       largeText: false,
@@ -98,6 +120,7 @@ describe('JSON backup (schema v5, reading 1–4)', () => {
     expect(parsed.backup.snippets).toEqual(snippets)
     expect(parsed.backup.lists).toEqual(lists)
     expect(parsed.backup.plans).toEqual(plans)
+    expect(parsed.backup.quizResults).toEqual(quizResults)
     expect(parsed.backup.excluded).toContain('friends')
     // v2-01 device preferences ride along without a schema bump of their own.
     expect(parsed.backup.profile).toMatchObject({ density: 'compact', railCollapsed: true })
@@ -122,8 +145,8 @@ describe('JSON backup (schema v5, reading 1–4)', () => {
 
   it('migrates a schemaVersion 4 backup: code kept exactly, markdown shortened with a named warning', () => {
     const parsed = parseBackup(JSON.stringify(v4Copy()))
-    expect(parsed.backup.schemaVersion).toBe(5)
-    expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 1, lists: 1, plans: 1 })
+    expect(parsed.backup.schemaVersion).toBe(6)
+    expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 1, lists: 1, plans: 1, quizResults: 0 })
     expect(parsed.backup.snippets).toEqual([
       {
         problemId: 'two-sum',
@@ -141,6 +164,14 @@ describe('JSON backup (schema v5, reading 1–4)', () => {
     expect(parsed.backup.progressByTopic.arrays['two-sum'].o).toBe('clean')
   })
 
+  it('imports a schemaVersion 5 backup cleanly with empty quizResults', () => {
+    const parsed = parseBackup(JSON.stringify(v5Copy()))
+    expect(parsed.backup.schemaVersion).toBe(6)
+    expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 1, lists: 1, plans: 1, quizResults: 0 })
+    expect(parsed.backup.snippets).toEqual(snippets)
+    expect(parsed.backup.quizResults).toEqual([])
+  })
+
   it('migrates a code-only legacy note without a warning', () => {
     const legacy = v4Copy()
     legacy.notes = [{ problemId: 'two-sum', markdown: '', snippet: 'int main() {}', updatedAt: now }]
@@ -151,11 +182,12 @@ describe('JSON backup (schema v5, reading 1–4)', () => {
 
   it('still imports a phase-2 schemaVersion 1 file — the recorded migration', () => {
     const parsed = parseBackup(JSON.stringify(v1Copy()))
-    expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 0, lists: 0, plans: 0 })
-    expect(parsed.backup.schemaVersion).toBe(5)
+    expect(parsed.counts).toEqual({ topics: 1, rows: 1, snippets: 0, lists: 0, plans: 0, quizResults: 0 })
+    expect(parsed.backup.schemaVersion).toBe(6)
     expect(parsed.backup.snippets).toEqual([])
     expect(parsed.backup.lists).toEqual([])
     expect(parsed.backup.plans).toEqual([])
+    expect(parsed.backup.quizResults).toEqual([])
   })
 
   it('refuses cross-generation library claims instead of guessing', () => {
@@ -171,9 +203,13 @@ describe('JSON backup (schema v5, reading 1–4)', () => {
     v4WithSnippets.snippets = snippets
     expect(() => parseBackup(JSON.stringify(v4WithSnippets))).toThrowError(/cannot contain snippets/)
 
-    const v5WithNotes = copy()
-    v5WithNotes.notes = legacyNotes
-    expect(() => parseBackup(JSON.stringify(v5WithNotes))).toThrowError(/cannot contain notes/)
+    const v6WithNotes = copy()
+    v6WithNotes.notes = legacyNotes
+    expect(() => parseBackup(JSON.stringify(v6WithNotes))).toThrowError(/cannot contain notes/)
+
+    const v5WithQuizzes = v5Copy()
+    v5WithQuizzes.quizResults = quizResults
+    expect(() => parseBackup(JSON.stringify(v5WithQuizzes))).toThrowError(/cannot contain quizResults/)
 
     const v2WithPlans = v4Copy()
     v2WithPlans.schemaVersion = 2
@@ -330,5 +366,38 @@ describe('JSON backup (schema v5, reading 1–4)', () => {
     const notArray = base()
     notArray.plans = { date: '2026-11-03' }
     expect(() => parseBackup(JSON.stringify(notArray))).toThrowError(/plans must be an array/)
+  })
+
+  it('validates every quizResult: topicId, score bounds, attempts cap and field set', () => {
+    const base = copy
+
+    const badTopic = base()
+    badTopic.quizResults[0].topicId = 'not-a-topic'
+    expect(() => parseBackup(JSON.stringify(badTopic))).toThrowError(/does not name a topic/)
+
+    const scoreOverTotal = base()
+    scoreOverTotal.quizResults[0].bestScore = 12
+    scoreOverTotal.quizResults[0].bestTotal = 10
+    expect(() => parseBackup(JSON.stringify(scoreOverTotal))).toThrowError(/0 to bestTotal/)
+
+    const totalOverCap = base()
+    totalOverCap.quizResults[0].bestTotal = 13
+    expect(() => parseBackup(JSON.stringify(totalOverCap))).toThrowError(/1 to 12/)
+
+    const attemptsOverCap = base()
+    attemptsOverCap.quizResults[0].attempts = 1000
+    expect(() => parseBackup(JSON.stringify(attemptsOverCap))).toThrowError(/1 to 999/)
+
+    const duplicate = base()
+    duplicate.quizResults.push({ ...duplicate.quizResults[0] })
+    expect(() => parseBackup(JSON.stringify(duplicate))).toThrowError(/duplicate quiz result/)
+
+    const extra = base()
+    extra.quizResults[0].seed = 1
+    expect(() => parseBackup(JSON.stringify(extra))).toThrowError(/unexpected fields/)
+
+    const notArray = base()
+    notArray.quizResults = { arrays: 11 }
+    expect(() => parseBackup(JSON.stringify(notArray))).toThrowError(/quizResults must be an array/)
   })
 })

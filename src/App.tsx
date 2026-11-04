@@ -55,11 +55,15 @@ import { TopicPage } from './topics/topicPage'
 import {
   InsightsScreen,
   NotFoundScreen,
-  QuizHome,
   SettingsScreen,
 } from './app/placeholderScreens'
 import { ProblemScreen } from './app/problemScreen'
 import { PracticeScreen } from './app/practiceScreen'
+import { getTheoryMcq, getTopicContent } from './content/load'
+import { TheoryMcqCard } from './quiz/mcqCard'
+import { QuizHome } from './quiz/quizHome'
+import { QuizScreen } from './quiz/quizScreen'
+import { useQuizResults } from './quiz/results'
 import { Button, Card, Ring, Stat, ToastHost } from './design/primitives'
 import { IconArrowRight, IconCheck, IconSearch, IconSpark } from './design/icons'
 
@@ -116,7 +120,8 @@ function AppShell() {
   const codeSync = { busy: code.busy, pending: code.pending, online: code.online }
   const codeCount = Object.keys(code.snippets).length
   const planner = usePlanner(account)
-  const data = useAccountData(account, library, code, planner)
+  const quiz = useQuizResults(account)
+  const data = useAccountData(account, library, code, planner, quiz)
   const friends = useFriends(account, data.entries, data.cloudReady, planner.today)
   const { progress, settings: syncedSettings } = data
   void syncedSettings
@@ -130,7 +135,7 @@ function AppShell() {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [shortcutsOpen, setShortcutsOpen] = useState(false)
   const [searchSignal, setSearchSignal] = useState(0)
-  const [rowPanel, setRowPanel] = useState<{ problemId: string; kind: 'code' | 'lists' } | null>(null)
+  const [rowPanel, setRowPanel] = useState<{ problemId: string; kind: 'code' | 'lists' | 'theory' } | null>(null)
   const [openTopics, setOpenTopics] = useState<ReadonlySet<string>>(() => new Set())
   const [pick, setPick] = useState<RandomPick | null>(null)
   const [revealed, setRevealed] = useState<string | null>(null)
@@ -230,10 +235,12 @@ function AppShell() {
 
   const signedIn = account.status === 'signed-in'
   const progressDisabled = (signedIn && !data.cloudReady) || data.busy
-  const error = data.error ?? planner.error ?? library.error ?? code.error
-  const notice = data.notice ?? planner.notice ?? library.notice ?? code.notice
+  const error = data.error ?? planner.error ?? library.error ?? code.error ?? quiz.error
+  const notice = data.notice ?? planner.notice ?? library.notice ?? code.notice ?? quiz.notice
   const syncLabel =
-    data.syncState === 'synced' && (library.pending || code.pending) ? 'Changes pending' : data.syncLabel
+    data.syncState === 'synced' && (library.pending || code.pending || quiz.pending)
+      ? 'Changes pending'
+      : data.syncLabel
   const syncTone =
     data.syncState === 'error'
       ? 'danger'
@@ -318,6 +325,15 @@ function AppShell() {
     [data, progress, undoBookmark],
   )
 
+  const onMarkDoneWithOutcome = useCallback(
+    (topicId: string, problemId: string, outcome: 'clean' | 'hint' | 'couldnt') => {
+      const wasDone = progress[topicId]?.[problemId]?.s === 'done'
+      data.markDoneWithOutcome(topicId, problemId, outcome)
+      if (!wasDone) undoStatus(topicId, problemId, false)
+    },
+    [data, progress, undoStatus],
+  )
+
   function saveSessionDrawer(topicId: string) {
     // Placeholder hook for phase 08's reason chips: keep the callback shape
     // stable so adding `o: clean|hint|couldnt` later does not touch call sites.
@@ -391,9 +407,24 @@ function AppShell() {
 
   /* --- panel renderers --------------------------------------------------- */
 
-  const renderPanel = (problemId: string, kind: 'code' | 'lists') => {
+  const renderPanel = (problemId: string, kind: 'code' | 'lists' | 'theory') => {
     const location = locateProblem(problemId)
     if (!location) return null
+    if (kind === 'theory') {
+      const mcq = getTheoryMcq(problemId)
+      if (!mcq) return null
+      const firstSection = getTopicContent(location.topicId)?.sections[0] ?? null
+      return (
+        <TheoryMcqCard
+          mcq={mcq}
+          topicTitle={location.topicTitle}
+          progress={progress[location.topicId]?.[problemId]}
+          rereadSection={firstSection ? { id: firstSection.id, title: firstSection.title } : null}
+          onMarkClean={() => onMarkDoneWithOutcome(location.topicId, problemId, 'clean')}
+          onMarkReadWithHint={() => onMarkDoneWithOutcome(location.topicId, problemId, 'hint')}
+        />
+      )
+    }
     if (kind === 'code') {
       const snippet = code.snippets[problemId] ?? null
       return (
@@ -536,6 +567,7 @@ function AppShell() {
                       planner.dismissError()
                       library.dismissError()
                       code.dismissError()
+                      quiz.dismissError()
                     }}
                   >
                     Dismiss
@@ -560,12 +592,43 @@ function AppShell() {
                       planner.dismissNotice()
                       library.dismissNotice()
                       code.dismissNotice()
+                      quiz.dismissNotice()
                     }}
                   >
                     Dismiss
                   </Button>
                 }
               />
+            ) : null}
+
+            {quiz.mergePrompt ? (
+              <Banner
+                tone="action"
+                testId="quiz-merge-notice"
+                title="Merge guest quiz scores?"
+                action={
+                  <>
+                    <Button
+                      size="sm"
+                      disabled={quiz.busy}
+                      data-testid="quiz-merge-confirm"
+                      onClick={() => void quiz.mergeGuestIntoCloud()}
+                    >
+                      Merge quiz scores
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={quiz.keepSeparate}>
+                      Keep separate
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={quiz.discardGuestResults}>
+                      Discard guest scores
+                    </Button>
+                  </>
+                }
+              >
+                {quiz.mergePrompt.topicCount} guest quiz score
+                {quiz.mergePrompt.topicCount === 1 ? '' : 's'} found on this browser. Merging keeps the higher best
+                score per topic. Nothing changes until you choose.
+              </Banner>
             ) : null}
 
             {data.mergeProposal ? (
@@ -727,12 +790,21 @@ function AppShell() {
               </SheetScreen>
             ) : null}
 
-            {route.name === 'topics' ? <TopicsScreen progress={progress} entries={data.entries} today={today} /> : null}
+            {route.name === 'topics' ? (
+              <TopicsScreen
+                progress={progress}
+                entries={data.entries}
+                today={today}
+                quizResults={quiz.results}
+              />
+            ) : null}
             {route.name === 'topic' ? (
               <TopicPage
                 snippets={code.snippets}
                 topicId={route.param}
                 tabQuery={route.query.tab}
+                sectionQuery={route.query.section}
+                quizResult={quiz.results[route.param]}
                 progress={progress}
                 entries={data.entries}
                 today={today}
@@ -741,6 +813,7 @@ function AppShell() {
                 onToggleStatus={data.toggleStatus}
                 onToggleBookmark={data.toggleBookmark}
                 onSetOutcome={data.setOutcome}
+                onMarkDoneWithOutcome={onMarkDoneWithOutcome}
                 onOpenProblem={(problemId) => openProblem(problemId)}
                 onPlan={onPlan}
               />
@@ -748,10 +821,15 @@ function AppShell() {
             {route.name === 'problem' ? (
               <ProblemScreen
                 problemId={route.param}
+                progress={(() => {
+                  const loc = locateProblem(route.param)
+                  return loc ? progress[loc.topicId]?.[route.param] : undefined
+                })()}
                 snippet={code.snippets[route.param] ?? null}
                 signedIn={code.signedIn}
                 codeDisabled={code.busy || !code.signedIn}
                 codeSync={codeSync}
+                onMarkDoneWithOutcome={onMarkDoneWithOutcome}
                 onSaveCode={(draft) => {
                   void code.saveSnippet(route.param, draft)
                 }}
@@ -778,7 +856,9 @@ function AppShell() {
                 onOpenProblem={(problemId) => openProblem(problemId)}
               />
             ) : null}
-            {route.name === 'quiz' ? <QuizHome signedIn={signedIn} /> : null}
+            {route.name === 'quiz' ? (
+              route.param ? <QuizScreen route={route} quiz={quiz} /> : <QuizHome quiz={quiz} />
+            ) : null}
             {route.name === 'insights' ? <InsightsScreen signedIn={signedIn} /> : null}
 
             {route.name === 'review' ? (
@@ -1048,7 +1128,7 @@ function AccountPanel({
               {data.importPreview.counts.rows} row{data.importPreview.counts.rows === 1 ? '' : 's'} across{' '}
               {data.importPreview.counts.topics} topic{data.importPreview.counts.topics === 1 ? '' : 's'} · saved
               solutions {data.importPreview.counts.snippets} · lists {data.importPreview.counts.lists} · plans{' '}
-              {data.importPreview.counts.plans}. Replacing happens only after confirmation.
+              {data.importPreview.counts.plans} · quizzes {data.importPreview.counts.quizResults}. Replacing happens only after confirmation.
               {data.importPreview.warnings.map((warning) => (
                 <span key={warning} className="import-warning" data-testid="import-warning">
                   {' '}
@@ -1094,6 +1174,8 @@ function contextFor(
       return `${facts.queue} due now · 3 → 7 → 21 day schedule`
     case 'code':
       return 'One snippet per problem, synced and backed up'
+    case 'quiz':
+      return route.param ? '4-minute topic check · pass at ≥80%' : '12-question checks across the 20 topics'
     case 'settings':
       return 'Appearance, density and your data'
     case 'topic':

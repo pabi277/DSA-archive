@@ -1,11 +1,31 @@
-/** Fixed-section topic primer. Safe rich text; one code block; one mistakes callout. */
+/** Fixed-section topic primer. Safe rich text; one code block; one mistakes callout; <=1 inline check per section. */
+import { useEffect } from 'react'
 import { Card, Empty, Tag } from '../design/primitives'
+import { InlineCheckCard } from '../quiz/mcqCard'
 import { getPrimer, getTopicContent } from './load'
 import { RichText } from './richText'
 
-export function PrimerView({ topicId, topicTitle }: { topicId: string; topicTitle: string }) {
+export function PrimerView({
+  topicId,
+  topicTitle,
+  activeSectionId,
+}: {
+  topicId: string
+  topicTitle: string
+  activeSectionId?: string
+}) {
   const primer = getPrimer(topicId)
   const sections = getTopicContent(topicId)?.sections ?? []
+
+  useEffect(() => {
+    if (!activeSectionId) return
+    const target = document.getElementById(`primer-section-${activeSectionId}`)
+    if (target) {
+      target.scrollIntoView?.({ behavior: 'auto', block: 'start' })
+      target.focus?.({ preventScroll: true })
+    }
+  }, [activeSectionId])
+
   if (!primer) {
     return (
       <Empty
@@ -46,9 +66,16 @@ export function PrimerView({ topicId, topicTitle }: { topicId: string; topicTitl
         <RichText text={primer.example.explain} />
       </div>
       {sections.map((section, index) => (
-        <div className="primer-section" key={index} data-testid={`primer-extra-${index}`}>
+        <div
+          className="primer-section"
+          id={`primer-section-${section.id}`}
+          tabIndex={-1}
+          key={section.id}
+          data-testid={`primer-extra-${index}`}
+        >
           <h3>{section.title}</h3>
           <RichText text={section.text} />
+          {section.check ? <InlineCheckCard topicId={topicId} check={section.check} /> : null}
         </div>
       ))}
       <div className="primer-section" data-testid="primer-practice">

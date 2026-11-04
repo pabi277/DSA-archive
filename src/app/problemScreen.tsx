@@ -1,33 +1,38 @@
 /**
  * `#/problem/<id>` — Phase 03 statement surface for catalogue rows and the
- * synthetic `lc-<n>` drills, plus the Phase v2-04 saved-solution panel
- * (view with peek, or edit). Execution (quiz, theatre, runner) stays in its
- * own phase; this page never shows a dead primary control for it.
+ * synthetic `lc-<n>` drills, Phase 04 saved-solution panel, and Phase 05
+ * 4-option concept MCQ card for theory rows (never on coding rows).
  */
 import { locateProblem } from '../library'
 import { isDrillId } from '../content/practice'
-import { contentCoverage } from '../content/load'
+import { getTheoryMcq, getTopicContent } from '../content/load'
 import { StatementCard } from '../content/statement'
 import { Button, Empty, Tag } from '../design/primitives'
 import { IconArrowLeft } from '../design/icons'
 import { buildPath } from './router'
 import { CodePanel, type CodeSync } from '../code/editor'
 import type { Snippet, SnippetDraft } from '../code/codeStore'
+import { TheoryMcqCard } from '../quiz/mcqCard'
+import type { Outcome, ProblemProgress } from '../progress'
 
 export function ProblemScreen({
   problemId,
+  progress,
   snippet,
   signedIn,
   codeDisabled,
   codeSync,
+  onMarkDoneWithOutcome,
   onSaveCode,
   onDeleteCode,
 }: {
   problemId: string
+  progress?: ProblemProgress
   snippet: Snippet | null
   signedIn: boolean
   codeDisabled: boolean
   codeSync: CodeSync
+  onMarkDoneWithOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
   onSaveCode: (draft: SnippetDraft) => void
   onDeleteCode: () => void
 }) {
@@ -51,7 +56,8 @@ export function ProblemScreen({
 
   const { problem, topicId, topicTitle, subtopicTitle } = location
   const drill = isDrillId(problemId)
-  const theoryMcqs = contentCoverage().content.theoryMcqs
+  const theoryMcq = problem.kind === 'theory' && !drill ? getTheoryMcq(problem.id) : null
+  const firstSection = getTopicContent(topicId)?.sections[0] ?? null
 
   return (
     <div className="problem-screen" data-testid="problem-screen">
@@ -73,10 +79,15 @@ export function ProblemScreen({
         <Tag tone="neutral">Runner · Phase 07</Tag>
       </div>
 
-      {problem.kind === 'theory' && !drill ? (
-        <p className="quiet-note" data-testid="theory-mcq-ready">
-          4-option MCQ data is bundled with per-option explanations and an always-available solution reference · {theoryMcqs} theory cards · engine in Phase 05.
-        </p>
+      {theoryMcq ? (
+        <TheoryMcqCard
+          mcq={theoryMcq}
+          topicTitle={topicTitle}
+          progress={progress}
+          rereadSection={firstSection ? { id: firstSection.id, title: firstSection.title } : null}
+          onMarkClean={() => onMarkDoneWithOutcome(topicId, problem.id, 'clean')}
+          onMarkReadWithHint={() => onMarkDoneWithOutcome(topicId, problem.id, 'hint')}
+        />
       ) : null}
 
       <StatementCard problem={problem} />

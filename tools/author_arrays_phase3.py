@@ -91,6 +91,30 @@ primer = {
                 'This takes less than a minute. It also gives you a place to check a failing test: either the state '
                 'is wrong, the update is late, or the final answer is read from the wrong place.'
             ),
+            'check': {
+                'id': 'arrays-check-shape',
+                'prompt': 'A task asks for the index of the first target match, or -1 if absent. What state does a single scan need?',
+                'codeSnippet': None,
+                'options': [
+                    {'text': 'A sorted copy of the array', 'explain': 'Sorting changes the original indices that the return type requires.'},
+                    {'text': 'Only the current index while scanning left to right', 'explain': 'Correct — the first matching position can be returned immediately.'},
+                    {'text': 'A running sum of every visited value', 'explain': 'Adding values does not tell you where the target sits.'},
+                    {'text': 'A count of total matches across the array', 'explain': 'Counting every match is different from returning the first position.'},
+                ],
+                'answerIndex': 1,
+                'rereadSectionId': 'read-the-shape',
+                'rereadSectionTitle': 'Read the shape of the answer',
+                'reveal': {
+                    'alwaysAvailable': True,
+                    'solution': 'Name the return type first: one 0-based index (or -1). Because the first match wins, a plain index scan needs no extra array or map — return `i` on the first hit, or `-1` after the loop.',
+                    'reference': {
+                        'source': 'programiz',
+                        'url': 'https://www.programiz.com/dsa/linear-search',
+                        'label': 'Reference · Programiz',
+                        'verified': '2026-11-03',
+                    },
+                },
+            },
         },
         {
             'id': 'choose-one-scan',
@@ -104,6 +128,30 @@ primer = {
                 'works, ask whether two indices or a stored total removes repeated work. Beginner code is easier to '
                 'trust when each loop has one job.'
             ),
+            'check': {
+                'id': 'arrays-check-scan',
+                'prompt': 'When does a prefix-sum array earn its extra memory over a plain left-to-right scan?',
+                'codeSnippet': None,
+                'options': [
+                    {'text': 'Whenever an array has fewer than ten items', 'explain': 'Tiny inputs are already fast with one direct loop.'},
+                    {'text': 'When you only need the single largest element', 'explain': 'One maximum variable in a single scan already answers that.'},
+                    {'text': 'When many queries ask for sums over different index ranges', 'explain': 'Correct — one preparation pass turns each range sum into subtraction.'},
+                    {'text': 'When the array elements must be reversed in place', 'explain': 'Reversing swaps symmetric ends; running totals do not help.'},
+                ],
+                'answerIndex': 2,
+                'rereadSectionId': 'choose-one-scan',
+                'rereadSectionTitle': 'Choose one scan before adding cleverness',
+                'reveal': {
+                    'alwaysAvailable': True,
+                    'solution': 'A plain scan is enough for one pass. Prepare prefix sums when several range-sum questions share the same unchanged array, so each query subtracts two stored totals in O(1) instead of rescanning.',
+                    'reference': {
+                        'source': 'usaco',
+                        'url': 'https://usaco.guide/silver/prefix-sums',
+                        'label': 'Reference · USACO Guide',
+                        'verified': '2026-11-03',
+                    },
+                },
+            },
         },
         {
             'id': 'check-the-boundaries',
@@ -118,6 +166,30 @@ primer = {
                 'describes how work grows with `n`; it is not a guess about one machine. Write `O(n)` for one scan, '
                 'and `O(n^2)` for every pair in a nested loop. Then confirm the loop really has that shape.'
             ),
+            'check': {
+                'id': 'arrays-check-bounds',
+                'prompt': 'An array has length 5. Which loop condition visits every valid index without reading past the end?',
+                'codeSnippet': None,
+                'options': [
+                    {'text': 'i >= 0 and i < 5', 'explain': 'Correct — valid indices for length 5 are 0, 1, 2, 3 and 4.'},
+                    {'text': 'i >= 0 and i <= 5', 'explain': 'Index 5 is one step past the last element at index 4.'},
+                    {'text': 'i >= 1 and i < 5', 'explain': 'Starting at 1 skips the first element at index 0.'},
+                    {'text': 'i >= 0 and i < 4', 'explain': 'Stopping before 4 misses the last element at index 4.'},
+                ],
+                'answerIndex': 0,
+                'rereadSectionId': 'check-the-boundaries',
+                'rereadSectionTitle': 'Check boundaries and changing order',
+                'reveal': {
+                    'alwaysAvailable': True,
+                    'solution': 'With 0-based indexing, a 5-element array uses indices 0 through 4 (`length - 1`). Stopping at `i < length` visits all five boxes and never reads the invalid slot at `length`.',
+                    'reference': {
+                        'source': 'cp-algorithms',
+                        'url': 'https://cp-algorithms.com/#arrays-bounds',
+                        'label': 'Reference · CP-Algorithms',
+                        'verified': '2026-11-03',
+                    },
+                },
+            },
         },
     ],
     'quiz': [],

@@ -96,7 +96,7 @@ export function LeetCodeBadge({ problem }: { problem: Problem }) {
   return <span className="row-slug num">#{match[1]}</span>
 }
 
-export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, revealed, focused, age, canEditCode, hasCode, listCount, onToggleStatus, onToggleBookmark, onSetOutcome, onOpen, onOpenPanel, onPlan, onFocus, listPosition, listSize, panel }: {
+export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, revealed, focused, age, canEditCode, hasCode, listCount, onToggleStatus, onToggleBookmark, onSetOutcome, onOpen, onOpenPanel, onPlan, onFocus, listPosition, listSize, panel, theoryExpanded }: {
   topicId: string
   topicTitle: string
   problem: Problem
@@ -112,12 +112,13 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
   onToggleBookmark: (topicId: string, problemId: string) => void
   onSetOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
   onOpen: (problemId: string, mode: 'problem' | 'sheet') => void
-  onOpenPanel: (problemId: string, kind: 'code' | 'lists') => void
+  onOpenPanel: (problemId: string, kind: 'code' | 'lists' | 'theory') => void
   onPlan: (problemId: string) => void
   onFocus: (problemId: string) => void
   listPosition?: number
   listSize?: number
   panel: ReactNode
+  theoryExpanded?: boolean
 }) {
   const done = isDone(progress, topicId, problem.id)
   const bookmarked = isBookmarked(progress, topicId, problem.id)
@@ -206,14 +207,19 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
           <button
             type="button"
             className="row-tool row-check"
-            aria-label={`Check your understanding of ${problem.title}`}
+            aria-expanded={theoryExpanded}
+            aria-label={
+              theoryExpanded
+                ? `Hide check for ${problem.title}`
+                : `Check your understanding of ${problem.title}`
+            }
             data-testid={`check-${problem.id}`}
             onClick={(event) => {
               event.stopPropagation()
-              onOpen(problem.id, 'problem')
+              onOpenPanel(problem.id, 'theory')
             }}
           >
-            Check
+            {theoryExpanded ? 'Hide' : 'Check'}
           </button>
         ) : (
           <button

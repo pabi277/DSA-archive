@@ -215,6 +215,7 @@ def main() -> None:
     assert len(topic_files) == 20
     quiz_total = 0
     primer_count = 0
+    inline_check_ids: set[str] = set()
     statement_topic_ids: set[str] = set()
     for topic_file in topic_files:
         topic_doc = load(topic_file)
@@ -226,6 +227,43 @@ def main() -> None:
             assert problem_id in row_ids and row_topics[problem_id] == topic_id
         primer = topic_doc["primer"]
         assert primer is None or isinstance(primer, dict)
+        sections = topic_doc.get("sections", [])
+        assert isinstance(sections, list) and len(sections) <= 3
+        section_ids = [section["id"] for section in sections]
+        assert len(set(section_ids)) == len(section_ids), f"duplicate section id in {topic_id}"
+        inline_checks = 0
+        for section in sections:
+            assert set(section) <= {"id", "title", "text", "check"}, f"unexpected keys on primer section in {topic_id}"
+            assert {"id", "title", "text"}.issubset(section)
+            assert SLUG.fullmatch(section["id"])
+            if "check" in section and section["check"] is not None:
+                inline_checks += 1
+                check = section["check"]
+                assert isinstance(check, dict), f"primer section check must be one object (<=1 per section): {topic_id}"
+                assert set(check) == {
+                    "id", "prompt", "codeSnippet", "options", "answerIndex",
+                    "rereadSectionId", "rereadSectionTitle", "reveal",
+                }
+                assert SLUG.fullmatch(check["id"]) and check["id"] not in inline_check_ids
+                inline_check_ids.add(check["id"])
+                assert isinstance(check["prompt"], str) and 0 < len(check["prompt"]) <= 240
+                assert "all of the above" not in check["prompt"].lower()
+                assert check["codeSnippet"] is None or (isinstance(check["codeSnippet"], str) and len(check["codeSnippet"].splitlines()) <= 12)
+                assert isinstance(check["options"], list) and len(check["options"]) == 4
+                assert isinstance(check["answerIndex"], int) and 0 <= check["answerIndex"] <= 3
+                for option in check["options"]:
+                    assert set(option) == {"text", "explain"}
+                    assert 0 < len(option["text"]) <= 120 and 0 < len(option["explain"]) <= 120
+                assert check["rereadSectionId"] in section_ids, f"unknown rereadSectionId on {check['id']}"
+                assert isinstance(check["rereadSectionTitle"], str) and check["rereadSectionTitle"].strip()
+                reveal = check["reveal"]
+                assert reveal["alwaysAvailable"] is True
+                assert isinstance(reveal["solution"], str) and 0 < len(reveal["solution"]) <= 400
+                reference = reveal["reference"]
+                assert reference["source"] in ALLOWED_SOURCES
+                assert reference["url"].startswith("https://") and host(reference["url"]) in RESOURCE_HOSTS
+                assert_day(reference["verified"], f"inline check reference on {check['id']}")
+        assert inline_checks <= 3, f"placement budget exceeded (>3 inline checks) in {topic_id}"
         if primer is not None:
             primer_count += 1
             assert isinstance(primer["intro"], str) and primer["intro"]
@@ -237,13 +275,13 @@ def main() -> None:
             assert example["title"].strip() and example["code"].strip() and example["explain"].strip()
             assert len(example["code"].splitlines()) <= 20
             assert isinstance(primer["practice"], str) and primer["practice"]
-            sections = topic_doc["sections"]
-            assert len(sections) <= 3
             text = "\n".join([primer["intro"], primer["mentalModel"], primer["practice"], *primer["whenToUse"], *primer["mistakes"], example["explain"], *(section["title"] + "\n" + section["text"] for section in sections)])
             assert 600 <= word_count(text) <= 900, f"primer word count for {topic_id}: {word_count(text)}"
             assert not URL.search(text), f"primer for {topic_id} contains an external URL"
             assert not HTML_TAG.search(text), f"primer for {topic_id} contains HTML"
             assert "```" not in "".join(section["text"] for section in sections), "only one primer code block is allowed"
+        else:
+            assert inline_checks == 0, f"unauthored primer in {topic_id} cannot carry inline checks"
         quiz = topic_doc["quiz"]
         assert isinstance(quiz, list)
         if quiz:
@@ -311,7 +349,7 @@ def main() -> None:
             assert set(option) == {"text", "explain"}
             assert 0 < len(option["text"]) <= 240 and 0 < len(option["explain"]) <= 120
         reveal = mcq["reveal"]
-        assert reveal["alwaysAvailable"] is True and reveal["solution"].strip()
+        assert reveal["alwaysAvailable"] is True and 0 < len(reveal["solution"].strip()) <= 400
         reference = reveal["reference"]
         assert reference["source"] in ALLOWED_SOURCES
         assert reference["url"].startswith("https://") and host(reference["url"]) in RESOURCE_HOSTS
