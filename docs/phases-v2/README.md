@@ -23,7 +23,16 @@ performance targets, tests, risks, acceptance criteria, and exit gate.
 parallel from phase 02 onwards.
 
 
-**Execution status (2026-11-04):** Phases 01–04 are merged to `main` (PR #12 `558a25f`, PR #13 `bd9350b`, PR #14 `e51695a`, PR #15 `f4fa993` with CI run `41782795154` green). Phase 05 is implemented on `arena/6327674f-dsa-archive` with CI run [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495) (`cac1c7f`) green across 194 unit tests, 18 emulator rules v7 tests, 94 Playwright + axe checks, 64 visual baselines, `site-preview` (435,685 B), and 376.01 kB / 380 kB gzip shell precache; its record is [`05-quiz-engine/RECORD.md`](05-quiz-engine/RECORD.md). Opening a PR and merging remain gated on the owner's explicit command. Latest *merged* versions on `main` are rules v6 / backup v5; Phase 05 advances them to rules v7 / backup v6 on its branch. The listed sequence continues 05 → 06 → 07 → 08 → 09 → 10.
+**Execution status (2026-11-04, phase 07):** Phase 06 was reviewed and merged by the owner
+(PR #17, `d44b55a`). Phase 07 is implemented on `arena/435eaa93-dsa-archive` and stopped at the
+owner's PR/merge gate: local C/C++ (Clang 22 on wasm) and Python (Pyodide) runners as an
+opt-in download per language, JavaScript with no download, authored test cases with a
+first-diff, instant Stop, network off while a program runs, and a Settings card that
+reports and clears the cache — see [`07-browser-runner/RECORD.md`](07-browser-runner/RECORD.md).
+Latest *merged* versions on `main` are rules v8 / backup v7 (phase 06); phase 07 changes no
+Firestore shape, so those stand.
+
+**Earlier status (2026-11-04):** Phases 01–04 are merged to `main` (PR #12 `558a25f`, PR #13 `bd9350b`, PR #14 `e51695a`, PR #15 `f4fa993` with CI run `41782795154` green). Phase 05 is implemented on `arena/6327674f-dsa-archive` with CI run [`41794873495`](https://github.com/pabi277/DSA-archive/actions/runs/41794873495) (`cac1c7f`) green across 194 unit tests, 18 emulator rules v7 tests, 94 Playwright + axe checks, 64 visual baselines, `site-preview` (435,685 B), and 376.01 kB / 380 kB gzip shell precache; its record is [`05-quiz-engine/RECORD.md`](05-quiz-engine/RECORD.md). Opening a PR and merging remain gated on the owner's explicit command. Latest *merged* versions on `main` are rules v6 / backup v5; Phase 05 advances them to rules v7 / backup v6 on its branch. The listed sequence continues 05 → 06 → 07 → 08 → 09 → 10.
 
 ## Owner additions 2026-11-03 (batch 2)
 

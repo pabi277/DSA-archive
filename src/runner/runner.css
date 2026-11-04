@@ -1,0 +1,213 @@
+/**
+ * Phase v2-07 — the run panel's styles.
+ *
+ * Deliberately a separate stylesheet, imported only by the runner's own lazy
+ * chunk: the app shell's CSS is frozen at 60 kB raw (an owner-approved budget),
+ * and the runner is an installed add-on. Vite emits this as `assets/runner-*.css`
+ * next to `assets/runner-*.js`, and both are excluded from the shell precache.
+ */
+/* --- run panel (phase v2-07) ---------------------------------------------- */
+
+/* The runner is an installed add-on, so it sits inside the code card rather
+   than beside it: one column, same surface, no second card-in-card. */
+.run-panel {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
+.run-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.run-spacer {
+  flex: 1 1 auto;
+}
+
+.run-status {
+  min-height: 18px;
+  color: var(--muted);
+  font-size: var(--text-2xs);
+}
+
+.run-note {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-size: var(--text-xs);
+}
+
+.run-note-caution {
+  border-color: color-mix(in srgb, var(--caution) 45%, var(--line));
+  color: var(--ink);
+}
+
+.run-stdin {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-2);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  resize: vertical;
+}
+
+.run-progress {
+  display: grid;
+  gap: 4px;
+}
+
+.run-progress-track {
+  overflow: hidden;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.run-progress-fill {
+  height: 100%;
+  background: var(--action);
+  transition: width var(--motion-micro) var(--ease-out);
+}
+
+.run-output-wrap {
+  position: relative;
+}
+
+.run-output {
+  overflow: auto;
+  max-height: 260px;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.run-output:focus-visible {
+  outline: 2px solid var(--action);
+  outline-offset: 2px;
+}
+
+.run-stderr {
+  color: var(--danger);
+}
+
+.run-failure {
+  display: grid;
+  gap: 4px;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--danger) 40%, var(--line));
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  font-size: var(--text-xs);
+}
+
+.run-failure p {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  overflow-wrap: anywhere;
+}
+
+.run-cases {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.run-cases-summary {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-cases-summary.tone-success {
+  color: var(--success);
+}
+
+.run-cases-summary.tone-caution {
+  color: var(--caution);
+}
+
+.run-case-list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.run-case {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: var(--space-1) var(--space-2);
+  align-items: start;
+  font-size: var(--text-xs);
+}
+
+.run-case-mark {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.run-case.is-passed .run-case-mark {
+  color: var(--success);
+}
+
+.run-case.is-failed .run-case-mark,
+.run-case.is-error .run-case-mark,
+.run-case.is-timeout .run-case-mark {
+  color: var(--danger);
+}
+
+.run-case .quiet-note {
+  grid-column: 2;
+  white-space: pre-wrap;
+}
+
+.run-diff {
+  grid-column: 2;
+  margin: 0;
+  overflow-x: auto;
+  border-left: 2px solid var(--line-strong);
+  padding-left: var(--space-2);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  white-space: pre-wrap;
+}
+
+.run-unsupported {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.snippet-run {
+  margin: var(--space-2) 0;
+}
+
+@media (max-width: 560px) {
+  .run-bar > .btn {
+    flex: 1 1 auto;
+  }
+
+  .run-spacer {
+    display: none;
+  }
+}

@@ -64,7 +64,7 @@ import {
 const ProblemScreen = lazy(() => import('./theatre/problemPage').then((mod) => ({ default: mod.ProblemScreen })))
 import { MiniPlayer } from './theatre/miniPlayer'
 import { PracticeScreen } from './app/practiceScreen'
-import { getTheoryMcq, getTopicContent } from './content/load'
+import { getTests, getTheoryMcq, getTopicContent } from './content/load'
 import { TheoryMcqCard } from './quiz/mcqCard'
 import { QuizHome } from './quiz/quizHome'
 import { QuizScreen } from './quiz/quizScreen'
@@ -458,6 +458,7 @@ function AppShell() {
           signedIn={code.signedIn}
           disabled={code.busy || !code.signedIn}
           sync={codeSync}
+          cases={getTests(problemId)}
           initialMode="edit"
           onSave={(draft) => {
             void code.saveSnippet(problemId, draft)

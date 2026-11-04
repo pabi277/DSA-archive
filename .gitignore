@@ -12,3 +12,11 @@ coverage/
 !.env.production
 .firebase/
 .tmp-fonts/
+
+# Phase v2-07 — local code runner toolchains. Fetched with `npm run runtime:fetch`
+# (npm tarballs, sha-512 verified) and built with `npm run runtime:worker`; both
+# are far too large for git and are never precached by the Service Worker.
+public/runtime/clang/
+public/runtime/pyodide/
+public/runtime/runner/
+public/runtime/packs.json

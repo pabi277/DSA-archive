@@ -794,3 +794,81 @@ Consequences, all recorded in `docs/phases-v2/06-theatre-player/RECORD.md`:
   that keeps playing must be able to dock on any route. Entry JS therefore stays at
   `32.84 kB` gzip.
 
+
+## Phase v2-07 implementation choices (2026-11-04)
+
+### Reuse scan — the two toolchains we depend on
+
+| Job | Choice | Licence | Checked | Why |
+|---|---|---|---|---|
+| C / C++ in the browser | `@live-codes/clang-wasm@0.3.0` | MIT | 2026-11-04 (published 2026-09-23) | Clang 22.1.8 + `wasm-ld` + wasi sysroot on wasm behind one API (`createCompiler(lang, {baseUrl}).run(code, stdin)`), assets are plain files we serve ourselves |
+| Python in the browser | `pyodide@314.0.7` | MPL-2.0 | 2026-11-04 (published 2026-09-14) | CPython 3.13 on wasm; unmodified distribution, stdlib only |
+| Bundling the worker | `esbuild@0.28.2` | MIT | 2026-11-04 | build-time only |
+
+Rejected in the same scan, with reasons: writing our own interpreter (a fake partial C++
+teaches the wrong thing), any remote judge (owner decision: code never leaves the device,
+no server, no money), Monaco/CodeMirror (phase 04 already decided the small editor),
+and an in-browser TypeScript checker (doubles the download for a copy-out case).
+
+### Owner-facing numbers: the compiler is 29 MB, not the 14 MB the plan guessed
+
+The contract estimated "~14 MB of assets, unpack to about 84 MB". Measured: **C/C++
+29,000,772 B**, **Python 13,531,207 B**, worker bundle **1,276,228 B**. A real C++17
+standard library plus `wasm-ld` does not fit in 14 MB. Every number the UI prints is read
+from `public/runtime/packs.json`, which `tools/fetch-runtime.mjs` writes from the bytes it
+actually stored, so the button label and the progress bar cannot disagree with the
+download. No pack is fetched until the learner taps a button that states its size, and
+each language downloads only its own pack. The *budget* consequence is nil: toolchains sit
+in the runtime bucket (cap 48 MB for both packs + worker, published in
+`tools/check-budgets.mjs`), never in the shell.
+
+### The runner is an installed add-on, not shell — and the 388 kB cap was not touched
+
+The phase prompt for 07 said the runner's wasm/worker payload must stay in the runtime
+bucket and that raising the shell cap again needs a gate. The runner's *UI* would have
+broken the cap on its own, so it is treated the same way as its toolchain:
+
+- `vite.config.ts` renames the runner's lazy chunks to `assets/runner-<hash>.js`;
+  `tools/build-sw.mjs` excludes that prefix (and `runtime/`) from the precache and serves
+  them cache-first from `dsa-archive-runtime-v1` after install;
+- `tools/check-budgets.mjs` publishes two *new* separate buckets — runner UI
+  (26,543 B raw / 9,907 B gzip, cap 120 kB / 40 kB) and toolchains (cap 48 MB) — and
+  asserts the Service Worker precaches **none** of them;
+- the panel's stylesheet travels inside its chunk (`import './runner.css?inline'` + one
+  injected `<style>`), because a split `assets/*.css` file would have landed in the shell's
+  CSS bucket or in a file whose name the SW and the budget gate would have to guess.
+
+Measured shell on this branch: **386,674 B gzip against 388,000 B** (1,326 B of headroom),
+i.e. the shell grew by ~1.4 kB gross (the lazy hooks in `mcqCard` and the two `Suspense`
+wrappers) and 0.7 kB was recovered in the entry chunk. **No re-baseline was requested and
+none was made**; phase 09 still owns the cap review, and any further shell growth before
+that is a gate.
+
+### Engineering choices inside the runner
+
+- **Stop is `worker.terminate()`.** wasm that will not yield cannot be interrupted from its
+  own thread, so the client kills the worker; the next run respawns it and re-reads the
+  cached assets. This is why `while(true)` dies in milliseconds and why a stopped run can
+  never leave half a program behind.
+- **Two clocks.** The first compile of a language on a device gets a 45 s allowance
+  (`COLD_COMPILE_ALLOWANCE_MS`); afterwards a case gets its 3 s (`CASE_TIMEOUT_MS`), and
+  the list shares one 30 s budget (`TOTAL_BUDGET_MS`). One clock would have failed the
+  first case on a mid-range phone while Clang warmed up.
+- **One choke point for the network.** The worker replaces `fetch`: `/runtime/*` is
+  cache-first into `dsa-archive-runtime-v1`, everything else throws while a program runs,
+  and `WebSocket`/`EventSource`/`importScripts`/`XMLHttpRequest` are deleted for the
+  duration. The JS sandbox additionally shadows `fetch`, timers, `caches`, `localStorage`
+  and friends in the function scope. `e2e/runner.spec.ts` also asserts on the main thread
+  that no request carries the learner's code.
+- **No verdict is written by a run.** The contract permits setting the optional
+  `snippets[id].verdict` from a run result; we do not, because a local run is not a judge
+  verdict and phase 04's picker stays the only writer. No Firestore shape, rules or backup
+  version changes in this phase (rules **v8** / backup **v7** stand).
+- **`-std=gnu++17`.** The toolchain offers only the `gnu*` spellings (strict `c++17`
+  rejects the GNU extensions Clang's default target relies on). `-O0 -Wall -Wextra` are as
+  specified and `std::sort` linking is covered by a real CI compile.
+- **Python input is line-batched**, so `input()` works but an interactive prompt does not
+  flush mid-line. JavaScript takes no `stdin` at all — a browser cannot offer a blocking
+  read, and the panel says so.
+- **Add-on removal is one cache.** "Clear" deletes `dsa-archive-runtime-v1` only; the app
+  shell cache, Firestore's offline cache and every other origin store are untouched.
