@@ -238,8 +238,11 @@ test.describe('theatre shell', () => {
     await expect(page.getByTestId('theatre-stage')).toHaveAttribute('data-state', 'offline')
     await expect(page.getByTestId('theatre-placeholder')).toContainText('The page still works offline')
     // Content is in the bundle: the statement renders with no network at all.
-    await expect(page.getByTestId('problem-panel-problem')).toContainText(/Linear Search/i)
-    await expect(page.getByTestId('problem-tab-code')).toBeVisible()
+    // The panel renders the statement, not a title — assert the authored copy.
+    await expect(page.getByTestId('statement-what')).toContainText(/first position where the target appears/i)
+    // The rail is the desktop route to code, and it works with no network.
+    await page.getByTestId('rail-code').click({ timeout: 15_000 })
+    await expect(page.getByTestId('problem-panel-code')).toBeVisible()
     await page.context().setOffline(false)
     await page.evaluate(() => window.dispatchEvent(new Event('online')))
   })
@@ -257,15 +260,19 @@ test.describe('theatre shell', () => {
   })
 
   test('?tab=code opens the code rail (the phase-04 deep link still works)', async ({ page }) => {
-    // The strip is visually hidden at desktop width (the rail carries the same
-    // panels) but it stays operable, so the URL round-trip is still testable.
+    // The tab is URL state, not widget state: the strip is phone-only UI, and
+    // the address alone opens a panel at any width.
     await open(page, '/#/problem/two-sum?tab=code')
     await expect(page.getByTestId('problem-panel-code')).toBeVisible()
-    await expect(page.getByTestId('problem-tab-code')).toHaveAttribute('aria-selected', 'true')
-    // Switching tab writes the address, so reload lands on the same tab.
-    await page.getByTestId('problem-tab-problem').click({ timeout: 15_000 })
+
+    await open(page, '/#/problem/two-sum')
+    await expect(page.getByTestId('problem-panel-problem')).toBeVisible()
     expect(page.url()).not.toContain('tab=code')
-    await page.getByTestId('problem-tab-code').click({ timeout: 15_000 })
+
+    // The desktop control writes the same address, so a reload lands there.
+    await page.getByTestId('rail-code').click({ timeout: 15_000 })
+    await expect(page.getByTestId('problem-panel-code')).toBeVisible()
+    expect(page.url()).toContain('tab=code')
     await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('problem-panel-code')).toBeVisible({ timeout: 20_000 })
   })
@@ -297,10 +304,12 @@ test.describe('timeline stamps', () => {
     await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
 
     await open(page, '/#/problem/two-sum')
+    // Desktop width: the rail carries the stamps list; the tab strip is the
+    // phone sheet and is not rendered as a control here.
+    const rail = page.getByTestId('stamps-list')
     await expect(page.getByTestId('stamps-empty').first()).toBeVisible()
 
-    await page.getByTestId('problem-tab-stamps').click({ timeout: 15_000 })
-    await page.getByTestId('stamp-input').fill('the hash map trick', { timeout: 15_000 })
+    await rail.getByTestId('stamp-input').fill('the hash map trick', { timeout: 15_000 })
     await page.getByTestId('stamp-add').click({ timeout: 15_000 })
     await expect(page.getByTestId('stamp-0')).toContainText('the hash map trick')
     await expect(page.getByTestId('stamps-cap')).toContainText('1/30')
@@ -318,7 +327,6 @@ test.describe('timeline stamps', () => {
     await page.getByTestId('stamp-add').click({ timeout: 15_000 })
     await page.reload({ waitUntil: 'domcontentloaded' })
     await expect(page.getByTestId('problem-screen')).toBeVisible({ timeout: 20_000 })
-    await page.getByTestId('problem-tab-stamps').click({ timeout: 15_000 })
     await expect(page.getByTestId('stamp-0')).toContainText('the hash map trick')
 
     // Delete is undoable too.
@@ -330,7 +338,6 @@ test.describe('timeline stamps', () => {
 
   test('signed out, the stage still works and stamps say why they are read-only', async ({ page }) => {
     await open(page, '/#/problem/two-sum')
-    await page.getByTestId('problem-tab-stamps').click({ timeout: 15_000 })
     await expect(page.getByTestId('stamps-disabled')).toContainText('Sign in to save stamps')
     await expect(page.getByTestId('stamp-input')).toHaveCount(0)
     // The player itself is never gated on an account.

@@ -136,24 +136,21 @@ test('saved code syncs across devices, peeks, copies, filters and survives backu
     await expect(page.getByTestId('code-save-status')).toContainText('Offline — will sync')
     await firstContext.setOffline(false)
     await page.evaluate(() => window.dispatchEvent(new Event('online')))
-    // Coming back online must flush the queued write. Phase 06 moved this panel
-    // behind the Code tab and the editor deliberately stays in edit mode after
-    // saving, so leave it (`code-edit-done`) to reach the read view and assert on
-    // the *persisted* solution — no navigation, so nothing races the flush.
-    await page.getByTestId('code-edit-done').click({ timeout: 15_000 })
-    // The editor stays dirty after saving, so leaving asks first.
-    const discard = page.getByTestId('code-discard')
-    if (await discard.count()) await discard.getByRole('button').first().click({ timeout: 15_000 })
-    await expect(page.getByTestId('peek-code')).toContainText('offline edit', { timeout: 30_000 })
-    // Device 2 was left on the problem page with this peek already revealed;
-    // leave and come back so the panel remounts and the peek hides again
-    // (reveal state is session-local), then reveal the synced offline edit.
+    // Coming back online must flush the queued write. The status line is driven
+    // by the snapshot's `hasPendingWrites`, so `Saved` means the server acked
+    // it. No navigation here: a reload mid-flush is a race, and the editor
+    // deliberately stays open after saving so the learner can keep iterating.
+    await expect(page.getByTestId('code-save-status')).toContainText('Saved', { timeout: 30_000 })
+    // Then prove the round-trip where it means something: device 2, a separate
+    // browser profile that never held this draft. It was left with the peek
+    // revealed; leave and come back so the panel remounts and the peek hides
+    // again (reveal state is session-local), then reveal the synced draft.
     await open(secondPage, '/#/code')
     await expect(secondPage.getByTestId('code-row-two-sum')).toBeVisible()
     await open(secondPage, '/#/problem/two-sum?tab=code')
     await expect(secondPage.getByTestId('peek-code')).toHaveAttribute('aria-hidden', 'true')
     await secondPage.getByTestId('peek-reveal').click({ timeout: 15_000 })
-    await expect(secondPage.getByTestId('peek-code')).toContainText('offline edit')
+    await expect(secondPage.getByTestId('peek-code')).toContainText('offline edit', { timeout: 30_000 })
 
     // --- backup v7 carries snippets + stamps; a v4 notes file migrates ----
     await open(secondPage, '/#/settings')

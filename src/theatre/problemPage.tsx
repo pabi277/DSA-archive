@@ -205,7 +205,7 @@ export function ProblemScreen({
                 role="tab"
                 id={`problem-tab-${value}-button`}
                 aria-selected={tab === value}
-                aria-controls={`problem-panel-${value}`}
+                aria-controls="problem-panel"
                 className="theatre-tab"
                 data-testid={`problem-tab-${value}`}
                 onClick={() => setTab(value)}
@@ -271,10 +271,12 @@ export function ProblemScreen({
             />
           </TheatreStage>
 
+          {/* One region for all three tabs: only the selected view is mounted,
+              so a per-tab id would leave two dangling `aria-controls` targets. */}
           <div
             className="theatre-panel"
             role="tabpanel"
-            id={`problem-panel-${tab}`}
+            id="problem-panel"
             aria-labelledby={`problem-tab-${tab}-button`}
             data-testid={`problem-panel-${tab}`}
           >

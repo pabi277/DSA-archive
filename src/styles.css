@@ -3662,18 +3662,11 @@ body {
 }
 
 .theatre-tabs {
-  /* Visually hidden at desktop width only: the rail carries stamps and code.
-     `display: none` would remove real, operable tab controls from the page for
-     keyboard users, so the strip keeps its box, its focusability and its
-     activation — it is parked out of the flow instead. */
-  position: fixed !important;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  /* Phone-only control: at desktop width the rail already carries the stamps
+     list and the Code button, so the strip would be duplicate navigation. The
+     tab *state* is still reachable at every width because it is a URL
+     (`#/problem/<id>?tab=code`), which is the contract. */
+  display: none;
 }
 
 .theatre-tab {
@@ -3700,22 +3693,15 @@ body {
   min-width: 0;
 }
 
-/* Phone: the tabs are the only way to reach stamps and code, so they sit above
-   the stage — below it they land under the fold once the player is mounted. */
+/* Phone (<1080 px, the same breakpoint `useWideLayout` reads): the tabs are the
+   only way to reach stamps and code — the rail is not rendered there — so they
+   sit above the stage. Below it they would land under the fold once the player
+   is mounted. */
 @media (max-width: 1079px) {
   .theatre-tabs {
-    position: static !important;
     display: flex;
-    width: auto;
-    height: auto;
-    overflow: visible;
-    clip-path: none;
     gap: 3px;
     border-bottom: 1px solid var(--line);
-  }
-
-  .theatre-rail {
-    order: 2;
   }
 }
 
