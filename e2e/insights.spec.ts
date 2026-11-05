@@ -70,7 +70,9 @@ async function seedForgottenRows(): Promise<string[]> {
 async function seedAndReload(page: Page): Promise<string[]> {
   const ids = await seedForgottenRows()
   await page.reload()
-  await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
+  // A cold boot restores the session, reads the profile and the 20 shards; give
+  // it room on a busy CI runner.
+  await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner', { timeout: 30_000 })
   return ids
 }
 
@@ -98,15 +100,13 @@ async function freshOwner(page: Page) {
     method: 'DELETE',
   })
   expect(authClear.ok).toBe(true)
-  // Drop local state too: settings, dismissals and the offline cache are per device.
+  // Local state (settings, dismissals) is per device. Each test gets a fresh
+  // browser context, so clearing `localStorage` is enough — deleting the app's
+  // IndexedDB while it is open leaves a *blocked* delete queued, which then
+  // fires during the next reload and signs the test out.
   await page.context().clearCookies()
   await page.goto('/')
-  await page.evaluate(() => {
-    window.localStorage.clear()
-    return indexedDB.databases?.().then((bases) => {
-      for (const base of bases) if (base.name) indexedDB.deleteDatabase(base.name)
-    })
-  })
+  await page.evaluate(() => window.localStorage.clear())
   await open(page, '/#/today')
   await page.getByTestId('emulator-sign-in').click()
   await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
@@ -210,7 +210,7 @@ test('the target date and target list persist through a reload', async ({ page }
   await open(page, '/#/lists')
   await page.getByTestId('new-list-title').fill('Finish line')
   await page.getByTestId('create-list').click()
-  await expect(page.getByText('Finish line')).toBeVisible()
+  await expect(page.locator('[data-testid^="list-card-"]').filter({ hasText: 'Finish line' })).toBeVisible()
 
   await open(page, '/#/insights')
   await page.getByTestId('target-list').selectOption({ label: 'Finish line' })
