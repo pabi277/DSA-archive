@@ -2,7 +2,9 @@
 
 **Branch:** `arena/d4a6c3b3-dsa-archive` (cut from `main` at `79c6099`, the merge of PR #19)
 **Contract:** [`PLAN.md`](PLAN.md) · **Status:** implemented; stopped at the owner's PR/merge gate
-**CI:** _filled after the branch run_ · **Preview:** _filled after the branch run_
+**CI:** [run #41996518444](https://github.com/pabi277/DSA-archive/actions/runs/41996518444) — **green**, every step, at
+`76f4909` (the last code commit; the docs commit that carries this file is `main`-shaped too) ·
+**Preview:** `site-preview` artifact **29,677,654 B** (it carries the C++ toolchain, so it really compiles)
 
 ---
 
@@ -152,6 +154,32 @@ not a permanent ceiling.
 | Rules (emulator) | rules v9: valid `targetDate`/`targetListId` (and explicit clearing) succeed; malformed day, malformed id, wrong types and an unknown profile key fail. **Not run in this sandbox** (no JRE, and the emulator jar host is outside the sandbox's
 network allowlist) — CI runs `npm run test:emulator`. |
 | Visual | `insights` added to the 15-route × 2 viewport × 2 theme matrix (now 60 baselines). |
+
+CI totals for the green run: **349 unit tests**, **124 Playwright tests passing** (1 skipped, the
+macOS-only case), axe **0 violations** on every audited route at both viewports, 18 rules
+suites, budgets and `check:dist`/`check:links`/`check:content`/`test:data` all green.
+
+### What the first red runs caught (kept, because they are real)
+
+1. **The rules v9 test wrote the two fields onto a document that did not exist yet** (a
+   create with three keys, correctly denied) and then rewrote a whole profile with a fresh
+   `createdAt` (refused). The test now creates the profile with both targets, changes them
+   and clears them — the shape the client actually produces.
+2. **A day of the wrong *shape* is not a rules case.** `2026-13-01` matches
+   `^[0-9]{4}-[0-9]{2}-[0-9]{2}$`, and refusing an impossible calendar day is the settings
+   store's job (`clampTargetDate` parses it). The rules test now uses a shape violation and
+   says why.
+3. **A Firestore REST `PATCH` without an `updateMask` replaces the document.** Six per-row
+   seeds left only the last row, so the detector was honestly absent — the spec now writes
+   the whole shard in one request and asserts the landed field count before judging the UI.
+4. **Navigating to the route you are already on is a hash change, not a reload**, so the app
+   never re-read the seeded shard; the spec reloads (and waits out a cold boot) first.
+5. **axe `label-content-name-mismatch` (serious, WCAG 2.5.3)** on the dismiss link: its
+   accessible name has to contain the visible text, so it is now
+   `Hide for today: <the note>` — which is also a better screen-reader sentence.
+6. **Deleting the app's IndexedDB while it is open leaves a *blocked* delete queued**, which
+   then fires during the next reload and signs the test out. Each Playwright test already
+   gets a fresh context; local state is cleared through `localStorage` only.
 | Budgets | `check:budgets` green at the re-baselined caps; `check:dist`, `check:links`, `check:rules`, `test:data`, `check:content` all green locally. |
 
 ## 7. What stays out (the "Out" list is part of the acceptance test)

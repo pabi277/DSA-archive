@@ -11,8 +11,9 @@
 > plan was made", two undoable detectors and `#/insights`, with optional
 > `targetDate`/`targetListId` under rules **v9** / backup **v8** and a shell re-baselined
 > by the owner to **393 kB gzip / 61 kB raw CSS**. Its closure is recorded in
-> `docs/phases-v2/08-insights-light/RECORD.md` (CI run id and preview bytes are the open
-> blanks until the owner's gate). Opening a PR and merging remain standing owner gates;
+> `docs/phases-v2/08-insights-light/RECORD.md` — CI run
+> [`41996518444`](https://github.com/pabi277/DSA-archive/actions/runs/41996518444) green at
+> `76f4909`, `site-preview` 29,677,654 B. Opening a PR and merging remain standing owner gates;
 > no PR, merge, deployment or `main` push was performed without the owner's explicit
 > command. Phase 09 (`09-pwa-accessibility-hardening`) is the next build phase after the
 > owner commands Phase 08's PR and merge.
@@ -155,8 +156,11 @@ Do **not** start coding before step 5 is read end-to-end.
   collection, no extra read. **Owner re-baselined the budgets (2026-11-05): shell 388 →
   393 kB gzip, CSS raw 60 → 61 kB** — measured 391,193 B gzip (+4,613 B) and 60,238 B raw,
   1,807 B of headroom; the layer is Today surface, so it cannot ride an on-demand bucket.
-  349 unit tests (55 new), `e2e/insights.spec.ts` (phone + desktop, axe 0), 60 visual
-  baselines. No deployment, no PR, no merge.
+  349 unit tests (55 new), 124 Playwright tests (1 skipped), `e2e/insights.spec.ts` at phone
+  and desktop with axe 0, 60 visual baselines. **CI run
+  [`41996518444`](https://github.com/pabi277/DSA-archive/actions/runs/41996518444) green at
+  `76f4909`**, `site-preview` 29,677,654 B (it carries the C++ toolchain). No deployment, no
+  PR, no merge.
   Record: `docs/phases-v2/08-insights-light/RECORD.md`.
 - **v2-09 … v2-10 not started**: Phase 09 follows only after the owner reviews Phase 08,
   explicitly commands its PR/merge, and starts a new chat. The primer/statement/quiz-bank
