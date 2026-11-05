@@ -126,6 +126,12 @@ app requests it at runtime. SW v2 hash at this tree: `16cc25aa09f7`.
    revert). All three were found *by* the release work (screenshots and copy audit),
    fixed at root cause, and re-captured in the same tree — the alternative was shipping
    screenshots of known defects.
+6. **CI `timeout-minutes` raised 12 → 25.** The phase-09 "whole matrix under 12 min"
+   number is a median-runner observation (~7 min); this phase watched a ~3× slower
+   hosted runner (npm ci 22 s vs 8 s, unit tests 56 s vs 17 s) push the *identical*
+   suite past the wall and get cancelled mid-e2e. The ceiling is now sized to the
+   slowest observed runner with margin and documented in the workflow as a hang
+   detector, not a performance budget — the suite itself did not grow.
 
 ## 8. Content coverage at release (truth table)
 
