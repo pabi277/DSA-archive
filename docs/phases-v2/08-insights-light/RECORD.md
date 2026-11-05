@@ -2,9 +2,10 @@
 
 **Branch:** `arena/d4a6c3b3-dsa-archive` (cut from `main` at `79c6099`, the merge of PR #19)
 **Contract:** [`PLAN.md`](PLAN.md) · **Status:** implemented; stopped at the owner's PR/merge gate
-**CI:** [run #41999312771](https://github.com/pabi277/DSA-archive/actions/runs/41999312771) — **green**, every step,
-at `eba5f41` (the last code commit; the commit that carries this file changes only
-documentation and runs through the same gates) ·
+**CI:** [run #42000781488](https://github.com/pabi277/DSA-archive/actions/runs/42000781488) — **green**, every step,
+at `71f64f8` (the last code commit; the commit that carries this file changes only
+documentation and runs the same gates again, which is also the second consecutive green
+run over this code) ·
 **Preview:** `site-preview` artifact **29,677,654 B** (it carries the C++ toolchain, so it really compiles)
 
 ---
