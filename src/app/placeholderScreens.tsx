@@ -109,8 +109,11 @@ export function SettingsScreen({
 
       <Card title="Your data">
         <p className="quiet-note">
-          Progress, saved code and lists sync to your own Firestore documents; JSON backup and import live
-          in the account panel so nobody's progress is locked into Firebase.
+          Progress, saved code, quiz results, lists and plans live in your own Firestore documents — only you can
+          read them. There are no trackers and no analytics; the only third-party request is YouTube&rsquo;s official
+          player on a problem with a video. JSON backup and import live in the account panel, and
+          <strong> Delete my data</strong> removes every study document, your profile and both sides of each friend
+          link. Nothing is uploaded except the data you choose to sync.
         </p>
         <div className="inline-actions">
           <a className="btn btn-secondary" href="#account-panel">

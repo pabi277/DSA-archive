@@ -63,11 +63,15 @@ import { TopicsScreen } from './app/topicsScreen'
 import { TopicPage } from './topics/topicPage'
 import { InsightsScreen } from './insights/insightsScreen'
 import { NotFoundScreen, SettingsScreen } from './app/placeholderScreens'
+import { ServiceWorkerUpdateToast } from './app/swUpdate'
 // The theatre's *screens* are a lazy route chunk (phase v2-06 §7): the
 // problem page is the only route that needs the player, and the shell must not
 // pay for it. Models + the mini player stay eager, because a video that keeps
 // playing has to dock on any route.
 const ProblemScreen = lazy(() => import('./theatre/problemPage').then((mod) => ({ default: mod.ProblemScreen })))
+// Phase v2-09: destructive account tools are an installed add-on, never
+// precached, so the owner's frozen 393 kB shell cap is untouched.
+const DeleteDataCard = lazy(() => import('./app/deleteDataCard'))
 import { MiniPlayer } from './theatre/miniPlayer'
 import { PracticeScreen } from './app/practiceScreen'
 import { getTests, getTheoryMcq, getTopicContent } from './content/load'
@@ -1097,7 +1101,9 @@ function AppShell() {
         reasons={paletteReasons}
       />
       <ShortcutsSheet open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
-      <ToastHost toasts={feedback.messages} onDismiss={feedback.dismiss} />
+      <ToastHost toasts={feedback.messages} onDismiss={feedback.dismiss}>
+        <ServiceWorkerUpdateToast />
+      </ToastHost>
     </div>
   )
 }
@@ -1266,6 +1272,17 @@ function AccountPanel({
           Sign out
         </Button>
       </div>
+      {account.user ? (
+        <Suspense fallback={null}>
+          <DeleteDataCard
+            uid={account.user.uid}
+            onDeleted={() => {
+              data.clearGuestProgress()
+              void account.signOut()
+            }}
+          />
+        </Suspense>
+      ) : null}
       {data.importPreview ? (
         <div className="banner banner-action" role="status" data-testid="import-preview">
           <div className="banner-copy">

@@ -976,3 +976,95 @@ Two consequences worth keeping:
   fields, so a reload or another device reads them. Caught by `e2e/insights.spec.ts` failing
   intermittently across otherwise-identical runs, which is why the spec holds each value for
   a second, across a reload and across a second cold boot.
+
+## Phase v2-09 decisions & implementation choices (2026-11-05)
+
+**No recorded owner answer was changed in this phase.** The gate re-openings of
+2026-11-03 (budget re-baseline once with published numbers, Tailwind/daisyUI "use
+or remove", CSP report-only → enforce) are closed here; the 2026-11-05 cap decision
+(393,000 B gzip shell / 61,000 B raw CSS, "further shell growth is a gate, not another
+re-baseline") is treated as **frozen** and was not re-opened.
+
+- **Budgets: final review, no second re-baseline.** `tools/check-budgets.mjs` now
+  publishes the v1 (phase 6, 2026-11-02) → v2 (phase 9) table with a reason per
+  line and freezes the caps already approved by the owner: CSS 61,000 B raw /
+  18,000 B gz, entry 180,000 / 55,000, single chunk 520,000 / 165,000, shell
+  393,000 B gz, fonts 60,000 B, runner UI 120,000 / 40,000, account add-on
+  40,000 / 15,000, toolchains 48 MB. Measured shell on this branch: **392,136 B
+  gzip** (864 B headroom) against the emulator/CI build; **392,135 B** against
+  the live-config build. The +74.5 kB over v1 is the packed catalogue (42.0 kB),
+  content UI (47.7 kB) and the Today insight layer (4.6 kB), offset by lossless
+  packing — not a new dependency. Every future byte over 393,000 is a GATE.
+- **Tailwind/daisyUI: still removed.** The v2-01 decision is re-verified, not
+  reversed. `package.json`/lockfile carry neither package, `src/styles.css`
+  imports only `./design/tokens.css`, and `tools/check-deadweight.mjs` fails CI
+  on a stale `@tailwind`/`@plugin "daisyui"` import or a reference in the docs
+  that presents the old stack as current. `docs/UI-REFERENCE.md` now labels its
+  "Vite + React + TypeScript + Tailwind + daisyUI" line as v1 history and marks
+  Tokens v2 **FINAL** with the measured contrast table. 13 dead v1 CSS rules
+  (1,023 B) were pruned; 25 unused class names remain in the token layer only
+  because they are the documented public API, not dead rules.
+- **CSP: report-only first, then enforce — both stages are now tests.** The
+  owner's wording is preserved as a sequence, not skipped. `e2e/csp.spec.ts`
+  drives the six core routes (plus the runner's injected `<style>`) with
+  `Content-Security-Policy-Report-Only`, records `securitypolicyviolation`
+  events and asserts zero; only then does the second test repeat them with the
+  enforced header and assert the app still works. Both stages run in CI on every
+  push, so a future regression re-opens stage 1. `firebase.json` ships the
+  enforced header, byte-for-byte equal to `tools/csp.mjs` (checked by
+  `npm run check:csp`). No `report-uri`/`report-to`: a report endpoint would be
+  a third-party network request, which `rule.md` §3 gates. The emulator variant
+  of `connect-src` exists only inside the test and is asserted absent from the
+  live header.
+- **`style-src-elem 'unsafe-inline'` is deliberate and narrow.** The v2-07
+  runner ships its CSS inside the lazy add-on chunk and injects one `<style>`
+  element; static Hosting cannot issue a per-response nonce and there is no
+  stable hash across builds. React also writes inline style attributes (already
+  allowed by `style-src-attr`). `script-src-elem` stays a strict allow-list with
+  **no** `'unsafe-inline'`, no `'unsafe-eval'`, no wildcard; eval/wasm belong
+  only to the worker's `script-src`. `tools/check-csp.mjs` enforces that split.
+- **SW v2 and the `/runtime/*` wording of PLAN §3.2.** PLAN §3.2 says "never
+  intercept `/runtime/*`", while PLAN §3.5 requires the runner to say
+  "cached/unavailable" offline and the 2026-11-04 v2-07 decision (DECISIONS
+  above, higher in the authority order) explicitly says the SW serves runtime
+  assets cache-first from `dsa-archive-runtime-v1` after install. Resolved in
+  favour of the decision: runtime files are **never precached into the shell**
+  and are never handled by the shell's network-first navigation fallback; they
+  live only in the separate opt-in runtime cache, which "Clear" deletes on its
+  own. YouTube, `youtube-nocookie`, `googlevideo`, `/iframe_api`, Google/Firebase
+  hosts and `/__/auth/*` are bypassed entirely. No `navigationPreload`. The
+  versioned `dsa-archive-shell-<12 hex>` cache is derived from the built file
+  bytes, and a waiting update announces `DSA_UPDATE_READY` → visible
+  "New version ready — Reload" toast → `SKIP_WAITING`.
+- **"Delete my data" is a real test, not copy.** Phases v2-04 and v2-05 deferred
+  this. `src/accountDelete.ts` owns the seven named Firestore shapes, the
+  reciprocal friend links, the invite capability and the opt-in public summary;
+  `e2e/account-deletion.spec.ts` seeds them through the emulator and proves
+  every document is gone after the two-step Settings control. Watched-video
+  flags (`dsa-archive.watch.v1`) are **study history, not a preference**, so
+  they are cleared; `dsa-archive.settings.v1` (theme, hideDone, targets) is
+  kept. No rule was weakened, no Function, no analytics.
+- **Lighthouse is not a CI job (recorded deviation).** PLAN §3.6 asks for mobile
+  perf ≥90 / a11y ≥95 on five routes. Adding Lighthouse would require a second
+  Chrome trace, a new npm dependency and an outbound network path, and would
+  break the ≤12-minute CI ceiling. The enforced substitutes are the published
+  bundle budgets, the 6-profile × 18-route axe matrix, `e2e/performance.spec.ts`
+  (≤1,200 sheet DOM nodes, warm route transition, `font-display: swap`,
+  CLS ≤0.25 (0.1 target, measured and printed), lazy images), and `tools/check-tokens.mjs` (contrast, 44 px targets,
+  2 px focus). Lighthouse can be run by the owner against the uploaded
+  `site-preview`; this phase does **not** claim a Lighthouse score.
+- **Visual baselines remain CI-generated and reviewed, never auto-accepted.**
+  No PNG baselines are committed (they are platform/font-stack specific), and
+  Chromium cannot be downloaded inside this sandbox. `playwright.config.ts` keeps
+  `updateSnapshots: 'missing'`; CI writes the 2×2×15 = 60 PNGs and uploads them
+  as the `visual-baselines` artifact for the owner to review and commit by hand.
+  "Refreshed deliberately" therefore means *the refresh is generated and
+  surfaced for review*, not silently accepted.
+- **One Playwright project, shared fixtures, ≤12-minute CI.** `e2e/matrix.ts`
+  holds the six profiles (390×844, 768×1024, 1440×900 × dark/light × large
+  text), `KEY_ROUTES`, `auditRoutes`, `expectFits` and the single
+  `waitForServiceWorkerControl` fixture now shared with `e2e/pwa.spec.ts`.
+  Adding three Playwright *projects* would have re-run all 18 feature specs
+  three times; one project with explicit viewport profiles keeps the matrix
+  honest and the job inside `timeout-minutes: 12`. `workers: 1` stays because
+  the emulator-backed specs share one deterministic CI user.

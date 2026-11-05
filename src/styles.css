@@ -1131,14 +1131,6 @@ body {
   background: var(--overlay);
 }
 
-.sheet-top {
-  margin-top: 8vh;
-}
-
-.sheet-center {
-  margin: auto;
-}
-
 .palette-head {
   display: flex;
   align-items: center;
@@ -1914,7 +1906,6 @@ body {
 .settings-screen,
 .code-screen,
 .practice-screen,
-.quiz-screen,
 .insights-screen {
   display: grid;
   gap: var(--space-3);

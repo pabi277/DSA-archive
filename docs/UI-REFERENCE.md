@@ -5,18 +5,23 @@
 
 # UI reference — DSA Archive website
 
-> ⚠️ **v2 supersedes the screen inventory and tokens below.** Phases v2-01 and
-> v2-02 are merged to `main`; Phase v2-03 (content pipeline) is implemented on the
-> working branch with owner review/merge pending. The v2 design system (Inter +
-> JetBrains Mono subsets, one accent with five semantic roles, density compaction,
-> motion, routed shell with sidebar/bottom bar) is specified in
+> ⚠️ **v2 supersedes the screen inventory and tokens below.** Phases v2-01…v2-08 are
+> merged to `main`; v2-09 (PWA, a11y, performance & hardening) finalises the tokens
+> on the working branch. The v2 design system (Inter + JetBrains Mono subsets, one
+> accent with five semantic roles, density compaction, motion, routed shell with
+> sidebar/bottom bar) is specified in
 > [`phases-v2/01-foundation-router-shell/PLAN.md`](phases-v2/01-foundation-router-shell/PLAN.md) §4
 > and the cross-cutting rules in [`phases-v2/00-overview/PLAN.md`](phases-v2/00-overview/PLAN.md) §A3.
-> The v1 table below is history; the frozen **Tokens v2** table is authoritative and
-> **no token value changed in Phase 03**. Screens added in v2:
-> `#/topics`, `#/topic/<id>` (Learn · Practice · Quiz), `#/problem/<id>` (statement now;
-> theatre later), `#/code`, `#/quiz`, `#/practice`, `#/insights`, `#/search`,
-> `#/not-found`, and the command palette. Retired: the Notes view/editor.
+> The v1 table below is history; the **Tokens v2 (FINAL)** table in this file is
+> authoritative and **no token value changed in v2-09** — the phase only re-measured
+> contrast, focus and touch targets and pruned dead v1 class names. Full v2 screen
+> inventory: `#/today`, `#/topics`, `#/topic/<id>` (Learn · Practice · Quiz),
+> `#/problem/<id>` (statement · video theatre · Code · Stamps), `#/search`,
+> `#/code`, `#/quiz`, `#/quiz/<topic>`, `#/practice`, `#/review`, `#/insights`,
+> `#/lists`, `#/plans`, `#/friends`, `#/stats`, `#/settings` (account, runner storage,
+> **Delete my data**), `#/not-found`, the command palette, the docked mini player,
+> the local runner panel, the "New version ready — Reload" toast and the offline
+> fallback page. Retired: the Notes view/editor and the entire Tailwind/daisyUI stack.
 
 > The design specification. **No real UI code before phase 0-D is
 > owner-approved and the tokens below are frozen** (`../rule.md` §§4–5).
@@ -27,7 +32,8 @@
 
 ## Reference (phase 0-D deliverable)
 
-- Stack: the site's own — **Vite + React + TypeScript + Tailwind +
+- Stack (v1 history only — superseded by v2-01, see the decision recorded
+  below): the site's own — **Vite + React + TypeScript + Tailwind +
   daisyUI** (AppFlow web Option B for styling), fake-but-real-shaped
   data, phone-width first, reviewed via the `site-preview` artifact on
   the owner's phone. Approved values freeze here; the mock is then
@@ -86,7 +92,7 @@
 | Offline / 404 | friendly offline page (PWA), not-found | 6 |
 | Every screen × | **dark + light · phone (~390px) + desktop · large-font** variants checked | 0-D, 6 |
 
-## Tokens v2 (FROZEN — phase v2-01, 2026-11-03)
+## Tokens v2 (FINAL — frozen phase v2-01 2026-11-03, re-verified phase v2-09 2026-11-05)
 
 `src/design/tokens.css` is the single source of truth; `src/styles.css` only
 composes these values. The v1 set is kept verbatim below as history. **Changing a
@@ -134,6 +140,28 @@ re-freeze was authorised for phase v2-01 and is now spent).
   ~34 kB of unused preflight and theme variables.
 - **Icons.** 24 hand-rolled SVG icons in `src/design/icons.tsx` (16/20 px,
   `currentColor`, `aria-hidden`); no icon library, no icon-font licence.
+
+### Final v2-09 verification (2026-11-05) — no token changed
+
+`npm run check:tokens` and `npm run check:deadweight` are the machine-checked
+counterparts of this table, and `e2e/a11y-matrix.spec.ts` runs axe over all 18
+routes at 390×844, 768×1024 and 1440×900 in dark/light, large text, an 18 px base,
+reduced motion and keyboard-only. Measured against the frozen values:
+
+| Check | Result | Where |
+|---|---|---|
+| Text/background pairs ≥4.5:1 | **26 / 26 pass**; dark minimum **4.84**, light minimum **4.52** | `tools/check-tokens.mjs` |
+| `--action-ink` on `--action` | dark **10.73**, light **7.57** | `tools/check-tokens.mjs` |
+| Focus ring | **2 px**, visible on every keyboard-focused control | `tools/check-tokens.mjs`, `e2e/a11y-matrix.spec.ts` |
+| Phone touch targets | **≥44 px**; desktop **≥32 px** | `tools/check-tokens.mjs` |
+| Font loading | `font-display: swap` + `<link rel=preload>` for Inter; CLS measured and printed, guarded at **≤0.25** in `e2e/performance.spec.ts` (0.1 is the target) | `index.html`, `src/design/tokens.css` |
+| Reduced motion | all animations **0.001 ms**; steady-state axe 0 with motion allowed too | `tools/check-tokens.mjs` |
+| Dead weight | 13 unused v1 CSS rules / 1,023 B pruned in `src/styles.css`; no utility framework | `tools/check-deadweight.mjs` |
+| New v2-09 surfaces | update toast, runner offline note and the two-step Delete-my-data card use **existing** roles, radii and type steps only | `src/app/swUpdate.tsx`, `src/runner/runPanel.tsx`, `src/app/deleteDataCard.tsx` |
+
+The one-time v1 → v2 re-freeze remains **spent**. Changing any colour, type,
+radius, spacing, motion or density value is still a GATE requiring a dated owner
+line under Approval.
 
 ### Tokens v1 (history — superseded 2026-11-03, kept verbatim)
 

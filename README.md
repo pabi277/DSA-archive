@@ -79,8 +79,8 @@ Android project remains open as a separate repo.
 | [`prompt.md`](prompt.md) | Self-contained continuation handoff |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Phases 0–6 scope and acceptance criteria |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | Dated owner & agent decision log + licence register |
-| [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md) | Catalogue schema, Firestore v4 schema, Spark quota math, backup v3 |
-| [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md) | Screen inventory, **frozen** tokens, and deliberate adaptations |
+| [`docs/DATA-MODEL.md`](docs/DATA-MODEL.md) | Catalogue schema, Firestore v9 schema, Spark quota math (v2 audit + deletion contract), backup v8 |
+| [`docs/UI-REFERENCE.md`](docs/UI-REFERENCE.md) | Screen inventory, **frozen** tokens v2, and deliberate adaptations |
 | [`docs/RESEARCH.md`](docs/RESEARCH.md) | Specimen audit, reuse scorecard, and pre-written 14-day use test |
 | [`docs/RELEASE-RUNBOOK.md`](docs/RELEASE-RUNBOOK.md) | Pre-deploy checklist + owner-gated Firestore rules & Hosting deploy steps |
 | [`docs/phases-v2/`](docs/phases-v2/README.md) | **v2 phase contracts** `00`–`10`, one folder each (`PLAN.md`), plus `RESOURCE-POLICY.md`, `PRACTICE-SETS.md`, `THEORY-MCQ.md`, `AUTHORING.md` |
@@ -90,10 +90,10 @@ Android project remains open as a separate repo.
 | `data/problems.json` | Validated 495-problem / 20-topic catalogue (bundled at build) |
 | `src/` | React + TypeScript application, styles, PWA shell, and Vitest suite |
 | `public/` | `manifest.webmanifest`, clean-room `icons/`, `offline.html`, `404.html` |
-| `firestore.rules` | Generated default-deny security rules (v4, verified in CI) |
-| `firebase.json` | Firestore rules path, Hosting `dist/` config + headers, and local Emulator ports |
-| `tools/` | One-time extractor, data validator, rules generator/tests, SW/icon builders, dist/link/budget checks |
-| `e2e/` | Real-Chromium Playwright specs (`sheet`, `sync`, `library`, `planner`, `friends`, `pwa`) |
+| `firestore.rules` | Generated default-deny security rules (v9, emulator-tested in CI) |
+| `firebase.json` | Firestore rules path, Hosting `dist/` config, **enforced CSP** + cache headers, local Emulator ports |
+| `tools/` | Extractor, validator, rules generator/tests, SW/icon builders, dist/link/budget/CSP/token checks |
+| `e2e/` | Real-Chromium Playwright specs: features plus the phase-09 a11y, offline, network, CSP, deletion and performance matrices; `e2e/matrix.ts` holds the shared profiles, route list and SW fixture |
 | `copy-web/` | **STUDY-only** third-party offline page snapshot — **never** imported, scanned, built, or deployed |
 
 ### `copy-web/` disposition
@@ -102,10 +102,11 @@ Android project remains open as a separate repo.
   and moved into `copy-web/` on 2026-11-02 by explicit owner command.
 - Under `rule.md` §§3, 5, `copy-web/` is **STUDY-only provenance** (deleting or
   moving it, or changing repository visibility, requires an explicit owner
-  command). It is excluded from `dist/` by Vite, excluded from Tailwind CSS
-  scanning (`@source` in `src/styles.css`), excluded from Firebase Hosting
-  uploads (`hosting.ignore` in `firebase.json`), and verified absent on every
-  CI run by `npm run check:dist`.
+  command). It is excluded from `dist/` by Vite (the build only reads `src/`,
+  `index.html` and `public/`), excluded from Firebase Hosting uploads
+  (`hosting.ignore` in `firebase.json`), and verified absent on every CI run
+  by `npm run check:dist`. Tailwind/daisyUI were removed in v2-01, so there is
+  no stylesheet scan that could reach it.
 - **Owner reminder:** while `copy-web/` remains in the repository/history, keep
   `pabi277/DSA-archive` **Private** in GitHub Settings (or explicitly command
   its removal before keeping the repository public).
@@ -120,7 +121,8 @@ npm test               # Vitest unit + jsdom UI suite
 npm run build:emulator # TypeScript + Vite production build + Service Worker
 npm run check:dist     # confirm copy-web/ is absent from dist/
 npm run check:links    # verify all built HTML & manifest asset references
-npm run check:budgets  # enforce CSS, JS, PWA and Spark transfer budgets
+npm run check:budgets  # enforce CSS, JS, SW v2, PWA and Spark transfer budgets
+npm run check:hardening # CSP, token contrast, dead-weight decisions
 ```
 
 *(Full emulator + Chromium E2E suite `npm run test:emulator` runs automatically
@@ -140,6 +142,34 @@ in GitHub Actions `.github/workflows/ci.yml` with Java 21 and Chromium.)*
   covered by our MIT licence.
 - **Open-source runtime dependencies shipped in `dist/`:**
   - `react` & `react-dom` `19.3.1` — MIT
-  - `tailwindcss` `4.3.3` (preflight base styles) — MIT
   - `firebase` `12.19.0` (`@firebase/app`, `@firebase/auth`, `@firebase/firestore`) — Apache-2.0
-  - Build/test-only dev tooling (not shipped in `dist/`): `vite` (MIT), `@vitejs/plugin-react` (MIT), `typescript` (Apache-2.0), `daisyui` (MIT, unused in built CSS), `vitest` & `jsdom` (MIT), `@playwright/test` (Apache-2.0), `@axe-core/playwright` (MPL-2.0), `@firebase/rules-unit-testing` (Apache-2.0), `firebase-tools` (MIT).
+  - Self-hosted `Inter` (SIL OFL) and `JetBrains Mono` (SIL OFL) Latin subsets — fonts are fetched, never bundled into JS
+  - Opt-in local runner toolchains, **not** in `dist/` until `npm run runtime:fetch`: `@live-codes/clang-wasm` (MIT, Clang 22) and `pyodide` (MPL-2.0)
+  - Build/test-only dev tooling (not shipped in `dist/`): `vite` (MIT), `@vitejs/plugin-react` (MIT), `typescript` (Apache-2.0), `esbuild` (MIT), `vitest` & `jsdom` (MIT), `@playwright/test` (Apache-2.0), `@axe-core/playwright` (MPL-2.0), `@firebase/rules-unit-testing` (Apache-2.0), `firebase-tools` (MIT).
+  - **Tailwind and daisyUI were removed in v2-01** (owner gate decision 2026-11-03). The stylesheet is plain CSS on frozen tokens v2; `npm run check:deadweight` keeps it that way.
+
+## Privacy, deletion & network (phase v2-09)
+
+- **Only your data.** Firestore rules v9 give each signed-in user read/write access to
+  their own `users/{uid}` tree and nothing else; friends see an opted-in summary of
+  counts and streak, never saved code, quiz answers or per-row outcomes. Guest progress
+  stays in this browser's `localStorage` until an explicit merge on sign-in.
+- **Delete my data** lives in Settings → *Account & backup* while signed in. One
+  two-step action removes `progressByTopic`, `snippets`, `quizResults`, `lists`,
+  `plans`, the profile, both sides of each friend link, the invite capability and the
+  opt-in `public/summary`, plus this device's guest study records (including watched-video
+  history). Device preferences such as theme and finish line are kept. It cannot be undone;
+  export a backup JSON first. `e2e/account-deletion.spec.ts` proves every path is gone
+  against the Firestore emulator and `src/accountDelete.test.ts` pins the list.
+- **No trackers.** No Analytics, no App Check, no reporting endpoint in the CSP, no
+  CDN script. The only third-party request is YouTube's official IFrame player on a
+  problem route with a video; `e2e/network.spec.ts` asserts that on non-video routes
+  nothing leaves for a third party. Learner code is compiled in a local Worker and
+  never uploaded.
+- **CSP** is enforced by a Hosting header (`tools/csp.mjs` is the single source);
+  `e2e/csp.spec.ts` runs the report-only stage first, confirms zero
+  `securitypolicyviolation` events across the core routes, and only then repeats
+  them with the enforced header. The Service Worker bypasses YouTube, the iframe
+  API, Google/Firebase hosts and Firebase's `/__/auth/*` helpers entirely. Runner
+  toolchains are **never precached into the shell**: they live in the separate
+  opt-in `dsa-archive-runtime-v1` cache that an installed runner reads offline.

@@ -21,6 +21,16 @@ const RUNNER_CHUNK_NAMES = new Set([
   'packs',
 ])
 
+/**
+ * Phase v2-09: the destructive account tools are an on-demand add-on, not
+ * shell. The owner's 2026-11-05 cap decision left 1,807 B of headroom and said
+ * any further shell growth is a gate, so this chunk is served like the runner:
+ * never precached, cache-first from the add-on bucket after first use. Account
+ * deletion needs a signed-in network session anyway, so "offline on first
+ * launch" was never a requirement for it.
+ */
+const ACCOUNT_CHUNK_NAMES = new Set(['deleteDataCard', 'accountDelete'])
+
 const VIRTUAL_CATALOGUE = 'virtual:dsa-catalogue'
 const RESOLVED_CATALOGUE = `\0${VIRTUAL_CATALOGUE}`
 const VIRTUAL_CONTENT = 'virtual:dsa-content'
@@ -268,7 +278,11 @@ export default defineConfig({
         // shell is frozen at 388 kB gzip; the runner is ~22 kB raw of UI that
         // most visits never load). Everything else keeps Vite's naming.
         chunkFileNames: (chunk) =>
-          RUNNER_CHUNK_NAMES.has(chunk.name ?? '') ? 'assets/runner-[hash].js' : 'assets/[name]-[hash].js',
+          ACCOUNT_CHUNK_NAMES.has(chunk.name ?? '')
+            ? 'assets/account-[hash].js'
+            : RUNNER_CHUNK_NAMES.has(chunk.name ?? '')
+              ? 'assets/runner-[hash].js'
+              : 'assets/[name]-[hash].js',
         codeSplitting: {
           groups: [
             { name: 'firebase-auth', test: /node_modules[\\/]@firebase[\\/](?:app|component|logger|util|webchannel-wrapper|auth)[\\/]/ },

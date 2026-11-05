@@ -23,7 +23,20 @@ performance targets, tests, risks, acceptance criteria, and exit gate.
 parallel from phase 02 onwards.
 
 
-**Execution status (2026-11-05, phase 08):** Phase 07 was reviewed and merged by the owner
+**Execution status (2026-11-05, phase 09):** Phases v2-01…v2-08 are merged to `main`
+(PR #20 `b81361a` merged phase 08). Phase 09 is implemented on
+`arena/6bef7496-dsa-archive` and stopped at the owner's PR/merge gate: final budget review
+with **no second re-baseline** (shell 392,136 B gzip against the frozen 393,000 B cap),
+SW v2 with an update toast, an enforced CSP whose report-only → enforce sequence is proven
+in Chromium, the completed a11y + offline + network matrices, a real tested
+"Delete my data", dead-weight cleanup and data-model v5 — see
+[`09-pwa-accessibility-hardening/RECORD.md`](09-pwa-accessibility-hardening/RECORD.md).
+CI [`__PHASE09_RUN_ID__`](https://github.com/pabi277/DSA-archive/actions/runs/__PHASE09_RUN_ID__)
+green at `__PHASE09_SHA__`, `site-preview` __PHASE09_PREVIEW_BYTES__ B. Latest merged versions
+on `main` are rules **v9** / backup **v8**; phase 09 changes no Firestore shape, rule or
+backup version. Phase 10 (release v2) is next and remains owner-gated.
+
+**Earlier status (2026-11-05, phase 08):** Phase 07 was reviewed and merged by the owner
 (PR #18, `ace2289`; post-merge CI fix in PR #19, `79c6099`). Phase 08 is implemented on
 `arena/d4a6c3b3-dsa-archive` and stopped at the owner's PR/merge gate: the nine-reason
 vocabulary, momentum instead of a punitive streak, one trajectory sentence, "How this plan
@@ -31,8 +44,7 @@ was made", two undoable detectors and `#/insights`, with optional `targetDate`/`
 under rules v9 / backup v8 — see [`08-insights-light/RECORD.md`](08-insights-light/RECORD.md).
 The owner re-baselined the shell cap to **393 kB gzip** and CSS raw to **61 kB** (measured
 391,193 B gzip / 60,238 B raw), because the insight layer lives on Today and must be
-precached. Latest *merged* versions on `main` remain rules v8 / backup v7; phase 08 advances
-them to rules v9 / backup v8 on its branch, and phase 09 owns the cap review.
+precached. Phase 08 advanced rules to v9 / backup to v8; phase 09 owns the cap review.
 
 **Earlier status (2026-11-04, phase 07):** Phase 06 was reviewed and merged by the owner
 (PR #17, `d44b55a`). Phase 07 is implemented on `arena/435eaa93-dsa-archive` and stopped at the

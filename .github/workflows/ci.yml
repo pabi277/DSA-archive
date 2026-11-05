@@ -14,6 +14,9 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    # Phase v2-09 acceptance: the whole matrix (unit + rules + Playwright +
+    # axe + visual + budgets + two production builds) must stay under 12 min.
+    timeout-minutes: 12
     env:
       CONTENT_AS_OF: '2026-11-03'
     steps:
@@ -227,8 +230,10 @@ jobs:
         run: npm run check:dist
       - name: Check built-page asset links
         run: npm run check:links
-      - name: Enforce bundle, PWA and Spark transfer budgets
+      - name: Enforce bundle, PWA, SW v2 and Spark transfer budgets
         run: npm run check:budgets
+      - name: Enforce the CSP, token-contrast and dead-weight decisions
+        run: npm run check:hardening
       - name: Install browser for responsive and accessibility checks
         run: npx playwright install --with-deps chromium
       - name: Emulator rules tests + phone/desktop browser acceptance
