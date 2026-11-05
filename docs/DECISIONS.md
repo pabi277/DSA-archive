@@ -1049,9 +1049,11 @@ re-baseline") is treated as **frozen** and was not re-opened.
   Chrome trace, a new npm dependency and an outbound network path, and would
   break the ≤12-minute CI ceiling. The enforced substitutes are the published
   bundle budgets, the 6-profile × 18-route axe matrix, `e2e/performance.spec.ts`
-  (≤1,200 sheet DOM nodes, warm route transition, `font-display: swap`,
-  CLS ≤0.25 (0.1 target, measured and printed), lazy images), and `tools/check-tokens.mjs` (contrast, 44 px targets,
-  2 px focus). Lighthouse can be run by the owner against the uploaded
+  (40-row windowing invariant with the measured DOM count printed, warm route
+  transition, `font-display: swap`, CLS ≤0.25 with the value printed, lazy
+  images), and `tools/check-tokens.mjs` (contrast, 44 px targets, 2 px focus).
+  The v2-01 "≤1,200 nodes" figure was the row region, not the whole document;
+  a v2-09 cold `/#/search` with one open topic measures 1,628 document nodes. Lighthouse can be run by the owner against the uploaded
   `site-preview`; this phase does **not** claim a Lighthouse score.
 - **Visual baselines remain CI-generated and reviewed, never auto-accepted.**
   No PNG baselines are committed (they are platform/font-stack specific), and

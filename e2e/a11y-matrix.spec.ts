@@ -101,7 +101,9 @@ test.describe('phase v2-09 a11y matrix', () => {
     await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
 
     await open(page, '/#/today')
-    await page.getByTestId('palette-trigger').click()
+    // The topbar trigger is hidden at phone width by design; ⌘K/Ctrl-K is the
+    // phone route into the palette and is a keyboard-only interaction itself.
+    await page.keyboard.press('ControlOrMeta+k')
     await expect(page.getByTestId('palette-input')).toBeVisible()
     expect((await auditPage(page).analyze()).violations, 'command palette').toEqual([])
     await page.keyboard.press('Escape')

@@ -86,7 +86,8 @@ test.describe('phase v2-09 offline matrix', () => {
       await open(cold, '/#/review')
       await expect(cold.getByTestId('page-header')).toBeVisible()
       await open(cold, '/#/code')
-      await expect(cold.getByTestId('code-signed-out').or(cold.getByTestId('code-view'))).toBeVisible()
+      await expect(cold.getByTestId('code-view')).toBeVisible()
+      await expect(cold.getByTestId('code-signed-out')).toBeVisible()
     } finally {
       await context.close()
     }
