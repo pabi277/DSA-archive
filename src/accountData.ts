@@ -23,6 +23,7 @@ import type { CodeState } from './code/codeData'
 import { db } from './firebase'
 import {
   applyProfileSettings,
+  applyProfileTargets,
   getSettingsSnapshot,
   subscribeSettings,
   useSettings,
@@ -222,6 +223,8 @@ export function useAccountData(
             dailyGoal: DEFAULT_DAILY_GOAL,
             theme: local.theme,
             hideDone: local.hideDone,
+            targetDate: local.targetDate,
+            targetListId: local.targetListId,
             shareSummary: false,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
@@ -230,6 +233,7 @@ export function useAccountData(
           const data = snapshot.data()
           if (data) {
             applyProfileSettings(data.theme === 'light' ? 'light' : 'dark', data.hideDone === true)
+            applyProfileTargets(data.targetDate, data.targetListId)
           }
         }
         if (disposed) return
@@ -238,6 +242,7 @@ export function useAccountData(
           const data = next.data()
           if (!data) return
           applyProfileSettings(data.theme === 'light' ? 'light' : 'dark', data.hideDone === true)
+          applyProfileTargets(data.targetDate, data.targetListId)
           setDailyGoalState(clampGoal(typeof data.dailyGoal === 'number' ? data.dailyGoal : DEFAULT_DAILY_GOAL))
         })
         unsubscribeSettings = subscribeSettings((source) => {
@@ -245,7 +250,13 @@ export function useAccountData(
           const next = getSettingsSnapshot()
           void setDoc(
             profileRef,
-            { theme: next.theme, hideDone: next.hideDone, updatedAt: serverTimestamp() },
+            {
+              theme: next.theme,
+              hideDone: next.hideDone,
+              targetDate: next.targetDate,
+              targetListId: next.targetListId,
+              updatedAt: serverTimestamp(),
+            },
             { merge: true },
           ).catch((reason) => setDataError(`Could not save settings: ${messageFrom(reason)}`))
         })
@@ -583,6 +594,8 @@ export function useAccountData(
             dailyGoal: preview.backup.profile.dailyGoal,
             theme: preview.backup.profile.theme,
             hideDone: preview.backup.profile.hideDone,
+            targetDate: preview.backup.profile.targetDate ?? null,
+            targetListId: preview.backup.profile.targetListId ?? null,
             shareSummary: false,
             updatedAt: serverTimestamp(),
           },
@@ -593,6 +606,7 @@ export function useAccountData(
           preview.backup.profile.hideDone,
           preview.backup.profile.largeText,
         )
+        applyProfileTargets(preview.backup.profile.targetDate, preview.backup.profile.targetListId)
         setDailyGoalState(clampGoal(preview.backup.profile.dailyGoal))
         // Saved solutions, lists and plan days ride the backup; a schema v1
         // file restores none of them, which clears them as its preview says.

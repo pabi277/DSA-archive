@@ -96,7 +96,7 @@ export function LeetCodeBadge({ problem }: { problem: Problem }) {
   return <span className="row-slug num">#{match[1]}</span>
 }
 
-export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, revealed, focused, age, canEditCode, hasCode, listCount, onToggleStatus, onToggleBookmark, onSetOutcome, onOpen, onOpenPanel, onPlan, onFocus, listPosition, listSize, panel, theoryExpanded }: {
+export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, revealed, focused, age, canEditCode, hasCode, listCount, reason, onToggleStatus, onToggleBookmark, onSetOutcome, onOpen, onOpenPanel, onPlan, onFocus, listPosition, listSize, panel, theoryExpanded }: {
   topicId: string
   topicTitle: string
   problem: Problem
@@ -108,6 +108,8 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
   canEditCode: boolean
   hasCode: boolean
   listCount: number
+  /** Phase v2-08: the strongest reason chip for this row, when one exists. */
+  reason?: string | null
   onToggleStatus: (topicId: string, problemId: string) => void
   onToggleBookmark: (topicId: string, problemId: string) => void
   onSetOutcome: (topicId: string, problemId: string, outcome: Outcome) => void
@@ -175,6 +177,11 @@ export function ProblemRow({ topicId, topicTitle, problem, progress, disabled, r
           <span className="row-kind">{problem.kind === 'theory' ? 'Theory' : 'Problem'}</span>
           <span className="row-topic-label">{topicTitle}</span>
           <LeetCodeBadge problem={problem} />
+          {reason ? (
+            <Tag tone="neutral" className="reason-chip" data-testid={`reason-${problem.id}`}>
+              {reason}
+            </Tag>
+          ) : null}
           {hasCode ? (
             <Tag tone="neutral" data-testid={`has-code-${problem.id}`}>⌨ has code</Tag>
           ) : null}

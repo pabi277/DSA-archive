@@ -187,6 +187,34 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
     )
   })
 
+  it('accepts the two optional target fields and rejects malformed ones (rules v9)', async () => {
+    const alice = env.authenticatedContext('alice').firestore()
+    const userDoc = doc(alice, 'users/alice')
+    const listId = 'aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa'
+
+    await assertSucceeds(
+      setDoc(userDoc, { targetDate: '2026-12-02', targetListId: listId, updatedAt: serverTimestamp() }, { merge: true }),
+    )
+    // Both are optional and both may be explicitly cleared.
+    await assertSucceeds(
+      setDoc(userDoc, { targetDate: null, targetListId: null, updatedAt: serverTimestamp() }, { merge: true }),
+    )
+    await assertSucceeds(
+      setDoc(userDoc, profile('alice', { targetDate: '2026-12-02', targetListId: listId })),
+    )
+
+    for (const bad of ['2026-13-01', '2 December 2026', '2026-12-02T00:00:00Z', 20261202, true]) {
+      await assertFails(setDoc(userDoc, { targetDate: bad, updatedAt: serverTimestamp() }, { merge: true }))
+    }
+    for (const bad of ['short', 'UPPER-CASE-1111', 'has space 1234', 42, false]) {
+      await assertFails(setDoc(userDoc, { targetListId: bad, updatedAt: serverTimestamp() }, { merge: true }))
+    }
+    // The whitelist stays closed: a new profile field is a rules change.
+    await assertFails(
+      setDoc(userDoc, { targetStreak: 4, updatedAt: serverTimestamp() }, { merge: true }),
+    )
+  })
+
   it('accepts only the three done outcomes and rejects outcomes on todo rows', async () => {
     const alice = env.authenticatedContext('alice').firestore()
     const shard = ref(alice, 'alice')

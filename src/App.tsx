@@ -3,6 +3,8 @@ import { catalogue, summarizeCatalogue } from './catalogue'
 import { getProgressSnapshot, replaceGuestProgress, tallyCatalogue, tallyTopic } from './progress'
 import {
   setDensity,
+  setTargetDate,
+  setTargetList,
   setTheme,
   toggleHideDone,
   toggleLargeText,
@@ -35,7 +37,9 @@ import { FriendsView } from './FriendsView'
 import { useInstallPrompt } from './pwa'
 import { RevisionView, StatsView, TodayView } from './PlannerViews'
 import {
+  activityByDay,
   continueWhereLeft,
+  daysBetween,
   heatmap,
   revisionQueue,
   streakInfo,
@@ -43,6 +47,11 @@ import {
   todayTally,
   weeklyStats,
 } from './planner'
+import { reasonsForAll, reasonLine, type Target } from './insights/reasons'
+import { momentum as momentumOf } from './insights/momentum'
+import { planVsReality, trajectory } from './insights/trajectory'
+import { codeQueryForIds, detectors as detectorsOf, dismissForToday, readDismissed } from './insights/detectors'
+import type { Detector } from './insights/detectors'
 import { navigate, onRouteChange, rememberScrollMaybe, type Route, type RouteName } from './app/router'
 import { installShortcuts, ShortcutsSheet } from './app/shortcuts'
 import { FeedbackProvider, useFeedback } from './app/feedback'
@@ -52,11 +61,8 @@ import { Banner, BottomBar, NavSidebar, PageHeader, TopBar } from './app/shell'
 import { SheetScreen, WINDOW_SIZE, topicRingValue } from './app/sheetScreen'
 import { TopicsScreen } from './app/topicsScreen'
 import { TopicPage } from './topics/topicPage'
-import {
-  InsightsScreen,
-  NotFoundScreen,
-  SettingsScreen,
-} from './app/placeholderScreens'
+import { InsightsScreen } from './insights/insightsScreen'
+import { NotFoundScreen, SettingsScreen } from './app/placeholderScreens'
 // The theatre's *screens* are a lazy route chunk (phase v2-06 §7): the
 // problem page is the only route that needs the player, and the shell must not
 // pay for it. Models + the mini player stay eager, because a video that keeps
@@ -214,28 +220,108 @@ function AppShell() {
   const streak = useMemo(() => streakInfo(data.entries, today), [data.entries, today])
   const weekly = useMemo(() => weeklyStats(data.entries, today), [data.entries, today])
   const heat = useMemo(() => heatmap(data.entries, today), [data.entries, today])
-  const suggestions = useMemo(() => suggestedPicks(data.entries, planner.plan, 5), [data.entries, planner.plan])
-  const todayReasons = useMemo(() => {
-    const ids = new Set([...(planner.plan?.problemIds ?? []), ...suggestions])
-    const reasons: Record<string, string[]> = {}
-    for (const problemId of ids) {
-      const location = locateProblem(problemId)
-      if (!location) continue
-      const entry = data.entries[location.topicId]?.[problemId]
-      const due = queue.due.some((item) => item.problemId === problemId)
-      const why = due
-        ? 'due today'
-        : entry?.s === 'done' && entry.o === 'couldnt'
-          ? 'shaky — couldn’t last time'
-          : hint?.topicId === location.topicId
-            ? 'weakest topic'
-            : !entry
-              ? 'first solve'
-              : null
-      reasons[problemId] = why ? [why] : []
-    }
-    return reasons
-  }, [data.entries, hint, planner.plan, queue.due, suggestions])
+  /* --- phase v2-08: the insight layer (all derived, nothing stored) ------ */
+  const targetListIds = useMemo(
+    () => (settings.targetListId ? (library.lists[settings.targetListId]?.problemIds ?? []) : []),
+    [library.lists, settings.targetListId],
+  )
+  const targetListTitle = settings.targetListId
+    ? (library.lists[settings.targetListId]?.title ?? null)
+    : null
+  const target = useMemo<Target>(
+    () => ({ date: settings.targetDate, listId: settings.targetListId, listProblemIds: targetListIds }),
+    [settings.targetDate, settings.targetListId, targetListIds],
+  )
+  // A deadline inside two weeks is the one thing that reorders the picks.
+  const targetImminent = Boolean(
+    settings.targetDate && daysBetween(today, settings.targetDate) <= 14 && daysBetween(today, settings.targetDate) >= 0,
+  )
+  const suggestions = useMemo(
+    () => suggestedPicks(data.entries, planner.plan, 5, targetImminent ? targetListIds : []),
+    [data.entries, planner.plan, targetImminent, targetListIds],
+  )
+  const insightExtra = useMemo(
+    () => ({ weakestTopicId: hint?.topicId ?? null, quizResults: quiz.results }),
+    [hint?.topicId, quiz.results],
+  )
+  const todayReasons = useMemo(
+    () =>
+      reasonsForAll(
+        [...(planner.plan?.problemIds ?? []), ...suggestions],
+        data.entries,
+        planner.plan,
+        today,
+        target,
+        insightExtra,
+      ),
+    [data.entries, planner.plan, suggestions, today, target, insightExtra],
+  )
+  const paletteReasons = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(todayReasons).map(([problemId, list]) => [problemId, reasonLine(list)]),
+      ),
+    [todayReasons],
+  )
+  const practiceReasons = useMemo(() => {
+    if (route.name !== 'topic') return {}
+    const topic = catalogue.topics.find((item) => item.id === route.param)
+    if (!topic) return {}
+    return reasonsForAll(
+      topic.subtopics.flatMap((subtopic) => subtopic.problems.map((problem) => problem.id)),
+      data.entries,
+      planner.plan,
+      today,
+      target,
+      insightExtra,
+    )
+  }, [route.name, route.param, data.entries, planner.plan, today, target, insightExtra])
+  const activity = useMemo(() => activityByDay(data.entries), [data.entries])
+  const momentumNow = useMemo(() => momentumOf(data.entries, today), [data.entries, today])
+  const trajectoryNow = useMemo(
+    () =>
+      trajectory({
+        activity,
+        done: tally.done,
+        total: tally.total,
+        today,
+        targetDate: settings.targetDate,
+      }),
+    [activity, tally.done, tally.total, today, settings.targetDate],
+  )
+  const reality = useMemo(
+    () => planVsReality({ activity, planned: dayTally.planned, completed: dayTally.done, goal: data.dailyGoal, today }),
+    [activity, dayTally.planned, dayTally.done, data.dailyGoal, today],
+  )
+  const foundDetectors = useMemo(
+    () => detectorsOf(data.entries, code.snippets, today),
+    [data.entries, code.snippets, today],
+  )
+  const [dismissedDetectors, setDismissedDetectors] = useState<string[]>(() => readDismissed(today))
+  const visibleDetectors = useMemo(
+    () => foundDetectors.filter((detector) => !dismissedDetectors.includes(detector.id)),
+    [foundDetectors, dismissedDetectors],
+  )
+  const runDetectorAction = useCallback(
+    (detector: Detector) => {
+      if (detector.id === 'stale-code') {
+        navigate('code', '', codeQueryForIds(detector.problemIds))
+        return
+      }
+      const added = detector.problemIds
+      planner.addManyToToday(added)
+      feedback.undoable({
+        key: `detector:${detector.id}`,
+        message: `Added ${added.length} forgotten rows to today`,
+        revert: () => added.forEach((problemId) => planner.removeFromToday(problemId)),
+      })
+    },
+    [feedback, planner],
+  )
+  const dismissDetector = useCallback(
+    (detector: Detector) => setDismissedDetectors(dismissForToday(detector.id, today)),
+    [today],
+  )
   const continuePick = useMemo(() => continueWhereLeft(data.entries), [data.entries])
 
   const [online, setOnline] = useState(() => (typeof navigator === 'undefined' ? true : navigator.onLine))
@@ -328,7 +414,6 @@ function AppShell() {
       const wasDone = progress[topicId]?.[problemId]?.s === 'done'
       data.toggleStatus(topicId, problemId)
       undoStatus(topicId, problemId, wasDone)
-      if (!wasDone) saveSessionDrawer(topicId)
     },
     [data, progress, undoStatus],
   )
@@ -350,12 +435,6 @@ function AppShell() {
     },
     [data, progress, undoStatus],
   )
-
-  function saveSessionDrawer(topicId: string) {
-    // Placeholder hook for phase 08's reason chips: keep the callback shape
-    // stable so adding `o: clean|hint|couldnt` later does not touch call sites.
-    void topicId
-  }
 
   const onPlan = useCallback(
     (problemId: string) => {
@@ -723,7 +802,7 @@ function AppShell() {
               <TodayScreen
                 signedIn={signedIn}
                 tally={dayTally}
-                streak={streak}
+                momentum={momentumNow}
                 dueCount={queue.due.length}
                 hint={hint}
                 sessionMinutes={sessionMinutes}
@@ -745,7 +824,16 @@ function AppShell() {
                   goal={data.dailyGoal}
                   tally={dayTally}
                   suggestions={suggestions}
-                  todayReasons={todayReasons}
+                  reasons={todayReasons}
+                  momentum={momentumNow}
+                  reality={reality}
+                  detectors={visibleDetectors}
+                  dueCount={queue.due.length}
+                  weakestTitle={hint?.title ?? null}
+                  targetDate={settings.targetDate}
+                  targetListTitle={targetListTitle}
+                  onDetectorAction={runDetectorAction}
+                  onDetectorDismiss={dismissDetector}
                   continuePick={continuePick}
                   disabled={planner.busy || (signedIn && !data.cloudReady)}
                   onAdd={(problemId) => planner.addToToday(problemId)}
@@ -828,6 +916,7 @@ function AppShell() {
                 tabQuery={route.query.tab}
                 sectionQuery={route.query.section}
                 quizResult={quiz.results[route.param]}
+                reasons={practiceReasons}
                 progress={progress}
                 entries={data.entries}
                 today={today}
@@ -890,7 +979,24 @@ function AppShell() {
             {route.name === 'quiz' ? (
               route.param ? <QuizScreen route={route} quiz={quiz} /> : <QuizHome quiz={quiz} />
             ) : null}
-            {route.name === 'insights' ? <InsightsScreen signedIn={signedIn} /> : null}
+            {route.name === 'insights' ? (
+              <InsightsScreen
+                signedIn={signedIn}
+                momentum={momentumNow}
+                trajectory={trajectoryNow}
+                reality={reality}
+                goal={data.dailyGoal}
+                onSetGoal={data.setDailyGoal}
+                detectors={visibleDetectors}
+                onDetectorAction={runDetectorAction}
+                onDetectorDismiss={dismissDetector}
+                targetDate={settings.targetDate}
+                targetListId={settings.targetListId}
+                lists={listChoices.map((list) => ({ id: list.id, title: list.title }))}
+                onTargetDate={setTargetDate}
+                onTargetList={setTargetList}
+              />
+            ) : null}
 
             {route.name === 'review' ? (
               <RevisionView
@@ -988,6 +1094,7 @@ function AppShell() {
           navigate('today')
         }}
         onSignIn={() => void account.signIn()}
+        reasons={paletteReasons}
       />
       <ShortcutsSheet open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <ToastHost toasts={feedback.messages} onDismiss={feedback.dismiss} />
@@ -1002,7 +1109,7 @@ function TodayScreen({
   children,
   signedIn,
   tally,
-  streak,
+  momentum,
   dueCount,
   hint,
   sessionMinutes,
@@ -1014,7 +1121,7 @@ function TodayScreen({
   children: ReactNode
   signedIn: boolean
   tally: ReturnType<typeof todayTally>
-  streak: ReturnType<typeof streakInfo>
+  momentum: ReturnType<typeof momentumOf>
   dueCount: number
   hint: ReturnType<typeof weakestTopic>
   sessionMinutes: number | null
@@ -1043,7 +1150,12 @@ function TodayScreen({
           </p>
         </div>
         <div className="hero-side">
-          <Stat value={streak.current} label="day streak" detail={`longest ${streak.longest}`} tone="action" />
+          <Stat
+            value={momentum.value.toFixed(1)}
+            label="momentum"
+            detail={`${momentum.studyDaysThisWeek} study days this week`}
+            tone="action"
+          />
           <Stat value={dueCount} label="due for revision" detail={dueCount === 0 ? 'queue clear' : 'open review'} />
           <div className="hero-actions">
             {sessionMinutes === null ? (

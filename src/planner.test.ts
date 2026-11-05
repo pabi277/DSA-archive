@@ -232,6 +232,22 @@ describe('plan documents', () => {
     expect(suggestedPicks(entries, null, 3)).toEqual(picks)
   })
 
+  it('offers target-list rows first when a deadline passes them (v2-08)', () => {
+    // Without a focus list the picks start at the top of the sheet, so naming a
+    // row from the middle of Arrays as the target must move it to the front.
+    const focus = 'largest-element'
+    const plain = suggestedPicks({}, null, 5)
+    expect(plain[0]).not.toBe(`${focus}`)
+    expect(suggestedPicks({}, null, 5, [focus])[0]).toBe(focus)
+    // A solved or already-planned focus row is skipped, never duplicated.
+    const entries: CloudProgressByTopic = { arrays: { [focus]: entry({ s: 'done' }) } }
+    expect(suggestedPicks(entries, null, 5, [focus])).not.toContain(focus)
+    const planned = { ...emptyPlan(TODAY), problemIds: [focus] }
+    const picks = suggestedPicks({}, planned, 5, [focus])
+    expect(picks).not.toContain(focus)
+    expect(new Set(picks).size).toBe(picks.length)
+  })
+
   it('adds, removes and ticks problems while keeping doneIds a subset', () => {
     const base = emptyPlan(TODAY)
     const added = withProblem(base, 'two-sum')!

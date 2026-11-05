@@ -368,6 +368,12 @@ export function suggestedPicks(
   entries: CloudProgressByTopic,
   plan: Plan | null,
   limit = 5,
+  /**
+   * Phase v2-08: ids from the learner's target list. When a target date is
+   * inside 14 days the caller passes them here, and they are offered first —
+   * the otherwise-unchanged weakest-topic order fills the rest.
+   */
+  focusIds: readonly string[] = [],
 ): string[] {
   const excluded = new Set(plan?.problemIds ?? [])
   const scored = catalogue.topics.map((topic, order) => {
@@ -401,11 +407,19 @@ export function suggestedPicks(
   })
 
   const picks: string[] = []
+  for (const problemId of focusIds) {
+    if (picks.length >= limit) return picks
+    if (excluded.has(problemId) || picks.includes(problemId)) continue
+    const location = locateProblem(problemId)
+    if (!location) continue
+    if (entries[location.topicId]?.[problemId]?.s === 'done') continue
+    picks.push(problemId)
+  }
   for (const topic of scored) {
     const problems = catalogue.topics[topic.order].subtopics.flatMap((subtopic) => subtopic.problems)
     for (const problem of problems) {
       if (picks.length >= limit) return picks
-      if (excluded.has(problem.id)) continue
+      if (excluded.has(problem.id) || picks.includes(problem.id)) continue
       if (entries[topic.topicId]?.[problem.id]?.s === 'done') continue
       picks.push(problem.id)
     }

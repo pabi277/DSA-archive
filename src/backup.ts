@@ -5,9 +5,11 @@
  * added plans and revision counts, v4 added the optional self-assessed
  * outcome, v5 (phase v2-04) replaced the removed markdown `notes[]`
  * with saved solutions in `snippets[]`, v6 (phase v2-05) added
- * per-topic quiz scores in `quizResults[]`, and v7 (phase v2-06) adds optional
- * video stamps as `snippets[].moments[]`. All prior schemas (1–6) remain
- * importable unchanged. Friends/summaries stay excluded.
+ * per-topic quiz scores in `quizResults[]`, v7 (phase v2-06) adds optional
+ * video stamps as `snippets[].moments[]`, and v8 (phase v2-08) adds the two
+ * optional target fields (`targetDate`, `targetListId`) to the profile. All
+ * prior schemas (1–7) remain importable unchanged. Friends/summaries stay
+ * excluded.
  */
 import { catalogue } from './catalogue'
 import {
@@ -30,7 +32,14 @@ import {
 } from './cloudProgress'
 import { MAX_QUIZ_ATTEMPTS, type BackupQuizResult } from './quiz/results'
 import { QUIZ_TARGET_COUNT } from './quiz/engine'
-import { clampDensity, type Density, type Settings, type Theme } from './settings'
+import {
+  clampDensity,
+  clampTargetDate,
+  clampTargetListId,
+  type Density,
+  type Settings,
+  type Theme,
+} from './settings'
 import {
   DEFAULT_DAILY_GOAL,
   PLAN_ID_PATTERN,
@@ -46,9 +55,9 @@ import {
   type BackupList,
 } from './library'
 
-export const BACKUP_SCHEMA_VERSION = 7
-/** Schemas 1–6 import unchanged; legacy fields are normalized or migrated. */
-export const SUPPORTED_BACKUP_SCHEMAS = [1, 2, 3, 4, 5, 6, 7] as const
+export const BACKUP_SCHEMA_VERSION = 8
+/** Schemas 1–7 import unchanged; legacy fields are normalized or migrated. */
+export const SUPPORTED_BACKUP_SCHEMAS = [1, 2, 3, 4, 5, 6, 7, 8] as const
 /** Room for many saved solutions; each field is individually capped below. */
 const MAX_BACKUP_BYTES = 4_000_000
 
@@ -69,6 +78,9 @@ export type BackupProfile = {
    */
   density?: Density
   railCollapsed?: boolean
+  /** Phase v2-08 targets; optional so a v7 file still imports unchanged. */
+  targetDate?: string | null
+  targetListId?: string | null
   dailyGoal: number
   shareSummary: boolean
 }
@@ -97,7 +109,10 @@ export type BackupCounts = {
 
 export type BackupInput = {
   account: { displayName: string; email: string }
-  settings: Pick<Settings, 'theme' | 'largeText' | 'hideDone' | 'density' | 'railCollapsed'>
+  settings: Pick<
+    Settings,
+    'theme' | 'largeText' | 'hideDone' | 'density' | 'railCollapsed' | 'targetDate' | 'targetListId'
+  >
   progressByTopic: CloudProgressByTopic
   snippets?: BackupSnippet[]
   lists?: BackupList[]
@@ -135,6 +150,8 @@ export function createBackup(input: BackupInput): string {
       hideDone: input.settings.hideDone,
       density: input.settings.density,
       railCollapsed: input.settings.railCollapsed,
+      targetDate: input.settings.targetDate,
+      targetListId: input.settings.targetListId,
       dailyGoal: clampGoal(input.dailyGoal ?? DEFAULT_DAILY_GOAL),
       shareSummary: false,
     },
@@ -486,6 +503,10 @@ export function parseBackup(text: string): { backup: Backup; counts: BackupCount
     // than failing the whole import: they describe a device, not your record.
     density: clampDensity(p.density),
     railCollapsed: p.railCollapsed === true,
+    // Targets are sanitised like the device preferences: a malformed value
+    // becomes "no target" rather than failing an otherwise good import.
+    targetDate: clampTargetDate(p.targetDate),
+    targetListId: clampTargetListId(p.targetListId),
     dailyGoal:
       typeof p.dailyGoal === 'number' &&
       Number.isInteger(p.dailyGoal) &&

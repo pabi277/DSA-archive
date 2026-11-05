@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { desktop, open, openTopic, phone } from './helpers'
 
 /**
- * Visual baselines for phases v2-01/02/03/04: 2 viewports × 2 themes × 14 routes
+ * Visual baselines for phases v2-01…v2-08: 2 viewports × 2 themes × 15 routes
  * = 56 committed snapshots (statement, hint open, primer, practice grid in 03;
  * the Code screen and the problem-page code panel in 04 — both signed-out
  * states here, while the emulator code.spec covers editor/peek with data).
@@ -21,6 +21,7 @@ const ROUTES = [
   { path: '/#/topic/arrays?tab=practice', slug: 'topic-practice' },
   { path: '/#/search', slug: 'search' },
   { path: '/#/review', slug: 'review' },
+  { path: '/#/insights', slug: 'insights' },
   { path: '/#/settings', slug: 'settings' },
   { path: '/#/not-found', slug: 'not-found' },
 ] as const

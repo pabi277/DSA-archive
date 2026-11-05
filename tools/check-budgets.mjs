@@ -21,20 +21,30 @@ const root = path.resolve('dist')
  * capability and Phase 05 had only 3.99 kB of headroom; the first re-baseline
  * left the build exactly on the ceiling, so ordinary few-hundred-byte build
  * variance failed CI. The measured numbers, the rejected alternatives and the
- * option list are published in docs/phases-v2/06-theatre-player/RECORD.md;
- * phase v2-09 re-examines this cap with the runner in place.
+ * option list are published in docs/phases-v2/06-theatre-player/RECORD.md.
+ *
+ * Third re-baseline, phase v2-08 (owner decision 2026-11-05): 388 kB → 393 kB
+ * gzip, and CSS raw 60 kB → 61 kB. Phase 07 left 1,326 B of headroom; the
+ * insight layer measures 391,193 B gzip (+4,613 B over the pre-phase build) and
+ * 60,238 B raw CSS, because reason chips, momentum, the disclosure, the two
+ * detectors and `#/insights` are all *shell* surface — they must work offline
+ * on Today, so they cannot go in an on-demand bucket like the runner's. The
+ * alternatives (cutting the contract, or parking the phase) and the measured
+ * deltas are published in docs/phases-v2/08-insights-light/RECORD.md. Phase
+ * v2-09 still owns the cap review, now with the runner, the insight layer and
+ * the CSP work all visible.
  * Runtime assets that are fetched on demand (the phase-07 wasm compiler, ~14 MB,
  * and the two font subsets, ~45 kB) live in their OWN bucket below and are never
  * counted as shell transfer — and the Service Worker must never precache them.
  */
 export const BUDGETS = {
-  maxCssRawBytes: 60_000,
+  maxCssRawBytes: 61_000,
   maxCssGzipBytes: 18_000,
   maxEntryJsRawBytes: 180_000,
   maxEntryJsGzipBytes: 55_000,
   maxSingleJsRawBytes: 520_000,
   maxSingleJsGzipBytes: 165_000,
-  maxShellGzipBytes: 388_000,
+  maxShellGzipBytes: 393_000,
   /**
    * Phase v2-07 runtime bucket — a SEPARATE bucket from the shell, never
    * precached, published here with measured numbers:

@@ -38,6 +38,7 @@ export type BackupList = {
 export type ProblemLocation = {
   topicId: string
   topicTitle: string
+  subtopicId: string
   subtopicTitle: string
   problem: Problem
 }
@@ -47,12 +48,17 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 const locations = new Map<string, ProblemLocation>()
+/** Subtopic → its problem ids, so a row can name a solved neighbour (v2-08). */
+const subtopicIds = new Map<string, string[]>()
 for (const topic of catalogue.topics) {
   for (const subtopic of topic.subtopics) {
+    const key = `${topic.id}/${subtopic.id}`
+    subtopicIds.set(key, subtopic.problems.map((problem) => problem.id))
     for (const problem of subtopic.problems) {
       locations.set(problem.id, {
         topicId: topic.id,
         topicTitle: topic.title,
+        subtopicId: subtopic.id,
         subtopicTitle: subtopic.title,
         problem,
       })
@@ -65,6 +71,7 @@ for (const [id, drill] of DRILL_BY_ID) {
   locations.set(id, {
     topicId: drill.topicId,
     topicTitle: drill.topicTitle,
+    subtopicId: `drill-${drill.patternId}`,
     subtopicTitle: `${drill.patternTitle} · set ${drill.set}`,
     problem: drillAsProblem(drill),
   })
@@ -72,6 +79,11 @@ for (const [id, drill] of DRILL_BY_ID) {
 
 export function locateProblem(problemId: string): ProblemLocation | null {
   return locations.get(problemId) ?? null
+}
+
+/** The other rows in the same subtopic (drills have no neighbours). */
+export function subtopicNeighbours(location: ProblemLocation): string[] {
+  return subtopicIds.get(`${location.topicId}/${location.subtopicId}`) ?? []
 }
 
 export function isKnownProblemId(problemId: string): boolean {
