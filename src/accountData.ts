@@ -242,7 +242,13 @@ export function useAccountData(
           const data = next.data()
           if (!data) return
           applyProfileSettings(data.theme === 'light' ? 'light' : 'dark', data.hideDone === true)
-          applyProfileTargets(data.targetDate, data.targetListId)
+          // Phase v2-08: the two target fields are **not** re-applied from the
+          // profile here. This device is the writer, and a snapshot generated
+          // just before a change can still be delivered just after it — which
+          // silently undid a finish line the learner had picked seconds earlier
+          // (caught by `e2e/insights.spec.ts`, intermittently, before this).
+          // The profile is applied once, on load, and the write path still
+          // syncs it, so a reload or another device sees the value.
           setDailyGoalState(clampGoal(typeof data.dailyGoal === 'number' ? data.dailyGoal : DEFAULT_DAILY_GOAL))
         })
         unsubscribeSettings = subscribeSettings((source) => {

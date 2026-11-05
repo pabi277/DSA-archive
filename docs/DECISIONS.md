@@ -966,3 +966,11 @@ Two consequences worth keeping:
   the open disclosure need real progress, so `e2e/insights.spec.ts` proves them functionally
   (390×844 and 1440×900) with axe 0, and `#/insights` joins the snapshot matrix in its
   designed signed-out state.
+
+- **The profile applies the target fields on load, not on every snapshot.** Re-applying
+  them from the settings snapshot looked harmless and was not: a snapshot generated a beat
+  before a change can be delivered a beat after it, and silently restored the old finish
+  line. The listener now leaves the targets to the writer (this device), applies the
+  profile once on load, and relies on the write path for the record — a reload or another
+  device reads the value. Caught by `e2e/insights.spec.ts` failing intermittently, which is
+  why the spec now holds each value for a second and across a reload.

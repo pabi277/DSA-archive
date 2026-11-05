@@ -181,6 +181,14 @@ suites, budgets and `check:dist`/`check:links`/`check:content`/`test:data` all g
 6. **Deleting the app's IndexedDB while it is open leaves a *blocked* delete queued**, which
    then fires during the next reload and signs the test out. Each Playwright test already
    gets a fresh context; local state is cleared through `localStorage` only.
+7. **A real bug, not a test bug: the profile snapshot could undo a fresh target.** The two
+   new fields were re-applied from the profile on *every* snapshot; a snapshot generated
+   just before a change can be delivered just after it, silently restoring the old value.
+   It failed intermittently (the same spec was green at `76f4909` and red on the next,
+   documentation-only commit). The fix: the profile is applied **once, on load**, and the
+   snapshot listener no longer writes settings into the store for targets — the write path
+   still syncs them, so a reload or another device sees the value. The spec now asserts the
+   values survive a one-second settle *and* a reload.
 | Budgets | `check:budgets` green at the re-baselined caps; `check:dist`, `check:links`, `check:rules`, `test:data`, `check:content` all green locally. |
 
 ## 7. What stays out (the "Out" list is part of the acceptance test)

@@ -84,6 +84,22 @@ async function seedAndReload(page: Page): Promise<string[]> {
   return ids
 }
 
+/**
+ * Set a date input the way React sees it. `fill()` is fine for text, but a
+ * controlled `type="date"` field only commits through an `input` event that
+ * carries React's own value setter.
+ */
+async function setTargetDate(page: Page, value: string) {
+  await page.getByTestId('target-date').evaluate((element, next) => {
+    const input = element as HTMLInputElement
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
+    setter?.call(input, next)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+  }, value)
+  await expect(page.getByTestId('target-date')).toHaveValue(value)
+}
+
 async function ownerUid(): Promise<string> {
   for (let attempt = 0; attempt < 20; attempt += 1) {
     const response = await fetch(`${firestore}/users`, { headers: { Authorization: 'Bearer owner' } })
@@ -205,16 +221,7 @@ test('#/insights reports momentum, one trajectory line and the two detectors', a
   // One sentence, and it answers to the target date it is given.
   const before = await page.getByTestId('insights-trajectory').innerText()
   expect(before.length).toBeGreaterThan(10)
-  // Set the day through React's own value setter: a date input is a controlled
-  // field, and only an `input` event reaches its onChange.
-  await page.getByTestId('target-date').evaluate((element, value) => {
-    const input = element as HTMLInputElement
-    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
-    setter?.call(input, value)
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-    input.dispatchEvent(new Event('change', { bubbles: true }))
-  }, '2027-06-01')
-  await expect(page.getByTestId('target-date')).toHaveValue('2027-06-01')
+  await setTargetDate(page, '2027-06-01')
   await expect(page.getByTestId('insights-trajectory')).not.toHaveText(before)
 
   // Plan vs reality is arithmetic; the suggestion only appears when it is lower.
@@ -236,10 +243,20 @@ test('the target date and target list persist through a reload', async ({ page }
 
   await open(page, '/#/insights')
   await page.getByTestId('target-list').selectOption({ label: 'Finish line' })
-  await page.getByTestId('target-date').fill(todayPlus(30))
+  await setTargetDate(page, todayPlus(30))
 
+  // The profile snapshot used to arrive a beat later and undo both: hold the
+  // line for a second, then reload — the value has to survive both.
+  const chosenList = await page.getByTestId('target-list').inputValue()
+  expect(chosenList).toMatch(/.+/)
+  await page.waitForTimeout(1_000)
+  await expect(page.getByTestId('target-list')).toHaveValue(chosenList)
+  await expect(page.getByTestId('target-date')).toHaveValue(todayPlus(30))
+
+  await page.reload()
+  await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner', { timeout: 30_000 })
   await open(page, '/#/insights')
-  await expect(page.getByTestId('target-list')).toHaveValue(/.+/)
+  await expect(page.getByTestId('target-list')).toHaveValue(chosenList)
   await expect(page.getByTestId('target-date')).toHaveValue(todayPlus(30))
 
   // The date is in the trajectory sentence, and clearing it keeps the app honest.
