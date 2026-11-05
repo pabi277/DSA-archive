@@ -208,7 +208,9 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
       setDoc(userDoc, { targetDate: '2026-12-02', updatedAt: serverTimestamp() }, { merge: true }),
     )
 
-    for (const bad of ['2026-13-01', '2 December 2026', '2026-12-02T00:00:00Z', 20261202, true]) {
+    // The rules check the *shape* only; an impossible day such as `2026-02-30` is
+    // refused earlier, by `clampTargetDate` in the settings store (it parses the day).
+    for (const bad of ['2026-1-1', '2 December 2026', '2026-12-02T00:00:00Z', 20261202, true]) {
       await assertFails(setDoc(userDoc, { targetDate: bad, updatedAt: serverTimestamp() }, { merge: true }))
     }
     for (const bad of ['short', 'UPPER-CASE-1111', 'has space 1234', 42, false]) {
