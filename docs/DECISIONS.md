@@ -990,9 +990,9 @@ re-baseline") is treated as **frozen** and was not re-opened.
   line and freezes the caps already approved by the owner: CSS 61,000 B raw /
   18,000 B gz, entry 180,000 / 55,000, single chunk 520,000 / 165,000, shell
   393,000 B gz, fonts 60,000 B, runner UI 120,000 / 40,000, account add-on
-  40,000 / 15,000, toolchains 48 MB. Measured shell on this branch: **392,136 B
-  gzip** (864 B headroom) against the emulator/CI build; **392,135 B** against
-  the live-config build. The +74.5 kB over v1 is the packed catalogue (42.0 kB),
+  40,000 / 15,000, toolchains 48 MB. Measured shell on this branch: **392,142 B
+  gzip** (858 B headroom) against both the emulator/CI build and the
+  live-config build. The +74.5 kB over v1 is the packed catalogue (42.0 kB),
   content UI (47.7 kB) and the Today insight layer (4.6 kB), offset by lossless
   packing — not a new dependency. Every future byte over 393,000 is a GATE.
 - **Tailwind/daisyUI: still removed.** The v2-01 decision is re-verified, not
@@ -1070,3 +1070,10 @@ re-baseline") is treated as **frozen** and was not re-opened.
   three times; one project with explicit viewport profiles keeps the matrix
   honest and the job inside `timeout-minutes: 12`. `workers: 1` stays because
   the emulator-backed specs share one deterministic CI user.
+- **A real contrast defect was found and fixed, not waived.** The v2-09 palette
+  axe audit (CI `42025415117`) reported `color-contrast` on the highlighted
+  command-palette row: `--subtle` on `--action-soft` is **3.73:1 dark / 4.28:1
+  light**. The active row's secondary text now uses `--muted` (**5.34:1 /
+  5.56:1**). `tools/check-tokens.mjs` gained the `muted/action-soft` pair (28
+  pairs total) and a source assertion on `src/styles.css`; no frozen token value
+  was changed. This is exactly why the matrix was added rather than a waiver.

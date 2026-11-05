@@ -47,7 +47,7 @@ export const BUDGETS = {
 export const PUBLISHED = Object.freeze({
   // Raw/gzip pairs are kB (1000 B); the authoritative byte counts are printed
   // by `npm run check:budgets` from dist/ and are what the caps are applied to.
-  css: { v1: '26.86 kB raw / 6.30 kB gz', v2: '60.17 / 10.30', reason: 'tokens v2 + 8 routed surfaces; gzip stays 10.3 kB' },
+  css: { v1: '26.86 kB raw / 6.30 kB gz', v2: '60.28 / 10.31', reason: 'tokens v2 + 8 routed surfaces; gzip stays 10.3 kB' },
   entryJs: { v1: '103.25 kB raw / 28.39 kB gz', v2: '127.92 / 36.94', reason: 'router, shell, density, ⌘K, undo; no new library' },
   largestChunk: { v1: '<500 kB raw (single bundle)', v2: '457.70 / 129.86', reason: 'Firestore SDK split into its own cacheable chunk' },
   shell: { v1: '317.66 kB gz', v2: '392.14', reason: '+74.5 kB: packed catalogue 42.0, content-ui 47.7, insight layer 4.6, offset by lossless packing' },

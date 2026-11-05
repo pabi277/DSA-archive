@@ -1206,6 +1206,13 @@ body {
   color: var(--action);
 }
 
+/* Phase v2-09: --subtle on the active --action-soft fill is 3.73:1 in dark
+   and 4.28:1 in light. The highlighted palette row must meet AA too. */
+.palette-item.is-active .palette-item-detail,
+.palette-item.is-active .palette-item-reason {
+  color: var(--muted);
+}
+
 .palette-item-label {
   flex: 1 1 auto;
   overflow: hidden;

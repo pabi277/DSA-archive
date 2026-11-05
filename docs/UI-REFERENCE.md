@@ -150,7 +150,8 @@ reduced motion and keyboard-only. Measured against the frozen values:
 
 | Check | Result | Where |
 |---|---|---|
-| Text/background pairs ≥4.5:1 | **26 / 26 pass**; dark minimum **4.84**, light minimum **4.52** | `tools/check-tokens.mjs` |
+| Text/background pairs ≥4.5:1 | **28 / 28 pass**; dark minimum **4.84**, light minimum **4.52** | `tools/check-tokens.mjs` |
+| Highlighted palette row | `--muted` on `--action-soft`: **5.34** dark / **5.56** light — the active row no longer uses `--subtle` (3.73 / 4.28) | `src/styles.css`, `e2e/a11y-matrix.spec.ts` |
 | `--action-ink` on `--action` | dark **10.73**, light **7.57** | `tools/check-tokens.mjs` |
 | Focus ring | **2 px**, visible on every keyboard-focused control | `tools/check-tokens.mjs`, `e2e/a11y-matrix.spec.ts` |
 | Phone touch targets | **≥44 px**; desktop **≥32 px** | `tools/check-tokens.mjs` |

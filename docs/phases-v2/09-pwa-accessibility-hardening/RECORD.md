@@ -15,6 +15,7 @@ values from that green run; it changes no code, and CI is re-run on it as well.
 | Where | What a learner sees |
 |---|---|
 | Every routed screen, dark + light, 390×844 / 768×1024 / 1440×900 | axe 0, no horizontal overflow, large text and an 18 px base both fit; visible 2 px focus ring on keyboard-only navigation |
+| `⌘K` command palette | The highlighted row's secondary text is now `--muted` on `--action-soft` (5.34 / 5.56:1), so the palette itself passes axe's contrast rule |
 | After a deploy with changed shell bytes | A toast in the existing `ToastHost`: **“New version ready”** with **Reload** and **Dismiss**; Reload posts `SKIP_WAITING` to the waiting worker |
 | Settings → *Account & backup* (signed in) | A two-step **Delete my data** danger card: first “Delete my data…”, then an explicit confirm that names what is removed; after it succeeds, a “Your data was deleted” toast and a signed-out shell |
 | `#/problem/<id>?tab=code`, offline, no pack installed | `Offline — the runner works here only if its pack is already cached on this device. Copy-out still works.` instead of blaming the deploy |
@@ -31,17 +32,17 @@ reason per line and applies the frozen caps.
 
 | Surface | v1 (phase 6, 2026-11-02) | v2 final (CI emulator build) | Cap | Why it grew |
 |---|---|---|---|---|
-| CSS | 26.86 kB raw / 6.30 kB gz | **60,173 B raw / 10,299 B gz** | 61,000 B raw / 18,000 B gz | tokens v2 + 8 routed surfaces; gzip stays 10.3 kB |
-| Entry JS | 103.25 kB raw / 28.39 kB gz | **127,915 B raw / 36,938 B gz** | 180,000 B raw / 55,000 B gz | router, shell, density, ⌘K, undo; no new library |
+| CSS | 26.86 kB raw / 6.30 kB gz | **60,282 B raw / 10,312 B gz** | 61,000 B raw / 18,000 B gz | tokens v2 + 8 routed surfaces; gzip stays 10.3 kB |
+| Entry JS | 103.25 kB raw / 28.39 kB gz | **127,915 B raw / 36,935 B gz** | 180,000 B raw / 55,000 B gz | router, shell, density, ⌘K, undo; no new library |
 | Largest single chunk | <500 kB single bundle | **457,704 B raw / 129,864 B gz** | 520,000 B raw / 165,000 B gz | Firestore SDK split into its own cacheable chunk |
-| **App shell (gzip)** | **317.66 kB** | **392,136 B** (18 precached URLs) | **393,000 B** · **864 B headroom** | +74.5 kB: packed catalogue 42.0, content-ui 47.7, insight layer 4.6, offset by lossless packing |
+| **App shell (gzip)** | **317.66 kB** | **392,142 B** (18 precached URLs) | **393,000 B** · **858 B headroom** | +74.5 kB: packed catalogue 42.0, content-ui 47.7, insight layer 4.6, offset by lossless packing |
 | Fonts | system fonts only (0 B) | **57,496 B raw** | 60,000 B | two self-hosted Latin subsets, `font-display: swap`, never precached |
 | Runner UI | none | **27,684 B raw / 10,194 B gz** | 120,000 B / 40,000 B | lazy add-on, never in the shell |
 | Account/delete UI | none | **2,759 B raw / 1,318 B gz** | 40,000 B / 15,000 B | lazy add-on; a destructive action never sits in the shell |
 | Toolchains | none | **1.3 MB worker + 42.5 MB packs** | 48 MB | opt-in per language, `dsa-archive-runtime-v1` only |
 
-The live-config production build measures **392,135 B gzip** (1-byte difference from
-the emulator identifiers). Both pass. Shell parts (gzip kB): CSS 10.3 · entry 36.9 ·
+The live-config production build measures **392,142 B gzip** as well (the
+emulator identifiers no longer change the byte count). Both pass. Shell parts (gzip kB): CSS 10.3 · entry 36.9 ·
 catalogue 42.0 · content-ui 47.7 · firebase-auth 47.3 · firebase-firestore 129.9 ·
 react-vendor 67.4 · rolldown-runtime 0.2. Spark Hosting's 360 MB/day allows
 **~918 cold installs/day**; repeat and airplane-mode opens cost 0 B of transfer.
@@ -112,10 +113,17 @@ routes; motion allowed at steady state (no half-fade contrast failure); keyboard
 with visible focus and no trap; and dedicated axe audits of the command palette,
 quiz radiogroup, code editor, runner output and stamps list.
 
-Machine-checked tokens (`npm run check:tokens`): **26/26** text/background pairs
+Machine-checked tokens (`npm run check:tokens`): **28/28** text/background pairs
 ≥4.5:1 (dark min **4.84**, light min **4.52**), `--action-ink`/`--action`
 **10.73 / 7.57**, 2 px focus, ≥44 px phone targets, `font-display: swap` + preload,
 and all motion collapsed to 0.001 ms under `prefers-reduced-motion`.
+
+**Real defect found by the new matrix:** the active command-palette row puts
+`--subtle` text on the `--action-soft` fill — **3.73:1 dark / 4.28:1 light**, below
+AA. The dedicated palette axe audit in `e2e/a11y-matrix.spec.ts` caught it on CI
+run `42025415117`. Fixed by using `--muted` for the highlighted row's detail/reason
+text (**5.34:1 dark / 5.56:1 light**); `tools/check-tokens.mjs` now checks that
+pair and the CSS rule in both themes, so it cannot regress. No token value changed.
 
 ## 6. Offline matrix — cold open on every route
 

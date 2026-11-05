@@ -15,6 +15,7 @@ import path from 'node:path'
 
 const root = path.resolve(import.meta.dirname, '..')
 const css = await readFile(path.join(root, 'src/design/tokens.css'), 'utf8')
+const styles = await readFile(path.join(root, 'src/styles.css'), 'utf8')
 const index = await readFile(path.join(root, 'index.html'), 'utf8')
 const failures = []
 
@@ -49,6 +50,10 @@ const pairs = [
   ['muted', 'bg'], ['muted', 'surface'], ['muted', 'surface-2'],
   ['subtle', 'bg'], ['subtle', 'surface'], ['subtle', 'surface-2'],
   ['action', 'bg'], ['action', 'surface'], ['action', 'surface-2'],
+  // The highlighted command-palette row uses --action-soft as its fill. Its
+  // secondary text must use --muted (5.34:1 dark / 5.56:1 light), not --subtle
+  // (3.73:1 dark / 4.28:1 light). Caught by e2e/a11y-matrix.spec.ts in CI.
+  ['muted', 'action-soft'],
 ]
 const rows = []
 for (const [theme, tokens] of [['dark', dark], ['light', light]]) {
@@ -81,6 +86,11 @@ if ((css.match(/font-display: swap;/g) ?? []).length < 3) {
 }
 if (!index.includes('rel="preload" href="/fonts/inter-latin-var.woff2"')) {
   failures.push('index.html must preload the Inter subset')
+}
+// The active command-palette row sits on --action-soft. Keep its secondary
+// text on --muted so axe's color-contrast rule never sees --subtle there again.
+if (!/\.palette-item\.is-active \.palette-item-detail[\s\S]{0,180}color: var\(--muted\)/s.test(styles)) {
+  failures.push('the active palette row must use --muted for its secondary text (AA contrast on --action-soft)')
 }
 const phoneBlock = css.match(/@media \(max-width: 820px\)\s*\{([\s\S]*?)\n\}/)?.[1] ?? ''
 const phoneControl = Number(phoneBlock.match(/--control-height:\s*(\d+)px/)?.[1] ?? 0)

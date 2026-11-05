@@ -322,9 +322,9 @@ for the two target fields). Firestore reads/writes/day stay at the table above.
 
 | Bucket | v1 (2026-11-02) | v2 final (2026-11-05) | Cap | Where |
 |---|---|---|---|---|
-| Full precached shell | **317.66 kB gzip** | **392,136 B gzip** (18 precached URLs) | **393,000 B gzip** (owner-frozen, phase v2-08) | `tools/check-budgets.mjs` |
-| CSS | 26.86 kB raw / 6.30 kB gz | **60,173 B raw / 10,299 B gz** | 61,000 B raw / 18,000 B gz | `tools/check-budgets.mjs` |
-| Entry JS | 103.25 kB raw / 28.39 kB gz | **127,915 B raw / 36,938 B gz** | 180,000 B raw / 55,000 B gz | `tools/check-budgets.mjs` |
+| Full precached shell | **317.66 kB gzip** | **392,142 B gzip** (18 precached URLs) | **393,000 B gzip** (owner-frozen, phase v2-08) | `tools/check-budgets.mjs` |
+| CSS | 26.86 kB raw / 6.30 kB gz | **60,282 B raw / 10,312 B gz** | 61,000 B raw / 18,000 B gz | `tools/check-budgets.mjs` |
+| Entry JS | 103.25 kB raw / 28.39 kB gz | **127,915 B raw / 36,935 B gz** | 180,000 B raw / 55,000 B gz | `tools/check-budgets.mjs` |
 | Largest single chunk | <500 kB single bundle | **457,704 B raw / 129,864 B gz** (Firestore SDK in its own chunk) | 520,000 B raw / 165,000 B gz | `tools/check-budgets.mjs` |
 | Fonts | 0 B (system fonts) | **57,496 B raw**, separate bucket, never precached | 60,000 B | `tools/check-budgets.mjs` |
 | Runner UI | none | **27,684 B raw / 10,194 B gz**, lazy add-on | 120,000 B / 40,000 B | `tools/check-budgets.mjs` |
