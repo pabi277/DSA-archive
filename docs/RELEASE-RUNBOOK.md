@@ -60,6 +60,24 @@ npm run test:rules         # Firestore security-rules tests
 npm run test:emulator      # rules + all Playwright specs (axe, offline, CSP, deletion)
 ```
 
+> **Verifying from an Android phone (Termux) — learned on the 2.0.0 release
+> walkthrough.** The source-level checks (`test:data`, `check:content`,
+> `check:rules`, `check:docs`, `check:screenshots`, `check:hardening`, `npm test`)
+> all run fine on a phone. **`npm run build` cannot:** TypeScript 7 ships the
+> compiler as per-platform native binaries and there is no
+> `@typescript/typescript-android-arm64` package, so `tsc -b` fails before Vite
+> starts. Consequences:
+> 1. Build and deploy from a laptop or Cloud Shell (Options A/B below) — never
+>    from the phone.
+> 2. On the phone, `rm -rf dist` first, and **skip** `check:dist`,
+>    `check:links` and `check:budgets` — against a stale `dist/` they report
+>    the staleness of that old build, not the state of the release.
+> 3. A slow device can need >6 s for the heaviest unit test; the vitest
+>    timeout is sized for that (30 s, `vite.config.ts`), so a clean run is
+>    slow there but not red. If you ever see one timeout followed by a cascade
+>    of `missing element` failures in the same file, treat it as device speed,
+>    and trust the CI run on the same commit.
+
 - [ ] All of the above green on the commit you are deploying.
 - [ ] `git status` clean; you know the tip sha (the phase record has it).
 - [ ] **Repository visibility:** keep `pabi277/DSA-archive` **Private** while

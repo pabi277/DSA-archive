@@ -1142,3 +1142,22 @@ re-baseline") is treated as **frozen** and was not re-opened.
   `tools/check-budgets.mjs` keeps it out of the 393,000 B shell budget (it is
   fetched by link unfurlers, never by a learner's page), which is why adding it
   did not move the frozen cap.
+- **v2.0.0 is deployed — the owner executed the deploy gate (2026-11-06).** After
+  PR #22 merged (`main` = `72beb24`, CI green on the merge commit, run
+  `42081015465`), the owner reviewed the release, walked
+  `docs/RELEASE-RUNBOOK.md` and ran the deploy themselves: rules **v9** first,
+  then Hosting, to <https://dsa-archive.web.app>. The Hosting release id stays
+  visible in Firebase Console → Hosting → Releases and was not pasted into the
+  repo. The 13-row post-deploy verification (runbook §4) is **pending** at the
+  time of this record — if any row fails, the runbook's answer is rollback, not
+  a console patch. No Blaze upgrade, no new Firebase product, no analytics; the
+  repository stays Private while `copy-web/` is in its history.
+- **The release walkthrough on the owner's phone found toolchain limits, not
+  defects (2026-11-06).** On Termux/Android the source-level checks all pass,
+  but `npm run build` cannot run (TypeScript 7's native compiler has no
+  android-arm64 binary) and the three dist-dependent checks read whatever stale
+  `dist/` is on disk. Recorded in the runbook as a "verify from a phone" note;
+  the vitest `testTimeout` is raised to 30 s (`vite.config.ts`) because the 5 s
+  default aborted the shell route-matrix test mid-`act()` on that device and
+  cascaded into 25 bogus failures. CI on the same commit was green throughout —
+  the reference environment for the deploy gate remains CI, not any one device.

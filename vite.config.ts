@@ -309,5 +309,13 @@ export default defineConfig({
     // in flight at teardown fails the whole run while every test passes. See
     // `src/testSetup.ts` for the full story.
     setupFiles: ['./src/testSetup.ts'],
+    // 2026-11-06, found by the owner's post-release walkthrough on a phone
+    // (Termux/Android): the shell route-matrix test needs >6 s there (the same
+    // run spent 252 s only creating jsdom environments), and vitest's 5 s
+    // default aborted it mid-`act()` — which broke the file's shared mount and
+    // cascaded into 25 bogus "missing element" failures. 30 s keeps the
+    // timeout as a hang detector on any machine CI or the owner actually
+    // uses; on a median runner every file still finishes in well under 5 s.
+    testTimeout: 30_000,
   },
 })

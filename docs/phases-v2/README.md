@@ -23,9 +23,12 @@ performance targets, tests, risks, acceptance criteria, and exit gate.
 parallel from phase 02 onwards.
 
 
-**Execution status (2026-11-05, phase 10):** Phases v2-01…v2-09 are merged to `main`
-(PR #21 `4f3bb94` merged phase 09). Phase 10 — the last build phase — is implemented on
-`arena/9b4d2ec7-dsa-archive` and stopped at the owner's PR/merge gate: README rewritten
+**Execution status (2026-11-06, final):** All ten phases are merged to `main` —
+phase 09 via PR #21 (`4f3bb94`), phase 10 via **PR #22 (`72beb24`)**, CI green on the
+merge commit ([run #42081015465](https://github.com/pabi277/DSA-archive/actions/runs/42081015465)).
+**v2.0.0 is live:** the owner executed the deploy gate on 2026-11-06 (rules v9 →
+Hosting, <https://dsa-archive.web.app>; decision recorded in `../DECISIONS.md`).
+What phase 10 shipped: README rewritten
 around the seven surfaces and the honest limits, **16 committed screenshots** with a
 generated manifest and a sha-256 freshness stamp (`docs/screenshots/capture.json`),
 `docs/CHANGELOG.md` **v2.0.0**, DATA-MODEL **v6** (release audit, same shape), the
@@ -33,8 +36,10 @@ rewritten release runbook, a generated OG card, and the `check:docs` /
 `check:screenshots` / `check:release` gates — see
 [`10-release-v2/RECORD.md`](10-release-v2/RECORD.md). Rules **v9** / backup **v8**
 unchanged; shell measured 392,739 B gzip against the frozen 393,000 B cap with **no
-re-baseline**. Nothing is deployed — deploying is a standing owner gate executed via
-[`../RELEASE-RUNBOOK.md`](../RELEASE-RUNBOOK.md).
+re-baseline**. The remaining long pole is the content track
+([`03-content-pipeline/AUTHORING.md`](03-content-pipeline/AUTHORING.md), progress in
+[`../content/coverage.md`](../content/coverage.md)); any future redeploy walks
+[`../RELEASE-RUNBOOK.md`](../RELEASE-RUNBOOK.md) again.
 
 **Earlier status (2026-11-05, phase 09):** Phases v2-01…v2-08 are merged to `main`
 (PR #20 `b81361a` merged phase 08). Phase 09 is implemented on
