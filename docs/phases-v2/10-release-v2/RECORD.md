@@ -2,8 +2,17 @@
 
 **Branch:** `arena/9b4d2ec7-dsa-archive` (cut from `main` at `4f3bb94`, the merge of PR #21)
 **Contract:** [`PLAN.md`](PLAN.md) · **Status:** implemented; stopped at the owner's PR/merge gate
-**CI:** run id recorded in the final report to the owner (this record rides in the phase
-commit; the sha CI validates is the tip of this branch at push time)
+**CI:** [run #42071848080](https://github.com/pabi277/DSA-archive/actions/runs/42071848080) —
+**green**, every step, in 9m28s · **Tip sha:** `7193a8d1d97b8b174641536b5eca374c7ce0071f` ·
+**Artifacts:** `site-preview` **29,684,602 B** (carries the C++ toolchain) ·
+`docs-screenshots` 4,554,916 B (the committed set, repackaged for review) ·
+`visual-baselines` 13,349,797 B · `content-coverage` 1,843 B
+**Note on runs:** the sha above is the one CI validated. The docs-only commit that
+records these numbers changes no code, and CI runs again on it as well. Two earlier runs
+on this branch are part of the honest trail: `42067177666` failed on exactly one
+assertion (`e2e/pwa.spec.ts` still pinned the v1 manifest name the release renamed —
+fixed by pinning the v2 `name`/`short_name` pair) and `42069160190` was cancelled by the
+12-minute job timeout on a ~3× slower hosted runner (deviation 6 below).
 **Rules / backup:** **v9 / v8** — unchanged by this phase. No Firestore shape, rule or
 backup version was touched; `npm run check:rules` confirms `firestore.rules` is current
 for all 20 topics.
