@@ -16,6 +16,9 @@
     "preview": "vite preview --host 0.0.0.0",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "screenshots": "node tools/screenshots.mjs",
+    "screenshots:inner": "SCREENSHOT_REUSE_EMULATORS=1 node tools/screenshots.mjs",
+    "check:screenshots": "node tools/screenshots.mjs --check",
     "test:rules": "node --test tools/firestore-rules.test.mjs",
     "test:emulator": "PLAYWRIGHT_EMULATOR=1 firebase emulators:exec --only auth,firestore --project demo-dsa-archive \"npm run test:rules && npm run test:e2e\"",
     "test:data": "python3 tools/validate_data.py",
@@ -25,6 +28,7 @@
     "check:rules": "node tools/generate-firestore-rules.mjs --check",
     "rules:generate": "node tools/generate-firestore-rules.mjs",
     "pwa:icons": "node tools/generate-pwa-icons.mjs",
+    "og:image": "node tools/generate-og-image.mjs",
     "check:dist": "node tools/check-dist.mjs",
     "check:links": "node tools/check-links.mjs && node tools/check-resource-links.mjs",
     "check:budgets": "node tools/check-budgets.mjs",
@@ -35,7 +39,9 @@
     "runtime:worker": "node tools/build-runner-worker.mjs",
     "runtime:fetch": "node tools/fetch-runtime.mjs",
     "runtime:check": "node tools/build-runner-worker.mjs --check && node tools/fetch-runtime.mjs --check",
-    "runtime:clean": "node tools/fetch-runtime.mjs --clean"
+    "runtime:clean": "node tools/fetch-runtime.mjs --clean",
+    "check:docs": "node tools/check-docs.mjs",
+    "check:release": "npm run check:docs && npm run check:screenshots && npm run check:budgets && npm run check:hardening"
   },
   "dependencies": {
     "firebase": "12.19.0",

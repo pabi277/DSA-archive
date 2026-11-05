@@ -77,6 +77,10 @@ for (const rel of files) {
 
 const isAddon = (rel) =>
   rel.startsWith('runtime/') || rel.startsWith('assets/runner-') || rel.startsWith('assets/account-')
+// Phase v2-10: the social card is not part of the app shell. Nothing in the app
+// requests it at runtime, so it is neither precached (tools/build-sw.mjs
+// NOT_SHELL) nor charged to the frozen 393,000 B shell budget.
+const isNotShell = (rel) => rel === 'og-image.png'
 const cssFiles = stats.filter((item) => item.rel.endsWith('.css') && !isAddon(item.rel))
 const jsAssets = stats.filter(
   (item) => item.rel.startsWith('assets/') && item.rel.endsWith('.js') && !isAddon(item.rel),
@@ -93,10 +97,19 @@ const largestJsGzip = jsAssets.reduce((max, item) => (item.gzip > max.gzip ? ite
 // The shell bucket is exactly what the Service Worker precaches. Font subsets
 // and installed add-ons have their own buckets and are never counted here.
 const totalShellGzip = stats
-  .filter((item) => !item.rel.startsWith('fonts/') && !isAddon(item.rel))
+  .filter((item) => !item.rel.startsWith('fonts/') && !isAddon(item.rel) && !isNotShell(item.rel))
   .reduce((sum, item) => sum + item.gzip, 0)
 
 const failures = []
+// Keep the exclusion honest: if the app ever starts referencing the card, this
+// must fail rather than silently hide it from the budget.
+const htmlShell = stats.filter((item) => item.rel.endsWith('.html'))
+for (const page of htmlShell) {
+  const body = await readFile(path.join(root, page.rel), 'utf8')
+  if (/<img[^>]+og-image\.png/.test(body)) {
+    failures.push(`${page.rel} renders og-image.png as content; it is excluded from the shell budget only while it is a meta tag`)
+  }
+}
 const check = (value, cap, label) => {
   if (value > cap) failures.push(`${label} ${value} B > budget ${cap} B`)
 }
@@ -129,6 +142,19 @@ if (!icons.some((icon) => icon.sizes === '512x512' && icon.type === 'image/png' 
 if (!icons.some((icon) => icon.sizes === '512x512' && icon.purpose === 'maskable')) {
   failures.push('manifest.webmanifest is missing a 512x512 maskable icon')
 }
+// Phase v2-10: the install card must describe v2, not the v1 notes/planner app.
+if (!/beginner-first/i.test(manifest.name ?? '')) {
+  failures.push('manifest.webmanifest name must describe the v2 app (beginner-first workspace)')
+}
+if (manifest.short_name !== 'DSA Archive') failures.push('manifest.webmanifest short_name must stay "DSA Archive"')
+if (!/runner|quiz/i.test(manifest.description ?? '')) {
+  failures.push('manifest.webmanifest description must mention what v2 added (runner/quiz)')
+}
+if (!Array.isArray(manifest.categories) || !manifest.categories.includes('education')) {
+  failures.push('manifest.webmanifest categories must include "education"')
+}
+// The social card is generated (tools/generate-og-image.mjs) and must ship.
+if (!files.includes('og-image.png')) failures.push('Missing required dist/og-image.png social card')
 
 const swSource = await readFile(path.join(root, 'sw.js'), 'utf8')
 if (!swSource.includes("url.pathname.startsWith('/__/')")) {

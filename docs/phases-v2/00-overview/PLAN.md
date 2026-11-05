@@ -38,6 +38,16 @@ visual-baseline artifact remains before owner merge. Phase 03 is next after PR #
 The rules/backup version numbers in later phase contracts assume the listed 02 → 04 → 05
 → 06 → 08 order; if phase order changes, increment from the actual merged version.
 
+**Status (2026-11-05, final):** All ten build phases are executed. Phases 01–09 are
+merged to `main` (phase 09 via PR #21, `4f3bb94`); phase 10 is implemented on
+`arena/9b4d2ec7-dsa-archive` and stopped at the owner's PR/merge gate. Shipped versions:
+rules **v9**, backup **v8** (schemas 1–8 import), `docs/DATA-MODEL.md` **v6**, tokens v2
+FINAL, shell 392,739 B gzip against the frozen 393,000 B cap. Per-phase closure lives in
+each folder's `RECORD.md`; the user-facing story is `docs/CHANGELOG.md` v2.0.0. Nothing
+is deployed — the deploy decision belongs to the owner via `docs/RELEASE-RUNBOOK.md`,
+and the remaining long pole is the content track
+(`../03-content-pipeline/AUTHORING.md`, progress in `../../content/coverage.md`).
+
 ---
 
 ## Dependency graph

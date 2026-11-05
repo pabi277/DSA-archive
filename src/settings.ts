@@ -121,6 +121,13 @@ function writeStorage(settings: Settings) {
 
 let cached: Settings | null = null
 const listeners = new Set<(source: SettingsChangeSource) => void>()
+/**
+ * Phase v2-10: a counter of local changes, so a cloud snapshot can tell "the
+ * learner changed this while we were loading" from "nothing happened". A
+ * listener-registration flag was not enough — whether that listener existed yet
+ * depended on timing, which is exactly the race being fixed.
+ */
+let localChanges = 0
 
 function current(): Settings {
   if (cached === null) cached = readStorage()
@@ -129,6 +136,7 @@ function current(): Settings {
 
 function commit(next: Settings, source: SettingsChangeSource) {
   cached = next
+  if (source === 'local') localChanges += 1
   writeStorage(next)
   for (const listener of listeners) listener(source)
 }
@@ -142,6 +150,11 @@ export function subscribeSettings(listener: (source: SettingsChangeSource) => vo
 
 export function getSettingsSnapshot(): Settings {
   return current()
+}
+
+/** How many local (this device) changes have been made in this page's life. */
+export function localSettingsVersion(): number {
+  return localChanges
 }
 
 export function useSettings(): Settings {
@@ -241,5 +254,6 @@ export function applyProfileSettings(theme: Theme, hideDone: boolean, largeText?
 
 export function resetSettingsStoreForTests() {
   cached = null
+  localChanges = 0
   listeners.clear()
 }

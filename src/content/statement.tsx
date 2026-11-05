@@ -35,9 +35,12 @@ export function StatementCard({ problem }: { problem: Problem }) {
             <pre className="code-block" tabIndex={0} aria-label="code sample" data-testid="statement-example-output"><code>out {statement.example.output}</code></pre>
             <p className="quiet-note"><strong>Why:</strong> <span>{statement.example.why}</span></p>
           </div>
-          <div className="statement-block" data-testid="statement-tests">
+          {/* `statement-tests` is the row the evidence lives on: a pill and one
+              sentence. The flex row is shared with the primer foot, so it must
+              never squeeze the pill (phase v2-10 desktop capture). */}
+          <div className="statement-block statement-evidence" data-testid="statement-tests">
             <Tag tone="info">{tests.length} local test cases</Tag>
-            <span className="quiet-note">Bundled for the Phase 07 runner; no code executes here.</span>
+            <span className="quiet-note">Bundled for the local runner — nothing runs until you press Run.</span>
           </div>
         </>
       ) : (

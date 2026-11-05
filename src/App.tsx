@@ -1220,9 +1220,14 @@ function TodayScreen({
       <p className="today-footer-note quiet-note">
         <IconSearch size={14} /> Press <kbd className="kbd">⌘K</kbd> to jump to any problem, or{' '}
         <kbd className="kbd">g</kbd> <kbd className="kbd">p</kbd> for topics.
-        <button type="button" className="text-link" onClick={() => onOpen('two-sum')}>
-          Open Two Sum
-        </button>
+        {/* A shortcut hint is one line, not a paragraph: this sentence used to
+            wrap on a phone and then put a bare "Open Two Sum" button under the
+            footer, where it read as stray text (phase v2-10 screenshots). */}
+        <span className="today-footer-extra">
+          <button type="button" className="text-link" onClick={() => onOpen('two-sum')}>
+            Open Two Sum
+          </button>
+        </span>
       </p>
     </div>
   )

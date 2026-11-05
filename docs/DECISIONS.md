@@ -1084,3 +1084,61 @@ re-baseline") is treated as **frozen** and was not re-opened.
   a named `role="region"` landmark, kept by a unit test in
   `src/runner/runPanel.test.tsx`. No rule was disabled and no element was
   excluded from axe to make a run green.
+- **Screenshots are the one committed PNG set — and freshness is a hash, not a
+  date (2026-11-05, phase v2-10).** The release is only truthful if the README
+  shows the current UI, so `npm run screenshots` (`tools/screenshots.mjs`) drives
+  the **built** `dist/` in real Chromium over `vite preview`, signs in through the
+  Auth emulator, seeds one coherent study record through the Firestore
+  emulator's owner REST API, and writes 16 stable-named PNGs (8 phone · 390×844,
+  6 desktop · 1440×900, plus two `-light` references of the same record) into
+  `docs/screenshots/`. They are **committed**, unlike the Playwright visual
+  baselines: a UI screenshot is evidence a reviewer must *see*, and 4.7 MB of
+  PNGs is inside what the repository can carry. Consequences, all enforced by
+  `npm run check:screenshots`:
+  - the capture writes `docs/screenshots/capture.json` with a **sha-256 of the
+    sources it photographed** (`src/`, `index.html`, `data/problems.json`,
+    `public/manifest.webmanifest`), the pinned clock and the byte size of every
+    file; the check re-hashes the tree and fails on any mismatch. File mtimes
+    cannot be used — a git checkout stamps every file with the checkout time, so
+    an mtime rule is both wrong on a fresh clone and useless on the machine that
+    took the shots;
+  - no image is hand-edited or composed: the seeding is the same REST shape the
+    e2e specs prove, the clock is pinned (`2026-11-05T09:30:00Z`) so "5 days this
+    week" and the revision queue agree, and the YouTube frame is never
+    photographed (third-party, and YouTube ToS §4.13);
+  - CI cannot re-shoot the set (emulator suite + minutes), so it packages the
+    committed folder as the `docs-screenshots` artifact and runs the check — the
+    PNGs are the evidence and the run carries them.
+- **The theme revert found by the light-theme capture was real, and is now
+  pinned by a unit test instead of a flaky e2e (2026-11-05, phase v2-10).** With
+  a pre-existing cloud profile, a theme tap that landed while the profile read was
+  in flight could be overwritten by the profile snapshot, and the reverted value
+  was then written back — so the next cold boot also came up dark. Three
+  candidate fixes were measured against the same reproduction; only the version
+  counter (`localSettingsVersion()` in `src/settings.ts`, consulted by
+  `settingsChangedHere()` in `src/accountData.ts`) makes the decision independent
+  of whether the snapshot listener is registered yet, which is itself a race.
+  The reproduction is timing-sensitive (2/4 and 3/6 failures, alternating across
+  rounds with accumulating emulator accounts), so **no e2e asserts the race** — a
+  speculative `e2e/preferences.spec.ts` was written, run, found to be flaky by
+  construction, and deleted before commit. What ships instead is
+  `src/settings.test.ts`: local changes bump the counter, cloud applications do
+  not, and the count resets with the store. The screenshot tool additionally
+  waits for the profile to settle before switching theme, because a screenshot has
+  no business depending on the outcome of a race.
+- **Rules and backup versions do not move in v2-10 (2026-11-05).** The release
+  phase changes documentation, screenshots, the social card and two UI defects;
+  the Firestore shape stays at **rules v9**, the export format at **backup v8**
+  (schemas 1–8 import). `npm run check:docs` fails if any document claims a
+  different version *as current*, and it also fails if a phase folder is missing
+  its `RECORD.md` or if a `Phase NN` string reaches learner-facing copy.
+- **The social card is generated, not designed in a tool (2026-11-05).** 
+  `tools/generate-og-image.mjs` writes `public/og-image.png` (1200×630) using
+  Node's `zlib` only — the same clean-room approach as
+  `tools/generate-pwa-icons.mjs`, with the frozen tokens-v2 palette and a 5×7
+  bitmap alphabet defined in the file. CI regenerates it and fails on any diff,
+  so it can never drift from the text it claims. It is **not** part of the app
+  shell: `tools/build-sw.mjs` keeps it out of the precache and
+  `tools/check-budgets.mjs` keeps it out of the 393,000 B shell budget (it is
+  fetched by link unfurlers, never by a learner's page), which is why adding it
+  did not move the frozen cap.
