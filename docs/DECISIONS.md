@@ -990,9 +990,9 @@ re-baseline") is treated as **frozen** and was not re-opened.
   line and freezes the caps already approved by the owner: CSS 61,000 B raw /
   18,000 B gz, entry 180,000 / 55,000, single chunk 520,000 / 165,000, shell
   393,000 B gz, fonts 60,000 B, runner UI 120,000 / 40,000, account add-on
-  40,000 / 15,000, toolchains 48 MB. Measured shell on this branch: **392,142 B
-  gzip** (858 B headroom) against both the emulator/CI build and the
-  live-config build. The +74.5 kB over v1 is the packed catalogue (42.0 kB),
+  40,000 / 15,000, toolchains 48 MB. Measured shell on this branch: **392,136 B
+  gzip** (864 B headroom) against the emulator/CI build; **392,139 B** against
+  the live-config build (the 3-byte delta is the emulator identifiers). The +74.5 kB over v1 is the packed catalogue (42.0 kB),
   content UI (47.7 kB) and the Today insight layer (4.6 kB), offset by lossless
   packing — not a new dependency. Every future byte over 393,000 is a GATE.
 - **Tailwind/daisyUI: still removed.** The v2-01 decision is re-verified, not
@@ -1077,3 +1077,10 @@ re-baseline") is treated as **frozen** and was not re-opened.
   5.56:1**). `tools/check-tokens.mjs` gained the `muted/action-soft` pair (28
   pairs total) and a source assertion on `src/styles.css`; no frozen token value
   was changed. This is exactly why the matrix was added rather than a waiver.
+- **A second ARIA defect found by the matrix, also fixed.** CI `42028359874`
+  reported `aria-prohibited-attr` on the *empty* runner output `<pre>`: axe
+  prohibits `aria-label` on a `pre` with no role (the two content `<pre>`s have
+  text, so axe returns an incomplete there, not a violation). The output is now
+  a named `role="region"` landmark, kept by a unit test in
+  `src/runner/runPanel.test.tsx`. No rule was disabled and no element was
+  excluded from axe to make a run green.

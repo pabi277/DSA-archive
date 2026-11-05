@@ -478,6 +478,7 @@ export default function RunPanel({
           className="run-output"
           data-testid="runner-output"
           tabIndex={0}
+          role="region"
           aria-label="Program output"
           ref={outputRef}
         >

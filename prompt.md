@@ -8,14 +8,14 @@
 > `79c6099`, and **PR #20 `b81361a`** which merged Phase 08). Phase 09
 > (`09-pwa-accessibility-hardening`) is **implemented** on
 > `arena/6bef7496-dsa-archive` and stopped at the owner's PR/review/merge gate: final
-> budget review with **no re-baseline** (shell 392,142 B gzip against the frozen
+> budget review with **no re-baseline** (shell 392,136 B gzip against the frozen
 > 393,000 B cap), SW v2 with the "New version ready — Reload" toast, an enforced CSP
 > whose report-only → enforce sequence is proven in Chromium, the 6-profile × 18-route
 > axe matrix, cold offline matrix, network assertion, and a real emulator-tested
 > **Delete my data**. Rules **v9** / backup **v8** are unchanged; `docs/DATA-MODEL.md`
 > is now v5 and `docs/UI-REFERENCE.md` Tokens v2 is FINAL. CI run
 > [`__PHASE09_RUN_ID__`](https://github.com/pabi277/DSA-archive/actions/runs/__PHASE09_RUN_ID__)
-> green at `__PHASE09_SHA__`, `site-preview` __PHASE09_PREVIEW_BYTES__ B; **359 unit tests**,
+> green at `__PHASE09_SHA__`, `site-preview` __PHASE09_PREVIEW_BYTES__ B; **360 unit tests**,
 > **147 Playwright tests**, `timeout-minutes: 12`. Its closure is recorded in
 > `docs/phases-v2/09-pwa-accessibility-hardening/RECORD.md`. No PR, merge, deploy or
 > `main` push was performed without the owner's explicit command. Phase 10
@@ -166,14 +166,14 @@ Do **not** start coding before step 5 is read end-to-end.
   PR, no merge.
   Record: `docs/phases-v2/08-insights-light/RECORD.md`.
 - **v2-09 implemented; owner PR/review/merge gate pending**: branch
-  `arena/6bef7496-dsa-archive`. Final budget review with no re-baseline (shell 392,142 B
-  gzip / 393,000 B cap, 858 B headroom), SW v2 with the "New version ready — Reload" toast,
+  `arena/6bef7496-dsa-archive`. Final budget review with no re-baseline (shell 392,136 B
+  gzip / 393,000 B cap, 864 B headroom), SW v2 with the "New version ready — Reload" toast,
   enforced CSP with both report-only and enforce stages proven in Chromium, a
   6-profile × 18-route axe matrix, cold offline matrix with per-route content, the
   third-party network assertion, and an emulator-tested **Delete my data**. Rules **v9** /
   backup **v8** unchanged; `docs/DATA-MODEL.md` v5 and `docs/UI-REFERENCE.md` Tokens v2
   FINAL. CI [`__PHASE09_RUN_ID__`](https://github.com/pabi277/DSA-archive/actions/runs/__PHASE09_RUN_ID__)
-  green at `__PHASE09_SHA__`, `site-preview` __PHASE09_PREVIEW_BYTES__ B; 359 unit tests,
+  green at `__PHASE09_SHA__`, `site-preview` __PHASE09_PREVIEW_BYTES__ B; 360 unit tests,
   147 Playwright tests, CI ≤12 min. Record:
   `docs/phases-v2/09-pwa-accessibility-hardening/RECORD.md`.
 - **v2-10 not started**: Phase 10 follows only after the owner reviews Phase 09,
@@ -206,10 +206,10 @@ Do **not** start coding before step 5 is read end-to-end.
 | 06 | `06-theatre-player/` | ✅ **merged in PR #17** (`d44b55a`) — official IFrame player on `#/problem/<id>` only, our bar *below* the frame (play/pause, ±10 s, per-topic speed, Stamp, `c`, skip-to-stamp, watched ≥60%; `f` consciously dropped), one mini player across routes, stamps in `snippets[id].moments` (rules **v8**, backup **v7**, undoable), build-time oEmbed metadata, opt-in auto-advance, Settings card; shell re-baselined **380 → 388 kB** by owner decision (`~2 kB` headroom); run `41825858179` green | 7–9 d | 01–03 |
 | 07 | `07-browser-runner/` | ✅ **merged in PR #18** (`ace2289`; post-merge CI fix PR #19 `79c6099`) — one sandboxed module worker: Clang 22 on wasm for **C/C++** (29.0 MB, opt-in), **Pyodide** for Python (13.5 MB, opt-in), native **JS** (no pack); `Run ▸` / `Run tests ▸ N` with first-diff, compile diagnostics + `N more`, `Stop` = `terminate()`, stdout/stderr caps 256 kB, 3 s per case / 30 s total, `⌘↵`/`Esc`, `stdin`, copy/clear; predict-the-output hook after an MCQ answer; copy-out with a reason for Java/Go/Rust/TS; cache reported + cleared in Settings (`dsa-archive-runtime-v1` only); **add-on chunk** design keeps the shell at **386,674 B gzip** (cap 388,000) and the toolchains in their own bucket; no Firestore change | 5–7 d | 04, 03 |
 | 08 | `08-insights-light/` | ✅ **merged in PR #20** (`b81361a`) — nine reasons, ≤2 chips per row, momentum (decays, never resets; rest day earned at 5/7), one trajectory sentence (median pace, `Needs 3.4/day` when stalled), `<details>` "How this plan was made", plan vs reality + one-tap goal, two detectors with one undo, `#/insights`, optional `targetDate`/`targetListId` under rules **v9** / backup **v8** (no new collection, no extra read); **shell 391,193 B gzip against the owner's re-baselined 393 kB** (and CSS raw 60,238 / 61,000) | 4–5 d | 01, 02, 05 |
-| 09 | `09-pwa-accessibility-hardening/` | 🟢 **implemented on `arena/6bef7496-dsa-archive`; owner PR/merge gate** — final caps with no re-baseline (392,142 B / 393,000 B), SW v2 + update toast, enforced CSP (both stages proven), 6×18 axe matrix, cold offline matrix, network assertion, tested Delete my data, dead-weight cleanup, DATA-MODEL v5, Tokens v2 FINAL; CI `__PHASE09_RUN_ID__` green | 4–5 d | 01–08 |
+| 09 | `09-pwa-accessibility-hardening/` | 🟢 **implemented on `arena/6bef7496-dsa-archive`; owner PR/merge gate** — final caps with no re-baseline (392,136 B / 393,000 B), SW v2 + update toast, enforced CSP (both stages proven), 6×18 axe matrix, cold offline matrix, network assertion, tested Delete my data, dead-weight cleanup, DATA-MODEL v5, Tokens v2 FINAL; CI `__PHASE09_RUN_ID__` green | 4–5 d | 01–08 |
 | 10 | `10-release-v2/` | README v2, generated screenshots, DATA-MODEL v5, CHANGELOG, runbook, honest content-coverage table | 2–3 d | 09 |
 
-**Sequential ≈57–69 build days.** Phases 01–08 are merged (`main` = PR #20 `b81361a`); Phase 09 is implemented on `arena/6bef7496-dsa-archive` at its owner PR/review/merge gate. Latest *merged* versions on `main` are rules **v9** / backup **v8** and the shell cap of **393,000 B gzip** (CSS raw 61,000 B), owner-re-baselined on 2026-11-05. Phase 09 completed the cap review without another re-baseline: measured **392,142 B gzip**, 858 B headroom, and any further growth is a gate. Phase 10 is next and remains owner-gated.
+**Sequential ≈57–69 build days.** Phases 01–08 are merged (`main` = PR #20 `b81361a`); Phase 09 is implemented on `arena/6bef7496-dsa-archive` at its owner PR/review/merge gate. Latest *merged* versions on `main` are rules **v9** / backup **v8** and the shell cap of **393,000 B gzip** (CSS raw 61,000 B), owner-re-baselined on 2026-11-05. Phase 09 completed the cap review without another re-baseline: measured **392,136 B gzip**, 864 B headroom, and any further growth is a gate. Phase 10 is next and remains owner-gated.
 
 Each `PLAN.md` already contains: charter · current-state evidence (`file:line`) · scope in ·
 scope **out with reasons** · design spec/wireframes · file plan (`NEW`/`EDIT`/`DELETE`) ·
@@ -229,7 +229,7 @@ exit gate. **The acceptance list is the contract** — do not add features outsi
   520,000 B raw / 165,000 B gz · shell **393,000 B gz** (owner re-baselined 380 → 388 →
   393 kB in phases 06/08) · fonts 60,000 B · runner UI 120 kB / 40 kB · account add-on
   40 kB / 15 kB · toolchains 48 MB — all in **separate** buckets, never precached.
-  Measured 392,142 B gz (858 B headroom); further growth is a GATE.
+  Measured 392,136 B gz (864 B headroom); further growth is a GATE.
 - **Tailwind/daisyUI**: decided **REMOVE** in v2-01, re-verified in v2-09; enforced by
   `tools/check-deadweight.mjs`. No third state.
 - **CSP**: adopted, `frame-src` for YouTube and `worker-src` for the runner; report-only
@@ -307,7 +307,7 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 > Read, in order: `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches, the
 > 2026-11-04/05 cap decisions and **every phase 01–09 implementation choice**,
 > especially the 2026-11-05 phase-08 cap decision — shell **393,000 B gzip** / CSS raw
-> **61,000 B**, measured 392,142 B gzip / 60,282 B raw in phase 09, with **858 B** of
+> **61,000 B**, measured 392,136 B gzip / 60,282 B raw in phase 09, with **864 B** of
 > headroom and any further shell growth a gate, not a re-baseline — the YouTube IFrame
 > ToS §4.13 rule (never modify, overlay or block the player), video links single-source,
 > the integrity rule that no verdict is ever invented, the runner's separate add-on

@@ -52,7 +52,7 @@ export const PUBLISHED = Object.freeze({
   largestChunk: { v1: '<500 kB raw (single bundle)', v2: '457.70 / 129.86', reason: 'Firestore SDK split into its own cacheable chunk' },
   shell: { v1: '317.66 kB gz', v2: '392.14', reason: '+74.5 kB: packed catalogue 42.0, content-ui 47.7, insight layer 4.6, offset by lossless packing' },
   fonts: { v1: 'system fonts only (0 B)', v2: '57.50 kB raw', reason: 'two self-hosted Latin subsets, font-display: swap, never precached' },
-  runner: { v1: 'none', v2: '27.68 kB raw UI · 1.28 MB worker · 42.5 MB packs', reason: 'opt-in local C++/Python/JS runner, its own bucket' },
+  runner: { v1: 'none', v2: '27.70 kB raw UI · 1.28 MB worker · 42.5 MB packs', reason: 'opt-in local C++/Python/JS runner, its own bucket' },
   account: { v1: 'none', v2: '2.76 kB raw UI / 1.32 kB gz', reason: 'lazy "Delete my data" add-on; a destructive action never sits in the shell' },
 })
 

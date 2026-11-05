@@ -26,7 +26,7 @@ parallel from phase 02 onwards.
 **Execution status (2026-11-05, phase 09):** Phases v2-01…v2-08 are merged to `main`
 (PR #20 `b81361a` merged phase 08). Phase 09 is implemented on
 `arena/6bef7496-dsa-archive` and stopped at the owner's PR/merge gate: final budget review
-with **no second re-baseline** (shell 392,142 B gzip against the frozen 393,000 B cap),
+with **no second re-baseline** (shell 392,136 B gzip against the frozen 393,000 B cap),
 SW v2 with an update toast, an enforced CSP whose report-only → enforce sequence is proven
 in Chromium, the completed a11y + offline + network matrices, a real tested
 "Delete my data", dead-weight cleanup and data-model v5 — see

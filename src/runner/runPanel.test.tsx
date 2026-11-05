@@ -140,3 +140,17 @@ describe('the first run', () => {
     expect(container.textContent).not.toContain('nothing is uploaded')
   })
 })
+
+describe('runner output accessibility (phase v2-09)', () => {
+  it('gives the focusable output <pre> a named landmark role', async () => {
+    stubEnvironment()
+    mount(<RunPanel code="int main(){}" language="cpp" cases={[]} problemId="two-sum" />)
+    await settle()
+    const output = q('[data-testid="runner-output"]')
+    expect(output).toBeTruthy()
+    // axe's aria-prohibited-attr flags aria-label on an empty, role-less <pre>.
+    // A named region is a valid landmark that screen readers can jump to.
+    expect(output?.getAttribute('role')).toBe('region')
+    expect(output?.getAttribute('aria-label')).toBe('Program output')
+  })
+})

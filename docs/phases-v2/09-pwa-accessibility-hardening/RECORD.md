@@ -33,16 +33,16 @@ reason per line and applies the frozen caps.
 | Surface | v1 (phase 6, 2026-11-02) | v2 final (CI emulator build) | Cap | Why it grew |
 |---|---|---|---|---|
 | CSS | 26.86 kB raw / 6.30 kB gz | **60,282 B raw / 10,312 B gz** | 61,000 B raw / 18,000 B gz | tokens v2 + 8 routed surfaces; gzip stays 10.3 kB |
-| Entry JS | 103.25 kB raw / 28.39 kB gz | **127,915 B raw / 36,935 B gz** | 180,000 B raw / 55,000 B gz | router, shell, density, ⌘K, undo; no new library |
+| Entry JS | 103.25 kB raw / 28.39 kB gz | **127,915 B raw / 36,934 B gz** | 180,000 B raw / 55,000 B gz | router, shell, density, ⌘K, undo; no new library |
 | Largest single chunk | <500 kB single bundle | **457,704 B raw / 129,864 B gz** | 520,000 B raw / 165,000 B gz | Firestore SDK split into its own cacheable chunk |
-| **App shell (gzip)** | **317.66 kB** | **392,142 B** (18 precached URLs) | **393,000 B** · **858 B headroom** | +74.5 kB: packed catalogue 42.0, content-ui 47.7, insight layer 4.6, offset by lossless packing |
+| **App shell (gzip)** | **317.66 kB** | **392,136 B** (18 precached URLs) | **393,000 B** · **864 B headroom** | +74.5 kB: packed catalogue 42.0, content-ui 47.7, insight layer 4.6, offset by lossless packing |
 | Fonts | system fonts only (0 B) | **57,496 B raw** | 60,000 B | two self-hosted Latin subsets, `font-display: swap`, never precached |
-| Runner UI | none | **27,684 B raw / 10,194 B gz** | 120,000 B / 40,000 B | lazy add-on, never in the shell |
+| Runner UI | none | **27,698 B raw / 10,201 B gz** | 120,000 B / 40,000 B | lazy add-on, never in the shell |
 | Account/delete UI | none | **2,759 B raw / 1,318 B gz** | 40,000 B / 15,000 B | lazy add-on; a destructive action never sits in the shell |
 | Toolchains | none | **1.3 MB worker + 42.5 MB packs** | 48 MB | opt-in per language, `dsa-archive-runtime-v1` only |
 
-The live-config production build measures **392,142 B gzip** as well (the
-emulator identifiers no longer change the byte count). Both pass. Shell parts (gzip kB): CSS 10.3 · entry 36.9 ·
+The live-config production build measures **392,139 B gzip** (a 3-byte
+difference from the emulator identifiers). Both pass. Shell parts (gzip kB): CSS 10.3 · entry 36.9 ·
 catalogue 42.0 · content-ui 47.7 · firebase-auth 47.3 · firebase-firestore 129.9 ·
 react-vendor 67.4 · rolldown-runtime 0.2. Spark Hosting's 360 MB/day allows
 **~918 cold installs/day**; repeat and airplane-mode opens cost 0 B of transfer.
@@ -125,6 +125,13 @@ run `42025415117`. Fixed by using `--muted` for the highlighted row's detail/rea
 text (**5.34:1 dark / 5.56:1 light**); `tools/check-tokens.mjs` now checks that
 pair and the CSS rule in both themes, so it cannot regress. No token value changed.
 
+**A second real defect, same matrix:** `aria-prohibited-attr` on the empty
+runner output `<pre aria-label="Program output">` (axe reports `aria-label` on a
+`pre` with no valid role as a violation). The `<pre>` is now a named
+`role="region"` landmark, which is a valid focusable destination for a screen
+reader; `src/runner/runPanel.test.tsx` pins the role and label. Found by CI run
+`42028359874`. Again this was fixed, not waived.
+
 ## 6. Offline matrix — cold open on every route
 
 `e2e/offline-matrix.spec.ts` seeds guest progress online, waits for SW control via
@@ -196,7 +203,7 @@ and broken the 12-minute ceiling. Shared fixtures: `KEY_ROUTES`, `applyProfile`,
 `workers: 1` stays because the emulator-backed specs share one deterministic CI user.
 
 Land tests (all green locally; Playwright/emulator/rules require CI Chromium and the
-Firebase emulator, which this sandbox cannot install): `npm test` **359 unit tests /
+Firebase emulator, which this sandbox cannot install): `npm test` **360 unit tests /
 41 files**, `npm run test:data`, `check:rules`, `check:content`, `check:dist`,
 `check:links`, `check:budgets`, `check:hardening` (CSP + tokens + dead weight),
 `runtime:worker` / `runtime:check`, both production builds, and **147 Playwright
