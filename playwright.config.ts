@@ -12,6 +12,12 @@ export default defineConfig({
   use: {
     baseURL: 'http://127.0.0.1:4173',
     trace: 'retain-on-failure',
+    // Local sandboxes that cannot download the Playwright browser can point
+    // CHROMIUM_PATH at a system Chromium (tools/screenshots.mjs does the same).
+    // Unset (CI, normal dev) this is undefined and the managed browser is used.
+    launchOptions: process.env.CHROMIUM_PATH
+      ? { executablePath: process.env.CHROMIUM_PATH }
+      : {},
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
