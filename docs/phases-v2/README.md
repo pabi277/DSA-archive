@@ -31,8 +31,8 @@ SW v2 with an update toast, an enforced CSP whose report-only → enforce sequen
 in Chromium, the completed a11y + offline + network matrices, a real tested
 "Delete my data", dead-weight cleanup and data-model v5 — see
 [`09-pwa-accessibility-hardening/RECORD.md`](09-pwa-accessibility-hardening/RECORD.md).
-CI [`__PHASE09_RUN_ID__`](https://github.com/pabi277/DSA-archive/actions/runs/__PHASE09_RUN_ID__)
-green at `__PHASE09_SHA__`, `site-preview` __PHASE09_PREVIEW_BYTES__ B. Latest merged versions
+CI [`42030262068`](https://github.com/pabi277/DSA-archive/actions/runs/42030262068)
+green at `fc9452963baf405abb876c70fae2cfe317b6f255`, `site-preview` 29,680,148 B. Latest merged versions
 on `main` are rules **v9** / backup **v8**; phase 09 changes no Firestore shape, rule or
 backup version. Phase 10 (release v2) is next and remains owner-gated.
 

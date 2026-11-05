@@ -2,11 +2,11 @@
 
 **Branch:** `arena/6bef7496-dsa-archive` (cut from `main` at `b81361a`, the merge of PR #20)
 **Contract:** [`PLAN.md`](PLAN.md) · **Status:** implemented; stopped at the owner's PR/merge gate
-**CI:** [run #__PHASE09_RUN_ID__](https://github.com/pabi277/DSA-archive/actions/runs/__PHASE09_RUN_ID__) — **green**, every step ·
-**Tip sha:** `__PHASE09_SHA__` · **Preview:** `site-preview` artifact **__PHASE09_PREVIEW_BYTES__ B** (carries the C++ toolchain, so the preview really compiles)
+**CI:** [run #42030262068](https://github.com/pabi277/DSA-archive/actions/runs/42030262068) — **green**, every step ·
+**Tip sha:** `fc9452963baf405abb876c70fae2cfe317b6f255` · **Preview:** `site-preview` artifact **29,680,148 B** (carries the C++ toolchain, so the preview really compiles)
 **Rules / backup:** **v9 / v8** — unchanged by this phase. No Firestore shape, rule or backup version was touched.
-**Note on runs:** the sha above is the one CI validated. A later docs-only commit fills these
-values from that green run; it changes no code, and CI is re-run on it as well.
+**Note on runs:** the sha above is the one CI validated. The docs-only commit that
+recorded these numbers changes no code, and CI is re-run on that commit as well.
 
 ---
 
@@ -211,6 +211,15 @@ tests** in CI (unit + phone/desktop + axe 0 + visual + emulator rules ≥22). CI
 `timeout-minutes: 12` and uploads `site-preview` on every run. Visual PNG baselines
 (2 viewports × 2 themes × 15 routes) are generated with `updateSnapshots: 'missing'`
 and uploaded as the `visual-baselines` artifact for owner review, never auto-accepted.
+
+**Green run `42030262068`** at `fc94529`: every step passed in **6 m 59 s**, well
+inside the 12-minute ceiling — 360 unit tests, emulator rules, **146 Playwright
+tests passed / 1 skipped**, 60 uploaded visual baselines, both production builds,
+`check:hardening`, `check:budgets`, `check:links`, `check:dist`, data/content/rules
+validation. `site-preview` **29,680,148 B**; `visual-baselines` **13,359,316 B**.
+Three earlier runs are part of the record — `42023250579`, `42025415117` and
+`42028359874` — each found a real assertion or accessibility defect in the new
+matrix; all were fixed in code, never waived by disabling an axe rule.
 
 ## 11. Deviations (recorded, not hidden)
 
