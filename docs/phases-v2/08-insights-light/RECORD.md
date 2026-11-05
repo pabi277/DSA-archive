@@ -149,7 +149,8 @@ not a permanent ceiling.
 |---|---|
 | Unit | **349 passing** (was 294): 55 new across `reasons.test.ts` (the nine reasons, ordering, the ≤2 chip rule, the done-today escape), `momentum.test.ts` (formula by hand, decay vs reset, rest-day quota, strip), `trajectory.test.ts` (median edge cases, the hand-computed `At 2/day … 10 days` example, ahead/behind, stalled `Needs 3.4/day`, empty sheet, plan-vs-reality), `detectors.test.ts` (thresholds, both detectors, dismissal per day, corrupt blob), plus `planner.test.ts` focus-order cases and `settings.test.ts` target sanitisation. |
 | Playwright (emulator) | `e2e/insights.spec.ts` — chips on Today and the open disclosure at **390×844 and 1440×900** with axe 0; the forgotten-done detector plans 6 rows in one action and the single undo toast takes them back; `#/insights` momentum/trajectory/detectors at desktop with axe 0; the target date + list survive a reload. |
-| Rules (emulator) | rules v9: valid `targetDate`/`targetListId` (and explicit clearing) succeed; malformed day, malformed id, wrong types and an unknown profile key fail. **Not run in this sandbox** (no Java for the Emulator Suite) — CI runs `npm run test:emulator`. |
+| Rules (emulator) | rules v9: valid `targetDate`/`targetListId` (and explicit clearing) succeed; malformed day, malformed id, wrong types and an unknown profile key fail. **Not run in this sandbox** (no JRE, and the emulator jar host is outside the sandbox's
+network allowlist) — CI runs `npm run test:emulator`. |
 | Visual | `insights` added to the 15-route × 2 viewport × 2 theme matrix (now 60 baselines). |
 | Budgets | `check:budgets` green at the re-baselined caps; `check:dist`, `check:links`, `check:rules`, `test:data`, `check:content` all green locally. |
 

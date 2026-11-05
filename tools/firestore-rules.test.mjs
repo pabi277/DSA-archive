@@ -192,15 +192,20 @@ describe('Firestore rules v1 — own-data-only and default deny', () => {
     const userDoc = doc(alice, 'users/alice')
     const listId = 'aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa'
 
+    // A profile may be created with both targets already set …
     await assertSucceeds(
-      setDoc(userDoc, { targetDate: '2026-12-02', targetListId: listId, updatedAt: serverTimestamp() }, { merge: true }),
+      setDoc(userDoc, profile('alice', { targetDate: '2026-12-02', targetListId: listId })),
     )
-    // Both are optional and both may be explicitly cleared.
+    // … changed on the existing document …
+    await assertSucceeds(
+      setDoc(userDoc, { targetDate: '2026-12-09', targetListId: listId, updatedAt: serverTimestamp() }, { merge: true }),
+    )
+    // … and both may be explicitly cleared, without becoming required.
     await assertSucceeds(
       setDoc(userDoc, { targetDate: null, targetListId: null, updatedAt: serverTimestamp() }, { merge: true }),
     )
     await assertSucceeds(
-      setDoc(userDoc, profile('alice', { targetDate: '2026-12-02', targetListId: listId })),
+      setDoc(userDoc, { targetDate: '2026-12-02', updatedAt: serverTimestamp() }, { merge: true }),
     )
 
     for (const bad of ['2026-13-01', '2 December 2026', '2026-12-02T00:00:00Z', 20261202, true]) {
