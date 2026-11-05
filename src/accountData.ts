@@ -23,6 +23,7 @@ import type { CodeState } from './code/codeData'
 import { db } from './firebase'
 import {
   applyProfileSettings,
+  applyProfileTargets,
   getSettingsSnapshot,
   subscribeSettings,
   useSettings,
@@ -199,6 +200,14 @@ export function useAccountData(
     let unsubscribeProfile: (() => void) | undefined
     let unsubscribeSettings: (() => void) | undefined
     const profileRef = doc(firestore, 'users', uid)
+    // Phase v2-08: what the target fields were when this account session began.
+    // The profile is applied once, on load — but never over a value the learner
+    // changed while that load was in flight (the load is async, and a finish line
+    // can be picked before it lands).
+    const baselineTargets = {
+      date: getSettingsSnapshot().targetDate,
+      list: getSettingsSnapshot().targetListId,
+    }
 
     async function setup() {
       try {
@@ -222,6 +231,8 @@ export function useAccountData(
             dailyGoal: DEFAULT_DAILY_GOAL,
             theme: local.theme,
             hideDone: local.hideDone,
+            targetDate: local.targetDate,
+            targetListId: local.targetListId,
             shareSummary: false,
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
@@ -230,6 +241,10 @@ export function useAccountData(
           const data = snapshot.data()
           if (data) {
             applyProfileSettings(data.theme === 'light' ? 'light' : 'dark', data.hideDone === true)
+            const current = getSettingsSnapshot()
+            const targetsTouched =
+              current.targetDate !== baselineTargets.date || current.targetListId !== baselineTargets.list
+            if (!targetsTouched) applyProfileTargets(data.targetDate, data.targetListId)
           }
         }
         if (disposed) return
@@ -238,6 +253,13 @@ export function useAccountData(
           const data = next.data()
           if (!data) return
           applyProfileSettings(data.theme === 'light' ? 'light' : 'dark', data.hideDone === true)
+          // Phase v2-08: the two target fields are **not** re-applied from the
+          // profile here. This device is the writer, and a snapshot generated
+          // just before a change can still be delivered just after it — which
+          // silently undid a finish line the learner had picked seconds earlier
+          // (caught by `e2e/insights.spec.ts`, intermittently, before this).
+          // The profile is applied once, on load, and the write path still
+          // syncs it, so a reload or another device sees the value.
           setDailyGoalState(clampGoal(typeof data.dailyGoal === 'number' ? data.dailyGoal : DEFAULT_DAILY_GOAL))
         })
         unsubscribeSettings = subscribeSettings((source) => {
@@ -245,7 +267,13 @@ export function useAccountData(
           const next = getSettingsSnapshot()
           void setDoc(
             profileRef,
-            { theme: next.theme, hideDone: next.hideDone, updatedAt: serverTimestamp() },
+            {
+              theme: next.theme,
+              hideDone: next.hideDone,
+              targetDate: next.targetDate,
+              targetListId: next.targetListId,
+              updatedAt: serverTimestamp(),
+            },
             { merge: true },
           ).catch((reason) => setDataError(`Could not save settings: ${messageFrom(reason)}`))
         })
@@ -583,6 +611,8 @@ export function useAccountData(
             dailyGoal: preview.backup.profile.dailyGoal,
             theme: preview.backup.profile.theme,
             hideDone: preview.backup.profile.hideDone,
+            targetDate: preview.backup.profile.targetDate ?? null,
+            targetListId: preview.backup.profile.targetListId ?? null,
             shareSummary: false,
             updatedAt: serverTimestamp(),
           },
@@ -593,6 +623,7 @@ export function useAccountData(
           preview.backup.profile.hideDone,
           preview.backup.profile.largeText,
         )
+        applyProfileTargets(preview.backup.profile.targetDate, preview.backup.profile.targetListId)
         setDailyGoalState(clampGoal(preview.backup.profile.dailyGoal))
         // Saved solutions, lists and plan days ride the backup; a schema v1
         // file restores none of them, which clears them as its preview says.

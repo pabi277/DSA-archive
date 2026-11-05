@@ -23,7 +23,18 @@ performance targets, tests, risks, acceptance criteria, and exit gate.
 parallel from phase 02 onwards.
 
 
-**Execution status (2026-11-04, phase 07):** Phase 06 was reviewed and merged by the owner
+**Execution status (2026-11-05, phase 08):** Phase 07 was reviewed and merged by the owner
+(PR #18, `ace2289`; post-merge CI fix in PR #19, `79c6099`). Phase 08 is implemented on
+`arena/d4a6c3b3-dsa-archive` and stopped at the owner's PR/merge gate: the nine-reason
+vocabulary, momentum instead of a punitive streak, one trajectory sentence, "How this plan
+was made", two undoable detectors and `#/insights`, with optional `targetDate`/`targetListId`
+under rules v9 / backup v8 — see [`08-insights-light/RECORD.md`](08-insights-light/RECORD.md).
+The owner re-baselined the shell cap to **393 kB gzip** and CSS raw to **61 kB** (measured
+391,193 B gzip / 60,238 B raw), because the insight layer lives on Today and must be
+precached. Latest *merged* versions on `main` remain rules v8 / backup v7; phase 08 advances
+them to rules v9 / backup v8 on its branch, and phase 09 owns the cap review.
+
+**Earlier status (2026-11-04, phase 07):** Phase 06 was reviewed and merged by the owner
 (PR #17, `d44b55a`). Phase 07 is implemented on `arena/435eaa93-dsa-archive` and stopped at the
 owner's PR/merge gate: local C/C++ (Clang 22 on wasm) and Python (Pyodide) runners as an
 opt-in download per language, JavaScript with no download, authored test cases with a

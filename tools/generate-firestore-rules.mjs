@@ -110,9 +110,10 @@ export function generateRules(catalogue, drillIdsByTopic = new Map()) {
   return `// GENERATED FILE — do not edit by hand.
 // Source: tools/generate-firestore-rules.mjs from data/problems.json + data/practice-sets/.
 // ${topics.length} topics · ${catalogueTotal} catalogue ids · ${drillTotal} synthetic lc-<n> drill keys.
-// Rules v8 (phase v2-06): adds the bounded moments[] stamp list to snippets;
-// quizResults and saved solutions are unchanged; the notes collection remains
-// removed (default deny).
+// Rules v9 (phase v2-08): the profile gains two optional target fields —
+// targetDate (a real YYYY-MM-DD day) and targetListId (a list id). Everything
+// else is rules v8: bounded moments[] stamps on snippets, and the notes
+// collection stays removed (default deny).
 rules_version = '2';
 
 service cloud.firestore {
@@ -124,7 +125,8 @@ service cloud.firestore {
     function validProfile(data, uid) {
       return data.keys().hasOnly([
           'uid', 'displayName', 'photoURL', 'createdAt', 'updatedAt',
-          'dailyGoal', 'theme', 'hideDone', 'shareSummary', 'friendCode'
+          'dailyGoal', 'theme', 'hideDone', 'shareSummary', 'friendCode',
+          'targetDate', 'targetListId'
         ])
         && data.keys().hasAll([
           'uid', 'displayName', 'photoURL', 'createdAt', 'updatedAt',
@@ -143,7 +145,11 @@ service cloud.firestore {
         && data.theme in ['dark', 'light']
         && data.hideDone is bool
         && data.shareSummary is bool
-        && (!data.keys().hasAny(['friendCode']) || (data.friendCode is string && data.friendCode.matches('^[a-f0-9]{32}$')));
+        && (!data.keys().hasAny(['friendCode']) || (data.friendCode is string && data.friendCode.matches('^[a-f0-9]{32}$')))
+        && (!data.keys().hasAny(['targetDate']) || data.targetDate == null
+            || (data.targetDate is string && data.targetDate.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')))
+        && (!data.keys().hasAny(['targetListId']) || data.targetListId == null
+            || (data.targetListId is string && data.targetListId.matches('^[a-z0-9-]{8,40}$')));
     }
 
     function validProfileCreate(data, uid) {

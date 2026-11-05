@@ -19,6 +19,8 @@ export type PaletteAction = {
   label: string
   detail?: string
   group: 'Go to' | 'Topic' | 'Problem' | 'Action'
+  /** Phase v2-08: the reasons for a row, shown beside it and never scored. */
+  reason?: string
   keywords?: string
   run: () => void
   /** Recently visited routes float to the top of an empty query. */
@@ -117,6 +119,8 @@ export type PaletteConfig = {
   onSetDensity: (density: Settings['density']) => void
   onRunSession: () => void
   onSignIn: () => void
+  /** problemId → one reason line (only rows that have a reason appear). */
+  reasons?: Record<string, string>
 }
 
 export function buildActions(config: PaletteConfig): PaletteAction[] {
@@ -129,6 +133,7 @@ export function buildActions(config: PaletteConfig): PaletteAction[] {
     { label: 'My lists', name: 'lists', detail: 'Custom lists' },
     { label: 'Stats', name: 'stats', detail: 'Streak and weekly counts' },
     { label: 'Friends', name: 'friends', detail: 'Opt-in summaries' },
+    { label: 'Insights', name: 'insights', detail: 'Momentum, trajectory, detectors' },
     { label: 'Settings', name: 'settings', detail: 'Theme, density, backup' },
   ]
 
@@ -158,6 +163,7 @@ export function buildActions(config: PaletteConfig): PaletteAction[] {
           detail: `${topic.title}${subtopic.title ? ` · ${subtopic.title}` : ''}`,
           group: 'Problem',
           keywords: `${problem.id} ${problem.kind}`,
+          reason: config.reasons?.[problem.id],
           run: () => navigate('problem', problem.id),
         })
       }
@@ -258,6 +264,7 @@ export function CommandPalette({
   onToggleHideDone,
   onRunSession,
   onSignIn,
+  reasons,
 }: {
   open: boolean
   onClose: () => void
@@ -267,6 +274,7 @@ export function CommandPalette({
   onToggleHideDone: () => void
   onRunSession: () => void
   onSignIn: () => void
+  reasons?: Record<string, string>
 }) {
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
@@ -284,8 +292,9 @@ export function CommandPalette({
         onSetDensity: setDensity,
         onRunSession,
         onSignIn,
+        reasons,
       }),
-    [route, settings, onOpenShortcuts, onToggleHideDone, onRunSession, onSignIn],
+    [route, settings, onOpenShortcuts, onToggleHideDone, onRunSession, onSignIn, reasons],
   )
   const results = useMemo(() => rankActions(actions, query, readRecents()), [actions, query])
 
@@ -376,6 +385,7 @@ export function CommandPalette({
                   <Icon size={16} />
                   <span className="palette-item-label">{action.label}</span>
                   {action.detail ? <span className="palette-item-detail">{action.detail}</span> : null}
+                  {action.reason ? <span className="palette-item-reason">{action.reason}</span> : null}
                 </button>
               </li>
             )

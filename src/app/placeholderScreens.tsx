@@ -4,43 +4,20 @@
  * is a *designed* state, not "coming soon" filler: it says what will live here,
  * what you can do right now instead, and offers exactly one primary action.
  *
- * Phase contract: 01 shipped the routes + the states; the problem, practice
- * and code bodies graduated to their own modules in phases 03–04, and 05
- * replaces the quiz home below.
+ * Phase contract: 01 shipped the routes + the states; the problem, practice,
+ * code, quiz and insight bodies graduated to their own modules in phases 03–08.
  */
 import { Suspense, lazy } from 'react'
-import { buildPath } from './router'
 import { Button, Card, Empty, Tag } from '../design/primitives'
 import { useTheatreSettings, resetAllRates } from '../theatre/theatreSettings'
 import { memorisedTopics, rateLabel } from '../theatre/speedMemory'
-import { IconSpark, IconToday } from '../design/icons'
+import { IconToday } from '../design/icons'
 
 /**
  * Phase v2-07: the runner's storage card is a lazy chunk. It imports the runtime
  * manifests, which belong to the installed add-on — not to the frozen shell.
  */
 const RunnerSettingsCard = lazy(() => import('../runner/settingsCard'))
-
-export function InsightsScreen({ signedIn }: { signedIn: boolean }) {
-  return (
-    <div className="insights-screen">
-      <Empty
-        title="Insights stay cheap and honest"
-        mark={<IconSpark size={20} />}
-        testId="insights-view"
-        action={
-          <a className="btn btn-primary" href={buildPath('stats')}>
-            See today's numbers
-          </a>
-        }
-      >
-        Phase 08 adds reason chips, a momentum counter that never punishes a missed day, and one
-        line of trajectory against your target. No readiness score, no FSRS, no ETA model —
-        {signedIn ? ' those were dropped on purpose.' : ' sign in to see yours when they land.'}
-      </Empty>
-    </div>
-  )
-}
 
 export function SettingsScreen({
   theme,

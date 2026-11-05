@@ -3,12 +3,17 @@ import {
   DENSITIES,
   DENSITY_ROW_HEIGHT,
   applyProfileSettings,
+  applyProfileTargets,
   clampDensity,
+  clampTargetDate,
+  clampTargetListId,
   cycleDensity,
   getSettingsSnapshot,
   resetSettingsStoreForTests,
   setDensity,
   setRailCollapsed,
+  setTargetDate,
+  setTargetList,
   toggleRail,
 } from './settings'
 
@@ -84,5 +89,51 @@ describe('cloud profile never moves a device preference', () => {
     expect(getSettingsSnapshot().density).toBe('roomy')
     cycleDensity()
     expect(getSettingsSnapshot().density).toBe('compact')
+  })
+})
+
+describe('target date and target list (phase v2-08)', () => {
+  it('accepts only a real calendar day', () => {
+    expect(clampTargetDate('2026-12-02')).toBe('2026-12-02')
+    for (const bad of ['2026-02-30', '2026-13-01', '26-12-02', '2026-12-02T00:00', '', null, undefined, 20261202, {}]) {
+      expect(clampTargetDate(bad)).toBeNull()
+    }
+  })
+
+  it('accepts only a rules-shaped list id', () => {
+    expect(clampTargetListId('aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa')).toBe('aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa')
+    for (const bad of ['short', 'UPPER-CASE-1111', 'has space 1234', '', null, undefined, 42, {}]) {
+      expect(clampTargetListId(bad)).toBeNull()
+    }
+  })
+
+  it('round-trips through storage and survives a corrupt blob', () => {
+    setTargetDate('2026-12-02')
+    setTargetList('aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa')
+    expect(getSettingsSnapshot()).toMatchObject({
+      targetDate: '2026-12-02',
+      targetListId: 'aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa',
+    })
+    localStorage.setItem('dsa-archive.settings.v1', JSON.stringify({ targetDate: 'tomorrow', targetListId: 'x' }))
+    resetSettingsStoreForTests()
+    expect(getSettingsSnapshot()).toMatchObject({ targetDate: null, targetListId: null })
+  })
+
+  it('applies a cloud profile without clobbering device preferences, and clears when absent', () => {
+    setDensity('compact')
+    applyProfileTargets('2026-12-02', 'aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa')
+    expect(getSettingsSnapshot()).toMatchObject({
+      density: 'compact',
+      targetDate: '2026-12-02',
+      targetListId: 'aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa',
+    })
+    applyProfileTargets(undefined, undefined)
+    expect(getSettingsSnapshot()).toMatchObject({ targetDate: null, targetListId: null, density: 'compact' })
+  })
+
+  it('clears a target with null', () => {
+    setTargetDate('2026-12-02')
+    setTargetDate(null)
+    expect(getSettingsSnapshot().targetDate).toBeNull()
   })
 })

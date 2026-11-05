@@ -16,6 +16,7 @@ import { QUIZ_TARGET_COUNT, quizPassMark } from '../quiz/engine'
 import { TheoryMcqCard } from '../quiz/mcqCard'
 import type { QuizResult } from '../quiz/results'
 import { learningOrderedSubtopics } from './learnOrder'
+import type { Reason } from '../insights/reasons'
 
 export type TopicTab = 'learn' | 'practice' | 'quiz'
 export type PracticeFilter = 'all' | 'not-started' | 'shaky' | 'done'
@@ -31,6 +32,8 @@ export type TopicPageProps = {
   entries: CloudProgressByTopic
   today: string
   dueCount?: number
+  /** Phase v2-08 reason chips for this topic's rows (empty when none apply). */
+  reasons?: Record<string, Reason[]>
   disabled: boolean
   onToggleStatus: (topicId: string, problemId: string) => void
   onToggleBookmark: (topicId: string, problemId: string) => void
@@ -244,6 +247,7 @@ function PracticePanel(props: TopicPageProps & { topic: Topic }) {
                           canEditCode={false}
                           hasCode={Boolean(props.snippets?.[problem.id])}
                           listCount={0}
+                          reason={props.reasons?.[problem.id]?.[0]?.text ?? null}
                           theoryExpanded={isTheoryOpen}
                           onToggleStatus={props.onToggleStatus}
                           onToggleBookmark={props.onToggleBookmark}

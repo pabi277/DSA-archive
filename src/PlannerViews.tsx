@@ -2,8 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { catalogue, type Problem } from './catalogue'
 import { LEVEL_LABELS, levelOf } from './sheet'
 import { locateProblem } from './library'
-import { Tag } from './design/primitives'
 import type { CloudProgressByTopic } from './cloudProgress'
+import { ReasonChips, MomentumLine, DetectorRow, PlanRealityLine } from './insights/bits'
+import { HowPlanWasMade } from './insights/howPlanWasMade'
+import type { Momentum } from './insights/momentum'
+import type { PlanReality } from './insights/trajectory'
+import type { Detector } from './insights/detectors'
+import type { Reason } from './insights/reasons'
 import {
   DAILY_GOAL_MAX,
   DAILY_GOAL_MIN,
@@ -31,7 +36,16 @@ export function TodayView({
   goal,
   tally,
   suggestions,
-  todayReasons,
+  reasons,
+  momentum,
+  reality,
+  detectors,
+  dueCount,
+  weakestTitle,
+  targetDate,
+  targetListTitle,
+  onDetectorAction,
+  onDetectorDismiss,
   continuePick,
   disabled,
   onAdd,
@@ -48,7 +62,16 @@ export function TodayView({
   goal: number
   tally: TodayTally
   suggestions: string[]
-  todayReasons: Record<string, string[]>
+  reasons: Record<string, Reason[]>
+  momentum: Momentum
+  reality: PlanReality
+  detectors: Detector[]
+  dueCount: number
+  weakestTitle: string | null
+  targetDate: string | null
+  targetListTitle: string | null
+  onDetectorAction: (detector: Detector) => void
+  onDetectorDismiss: (detector: Detector) => void
   continuePick: { problemId: string; day: string } | null
   disabled: boolean
   onAdd: (problemId: string) => void
@@ -137,6 +160,7 @@ export function TodayView({
           {tally.movedToday}/{tally.goal} moved today · {tally.planned} planned ·{' '}
           {tally.goalMet ? 'goal met' : `${Math.max(0, tally.goal - tally.movedToday)} to go`}
         </p>
+        <MomentumLine momentum={momentum} />
       </div>
 
       <div className="goal-line">
@@ -180,6 +204,14 @@ export function TodayView({
 
       <div className="card context-card">
         <h2 className="card-title">Today’s picks</h2>
+        {detectors.map((detector) => (
+          <DetectorRow
+            key={detector.id}
+            detector={detector}
+            onAction={onDetectorAction}
+            onDismiss={onDetectorDismiss}
+          />
+        ))}
         {!ready ? (
           <p className="fine-print" data-testid="today-loading">Loading today’s plan…</p>
         ) : planned.length === 0 ? (
@@ -211,7 +243,7 @@ export function TodayView({
                   <span className="fine-print" data-testid={`today-state-${problemId}`}>
                     {done ? 'Done today' : 'Planned'}
                   </span>
-                  {(todayReasons[problemId] ?? []).map((reason) => <Tag key={reason} tone="neutral">{reason}</Tag>)}
+                  <ReasonChips reasons={reasons[problemId]} testId={`today-reasons-${problemId}`} />
                   <button
                     type="button"
                     className="button button-secondary"
@@ -242,6 +274,15 @@ export function TodayView({
             {planned.length} planned · {tally.done} ticked here · {doneIds.length} marked done today.
           </p>
         )}
+        <PlanRealityLine reality={reality} goal={goal} onSetGoal={onSetGoal} />
+        <HowPlanWasMade
+          goal={goal}
+          due={dueCount}
+          weakest={weakestTitle}
+          targetDate={targetDate}
+          targetList={targetListTitle}
+          nextGoal={Math.min(DAILY_GOAL_MAX, goal + 1)}
+        />
       </div>
 
       {suggestions.length > 0 && (
@@ -260,7 +301,7 @@ export function TodayView({
                     {location?.problem.title ?? problemId}
                   </button>
                   <span className="fine-print">{location?.topicTitle ?? ''}</span>
-                  {(todayReasons[problemId] ?? []).map((reason) => <Tag key={reason} tone="neutral">{reason}</Tag>)}
+                  <ReasonChips reasons={reasons[problemId]} testId={`suggest-reasons-${problemId}`} />
                   <button
                     type="button"
                     className="button button-secondary"

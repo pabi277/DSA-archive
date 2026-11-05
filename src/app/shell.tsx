@@ -16,6 +16,7 @@ import { buildPath, navigate, type Route, type RouteName } from './router'
 import {
   IconCode,
   IconPanel,
+  IconSpark,
   IconReview,
   IconSearch,
   IconSettings,
@@ -41,6 +42,7 @@ const NAV: { name: RouteName; label: string; Icon: typeof IconToday; shortcut: s
 
 const SECONDARY: { name: RouteName; label: string; Icon: typeof IconToday }[] = [
   { name: 'search', label: 'Search sheet', Icon: IconSearch },
+  { name: 'insights', label: 'Insights', Icon: IconSpark },
   { name: 'lists', label: 'My lists', Icon: IconTopics },
   { name: 'stats', label: 'Stats', Icon: IconTopics },
   { name: 'friends', label: 'Friends', Icon: IconTopics },
