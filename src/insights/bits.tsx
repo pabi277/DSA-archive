@@ -72,10 +72,12 @@ export function DetectorRow({
       >
         {detector.action}
       </button>
+      {/* The accessible name must contain the visible label (axe
+          `label-content-name-mismatch`), so it starts with it. */}
       <button
         type="button"
         className="text-link"
-        aria-label="Hide this note for today"
+        aria-label={`Hide for today: ${detector.text}`}
         data-testid={`detector-dismiss-${detector.id}`}
         onClick={() => onDismiss(detector)}
       >
