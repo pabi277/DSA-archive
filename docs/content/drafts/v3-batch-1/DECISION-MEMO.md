@@ -1,6 +1,6 @@
 # Decision memo — content batch v3-1 (4 topics) vs the 393,000 B shell cap
 
-**Status: DRAFT — awaiting owner decision. Nothing in this folder ships; `data/content/` is unchanged from `main`.**
+**Status: DECIDED 2026-11-06 — the owner chose option 3 (hybrid): primers/sections/quiz stay precached, per-problem statements move to a lazy runtime-cached chunk (recorded in `docs/DECISIONS.md`). The batch stays parked here until that split is implemented; accuracy review is a separate owner gate. `data/content/` is unchanged from `main`. See also `../v3-batch-2/` for the second parked batch.**
 
 Written 2026-11-06 while the owner was offline. No gate was crossed: the batch was authored,
 validated, **measured**, then moved here and the live tree restored.

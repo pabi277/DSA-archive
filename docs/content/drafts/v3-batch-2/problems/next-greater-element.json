@@ -1,0 +1,32 @@
+{
+ "problemId": "next-greater-element",
+ "statement": "The first line holds n; the second holds n integers. For every element, print the first value to its right that is strictly greater, or -1 when there is none - all answers on one line, space-separated, in the original order. Scan left to right with a stack of indices whose answers are pending, values decreasing from bottom to top. Each new value pops and answers every smaller pending index, then joins the stack itself; leftovers answer -1.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-1000000000 ≤ each value ≤ 1000000000"
+ ],
+ "example": {
+  "input": "5\n6 0 8 1 3\n",
+  "output": "8 8 -1 3 -1",
+  "why": "8 answers both 6 and 0 the moment it arrives; 3 answers 1; 8 and 3 find nothing after them."
+ },
+ "hint": "Answer at pop time: the popping value is the first greater one the popped index ever met.",
+ "mistake": "Rescanning rightward for every element - a descending array turns that quadratic.",
+ "tests": [
+  {
+   "input": "5\n6 0 8 1 3\n",
+   "expected": "8 8 -1 3 -1",
+   "note": "mixed answers"
+  },
+  {
+   "input": "4\n6 8 0 1\n",
+   "expected": "8 -1 1 -1",
+   "note": "pairs resolve fast"
+  },
+  {
+   "input": "3\n3 2 1\n",
+   "expected": "-1 -1 -1",
+   "note": "descending, all pending"
+  }
+ ]
+}

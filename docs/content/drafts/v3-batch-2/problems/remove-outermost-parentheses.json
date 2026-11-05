@@ -1,0 +1,32 @@
+{
+ "problemId": "remove-outermost-parentheses",
+ "statement": "You receive one line holding a balanced string of ( and ) that splits into blocks, each balanced and impossible to split further. Remove the outer pair of every block and print what remains. Track depth: increment on an opener, decrement on a closer. Copy an opening bracket only when the depth after its increment is 2 or more, and a closing bracket only when the depth before its decrement is 2 or more.",
+ "constraints": [
+  "1 ≤ length ≤ 100000",
+  "The string contains only ( and ) and is balanced."
+ ],
+ "example": {
+  "input": "(()())(())\n",
+  "output": "()()()",
+  "why": "The blocks are (()()) and (()); stripping each outer pair leaves ()() and ()."
+ },
+ "hint": "A bracket belongs to the shell exactly when the counter touches zero on its step.",
+ "mistake": "Using a stack of characters; with a single bracket type the depth counter is the whole stack.",
+ "tests": [
+  {
+   "input": "(()())(())\n",
+   "expected": "()()()",
+   "note": "two blocks"
+  },
+  {
+   "input": "(()(()))\n",
+   "expected": "()(())",
+   "note": "one deep block"
+  },
+  {
+   "input": "((()))\n",
+   "expected": "(())",
+   "note": "pure nesting"
+  }
+ ]
+}

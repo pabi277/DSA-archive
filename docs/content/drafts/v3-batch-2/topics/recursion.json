@@ -1,0 +1,387 @@
+{
+ "topicId": "recursion",
+ "patterns": [
+  "backtracking",
+  "recursion-subsets",
+  "two-pointers"
+ ],
+ "learnOrder": [
+  "pow-x-n",
+  "count-good-numbers",
+  "generate-binary-strings-without-consecutive-1s",
+  "power-set",
+  "check-if-there-exists-a-subsequence-with-sum-k",
+  "count-all-subsequences-with-sum-k"
+ ],
+ "primer": {
+  "intro": "Recursion is the art of solving a problem by trusting a smaller copy of itself. A recursive function has two duties only: a base case it can answer outright, and a combining step that turns the answer for a smaller input into the answer for this one. Everything else - the bookkeeping of who called whom - is the call stack's job, and it handles that perfectly. Beginners stall by trying to trace every frame in their head. The craft is the opposite: state what the function promises, assume the promise holds for the smaller call, and check only that the base case is right and the combining step preserves the promise. Those two checks are an induction proof, and writing one is far easier than simulating twenty frames.",
+  "whenToUse": [
+   "The problem restates itself on a smaller input: a shorter prefix, a halved exponent, a suffix of an array.",
+   "Every combination of include-or-skip choices must be visited or counted.",
+   "An exponent or size can be halved, collapsing linear work to logarithmic.",
+   "Strings or sequences must be generated under a local rule, pruning dead branches early.",
+   "The structure is defined recursively - nested brackets now, trees a few topics ahead."
+  ],
+  "mentalModel": "Picture the call tree, because its shape is the running cost. Fast exponentiation makes a single chain of calls, one per halving, so a quadrillion-sized exponent costs about fifty steps. The include-exclude pattern makes a binary tree: at each index one branch takes the element and one skips it, so n elements fan out into 2 to the n leaves, each leaf one subsequence. Counting problems return numbers up the tree and add the two branches; existence problems may stop at the first success; generation problems emit at the leaves, and the branch order - include first or exclude first - is exactly the output order. Whenever work feels repeated, look at the tree and ask which subtrees are identical.",
+  "mistakes": [
+   "A missing or unreachable base case - the recursion falls past zero and the stack overflows.",
+   "Two recursive calls where one suffices: fastPow calling itself twice per level is linear again, the logarithm gone.",
+   "Mutating shared state in one branch and entering the sibling with it dirty; undo the choice before trying the other."
+  ],
+  "example": {
+   "title": "Fast power by halving the exponent",
+   "code": "function fastPow(x, n) {\n  if (n === 0) return 1\n  const half = fastPow(x, Math.floor(n / 2))\n  if (n % 2 === 0) return half * half\n  return half * half * x\n}",
+   "explain": "The exponent falls along 10, 5, 2, 1, 0 - one call per halving, five frames in all for n equal 10. Each frame computes the half once and squares it; odd frames multiply one extra x to repay the floored division. Compute the half twice instead, and the tree doubles at every level and the whole gain evaporates. This same skeleton, with a modulus applied after every multiplication, is how Count Good Numbers survives exponents near 10 to the 15."
+  },
+  "practice": "Open Practice with Pow(x, n) first; its halving shape returns in Count Good Numbers at a scale where plain loops are hopeless."
+ },
+ "sections": [
+  {
+   "id": "the-leap-of-faith",
+   "title": "The leap of faith",
+   "text": "Write the function's contract in one sentence before its body: fastPow(x, n) returns x to the n. Now the body may call fastPow(x, n divided by 2) and simply believe the contract - the leap of faith. Your two remaining duties are small. First, the base case must be true on its own: exponent 0 answers 1 with no call at all. Second, the combining step must preserve the contract: squaring the half, with an extra x when n is odd, really is x to the n. If both hold, induction does the rest, no mental trace of the stack required. When a recursion confuses you, the confusion is almost always a fuzzy contract, so rewrite the sentence first.",
+   "check": {
+    "id": "recursion-check-halving",
+    "prompt": "fastPow(x, 13) halves its exponent each call: 13, 6, 3, 1, 0. Counting the base case, how many calls run in total?",
+    "codeSnippet": null,
+    "options": [
+     {
+      "text": "5",
+      "explain": "One call per value in the chain 13, 6, 3, 1, 0 - the base case is a real call."
+     },
+     {
+      "text": "13",
+      "explain": "Thirteen is the naive multiply-one-at-a-time chain this algorithm replaces."
+     },
+     {
+      "text": "4",
+      "explain": "That forgets the base case at exponent 0, which still executes."
+     },
+     {
+      "text": "10",
+      "explain": "Two calls per level happens only in the broken version that recomputes the half."
+     }
+    ],
+    "answerIndex": 0,
+    "rereadSectionId": "the-leap-of-faith",
+    "rereadSectionTitle": "The leap of faith",
+    "reveal": {
+     "alwaysAvailable": true,
+     "solution": "Each call makes exactly one recursive call on the floored half, so the frames form a chain, one per value of the exponent: 13, then 6, then 3, then 1, then 0. That is five calls, and the last one is the base case answering 1. The chain's length is about log of n, which is the entire point of halving.",
+     "reference": {
+      "source": "takeuforward",
+      "url": "https://takeuforward.org/practice/dsa/pow(x%2Cn)",
+      "verified": "2026-11-03"
+     }
+    }
+   }
+  },
+  {
+   "id": "include-exclude",
+   "title": "Include, exclude",
+   "text": "One template generates, counts and tests subsequences. At index i, branch twice: include the element and recurse on i plus 1, or exclude it and recurse on i plus 1. Reaching index n means one complete decision path - emit the built subsequence, or return 1 if the running sum hit the target, else 0. The three problem flavours differ only in how branch results meet: generation prints at every leaf, counting adds the two branch counts, existence ORs them and may stop early at the first yes. Branch order is output order - include before exclude lists longer subsequences before their shorter variants. Prune when a branch is provably dead, such as a remaining target gone negative with only positive values left."
+  }
+ ],
+ "quiz": [
+  {
+   "kind": "pattern",
+   "prompt": "Decide whether some subsequence of 20 numbers sums to k. Which approach fits?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Include-exclude recursion over the indices, passing the remaining target down",
+     "explain": "Two branches per index cover every subset; 2 to the 20 paths is about a million."
+    },
+    {
+     "text": "Sort, then walk two pointers inward",
+     "explain": "Two pointers finds pairs; subsets of any size defeat it."
+    },
+    {
+     "text": "One nested loop per element",
+     "explain": "The nesting depth would have to equal n - unwritable for general n."
+    },
+    {
+     "text": "Greedy, taking the largest value that still fits",
+     "explain": "With target 6 over 5, 4, 2 greedy takes 5 and dead-ends; 4 plus 2 succeeds."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q1"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Compute x to the n under a modulus for n up to 10 to the 15. Plan?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Recurse on the halved exponent, square the result, extra x on odd n",
+     "explain": "About 50 multiplications; the chain length is the logarithm of n."
+    },
+    {
+     "text": "Multiply x into an accumulator n times",
+     "explain": "10 to the 15 iterations is weeks of work."
+    },
+    {
+     "text": "Precompute every power in a table",
+     "explain": "The table would need 10 to the 15 entries."
+    },
+    {
+     "text": "Call the library power on floats and round",
+     "explain": "Floats lose exactness long before 15 digits under a modulus."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q2"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Generate every binary string of length n with no two adjacent 1s. Which recursion is right?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Place one character per call, carrying whether the previous one was 1",
+     "explain": "The constraint is local, so one boolean prunes every dead branch early."
+    },
+    {
+     "text": "Generate all 2 to the n strings, then filter out offenders",
+     "explain": "Correct but wasteful - most strings are built only to be discarded."
+    },
+    {
+     "text": "Start from all 1s and repair violations",
+     "explain": "Repairs cascade; there is no clean smaller subproblem."
+    },
+    {
+     "text": "Shuffle strings randomly until enough appear",
+     "explain": "Enumeration must be exhaustive and ordered, so chance has no place."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q3"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Count digit strings of length n where even indices hold even digits and odd indices hold primes. Best plan?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Multiply independent choices: 5 to the even-count times 4 to the odd-count, via fast power",
+     "explain": "Positions are independent, so the count is a product of two powers."
+    },
+    {
+     "text": "Enumerate every string recursively",
+     "explain": "5 to the n over 2 strings is astronomically many to visit one by one."
+    },
+    {
+     "text": "Dynamic programming over prefixes",
+     "explain": "Linear states lose outright when n reaches 10 to the 15; the closed form is free."
+    },
+    {
+     "text": "Multiply factorials of the two counts",
+     "explain": "Factorials count orderings; each position here is an independent choice."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q4"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Include-first recursion lists the subsequences of \"ab\" as: ab, a, b, then the empty one. Which is produced third?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "b",
+     "explain": "After exhausting the include-a subtree (ab, a), the exclude-a branch starts with b."
+    },
+    {
+     "text": "a",
+     "explain": "a is second - the include-a, exclude-b path."
+    },
+    {
+     "text": "ab",
+     "explain": "ab is first: both characters included."
+    },
+    {
+     "text": "The empty subsequence",
+     "explain": "Excluding everything is the very last path explored."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q5"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "How many calls does fastPow(2, 10) make, counting the base case?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "5",
+     "explain": "The exponent chain is 10, 5, 2, 1, 0 - one frame per value."
+    },
+    {
+     "text": "10",
+     "explain": "Ten frames is the one-step-at-a-time recursion, n times x."
+    },
+    {
+     "text": "4",
+     "explain": "The call at exponent 0 is real; it returns the 1 everything builds on."
+    },
+    {
+     "text": "1024",
+     "explain": "1024 is the answer, 2 to the 10, and has nothing to do with frame count."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q6"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "For the row 1, 2, 1 and target 2, how many subsequences sum exactly to 2?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "2",
+     "explain": "The middle 2 alone, and the two 1s together."
+    },
+    {
+     "text": "1",
+     "explain": "The pair of 1s also reaches 2 - the two 1s sit at distinct indices."
+    },
+    {
+     "text": "3",
+     "explain": "Each single 1 gives sum 1; only their combination reaches 2."
+    },
+    {
+     "text": "0",
+     "explain": "The single element 2 already qualifies."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q7"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "How many multiplications does fast exponentiation spend on exponent n?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "On the order of log n",
+     "explain": "One or two multiplies per halving, and there are about log n halvings."
+    },
+    {
+     "text": "Exactly n",
+     "explain": "n multiplies is the loop this method replaces."
+    },
+    {
+     "text": "On the order of n squared",
+     "explain": "Nothing multiplies across frames; the chain is short and flat."
+    },
+    {
+     "text": "Constant",
+     "explain": "The exponent's size matters - fifty-odd steps at 10 to the 15, three at 8."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q8"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "Printing every subsequence of n distinct items costs at least how much?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "About 2 to the n, because that many subsequences exist",
+     "explain": "The output itself has 2 to the n lines; no algorithm beats its own output size."
+    },
+    {
+     "text": "About n squared",
+     "explain": "n squared undercounts wildly - 20 items already have a million subsequences."
+    },
+    {
+     "text": "About n log n",
+     "explain": "That is sorting's bill, a different errand."
+    },
+    {
+     "text": "About n factorial",
+     "explain": "Factorial counts permutations; subsequences keep the original order."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q9"
+  },
+  {
+   "kind": "bug",
+   "prompt": "p(2, 3) crashes with a stack overflow. What is the bug?",
+   "codeSnippet": "function p(x, n) {\n  return x * p(x, n - 1)\n}",
+   "options": [
+    {
+     "text": "There is no base case: n passes 0 and falls forever; return 1 when n is 0",
+     "explain": "Every recursion needs a floor it can answer without calling itself."
+    },
+    {
+     "text": "The multiplication order is reversed",
+     "explain": "Multiplication commutes; order changes nothing here."
+    },
+    {
+     "text": "n - 1 should be n / 2",
+     "explain": "Halving is faster but still overflows without a floor to land on."
+    },
+    {
+     "text": "x must shrink along with n",
+     "explain": "x is the base; only the exponent counts down."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q10"
+  },
+  {
+   "kind": "bug",
+   "prompt": "fast(2, 3) returns 4 instead of 8. What is the bug?",
+   "codeSnippet": "function fast(x, n) {\n  if (n === 0) return 1\n  const h = fast(x, Math.floor(n / 2))\n  return h * h\n}",
+   "options": [
+    {
+     "text": "Odd exponents drop one factor of x - multiply by x when n is odd",
+     "explain": "Floor of 3 over 2 is 1; squaring x gives x squared, one x short."
+    },
+    {
+     "text": "The base case must return x",
+     "explain": "x to the 0 is 1 by definition; returning x breaks every even power."
+    },
+    {
+     "text": "Math.floor is the culprit",
+     "explain": "Flooring is intended; the odd remainder just needs repaying."
+    },
+    {
+     "text": "h times h overflows",
+     "explain": "4 is no overflow - it is exactly the missing-factor symptom."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q11"
+  },
+  {
+   "kind": "edge",
+   "prompt": "Which call most deserves a dedicated test for a recursive power routine?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Exponent 0",
+     "explain": "It is the base case itself - must return 1 immediately, for any base."
+    },
+    {
+     "text": "A large even exponent",
+     "explain": "Useful, but it exercises the same halving path as smaller evens."
+    },
+    {
+     "text": "Base 2 specifically",
+     "explain": "The base value flows through unchanged logic."
+    },
+    {
+     "text": "A base of one million",
+     "explain": "Big bases stress overflow, a separate concern from the recursion."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "recursion-q12"
+  }
+ ]
+}

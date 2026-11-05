@@ -1,0 +1,33 @@
+{
+ "problemId": "infix-to-postfix-conversion",
+ "statement": "You receive one line holding an infix expression of single-letter operands, the operators + - * / ^ and round brackets. Print its postfix form. Stream operands straight to the output. Hold operators on a stack: before pushing one, pop to the output every stacked operator of higher precedence, or equal precedence when the arrival is left-associative (^ is right-associative). Push ( always; on ) pop to the output until the matching ( is removed. At the end, flush the stack.",
+ "constraints": [
+  "1 ≤ length ≤ 1000",
+  "Operands are single lowercase letters.",
+  "The expression is valid."
+ ],
+ "example": {
+  "input": "a+b*(c^d-e)\n",
+  "output": "abcd^e-*+",
+  "why": "Inside the brackets c^d yields cd^ and the subtraction gives cd^e-; the * then binds before the +."
+ },
+ "hint": "One comparison rules the stack: pop while the top binds at least as tightly, then push.",
+ "mistake": "Popping equal-precedence operators for ^ too - right-associativity means a^b^c groups from the right.",
+ "tests": [
+  {
+   "input": "a+b*c\n",
+   "expected": "abc*+",
+   "note": "precedence"
+  },
+  {
+   "input": "(a+b)*c\n",
+   "expected": "ab+c*",
+   "note": "brackets override"
+  },
+  {
+   "input": "a+b*(c^d-e)\n",
+   "expected": "abcd^e-*+",
+   "note": "nested with ^"
+  }
+ ]
+}

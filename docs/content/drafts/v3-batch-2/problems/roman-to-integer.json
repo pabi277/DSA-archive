@@ -1,0 +1,33 @@
+{
+ "problemId": "roman-to-integer",
+ "statement": "You receive a roman numeral built from I, V, X, L, C, D and M. Print its integer value. Scan left to right and compare each symbol with its successor: when the current value is smaller than the next one, subtract it from the total; otherwise add it. The final symbol is always added. Valid numerals keep subtraction to the six classic pairs: IV, IX, XL, XC, CD and CM.",
+ "constraints": [
+  "1 ≤ length ≤ 15",
+  "The value is between 1 and 3999.",
+  "The input is a valid roman numeral."
+ ],
+ "example": {
+  "input": "MCMXCIV\n",
+  "output": "1994",
+  "why": "M adds 1000, CM contributes 900, XC contributes 90 and IV contributes 4."
+ },
+ "hint": "One comparison with the neighbour decides add or subtract; guard the final index.",
+ "mistake": "Summing every symbol and patching afterwards - IX reads as 11 and the patch logic sprawls.",
+ "tests": [
+  {
+   "input": "LVIII\n",
+   "expected": "58",
+   "note": "additive only"
+  },
+  {
+   "input": "MCMXCIV\n",
+   "expected": "1994",
+   "note": "three subtractive pairs"
+  },
+  {
+   "input": "IX\n",
+   "expected": "9",
+   "note": "single subtractive pair"
+  }
+ ]
+}

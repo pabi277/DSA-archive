@@ -1,0 +1,32 @@
+{
+ "problemId": "count-good-numbers",
+ "statement": "A digit string of length n is good when every even index (0-based) holds an even digit and every odd index holds a prime digit (2, 3, 5 or 7). The first line holds n. Print how many good strings of length n exist, modulo 1000000007. Even positions offer 5 choices and odd positions 4, and positions are independent, so the answer is 5 to the power of ceil(n/2) times 4 to the power of floor(n/2) - compute both powers with recursive fast exponentiation under the modulus.",
+ "constraints": [
+  "1 ≤ n ≤ 1000000000000000",
+  "Print the count modulo 1000000007."
+ ],
+ "example": {
+  "input": "1\n",
+  "output": "5",
+  "why": "Length 1 has only index 0, which is even, so exactly the digits 0, 2, 4, 6 and 8 qualify."
+ },
+ "hint": "Apply the modulus after every multiplication inside fast power; the exponents are huge.",
+ "mistake": "Building the power with a loop of n steps - n reaches 10 to the 15, and only halving finishes in time.",
+ "tests": [
+  {
+   "input": "1\n",
+   "expected": "5",
+   "note": "single even index"
+  },
+  {
+   "input": "4\n",
+   "expected": "400",
+   "note": "5 squared times 4 squared"
+  },
+  {
+   "input": "50\n",
+   "expected": "564908303",
+   "note": "big exponent under the modulus"
+  }
+ ]
+}

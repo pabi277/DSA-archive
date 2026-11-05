@@ -1,0 +1,32 @@
+{
+ "problemId": "fruit-into-baskets",
+ "statement": "The first line holds n; the second holds n integers naming the fruit type on each tree in a row. You pick one fruit per tree while walking a contiguous stretch, carrying two baskets, each holding a single type. Print the longest stretch you can fully pick: the longest window containing at most two distinct values. Grow the right end, keep per-type counts, and while a third type is inside, shrink from the left - a type leaves only when its count reaches zero.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "Types are integers between 0 and 100000."
+ ],
+ "example": {
+  "input": "4\n0 1 2 2\n",
+  "output": "3",
+  "why": "From the second tree the types are 1, 2, 2 - two kinds; all four trees would need three baskets."
+ },
+ "hint": "Track a live distinct counter; it falls only on a zero-crossing of some type's count.",
+ "mistake": "Remembering just the last two types seen instead of counts - the window forgets how many of each remain.",
+ "tests": [
+  {
+   "input": "3\n1 2 1\n",
+   "expected": "3",
+   "note": "two kinds suffice"
+  },
+  {
+   "input": "4\n0 1 2 2\n",
+   "expected": "3",
+   "note": "drop the first tree"
+  },
+  {
+   "input": "5\n1 2 3 2 2\n",
+   "expected": "4",
+   "note": "skip the leading kind"
+  }
+ ]
+}

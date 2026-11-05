@@ -211,12 +211,17 @@ Do **not** start coding before step 5 is read end-to-end.
   statements, 6 of 495 hints/mistakes, 12 of 240 quiz items are authored, and the **~300
   runner test cases** have a consumer in `Run tests`. Every content batch improves the
   live site on the next deploy; any redeploy walks `docs/RELEASE-RUNBOOK.md` again.
-  **Parked draft batch:** 4 more topics (sorting, binary-search, linked-list,
-  bit-manipulation — +4 primers, +24 statements, +48 quiz items, validator-green when
-  staged) sit in `docs/content/drafts/v3-batch-1/`, NOT in `data/content/`, because the
-  measured cost is **+23,471 B gz** and the precached shell would hit **416,210 B against
-  the frozen 393,000 B cap** (261 B headroom today). Shipping them requires the owner's
-  cap/precache decision — see `docs/content/drafts/v3-batch-1/DECISION-MEMO.md`.
+  **Parked draft batches:** 8 more topics sit under `docs/content/drafts/`, NOT in
+  `data/content/` — batch 1 (sorting, binary-search, linked-list, bit-manipulation) and
+  batch 2 (strings-basic-and-medium, recursion, stack-queues, sliding-window-2-pointer),
+  together +8 primers, +48 statements, +96 quiz items, validator-green when staged. The
+  measured cost of batch 1 alone is **+23,471 B gz** (precached shell 416,210 B vs the
+  frozen 393,000 B cap, 261 B headroom today). **The owner decided on 2026-11-06
+  (recorded in `docs/DECISIONS.md`): hybrid precache split** — primers/sections/quiz stay
+  precached, per-problem statements load lazily with runtime caching. Implement that
+  split in `vite.config.ts`/SW buckets first, then stage the batches; each batch still
+  needs the owner's accuracy review before it ships. See
+  `docs/content/drafts/v3-batch-1/DECISION-MEMO.md` and `.../v3-batch-2/README.md`.
 
 - **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
   topics (Basic 84 · Core 287 · Pro 109 · 15 null; 453 `problem` + 42 `theory`).

@@ -1,0 +1,33 @@
+{
+ "problemId": "longest-repeating-character-replacement",
+ "statement": "The first line holds a string s of uppercase letters; the second holds k. You may change at most k characters. Print the length of the longest substring you can turn into one repeated letter. A window is feasible when its length minus the count of its most frequent letter is at most k - that difference is the number of changes needed. Grow the right end, maintain per-letter counts and the running top count, and advance the left end when the window turns infeasible.",
+ "constraints": [
+  "1 ≤ length ≤ 100000",
+  "0 ≤ k ≤ length",
+  "Uppercase letters only."
+ ],
+ "example": {
+  "input": "AABABBA\n1\n",
+  "output": "4",
+  "why": "Change the lone B in AABA or the lone A in ABBA - either way four equal letters stand in a row."
+ },
+ "hint": "Length minus top frequency is the repair bill; the window is legal while the bill is at most k.",
+ "mistake": "Fearing the stale top count after shrinking - it only makes the check stricter and the answer stays right.",
+ "tests": [
+  {
+   "input": "ABAB\n2\n",
+   "expected": "4",
+   "note": "whole string fixable"
+  },
+  {
+   "input": "AABABBA\n1\n",
+   "expected": "4",
+   "note": "one change"
+  },
+  {
+   "input": "AAAA\n0\n",
+   "expected": "4",
+   "note": "already uniform"
+  }
+ ]
+}

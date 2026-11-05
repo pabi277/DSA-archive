@@ -1161,3 +1161,16 @@ re-baseline") is treated as **frozen** and was not re-opened.
   default aborted the shell route-matrix test mid-`act()` on that device and
   cascaded into 25 bogus failures. CI on the same commit was green throughout —
   the reference environment for the deploy gate remains CI, not any one device.
+- **Authored learn content will ship via a hybrid precache split (2026-11-06).**
+  The measured 4-topic draft batch adds +23,471 B gz to the precached shell
+  (392,739 → 416,210 B against the frozen 393,000 B cap), so `data/content/**`
+  stays frozen at the Arrays set for now. The owner chose option 3 of
+  `docs/content/drafts/v3-batch-1/DECISION-MEMO.md`: keep primers, sections and
+  quiz in the precached catalogue chunk and move per-problem statements to a
+  lazy, runtime-cached chunk (the runner/account add-on pattern). The 393,000 B
+  shell cap stays frozen — no re-baseline. Content batches stay parked under
+  `docs/content/drafts/` (batch 1: sorting, binary-search, linked-list,
+  bit-manipulation; batch 2: strings-basic-and-medium, recursion, stack-queues,
+  sliding-window-2-pointer) until the split lands; implementing it is the next
+  engineering job on the content track, and accuracy review of each batch
+  remains a separate owner gate.

@@ -1,0 +1,33 @@
+{
+ "problemId": "count-all-subsequences-with-sum-k",
+ "statement": "The first line holds n and k; the second holds n positive integers. Print how many subsequences sum exactly to k. Recurse with the usual take and skip branches, but return counts: a completed path contributes 1 when its remaining target is exactly 0, and each call returns the sum of its two branch counts. Where the existence version may stop at the first success, counting must explore every path.",
+ "constraints": [
+  "1 ≤ n ≤ 20",
+  "1 ≤ k ≤ 100000",
+  "1 ≤ each value ≤ 10000"
+ ],
+ "example": {
+  "input": "4 8\n1 2 3 5\n",
+  "output": "2",
+  "why": "Both 3 plus 5 and 1 plus 2 plus 5 reach 8; no other subset does."
+ },
+ "hint": "Return take-count plus skip-count; the base case returns 1 or 0, nothing else.",
+ "mistake": "Stopping at the first match as in the yes/no version - every valid path must be counted.",
+ "tests": [
+  {
+   "input": "4 8\n1 2 3 5\n",
+   "expected": "2",
+   "note": "two subsets"
+  },
+  {
+   "input": "3 2\n1 1 1\n",
+   "expected": "3",
+   "note": "three pairs of 1s"
+  },
+  {
+   "input": "2 5\n1 2\n",
+   "expected": "0",
+   "note": "unreachable target"
+  }
+ ]
+}

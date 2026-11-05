@@ -1,0 +1,32 @@
+{
+ "problemId": "sum-of-beauty-of-all-substrings",
+ "statement": "You receive one line holding a string s of lowercase letters. The beauty of a string is its highest character frequency minus its lowest, counting only characters that appear. Print the sum of the beauty of every substring of s. Fix each start index, extend the end one character at a time, keep a 26-slot frequency table up to date, and add the current beauty after every extension.",
+ "constraints": [
+  "1 ≤ length ≤ 500",
+  "Lowercase letters only."
+ ],
+ "example": {
+  "input": "aabcb\n",
+  "output": "5",
+  "why": "Five substrings - aab, aabc, aabcb, abcb and bcb - have beauty 1; all others have beauty 0."
+ },
+ "hint": "The minimum is over letters present in the substring; skip the zero slots of the table.",
+ "mistake": "Rebuilding the table from scratch for every substring, which turns quadratic work cubic.",
+ "tests": [
+  {
+   "input": "aabcb\n",
+   "expected": "5",
+   "note": "small mixed case"
+  },
+  {
+   "input": "aabcbaa\n",
+   "expected": "17",
+   "note": "longer mix"
+  },
+  {
+   "input": "ab\n",
+   "expected": "0",
+   "note": "all frequencies equal"
+  }
+ ]
+}

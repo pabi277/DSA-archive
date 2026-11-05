@@ -1,0 +1,33 @@
+{
+ "problemId": "check-if-there-exists-a-subsequence-with-sum-k",
+ "statement": "The first line holds n and k; the second holds n positive integers. Decide whether some subsequence (any subset of the values, order kept, possibly empty) sums exactly to k, and print yes or no. Recurse over the indices carrying the remaining target: either take the current value, shrinking the target, or skip it. Running out of positions with the target at exactly 0 is a success. The empty subsequence means a target of 0 is trivially yes.",
+ "constraints": [
+  "1 ≤ n ≤ 20",
+  "0 ≤ k ≤ 100000",
+  "1 ≤ each value ≤ 10000"
+ ],
+ "example": {
+  "input": "4 8\n1 2 3 5\n",
+  "output": "yes",
+  "why": "3 plus 5 reaches 8: the path that takes indices 2 and 3 and skips the rest succeeds."
+ },
+ "hint": "Pass the remaining target down; success is target exactly 0 when positions run out.",
+ "mistake": "Returning after exploring only the take branch - both take and skip must be tried before answering no.",
+ "tests": [
+  {
+   "input": "4 8\n1 2 3 5\n",
+   "expected": "yes",
+   "note": "two-element subset"
+  },
+  {
+   "input": "3 10\n1 2 3\n",
+   "expected": "no",
+   "note": "total sum is only 6"
+  },
+  {
+   "input": "5 14\n4 3 9 2 6\n",
+   "expected": "yes",
+   "note": "3 + 9 + 2"
+  }
+ ]
+}
