@@ -185,11 +185,13 @@ suites, budgets and `check:dist`/`check:links`/`check:content`/`test:data` all g
 7. **A real bug, not a test bug: the profile snapshot could undo a fresh target.** The two
    new fields were re-applied from the profile on *every* snapshot; a snapshot generated
    just before a change can be delivered just after it, silently restoring the old value.
-   It failed intermittently (the same spec was green at `76f4909` and red on the next,
-   documentation-only commit). The fix: the profile is applied **once, on load**, and the
-   snapshot listener no longer writes settings into the store for targets — the write path
-   still syncs them, so a reload or another device sees the value. The spec now asserts the
-   values survive a one-second settle *and* a reload.
+   It failed intermittently (the same spec was green at `76f4909`, red on the next
+   documentation-only commit, green again, red again). Two fixes: the snapshot listener no
+   longer writes targets into the store at all, and the one load-time application is skipped
+   when the learner changed a target while the profile read was still in flight. The write
+   path still syncs the fields, so a reload or another device sees the value. The spec now
+   drives the date input with `fill()` and asserts both targets survive a one-second settle,
+   a reload and a second cold boot.
 | Budgets | `check:budgets` green at the re-baselined caps; `check:dist`, `check:links`, `check:rules`, `test:data`, `check:content` all green locally. |
 
 ## 7. What stays out (the "Out" list is part of the acceptance test)

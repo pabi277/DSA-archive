@@ -200,6 +200,14 @@ export function useAccountData(
     let unsubscribeProfile: (() => void) | undefined
     let unsubscribeSettings: (() => void) | undefined
     const profileRef = doc(firestore, 'users', uid)
+    // Phase v2-08: what the target fields were when this account session began.
+    // The profile is applied once, on load — but never over a value the learner
+    // changed while that load was in flight (the load is async, and a finish line
+    // can be picked before it lands).
+    const baselineTargets = {
+      date: getSettingsSnapshot().targetDate,
+      list: getSettingsSnapshot().targetListId,
+    }
 
     async function setup() {
       try {
@@ -233,7 +241,10 @@ export function useAccountData(
           const data = snapshot.data()
           if (data) {
             applyProfileSettings(data.theme === 'light' ? 'light' : 'dark', data.hideDone === true)
-            applyProfileTargets(data.targetDate, data.targetListId)
+            const current = getSettingsSnapshot()
+            const targetsTouched =
+              current.targetDate !== baselineTargets.date || current.targetListId !== baselineTargets.list
+            if (!targetsTouched) applyProfileTargets(data.targetDate, data.targetListId)
           }
         }
         if (disposed) return
