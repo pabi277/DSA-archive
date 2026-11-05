@@ -39,30 +39,31 @@ async function seedForgottenRows(): Promise<string[]> {
   const solved = new Date(Date.now() - 40 * 86_400_000).toISOString()
 
   const uid = await ownerUid()
-  for (const problemId of ids) {
-    const response = await fetch(`${firestore}/users/${uid}/progressByTopic/arrays`, {
-      method: 'PATCH',
-      headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fields: {
-          [problemId]: {
-            mapValue: {
-              fields: {
-                s: { stringValue: 'done' },
-                b: { booleanValue: false },
-                a: { integerValue: '1' },
-                fd: { stringValue: solved },
-                lr: { nullValue: null },
-                rc: { integerValue: '0' },
-              },
-            },
-          },
-          updatedAt: { timestampValue: solved },
-        },
-      }),
-    })
-    expect(response.ok).toBe(true)
+  // One PATCH for the whole shard: a REST PATCH without an `updateMask`
+  // replaces the document, so six separate writes would leave only the last.
+  const fields: Record<string, unknown> = {
+    updatedAt: { timestampValue: solved },
   }
+  for (const problemId of ids) {
+    fields[problemId] = {
+      mapValue: {
+        fields: {
+          s: { stringValue: 'done' },
+          b: { booleanValue: false },
+          a: { integerValue: '1' },
+          fd: { stringValue: solved },
+          lr: { nullValue: null },
+          rc: { integerValue: '0' },
+        },
+      },
+    }
+  }
+  const response = await fetch(`${firestore}/users/${uid}/progressByTopic/arrays`, {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields }),
+  })
+  expect(response.ok).toBe(true)
   // Prove the write landed before any UI assertion, so a red run says
   // "seeding" and not "chips".
   const check = await fetch(`${firestore}/users/${uid}/progressByTopic/arrays`, {
@@ -242,7 +243,9 @@ test('the target date and target list persist through a reload', async ({ page }
   await expect(page.getByTestId('target-date')).toHaveValue(todayPlus(30))
 
   // The date is in the trajectory sentence, and clearing it keeps the app honest.
-  await page.getByTestId('target-date-clear').click()
+  // The button unmounts the moment it clears, so dispatch the click instead of
+  // letting Playwright wait for it to stay stable.
+  await page.getByTestId('target-date-clear').dispatchEvent('click')
   await expect(page.getByTestId('target-date')).toHaveValue('')
 })
 
