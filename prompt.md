@@ -2,18 +2,20 @@
 
 # DSA Archive — continuation prompt (v2 programme, one phase per chat)
 
-> **Self-contained handoff.** v1 is complete. v2 Phases 01–06 are merged to `main`
+> **Self-contained handoff.** v1 is complete. v2 Phases 01–07 are merged to `main`
 > (PR #12 `558a25f`, PR #13 `bd9350b`, PR #14 `e51695a`, PR #15 `f4fa993`, PR #16
-> `4741a1b`, PR #17 `d44b55a`). Phase 07 (`07-browser-runner`) is **implemented** on
-> `arena/435eaa93-dsa-archive` and stopped at the owner's PR/review/merge gate: a local
-> Clang-on-wasm C/C++ compiler, Pyodide for Python and a native JavaScript sandbox, all
-> in one worker, with authored test cases, first-diff, instant Stop and no network while
-> a program runs. Its closure is recorded in
-> `docs/phases-v2/07-browser-runner/RECORD.md` (CI run id and preview bytes are the open
+> `4741a1b`, PR #17 `d44b55a`, PR #18 `ace2289`, plus the post-merge CI fix in PR #19
+> `79c6099`). Phase 08 (`08-insights-light`) is **implemented** on
+> `arena/d4a6c3b3-dsa-archive` and stopped at the owner's PR/review/merge gate: the nine
+> reason chips, momentum instead of a punitive streak, one trajectory sentence, "How this
+> plan was made", two undoable detectors and `#/insights`, with optional
+> `targetDate`/`targetListId` under rules **v9** / backup **v8** and a shell re-baselined
+> by the owner to **393 kB gzip / 61 kB raw CSS**. Its closure is recorded in
+> `docs/phases-v2/08-insights-light/RECORD.md` (CI run id and preview bytes are the open
 > blanks until the owner's gate). Opening a PR and merging remain standing owner gates;
 > no PR, merge, deployment or `main` push was performed without the owner's explicit
-> command. Phase 08 (`08-insights-light`) is the next build phase after the owner
-> commands Phase 07's PR and merge.
+> command. Phase 09 (`09-pwa-accessibility-hardening`) is the next build phase after the
+> owner commands Phase 08's PR and merge.
 > Authority order: `rule.md` → `docs/DECISIONS.md` (owner answers) → `docs/phases-v2/`
 > (phase contracts) → `docs/ROADMAP.md` (status) → `docs/DATA-MODEL.md`
 > (Firestore/backup shapes) → `docs/UI-REFERENCE.md` (design tokens) → this file (living
@@ -133,7 +135,30 @@ Do **not** start coding before step 5 is read end-to-end.
   Firestore/rules/backup change (rules **v8** / backup **v7** stand). 294 unit tests;
   Playwright + axe + emulator rules run in CI.
   Record: `docs/phases-v2/07-browser-runner/RECORD.md`.
-- **v2-08 … v2-10 not started**: Phase 08 follows only after the owner reviews Phase 07,
+- **v2-08 implemented; owner PR/review/merge gate pending**: branch
+  `arena/d4a6c3b3-dsa-archive`. Every recommendation now carries a reason from a fixed
+  nine-item vocabulary (`src/insights/reasons.ts`): `overdue 2d` · `due today` ·
+  `first solve` · `next in your target` · `shaky — couldn’t last time` · `weakest topic` ·
+  `not touched 41d` · `quiz to pass` · `buddy of <problem>` — at most two muted chips per
+  Today row, plus the same chips on suggested picks, topic Practice rows and every ⌘K
+  problem result, with the full list in the tooltip. Today's head line is **Momentum 7.2 ·
+  4 study days this week** (`Σ 0.9^daysAgo × active(day)` over 14 days, scaled to 10; a
+  rest day is *earned* at 5 study days in the last 7) instead of the punitive streak, **How
+  this plan was made** is a `<details>` with the four rules and the real inputs, plan vs
+  reality reads `Planned 5 · completed 3 · median 3.0/day over 3 weeks` with one optional
+  `Set goal to 3`, and two detectors (`6 forgotten solves → Add 6 to today` with one undo;
+  `3 stale solutions → Open in Code`) are dismissible per day. `#/insights` holds the
+  momentum strip (`role="img"` + sentence), the one trajectory sentence (median pace over
+  the last 14 active days; `Needs 3.4/day` when stalled), both detectors and the optional
+  **target date / target list**, which bias the picks inside 14 days and sync to the
+  profile under generated rules **v9** (backup **v8**, schemas 1–7 still import). No new
+  collection, no extra read. **Owner re-baselined the budgets (2026-11-05): shell 388 →
+  393 kB gzip, CSS raw 60 → 61 kB** — measured 391,193 B gzip (+4,613 B) and 60,238 B raw,
+  1,807 B of headroom; the layer is Today surface, so it cannot ride an on-demand bucket.
+  349 unit tests (55 new), `e2e/insights.spec.ts` (phone + desktop, axe 0), 60 visual
+  baselines. No deployment, no PR, no merge.
+  Record: `docs/phases-v2/08-insights-light/RECORD.md`.
+- **v2-09 … v2-10 not started**: Phase 09 follows only after the owner reviews Phase 08,
   explicitly commands its PR/merge, and starts a new chat. The primer/statement/quiz-bank
   authoring track continues separately from the build phases. The **~300 runner test
   cases** in the content track (`docs/content/AUTHORING.md`) now have a consumer: authored
@@ -161,12 +186,12 @@ Do **not** start coding before step 5 is read end-to-end.
 | 04 | `04-code-notebooks/` | ✅ **merged in PR #15** (`f4fa993`) — **Delete notes** end-to-end; `snippets` collection, rules **v6**, backup **v5** (+v4 notes migration), `#/code`, small editor, peek/reveal; run `41782795154` green | 5–6 d | 01 |
 | 05 | `05-quiz-engine/` | ✅ **merged** (PR #16, `4741a1b`) — **Theory MCQ cards** (4 options, per-option explanations, always-available `Show solution`, `[Solve]` vs `[Check]`), 3 Arrays inline checks, 12-item topic quiz, 80% pass, `quizResults`, rules **v7**, backup **v6**, guest merge | 6–7 d | 02, 03 |
 | 06 | `06-theatre-player/` | ✅ **merged in PR #17** (`d44b55a`) — official IFrame player on `#/problem/<id>` only, our bar *below* the frame (play/pause, ±10 s, per-topic speed, Stamp, `c`, skip-to-stamp, watched ≥60%; `f` consciously dropped), one mini player across routes, stamps in `snippets[id].moments` (rules **v8**, backup **v7**, undoable), build-time oEmbed metadata, opt-in auto-advance, Settings card; shell re-baselined **380 → 388 kB** by owner decision (`~2 kB` headroom); run `41825858179` green | 7–9 d | 01–03 |
-| 07 | `07-browser-runner/` | 🟡 **implemented on `arena/435eaa93-dsa-archive`; owner PR/merge gate** — one sandboxed module worker: Clang 22 on wasm for **C/C++** (29.0 MB, opt-in), **Pyodide** for Python (13.5 MB, opt-in), native **JS** (no pack); `Run ▸` / `Run tests ▸ N` with first-diff, compile diagnostics + `N more`, `Stop` = `terminate()`, stdout/stderr caps 256 kB, 3 s per case / 30 s total, `⌘↵`/`Esc`, `stdin`, copy/clear; predict-the-output hook after an MCQ answer; copy-out with a reason for Java/Go/Rust/TS; cache reported + cleared in Settings (`dsa-archive-runtime-v1` only); **add-on chunk** design keeps the shell at **386,674 B gzip** (cap 388,000) and the toolchains in their own bucket; no Firestore change | 5–7 d | 04, 03 |
-| 08 | `08-insights-light/` | Reason vocabulary + chips, **momentum** (no punitive streak), one-line trajectory, "How this plan was made", 2 detectors, target date/list | 4–5 d | 01, 02, 05 |
+| 07 | `07-browser-runner/` | ✅ **merged in PR #18** (`ace2289`; post-merge CI fix PR #19 `79c6099`) — one sandboxed module worker: Clang 22 on wasm for **C/C++** (29.0 MB, opt-in), **Pyodide** for Python (13.5 MB, opt-in), native **JS** (no pack); `Run ▸` / `Run tests ▸ N` with first-diff, compile diagnostics + `N more`, `Stop` = `terminate()`, stdout/stderr caps 256 kB, 3 s per case / 30 s total, `⌘↵`/`Esc`, `stdin`, copy/clear; predict-the-output hook after an MCQ answer; copy-out with a reason for Java/Go/Rust/TS; cache reported + cleared in Settings (`dsa-archive-runtime-v1` only); **add-on chunk** design keeps the shell at **386,674 B gzip** (cap 388,000) and the toolchains in their own bucket; no Firestore change | 5–7 d | 04, 03 |
+| 08 | `08-insights-light/` | 🟡 **implemented on `arena/d4a6c3b3-dsa-archive`; owner PR/merge gate** — nine reasons, ≤2 chips per row, momentum (decays, never resets; rest day earned at 5/7), one trajectory sentence (median pace, `Needs 3.4/day` when stalled), `<details>` "How this plan was made", plan vs reality + one-tap goal, two detectors with one undo, `#/insights`, optional `targetDate`/`targetListId` under rules **v9** / backup **v8** (no new collection, no extra read); **shell 391,193 B gzip against the owner's re-baselined 393 kB** (and CSS raw 60,238 / 61,000) | 4–5 d | 01, 02, 05 |
 | 09 | `09-pwa-accessibility-hardening/` | Budgets re-baselined with published numbers, SW v2 exclusions, CSP (report-only → enforce), a11y × offline matrices, network assertion, dead-dependency decision | 4–5 d | 01–08 |
 | 10 | `10-release-v2/` | README v2, generated screenshots, DATA-MODEL v5, CHANGELOG, runbook, honest content-coverage table | 2–3 d | 09 |
 
-**Sequential ≈57–69 build days.** Phases 01–06 are merged; Phase 07 is implemented on `arena/435eaa93-dsa-archive` at its owner PR/review/merge gate. Rules **v8** / backup **v7** and the shell cap of **388 kB** gzip are the latest *merged* baseline on `main` (owner decision 2026-11-04; Phase 09 re-examines the cap with the runner in place). Phase 07 changes **no** Firestore shape, so no version bump: future rules/backup versions must increment from the actual merged baseline after each phase.
+**Sequential ≈57–69 build days.** Phases 01–07 are merged; Phase 08 is implemented on `arena/d4a6c3b3-dsa-archive` at its owner PR/review/merge gate. Rules **v8** / backup **v7** and the shell cap of **388 kB** gzip are the latest *merged* baseline on `main`; Phase 08 advances them to rules **v9** / backup **v8** and a shell cap of **393 kB** (CSS raw 61 kB) on its branch, on the owner's explicit decision of 2026-11-05. Phase 09 owns the next cap review with the runner and the insight layer both in place.
 
 Each `PLAN.md` already contains: charter · current-state evidence (`file:line`) · scope in ·
 scope **out with reasons** · design spec/wireframes · file plan (`NEW`/`EDIT`/`DELETE`) ·
@@ -182,7 +207,8 @@ exit gate. **The acceptance list is the contract** — do not add features outsi
 - **"System fonts only" lifted**: two self-hosted subsets (~45 kB), budgeted.
 - **CI budgets re-baselined once**, in phase 09, with published numbers + rationale:
   CSS 60 kB raw / 18 kB gz · entry JS 180 kB raw / 55 kB gz · single chunk 520 kB raw ·
-  shell 380 kB gz (owner re-baselined to **388 kB** in phase 06) · runtime assets in a
+  shell 380 kB gz (owner re-baselined to **388 kB** in phase 06, then **393 kB** in phase 08
+  together with CSS raw **61 kB**) · runtime assets in a
   **separate** bucket (never precached). Phase 07 added two more separate buckets with
   published caps — runner UI 120 kB raw / 40 kB gz, toolchains 48 MB raw — and asserts the
   Service Worker precaches none of them.
@@ -254,25 +280,29 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 > `docs/ROADMAP.md` status and `prompt.md` in the same commit. Stop at the merge gate —
 > no PR merge, no deploy, no `main` push without my explicit command.
 
-> **Ready-made next one (08, only after Phase 07 is reviewed and merged by my explicit
+> **Ready-made next one (09, only after Phase 08 is reviewed and merged by my explicit
 > command and its CI emulator/Playwright/axe/visual matrix is green):**
 >
-> Run v2 phase **08 — insights-light** for `pabi277/DSA-archive`.
-> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches, the 2026-11-04 owner cap
-> decision, and the Phase 01–07 implementation choices — especially: the YouTube IFrame
-> ToS §4.13 rules (never modify, overlay or block the player), video links single-source,
-> the integrity rule that no verdict is ever invented, and the shell-cap finding — the
-> shell is **386,674 B gzip against the frozen 388,000 B cap, 1,326 B of headroom**, so any
-> new shell surface is a **gate**, not a re-baseline), `docs/phases-v2/README.md`,
-> `docs/phases-v2/00-overview/PLAN.md`, and `docs/phases-v2/08-insights-light/PLAN.md` in
-> full — its acceptance list is the contract.
-> Phases 01–06 are merged (`main` = PR #17, `d44b55a`); Phase 07 is implemented on
-> `arena/435eaa93-dsa-archive` and must be reviewed and merged by my explicit command
+> Run v2 phase **09 — pwa-accessibility-hardening** for `pabi277/DSA-archive`.
+> Read `rule.md`, `docs/DECISIONS.md` (both 2026-11-03 v2 batches, the 2026-11-04 phase-06
+> cap decision, the **2026-11-05 phase-08 cap decision — shell 393 kB gzip / CSS raw
+> 61 kB, measured 391,193 B and 60,238 B, so there is 1,807 B of headroom and any further
+> shell growth is a gate, not a re-baseline** — and the Phase 01–08 implementation choices,
+> especially: the YouTube IFrame ToS §4.13 rules (never modify, overlay or block the
+> player), video links single-source, the integrity rule that no verdict is ever invented,
+> the runner's separate add-on buckets that the Service Worker must never precache, and the
+> insight layer being *Today* surface that must stay precached), `docs/phases-v2/README.md`,
+> `docs/phases-v2/00-overview/PLAN.md`, and
+> `docs/phases-v2/09-pwa-accessibility-hardening/PLAN.md` in full — its acceptance list is
+> the contract.
+> Phases 01–07 are merged (`main` = PR #19, `79c6099`); Phase 08 is implemented on
+> `arena/d4a6c3b3-dsa-archive` and must be reviewed and merged by my explicit command
 > before a new phase starts. Advance from the actual merged state and **verify versions
-> before versioning anything** (rules **v8** / backup **v7** / shell 388 kB cap as of the
-> Phase 06 merge; Phase 07 changes no Firestore shape). Phase 08 is the *cheap* insight
-> layer only — reason chips, momentum (never a punitive streak), a one-line trajectory and
-> "How this plan was made" — no FSRS, no attempt-history engine, no readiness score.
+> before versioning anything** (rules **v8** / backup **v7** as of the Phase 07 merge;
+> Phase 08 advances them to rules **v9** / backup **v8** and re-baselines the shell to
+> 393 kB gzip / CSS raw 61 kB). Phase 09 is the hardening gate: re-baseline review with
+> published numbers, Service Worker exclusions, CSP report-only → enforce, the a11y ×
+> offline matrices, the network assertion and the dead-dependency decision.
 > Update `RECORD.md`, `docs/ROADMAP.md`, `docs/DECISIONS.md` if needed, and `prompt.md`.
 > No PR, merge, deploy, `main` push, or any live Firebase command without my explicit
 > command.

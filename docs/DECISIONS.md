@@ -910,3 +910,59 @@ Two consequences worth keeping:
   spec reloaded while the emulator had not yet received the write. It now polls the
   emulator's REST API (`waitForSavedStamp`) — the same owner-token access `code.spec.ts`
   uses — instead of trusting that the UI showing a row means the server has it.
+
+## Owner decision — phase v2-08 budget re-baseline (2026-11-05)
+
+- 2026-11-05 — **CI budgets after the insight layer?** — Asked with measured numbers and
+  three options (re-baseline · cut the contract · park the phase for v2-09). The owner chose
+  **re-baseline**: **shell gzip 388,000 → 393,000 B** and **CSS raw 60,000 → 61,000 B**.
+  Rationale, in the owner's own decision: the insight layer is *Today* surface (chips,
+  momentum, the disclosure) and must be precached to work offline on a first launch, so it
+  cannot ride an on-demand bucket like the runner's. Measured on this branch: shell
+  **391,193 B gzip** (`+4,613 B` over `main` @ `79c6099`) and **60,238 B raw CSS**
+  (`+1,278 B`), leaving **1,807 B** of shell headroom. Entry JS (36.2 / 55 kB gzip), the
+  largest chunk (129.9 / 165 kB) and CSS gzip (10.3 / 18 kB) are unchanged and inside their
+  caps. Both constants and the reasoning are published in `tools/check-budgets.mjs`; phase
+  v2-09 still owns the cap review. This is a one-phase re-baseline, not a new ceiling.
+
+## Phase v2-08 implementation choices (2026-11-05)
+
+- **The reason vocabulary is one module, not per-screen logic.** `src/insights/reasons.ts`
+  owns the nine texts and their fixed order; Today, the suggestions card, topic Practice
+  rows and the ⌘K palette all read it, so a chip can never be invented at a call site. A
+  row already ticked done today returns no reasons at all (a chip there is noise), and the
+  ≥30-day `not touched` rule only fires on rows that have been touched.
+- **Momentum is a published formula, not a score.** `Σ 0.9^daysAgo × active(day)` over 14
+  days, scaled so all 14 active days is exactly `10.0`; `studyDaysThisWeek` is the last 7.
+  **"Rest day earned" is quantified**: 0 problems today and ≥ 5 study days in the last 7
+  (`WEEK_QUOTA_DAYS`) — the contract said "the 7-day plan quota is met" without a number,
+  and this is the number, exported so a later phase can argue with it.
+- **The trajectory is arithmetic with a hand-checked example.** Pace is the median over the
+  last 14 *active* days (not calendar days), so one heroic afternoon cannot move the line;
+  `trajectory.test.ts` pins `At 2/day you’ll finish the sheet in 10 days` and the stalled
+  `Needs 3.4/day to hit 2 Dec`. No chart, no confidence band, nothing stored.
+- **Plan vs reality counts days that had work.** A calendar-day median puts every honest
+  learner at `0.0/day` (most days are rest days), which would make the sentence useless and
+  the `Set goal to N` suggestion wrong. The window is days worked and the sentence says so;
+  the suggestion never writes by itself.
+- **The two target controls live on `#/insights`, not in Settings.** They are genuine
+  settings-store fields (sanitised, synced to the profile, carried by backups), but a finish
+  line only means something beside the trajectory it changes, and a second form would have
+  cost shell bytes for no new capability. Recorded as a deviation in the phase record.
+- **Rules v9 / backup v8, and deliberately nothing more.** The target date and list ride the
+  profile document every session already reads: no new collection, no extra read, no new
+  quota path. Both fields are optional, both accept an explicit `null` to clear, and the
+  profile whitelist stays closed (an unknown key is refused, proven in the emulator test).
+- **Detector actions are single and undoable.** `Add 6 to today` is one `addManyToToday`
+  call and one undo entry that removes exactly what it added; `Hide for today` is per device
+  and per day (`dsa-archive.detectors.v1`), so yesterday's dismissal never silences today's
+  note. `Open in Code` filters `#/code` by the shared topic when the stale solutions share
+  one, because the screen's filters are `q`/`lang`/`topic` (adding an outcome filter was
+  outside this phase).
+- **`src/insights/bits.tsx` exists and the plan did not list it.** Chips, the momentum
+  line/strip, the detector row and the plan-reality line are shared by four screens; one
+  small module beats importing the route screen from each of them.
+- **Visual baselines cannot show the signed-in surfaces.** They run signed out; chips and
+  the open disclosure need real progress, so `e2e/insights.spec.ts` proves them functionally
+  (390×844 and 1440×900) with axe 0, and `#/insights` joins the snapshot matrix in its
+  designed signed-out state.

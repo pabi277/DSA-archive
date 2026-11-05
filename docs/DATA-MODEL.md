@@ -1,6 +1,8 @@
 # Data model — DSA Archive website (Firebase-backed)
 
-> **v2 data-model work is landing phase by phase.** Phase 02 merged in PR #13:
+> **v2 data-model work is landing phase by phase.** Phase 08 (owner merge gate pending)
+> adds two optional profile fields, `targetDate` and `targetListId`, under rules **v9** and
+> backup **schema v8**; no new collection and no extra read. Phase 02 merged in PR #13:
 > progress entries now support optional `o: clean|hint|couldnt`, Firestore rules are v5,
 > and backups are schema v4. Phase 03 merged in PR #14 (`e51695a`): the git catalogue is
 > `schemaVersion: 2`, with own-written learner-content JSON and practice-set files, and
@@ -91,7 +93,9 @@ users/{uid}                                  // profile + settings (1 doc)
   displayName, photoURL, createdAt,
   dailyGoal: 5, theme, hideDone,
   shareSummary: false,                       // friends opt-in switch (default OFF)
-  friendCode: "…"                            // rotate-able invite code (phase 5)
+  friendCode: "…",                           // rotate-able invite code (phase 5)
+  targetDate?: "2026-12-02" | null,          // phase v2-08 — optional finish line
+  targetListId?: "…" | null                  // phase v2-08 — optional target list id
 
 users/{uid}/progressByTopic/{topicId}        // ≤20 docs — the login read set
   { "two-sum": { "s": "done",                // todo | done (revision allowed, unused)
@@ -210,10 +214,11 @@ catalogue denominator stays 495.
 - Firestore Rules has no loops, so every progress write changes exactly
   one problem key plus `updatedAt: serverTimestamp()`. Import and merge
   apply sequences of these one-key writes; no Admin SDK is used.
-- Settings (`theme`, `largeText`, `hideDone`) live under
-  `dsa-archive.settings.v1` and map to the §3 profile fields
-  `theme`/`hideDone`; `largeText` is local-only (an accessibility
-  preference, not user data worth a Firestore field).
+- Settings (`theme`, `largeText`, `hideDone`, `density`, `railCollapsed`,
+  `targetDate`, `targetListId`) live under `dsa-archive.settings.v1` and map to the
+  §3 profile fields `theme`/`hideDone`/`targetDate`/`targetListId`; `largeText`,
+  `density` and `railCollapsed` are local-only (they describe the device you are
+  holding, not your study record).
 
 ### Rules validation (generated from `data/problems.json`)
 
