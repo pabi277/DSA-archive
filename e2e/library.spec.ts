@@ -92,7 +92,7 @@ test('custom lists sync across devices, filter the sheet and survive backup', as
     const path = await download.path()
     expect(path).toBeTruthy()
     const backup = JSON.parse(await readFile(path!, 'utf8'))
-    expect(backup.schemaVersion).toBe(7)
+    expect(backup.schemaVersion).toBe(8)
     expect(backup.notes).toBeUndefined()
     expect(backup.snippets).toEqual([])
     expect(backup.lists).toHaveLength(1)

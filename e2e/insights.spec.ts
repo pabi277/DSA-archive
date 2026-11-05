@@ -66,6 +66,14 @@ async function seedForgottenRows(): Promise<string[]> {
   return ids
 }
 
+/** Seed, then reload so the app re-reads the cloud snapshot (a hash change is not a reload). */
+async function seedAndReload(page: Page): Promise<string[]> {
+  const ids = await seedForgottenRows()
+  await page.reload()
+  await expect(page.getByTestId('signed-in-banner')).toContainText('CI Owner')
+  return ids
+}
+
 async function ownerUid(): Promise<string> {
   for (let attempt = 0; attempt < 20; attempt += 1) {
     const response = await fetch(`${firestore}/users`, { headers: { Authorization: 'Bearer owner' } })
@@ -149,7 +157,7 @@ test('the forgotten-done detector plans its rows and undo takes them back', asyn
   test.setTimeout(180_000)
   await page.setViewportSize(phone)
   await freshOwner(page)
-  const seeded = await seedForgottenRows()
+  const seeded = await seedAndReload(page)
 
   await open(page, '/#/today')
   const detector = page.getByTestId('detector-forgotten-done')
@@ -173,7 +181,7 @@ test('#/insights reports momentum, one trajectory line and the two detectors', a
   test.setTimeout(180_000)
   await page.setViewportSize(desktop)
   await freshOwner(page)
-  await seedForgottenRows()
+  await seedAndReload(page)
 
   await open(page, '/#/insights')
   await expect(page.getByTestId('insights-view')).toBeVisible()
