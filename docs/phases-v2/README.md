@@ -23,7 +23,20 @@ performance targets, tests, risks, acceptance criteria, and exit gate.
 parallel from phase 02 onwards.
 
 
-**Execution status (2026-11-05, phase 09):** Phases v2-01…v2-08 are merged to `main`
+**Execution status (2026-11-05, phase 10):** Phases v2-01…v2-09 are merged to `main`
+(PR #21 `4f3bb94` merged phase 09). Phase 10 — the last build phase — is implemented on
+`arena/9b4d2ec7-dsa-archive` and stopped at the owner's PR/merge gate: README rewritten
+around the seven surfaces and the honest limits, **16 committed screenshots** with a
+generated manifest and a sha-256 freshness stamp (`docs/screenshots/capture.json`),
+`docs/CHANGELOG.md` **v2.0.0**, DATA-MODEL **v6** (release audit, same shape), the
+rewritten release runbook, a generated OG card, and the `check:docs` /
+`check:screenshots` / `check:release` gates — see
+[`10-release-v2/RECORD.md`](10-release-v2/RECORD.md). Rules **v9** / backup **v8**
+unchanged; shell measured 392,739 B gzip against the frozen 393,000 B cap with **no
+re-baseline**. Nothing is deployed — deploying is a standing owner gate executed via
+[`../RELEASE-RUNBOOK.md`](../RELEASE-RUNBOOK.md).
+
+**Earlier status (2026-11-05, phase 09):** Phases v2-01…v2-08 are merged to `main`
 (PR #20 `b81361a` merged phase 08). Phase 09 is implemented on
 `arena/6bef7496-dsa-archive` and stopped at the owner's PR/merge gate: final budget review
 with **no second re-baseline** (shell 392,136 B gzip against the frozen 393,000 B cap),
@@ -33,8 +46,8 @@ in Chromium, the completed a11y + offline + network matrices, a real tested
 [`09-pwa-accessibility-hardening/RECORD.md`](09-pwa-accessibility-hardening/RECORD.md).
 CI [`42030262068`](https://github.com/pabi277/DSA-archive/actions/runs/42030262068)
 green at `fc9452963baf405abb876c70fae2cfe317b6f255`, `site-preview` 29,680,148 B. Latest merged versions
-on `main` are rules **v9** / backup **v8**; phase 09 changes no Firestore shape, rule or
-backup version. Phase 10 (release v2) is next and remains owner-gated.
+on `main` are rules **v9** / backup **v8**; phase 09 changed no Firestore shape, rule or
+backup version. It was merged as PR #21 (`4f3bb94`).
 
 **Earlier status (2026-11-05, phase 08):** Phase 07 was reviewed and merged by the owner
 (PR #18, `ace2289`; post-merge CI fix in PR #19, `79c6099`). Phase 08 is implemented on

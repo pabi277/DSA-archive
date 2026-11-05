@@ -25,6 +25,7 @@ import {
   applyProfileSettings,
   applyProfileTargets,
   getSettingsSnapshot,
+  localSettingsVersion,
   subscribeSettings,
   useSettings,
   type Settings,
@@ -204,6 +205,9 @@ export function useAccountData(
     // The profile is applied once, on load — but never over a value the learner
     // changed while that load was in flight (the load is async, and a finish line
     // can be picked before it lands).
+    // A profile snapshot must never undo a preference this device just set.
+    const baselineVersion = localSettingsVersion()
+    const settingsChangedHere = () => localSettingsVersion() !== baselineVersion
     const baselineTargets = {
       date: getSettingsSnapshot().targetDate,
       list: getSettingsSnapshot().targetListId,
@@ -240,7 +244,11 @@ export function useAccountData(
         } else {
           const data = snapshot.data()
           if (data) {
-            applyProfileSettings(data.theme === 'light' ? 'light' : 'dark', data.hideDone === true)
+            // The load is async: a theme tapped while it was in flight wins over
+            // the value the read started with (phase v2-10 bug fix, see below).
+            if (!settingsChangedHere()) {
+              applyProfileSettings(data.theme === 'light' ? 'light' : 'dark', data.hideDone === true)
+            }
             const current = getSettingsSnapshot()
             const targetsTouched =
               current.targetDate !== baselineTargets.date || current.targetListId !== baselineTargets.list
@@ -249,10 +257,25 @@ export function useAccountData(
         }
         if (disposed) return
         setProfileReady(true)
+        /**
+         * Phase v2-10 bug fix. The profile snapshot carries `theme`/`hideDone`,
+         * and applying every delivery over local state let a snapshot generated
+         * *before* a tap be delivered *after* it and silently revert the theme
+         * (roughly half the time on a cold boot: caught while generating the
+         * light-theme screenshots, then reproduced in a loop, and the emulator
+         * then stored the reverted value, so the next boot agreed with it).
+         * Same rule the phase v2-08 target fields already use: a cloud value is
+         * applied once, on load, and never over a change this device just made.
+         * The writer below still saves the change, so a reload or another device
+         * reads it. `localSettingsVersion()` is what makes the rule independent
+         * of when this listener was registered.
+         */
         unsubscribeProfile = onSnapshot(profileRef, (next) => {
           const data = next.data()
           if (!data) return
-          applyProfileSettings(data.theme === 'light' ? 'light' : 'dark', data.hideDone === true)
+          if (!settingsChangedHere()) {
+            applyProfileSettings(data.theme === 'light' ? 'light' : 'dark', data.hideDone === true)
+          }
           // Phase v2-08: the two target fields are **not** re-applied from the
           // profile here. This device is the writer, and a snapshot generated
           // just before a change can still be delivered just after it — which

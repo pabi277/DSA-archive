@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "DSA Archive",
+  "name": "DSA Archive — beginner-first DSA workspace",
   "short_name": "DSA Archive",
-  "description": "Personal, offline-first DSA sheet, notes, revision planner and opt-in friends summary.",
+  "description": "495 problems and theory rows across 20 topics, with in-app statements, primers, quizzes, a saved-solution notebook and a code runner that compiles on your own device. Offline-first, no trackers.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -34,5 +34,10 @@
       "type": "image/svg+xml",
       "purpose": "any"
     }
-  ]
+  ],
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "lang": "en"
 }

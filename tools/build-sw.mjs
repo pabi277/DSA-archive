@@ -19,6 +19,10 @@
  *     fetched on demand and never precached. The owner's 2026-11-05 decision
  *     left 1,807 B of shell headroom and ruled that **any further shell growth
  *     is a gate, not a re-baseline**, so phase 09 keeps the shell flat;
+ *   · phase v2-10 adds `og-image.png` (and `/manifest.webmanifest`, already
+ *     fetched by path) to that rule for the same reason: the social card is
+ *     never requested by the app itself, so precaching it would spend 8 kB of
+ *     the frozen shell budget on bytes a returning learner already has cached;
  *   · hash-versioned update flow: the cache key is still the sha-256 of the
  *     shell's paths+bytes. An update no longer calls `skipWaiting()` on its
  *     own — it posts `DSA_UPDATE_READY` so the app can show "New version ready
@@ -39,6 +43,14 @@ export const ADDON_PREFIXES = ['runtime/', 'assets/runner-', 'assets/account-']
 
 /** Small JSON manifests must always be answered by the network. */
 export const RUNTIME_MANIFESTS = ['runtime/packs.json', 'runtime/runner/index.json']
+
+/**
+ * Files that are never precached and never counted in the shell budget, even
+ * though they ship in `dist/`: they are not part of the app shell and nothing in
+ * the app requests them at runtime.
+ *   og-image.png   the social card — fetched by link unfurlers, not by a learner
+ */
+export const NOT_SHELL = ['og-image.png']
 
 export function isRuntimeAsset(rel) {
   return ADDON_PREFIXES.some((prefix) => rel.startsWith(prefix))
@@ -74,6 +86,7 @@ async function collectFiles(dir, base = dir) {
       // cache (font-display: swap) and live in their own budget bucket.
       if (rel.startsWith('fonts/')) continue
       if (isRuntimeAsset(rel)) continue
+      if (NOT_SHELL.includes(rel)) continue
       out.push(rel)
     }
   }

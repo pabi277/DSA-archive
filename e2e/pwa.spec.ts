@@ -63,7 +63,10 @@ test('manifest, icons and true airplane-mode cold open work signed out with gues
       background_color: string
       icons: { src: string; sizes: string; type: string; purpose?: string }[]
     }
-    expect(manifest.name).toBe('DSA Archive')
+    // Phase v2-10: the install-prompt name describes the product; the launcher
+    // label under the icon stays the short, unambiguous `DSA Archive`.
+    expect(manifest.name).toBe('DSA Archive — beginner-first DSA workspace')
+    expect(manifest.short_name).toBe('DSA Archive')
     expect(manifest.display).toBe('standalone')
     expect(manifest.start_url).toBe('/')
     // Tokens v2 (phase v2-01 re-freeze) canvas.

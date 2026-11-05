@@ -1,0 +1,37 @@
+{
+  "takenAt": "2026-11-05T16:36:02.517Z",
+  "clock": "2026-11-05T09:30:00.000Z",
+  "viewports": {
+    "phone": {
+      "width": 390,
+      "height": 844
+    },
+    "desktop": {
+      "width": 1440,
+      "height": 900
+    },
+    "deviceScaleFactor": 2
+  },
+  "theme": "dark, plus two -light references of the same record",
+  "record": "seeded through the Firebase Emulator Suite owner REST API after signing in; no localStorage seeding and no fixture file",
+  "captures": 16,
+  "source": "95b4b503a0d2f7ebc107bc89a9f13bd7dec3acf1cab694bbc52fd6c1fcb00f7b",
+  "files": {
+    "phone-today.png": 443233,
+    "phone-topics.png": 198093,
+    "phone-topic-learn.png": 215501,
+    "phone-topic-practice.png": 187331,
+    "phone-problem.png": 151105,
+    "phone-code.png": 155105,
+    "phone-quiz.png": 153227,
+    "phone-insights.png": 143042,
+    "phone-today-light.png": 439953,
+    "desktop-today.png": 530080,
+    "desktop-topics.png": 530962,
+    "desktop-problem.png": 330952,
+    "desktop-code.png": 222217,
+    "desktop-quiz.png": 321467,
+    "desktop-topics-light.png": 527551,
+    "desktop-insights.png": 248907
+  }
+}

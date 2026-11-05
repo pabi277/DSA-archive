@@ -25,6 +25,10 @@ test('statement renders four blocks, ranked publishers and a local-only hint', a
     await expect(page.getByTestId(block)).toBeVisible()
   }
   await expect(page.getByTestId('statement-tests')).toContainText('3 local test cases')
+  // Phase v2-10: the sentence beside the count must read for a learner, not
+  // for the phase log ("Bundled for the Phase 07 runner" was build history).
+  await expect(page.getByTestId('statement-tests')).toContainText('local runner')
+  await expect(page.getByTestId('statement-tests')).not.toContainText('Phase ')
   await expect(page.getByTestId('primary-resource')).toBeVisible()
   await page.getByTestId('more-sources').click()
   await expect(page.getByTestId('resource-sheet')).toContainText('LeetCode')

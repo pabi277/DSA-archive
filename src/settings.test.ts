@@ -9,6 +9,7 @@ import {
   clampTargetListId,
   cycleDensity,
   getSettingsSnapshot,
+  localSettingsVersion,
   resetSettingsStoreForTests,
   setDensity,
   setRailCollapsed,
@@ -135,5 +136,51 @@ describe('target date and target list (phase v2-08)', () => {
     setTargetDate('2026-12-02')
     setTargetDate(null)
     expect(getSettingsSnapshot().targetDate).toBeNull()
+  })
+})
+
+describe('a local change is detectable while a profile load is in flight (phase v2-10)', () => {
+  /**
+   * The screenshots work found a real race: `users/{uid}` carries theme and
+   * hideDone, and the account hook applied every profile snapshot over local
+   * state. A read that started before a tap could land after it and put the old
+   * theme back — and the reverted value was then written to Firestore, so the
+   * next boot agreed with the revert. The hook now asks "did this device change
+   * a preference since the load began?", which is what this counter answers.
+   * Whether the snapshot listener exists yet must not matter (that ordering is
+   * itself a race), so the counter is what the decision reads.
+   */
+  it('counts only local changes, never a cloud application', () => {
+    const start = localSettingsVersion()
+    expect(localSettingsVersion()).toBe(start)
+
+    // A cloud value arriving must not look like a local change: that would
+    // block the very first profile load from applying.
+    applyProfileSettings('light', true)
+    expect(localSettingsVersion()).toBe(start)
+
+    // A learner's tap does look like one, and stays visible after the write
+    // path re-reads the store.
+    toggleRail()
+    expect(localSettingsVersion()).toBe(start + 1)
+    expect(getSettingsSnapshot().railCollapsed).toBe(true)
+    expect(localSettingsVersion()).toBe(start + 1)
+  })
+
+  it('is independent of listeners, so it cannot depend on registration order', () => {
+    // No subscriber is registered in this test at all; the old implementation
+    // (a `settingsTouched` flag set inside the account hook's listener) would
+    // have reported "untouched" here and let the cloud value win.
+    const start = localSettingsVersion()
+    setDensity('compact')
+    expect(localSettingsVersion()).toBeGreaterThan(start)
+    expect(getSettingsSnapshot().density).toBe('compact')
+  })
+
+  it('starts from zero in a fresh store so a new page cannot inherit a count', () => {
+    toggleRail()
+    expect(localSettingsVersion()).toBe(1)
+    resetSettingsStoreForTests()
+    expect(localSettingsVersion()).toBe(0)
   })
 })

@@ -1,16 +1,20 @@
 # Data model — DSA Archive website (Firebase-backed)
 
-> **v2 data-model version v5 (2026-11-05, phase v2-09 final audit).** Phases
+> **v2 data-model version v6 (2026-11-05, phase v2-10 release audit).** Phases
 > v2-01…v2-08 are merged to `main`. The current shipped shape is **rules v9 /
 > backup schema v8**: `users/{uid}` (profile with optional `targetDate` /
 > `targetListId`), `progressByTopic/{topicId}`, `snippets/{problemId}` (with
 > optional `verdict` and `moments`), `quizResults/{topicId}`, `lists/{listId}`,
 > `plans/{date}`, `friends/{friendUid}`, `users/{uid}/public/summary`,
-> `invites/{code}`. **Phase v2-09 changes no Firestore
-> shape, no rule and no backup version**; it adds the deletion contract in §7,
-> recomputes the Spark quota in §4 and finalises the privacy copy. The staged
-> history below (v2-02 → v2-08) is kept as a migration record. See
-> [`docs/phases-v2/09-pwa-accessibility-hardening/RECORD.md`](phases-v2/09-pwa-accessibility-hardening/RECORD.md).
+> `invites/{code}`. **Phase v2-09 changed no Firestore
+> shape, no rule and no backup version**; it added the deletion contract in §7,
+> recomputed the Spark quota in §4 and finalised the privacy copy. The staged
+> history below (v2-02 → v2-08) is kept as a migration record.
+> **Phase v2-10 (release) again ships no new shape, rule or backup version** —
+> the release is **rules v9 / backup v8**, and §7 is the deletion contract the
+> release README quotes. v2-10 re-audited every path against `src/` and
+> `firestore.rules` and republished the quota table in §4 for the deploy. See
+> [`docs/phases-v2/10-release-v2/RECORD.md`](phases-v2/10-release-v2/RECORD.md).
 
 
 > Plan-stage sketch (revised 2026-11-02 for the owner's Firebase
@@ -322,9 +326,9 @@ for the two target fields). Firestore reads/writes/day stay at the table above.
 
 | Bucket | v1 (2026-11-02) | v2 final (2026-11-05) | Cap | Where |
 |---|---|---|---|---|
-| Full precached shell | **317.66 kB gzip** | **392,136 B gzip** (18 precached URLs) | **393,000 B gzip** (owner-frozen, phase v2-08) | `tools/check-budgets.mjs` |
-| CSS | 26.86 kB raw / 6.30 kB gz | **60,282 B raw / 10,312 B gz** | 61,000 B raw / 18,000 B gz | `tools/check-budgets.mjs` |
-| Entry JS | 103.25 kB raw / 28.39 kB gz | **127,915 B raw / 36,934 B gz** | 180,000 B raw / 55,000 B gz | `tools/check-budgets.mjs` |
+| Full precached shell | **317.66 kB gzip** | **392,739 B gzip** (18 precached URLs) | **393,000 B gzip** (owner-frozen, phase v2-08) | `tools/check-budgets.mjs` |
+| CSS | 26.86 kB raw / 6.30 kB gz | **60,523 B raw / 10,364 B gz** | 61,000 B raw / 18,000 B gz | `tools/check-budgets.mjs` |
+| Entry JS | 103.25 kB raw / 28.39 kB gz | **128,007 B raw / 36,981 B gz** | 180,000 B raw / 55,000 B gz | `tools/check-budgets.mjs` |
 | Largest single chunk | <500 kB single bundle | **457,704 B raw / 129,864 B gz** (Firestore SDK in its own chunk) | 520,000 B raw / 165,000 B gz | `tools/check-budgets.mjs` |
 | Fonts | 0 B (system fonts) | **57,496 B raw**, separate bucket, never precached | 60,000 B | `tools/check-budgets.mjs` |
 | Runner UI | none | **27,698 B raw / 10,201 B gz**, lazy add-on | 120,000 B / 40,000 B | `tools/check-budgets.mjs` |
@@ -332,7 +336,7 @@ for the two target fields). Firestore reads/writes/day stay at the table above.
 | Toolchains | none | **1.3 MB worker + 42.5 MB packs**, opt-in per language, `dsa-archive-runtime-v1` only | 48 MB | `tools/check-budgets.mjs` |
 
 The full cold shell is **~392 kB per uncached install**, so Spark Hosting's
-**360 MB/day** transfer allows **~918 cold installs per day** (down from the v1
+**360 MB/day** transfer allows **~916 cold installs per day** (down from the v1
 estimate of ~1,133 because the shell grew by ~74 kB — the packed catalogue,
 content UI, insight layer and two self-hosted fonts). Repeat opens and
 Airplane-Mode sessions hit the Service Worker cache at **0 B** of Hosting
