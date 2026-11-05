@@ -1,0 +1,32 @@
+{
+ "problemId": "count-the-number-of-set-bits",
+ "statement": "You receive a non-negative integer n. Print how many bits of n are set. Count with the erase identity - replace n by n AND n-1 until it reaches zero and count the turns - so that the loop runs once per set bit rather than once per bit position.",
+ "constraints": [
+  "0 ≤ n ≤ 1000000000",
+  "The input is a single integer on one line."
+ ],
+ "example": {
+  "input": "13\n",
+  "output": "3",
+  "why": "13 is 1101; three erase steps take it to 1100, then 1000, then 0."
+ },
+ "hint": "Each erase removes exactly the lowest set bit; the loop guard is simply n different from zero.",
+ "mistake": "Halving n and testing the remainder each turn - it works, but it runs thirty times on every input instead of once per one.",
+ "tests": [
+  {
+   "input": "13\n",
+   "expected": "3",
+   "note": "mixed bits"
+  },
+  {
+   "input": "0\n",
+   "expected": "0",
+   "note": "no set bits"
+  },
+  {
+   "input": "1023\n",
+   "expected": "10",
+   "note": "ten ones in a row"
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "problemId": "find-the-length-of-the-linked-list",
+ "statement": "Build a singly linked list from the given values and print how many nodes it contains. Count by walking the chain from the head until the next pointer runs out - the count must come from the walk, since a list in the wild does not carry its length with it.",
+ "constraints": [
+  "0 ≤ n ≤ 1000",
+  "-10000 ≤ each value ≤ 10000",
+  "When n is 0 the second input line is empty."
+ ],
+ "example": {
+  "input": "5\n2 4 6 8 10\n",
+  "output": "5",
+  "why": "The walker makes five visits before hitting the end of the chain."
+ },
+ "hint": "Initialise the counter at zero so the empty chain answers itself.",
+ "mistake": "Starting the counter at one to account for the head - an empty list then reports a ghost node.",
+ "tests": [
+  {
+   "input": "5\n2 4 6 8 10\n",
+   "expected": "5",
+   "note": "plain chain"
+  },
+  {
+   "input": "0\n\n",
+   "expected": "0",
+   "note": "empty chain"
+  },
+  {
+   "input": "1\n42\n",
+   "expected": "1",
+   "note": "single node"
+  }
+ ]
+}

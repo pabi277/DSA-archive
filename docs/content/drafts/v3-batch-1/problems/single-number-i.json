@@ -1,0 +1,33 @@
+{
+ "problemId": "single-number-i",
+ "statement": "You receive a row of integers in which every value appears exactly twice, apart from one value that appears once. Find that value in a single pass with constant extra memory: XOR all the values together. The pairs cancel to zero and the fold ends holding the single value. Print it.",
+ "constraints": [
+  "1 ≤ n ≤ 100000 and n is odd",
+  "-1000000000 ≤ each value ≤ 1000000000",
+  "Exactly one value appears once; all others appear exactly twice."
+ ],
+ "example": {
+  "input": "5\n4 1 2 1 2\n",
+  "output": "4",
+  "why": "1 XOR 1 and 2 XOR 2 both vanish, leaving only the 4 in the accumulator."
+ },
+ "hint": "Start the accumulator at zero - the identity element - and fold the whole row through it.",
+ "mistake": "Reaching for a hash map of counts; it works but spends the linear memory the task explicitly rules out.",
+ "tests": [
+  {
+   "input": "5\n4 1 2 1 2\n",
+   "expected": "4",
+   "note": "pairs around the loner"
+  },
+  {
+   "input": "1\n-9\n",
+   "expected": "-9",
+   "note": "row of one"
+  },
+  {
+   "input": "7\n0 5 0 7 5 7 3\n",
+   "expected": "3",
+   "note": "zero participates in a pair"
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "problemId": "upper-bound",
+ "statement": "You receive a sorted row of integers and a target integer. Print the upper bound of the target: the smallest index whose value is strictly greater than the target. If no such index exists, print n, the length of the row. Use binary search. Together with lower bound, this index brackets the block of values equal to the target.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-1000000 ≤ each value, target ≤ 1000000",
+  "The row is sorted ascending and may contain duplicates."
+ ],
+ "example": {
+  "input": "5\n2 4 4 4 9\n4\n",
+  "output": "4",
+  "why": "Index 4 holds 9, the first value strictly above 4; the three 4s end just before it."
+ },
+ "hint": "It is the lower-bound loop with one character changed: the test uses strictly greater instead of at least.",
+ "mistake": "Using greater-or-equal in the test - that computes lower bound and lands at the front of the duplicate block.",
+ "tests": [
+  {
+   "input": "5\n2 4 4 4 9\n4\n",
+   "expected": "4",
+   "note": "after the duplicate block"
+  },
+  {
+   "input": "5\n2 4 4 4 9\n9\n",
+   "expected": "5",
+   "note": "target is the maximum, print n"
+  },
+  {
+   "input": "5\n2 4 4 4 9\n0\n",
+   "expected": "0",
+   "note": "below the minimum"
+  }
+ ]
+}

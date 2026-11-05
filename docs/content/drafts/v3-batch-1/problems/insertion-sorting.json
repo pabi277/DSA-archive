@@ -1,0 +1,33 @@
+{
+ "problemId": "insertion-sorting",
+ "statement": "You receive a row of integers. Sort it into ascending order the way you sort cards in a hand: take the values one by one from left to right and walk each one leftwards past every strictly larger value until it sits in its place among the values already processed. Print the sorted values on one line, separated by single spaces.",
+ "constraints": [
+  "1 ≤ n ≤ 1000",
+  "-10000 ≤ each value ≤ 10000",
+  "Values may repeat."
+ ],
+ "example": {
+  "input": "5\n12 11 13 5 6\n",
+  "output": "5 6 11 12 13",
+  "why": "11 walks left past 12; 13 stays; 5 walks past everything; 6 stops just after 5."
+ },
+ "hint": "Shift larger values one slot right while walking; drop the card into the gap that remains.",
+ "mistake": "Comparing with greater-or-equal instead of greater - equal values then leapfrog each other and stability is lost.",
+ "tests": [
+  {
+   "input": "5\n12 11 13 5 6\n",
+   "expected": "5 6 11 12 13",
+   "note": "classic shuffle"
+  },
+  {
+   "input": "6\n2 1 2 1 2 1\n",
+   "expected": "1 1 1 2 2 2",
+   "note": "alternating duplicates"
+  },
+  {
+   "input": "2\n9 -9\n",
+   "expected": "-9 9",
+   "note": "two elements reversed"
+  }
+ ]
+}

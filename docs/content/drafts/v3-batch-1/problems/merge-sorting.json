@@ -1,0 +1,33 @@
+{
+ "problemId": "merge-sorting",
+ "statement": "You receive a row of integers. Sort it into ascending order with merge sort: split the row into halves until pieces hold one value, then repeatedly merge two sorted pieces by always taking the smaller head. Print the sorted values on one line, separated by single spaces.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-1000000 ≤ each value ≤ 1000000",
+  "Values may repeat."
+ ],
+ "example": {
+  "input": "6\n38 27 43 3 9 82\n",
+  "output": "3 9 27 38 43 82",
+  "why": "Halves 38 27 43 and 3 9 82 sort to 27 38 43 and 3 9 82, and the final merge zips them."
+ },
+ "hint": "The merge needs a scratch array; copy back after zipping, and take from the left piece on ties to stay stable.",
+ "mistake": "Forgetting to drain the leftover tail of one piece after the other piece runs out during a merge.",
+ "tests": [
+  {
+   "input": "6\n38 27 43 3 9 82\n",
+   "expected": "3 9 27 38 43 82",
+   "note": "classic shuffle"
+  },
+  {
+   "input": "5\n5 4 3 2 1\n",
+   "expected": "1 2 3 4 5",
+   "note": "fully reversed"
+  },
+  {
+   "input": "4\n7 7 7 7\n",
+   "expected": "7 7 7 7",
+   "note": "all equal"
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "problemId": "selection-sort",
+ "statement": "You receive a row of integers. Rearrange it into ascending order and print the result. Build the answer the selection way: repeatedly find the smallest value in the part that is still unsorted and swap it to the front border. Print the sorted values on one line, separated by single spaces.",
+ "constraints": [
+  "1 ≤ n ≤ 1000",
+  "-10000 ≤ each value ≤ 10000",
+  "Values may repeat."
+ ],
+ "example": {
+  "input": "5\n64 25 12 22 11\n",
+  "output": "11 12 22 25 64",
+  "why": "Pass by pass the minimum of the unsorted part moves to the border: 11 first, then 12, then 22."
+ },
+ "hint": "Track the index of the smallest value seen in the pass, and swap once after the pass ends.",
+ "mistake": "Swapping inside the scan every time a smaller value appears - that shuffles the row; select first, swap once.",
+ "tests": [
+  {
+   "input": "5\n64 25 12 22 11\n",
+   "expected": "11 12 22 25 64",
+   "note": "classic shuffle"
+  },
+  {
+   "input": "4\n3 3 1 3\n",
+   "expected": "1 3 3 3",
+   "note": "duplicates stay together"
+  },
+  {
+   "input": "1\n-7\n",
+   "expected": "-7",
+   "note": "single element"
+  }
+ ]
+}

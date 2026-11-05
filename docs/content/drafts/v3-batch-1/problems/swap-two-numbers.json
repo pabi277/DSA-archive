@@ -1,0 +1,32 @@
+{
+ "problemId": "swap-two-numbers",
+ "statement": "You receive two integers a and b. Swap them without any third variable by using XOR three times: a becomes a XOR b, then b becomes a XOR b, then a becomes a XOR b again. Print the two values after the swap, separated by a space. Convince yourself at each line which original value each name holds.",
+ "constraints": [
+  "-1000000000 ≤ a, b ≤ 1000000000",
+  "Both integers arrive on one line, separated by a space."
+ ],
+ "example": {
+  "input": "3 8\n",
+  "output": "8 3",
+  "why": "After the three XOR lines the names have exchanged their original values."
+ },
+ "hint": "Write the three lines symbolically: the second line computes a XOR b XOR b, and the pairs cancel.",
+ "mistake": "Applying the trick to one single storage slot aliased twice - the first XOR zeroes it and both values are lost.",
+ "tests": [
+  {
+   "input": "3 8\n",
+   "expected": "8 3",
+   "note": "plain swap"
+  },
+  {
+   "input": "-4 9\n",
+   "expected": "9 -4",
+   "note": "negative value"
+  },
+  {
+   "input": "5 5\n",
+   "expected": "5 5",
+   "note": "equal values in two slots"
+  }
+ ]
+}

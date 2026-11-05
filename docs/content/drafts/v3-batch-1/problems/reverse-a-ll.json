@@ -1,0 +1,32 @@
+{
+ "problemId": "reverse-a-ll",
+ "statement": "Build a singly linked list from the given values, reverse it by rewiring the next pointers - no copying values into an array - and print the reversed chain on one line, separated by single spaces. Walk the chain once, turning each arrow backwards as you pass.",
+ "constraints": [
+  "1 ≤ n ≤ 1000",
+  "-10000 ≤ each value ≤ 10000"
+ ],
+ "example": {
+  "input": "5\n1 2 3 4 5\n",
+  "output": "5 4 3 2 1",
+  "why": "Each node ends up pointing at its former predecessor, and the old tail becomes the head."
+ },
+ "hint": "Three names run the loop: previous, current and a saved next. Save next before turning the arrow.",
+ "mistake": "Turning current.next before saving it - the rest of the chain becomes unreachable on the spot.",
+ "tests": [
+  {
+   "input": "5\n1 2 3 4 5\n",
+   "expected": "5 4 3 2 1",
+   "note": "plain chain"
+  },
+  {
+   "input": "2\n1 2\n",
+   "expected": "2 1",
+   "note": "two nodes"
+  },
+  {
+   "input": "1\n3\n",
+   "expected": "3",
+   "note": "single node is its own reverse"
+  }
+ ]
+}

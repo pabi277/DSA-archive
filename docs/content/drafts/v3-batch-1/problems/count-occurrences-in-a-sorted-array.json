@@ -1,0 +1,33 @@
+{
+ "problemId": "count-occurrences-in-a-sorted-array",
+ "statement": "You receive a sorted row of integers and a target integer. Print how many times the target occurs. The row may be large and the block of equal values may be long, so the count must come from binary search arithmetic: the upper bound of the target minus its lower bound. A target that is absent prints 0.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-1000000 ≤ each value, target ≤ 1000000",
+  "The row is sorted ascending and may contain duplicates."
+ ],
+ "example": {
+  "input": "7\n1 2 2 2 2 3 5\n2\n",
+  "output": "4",
+  "why": "Lower bound of 2 is 1 and upper bound is 5; the difference counts the four 2s."
+ },
+ "hint": "No equality check is needed anywhere: the two flip points alone carry the whole answer.",
+ "mistake": "Subtracting first occurrence from last occurrence - that is one less than the count and fails on the absent case.",
+ "tests": [
+  {
+   "input": "7\n1 2 2 2 2 3 5\n2\n",
+   "expected": "4",
+   "note": "inner block"
+  },
+  {
+   "input": "7\n1 2 2 2 2 3 5\n4\n",
+   "expected": "0",
+   "note": "absent target"
+  },
+  {
+   "input": "5\n6 6 6 6 6\n6\n",
+   "expected": "5",
+   "note": "entire row"
+  }
+ ]
+}

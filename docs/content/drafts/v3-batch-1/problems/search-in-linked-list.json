@@ -1,0 +1,33 @@
+{
+ "problemId": "search-in-linked-list",
+ "statement": "Build a singly linked list from the given values, then search it for a target value. Print the number of hops from the head to the first node holding the target, counting the head as 0. If no node holds the target, print -1. The search must walk the pointers; the position must reflect the chain, so stop at the first hit.",
+ "constraints": [
+  "1 ≤ n ≤ 1000",
+  "-10000 ≤ each value, target ≤ 10000",
+  "Values may repeat."
+ ],
+ "example": {
+  "input": "5\n3 9 4 9 1\n9\n",
+  "output": "1",
+  "why": "The first 9 sits one hop from the head; the later 9 is no longer the answer."
+ },
+ "hint": "Carry the hop count in the same loop that walks; leave the loop the moment the value matches.",
+ "mistake": "Walking the whole chain and reporting the last match - the task asks for the first.",
+ "tests": [
+  {
+   "input": "5\n3 9 4 9 1\n9\n",
+   "expected": "1",
+   "note": "first of two hits"
+  },
+  {
+   "input": "5\n3 9 4 9 1\n5\n",
+   "expected": "-1",
+   "note": "absent"
+  },
+  {
+   "input": "2\n8 2\n8\n",
+   "expected": "0",
+   "note": "hit at the head"
+  }
+ ]
+}
