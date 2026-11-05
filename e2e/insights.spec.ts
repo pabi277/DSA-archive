@@ -85,19 +85,15 @@ async function seedAndReload(page: Page): Promise<string[]> {
 }
 
 /**
- * Set a date input the way React sees it. `fill()` is fine for text, but a
- * controlled `type="date"` field only commits through an `input` event that
- * carries React's own value setter.
+ * Set the finish line through the real control. `fill()` drives a date input the
+ * way a person does (and keeps React's value tracker honest); a hand-dispatched
+ * `input` event was flaky on a controlled `type="date"` field.
  */
 async function setTargetDate(page: Page, value: string) {
-  await page.getByTestId('target-date').evaluate((element, next) => {
-    const input = element as HTMLInputElement
-    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
-    setter?.call(input, next)
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-    input.dispatchEvent(new Event('change', { bubbles: true }))
-  }, value)
-  await expect(page.getByTestId('target-date')).toHaveValue(value)
+  const input = page.getByTestId('target-date')
+  await expect(input).toBeVisible()
+  await input.fill(value)
+  await expect(input).toHaveValue(value)
 }
 
 async function ownerUid(): Promise<string> {
