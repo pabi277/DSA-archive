@@ -1,18 +1,16 @@
 # Data model — DSA Archive website (Firebase-backed)
 
-> **v2 data-model work is landing phase by phase.** Phase 08 (owner merge gate pending)
-> adds two optional profile fields, `targetDate` and `targetListId`, under rules **v9** and
-> backup **schema v8**; no new collection and no extra read. Phase 02 merged in PR #13:
-> progress entries now support optional `o: clean|hint|couldnt`, Firestore rules are v5,
-> and backups are schema v4. Phase 03 merged in PR #14 (`e51695a`): the git catalogue is
-> `schemaVersion: 2`, with own-written learner-content JSON and practice-set files, and
-> synthetic `lc-<n>` keys admitted to the **existing** `progressByTopic` docs via a
-> regenerated rules whitelist. Phase 04 (implemented on `arena/25c78974-dsa-archive`,
-> owner merge gate pending) replaces the phase-3 `notes` collection with `snippets`
-> (saved solutions), advances the generated rules to **v6** and the backup to
-> **schema v5**; schemas 1–4 still import, with legacy notes migrated in §6. Later
-> changes remain planned: phase 05 adds quiz results; phase 06 adds snippet moments;
-> phase 08 adds target settings.
+> **v2 data-model version v5 (2026-11-05, phase v2-09 final audit).** Phases
+> v2-01…v2-08 are merged to `main`. The current shipped shape is **rules v9 /
+> backup schema v8**: `users/{uid}` (profile with optional `targetDate` /
+> `targetListId`), `progressByTopic/{topicId}`, `snippets/{problemId}` (with
+> optional `verdict` and `moments`), `quizResults/{topicId}`, `lists/{listId}`,
+> `plans/{date}`, `friends/{friendUid}`, `users/{uid}/public/summary`,
+> `invites/{code}`. **Phase v2-09 changes no Firestore
+> shape, no rule and no backup version**; it adds the deletion contract in §7,
+> recomputes the Spark quota in §4 and finalises the privacy copy. The staged
+> history below (v2-02 → v2-08) is kept as a migration record. See
+> [`docs/phases-v2/09-pwa-accessibility-hardening/RECORD.md`](phases-v2/09-pwa-accessibility-hardening/RECORD.md).
 
 
 > Plan-stage sketch (revised 2026-11-02 for the owner's Firebase
@@ -315,15 +313,39 @@ Rough day for owner + 5 friends, cache misses only (cache hits = 0):
 
 ≈1% of the free quota, and real usage is lower (repeat opens hit the
 persistent cache). Data stored: ~a few hundred KB/user ≪ 1 GiB.
-**Phase 6.2 Hosting transfer audit:** the full 19-file PWA precache shell
-is **317.66 kB gzip** (enforced by `npm run check:budgets` ≤ 335 kB gzip),
-allowing **~1,133 full cold uncached installs per day** inside Spark
-Hosting's **360 MB/day** cap; repeat opens and Airplane-Mode sessions hit
-the Service Worker cache at **0 B** of Hosting transfer.
+
+**Phase v2-09 final quota / privacy audit (2026-11-05).** The seven v2 shapes
+were re-counted against the *same* one-fat-read-on-login model; `snippets`,
+`quizResults`, `targetDate`, `targetListId` and the profile settings add **no new
+collection, no extra login read and no new quota path** (v2-08 recorded the same
+for the two target fields). Firestore reads/writes/day stay at the table above.
+
+| Bucket | v1 (2026-11-02) | v2 final (2026-11-05) | Cap | Where |
+|---|---|---|---|---|
+| Full precached shell | **317.66 kB gzip** | **392,136 B gzip** (18 precached URLs) | **393,000 B gzip** (owner-frozen, phase v2-08) | `tools/check-budgets.mjs` |
+| CSS | 26.86 kB raw / 6.30 kB gz | **60,282 B raw / 10,312 B gz** | 61,000 B raw / 18,000 B gz | `tools/check-budgets.mjs` |
+| Entry JS | 103.25 kB raw / 28.39 kB gz | **127,915 B raw / 36,934 B gz** | 180,000 B raw / 55,000 B gz | `tools/check-budgets.mjs` |
+| Largest single chunk | <500 kB single bundle | **457,704 B raw / 129,864 B gz** (Firestore SDK in its own chunk) | 520,000 B raw / 165,000 B gz | `tools/check-budgets.mjs` |
+| Fonts | 0 B (system fonts) | **57,496 B raw**, separate bucket, never precached | 60,000 B | `tools/check-budgets.mjs` |
+| Runner UI | none | **27,698 B raw / 10,201 B gz**, lazy add-on | 120,000 B / 40,000 B | `tools/check-budgets.mjs` |
+| Account/delete UI | none | **2,759 B raw / 1,318 B gz**, lazy add-on | 40,000 B / 15,000 B | `tools/check-budgets.mjs` |
+| Toolchains | none | **1.3 MB worker + 42.5 MB packs**, opt-in per language, `dsa-archive-runtime-v1` only | 48 MB | `tools/check-budgets.mjs` |
+
+The full cold shell is **~392 kB per uncached install**, so Spark Hosting's
+**360 MB/day** transfer allows **~918 cold installs per day** (down from the v1
+estimate of ~1,133 because the shell grew by ~74 kB — the packed catalogue,
+content UI, insight layer and two self-hosted fonts). Repeat opens and
+Airplane-Mode sessions hit the Service Worker cache at **0 B** of Hosting
+transfer. Toolchains are *never* served on a normal open: they are an explicit
+opt-in download whose bytes the learner sees before tapping, and they live
+outside the shell bucket. The SW's hash-versioned `dsa-archive-shell-<12 hex>`
+cache means an update downloads only changed files, not a whole new shell.
+
 Conclusion: **Spark is not a constraint at friend scale** — the real
 constraints are the *absence* on Spark of Functions/Storage, which
 this design never needs. Any future feature must re-run this table in
-its phase record before it is built.
+its phase record before it is built; **the 393 kB shell cap is frozen** and
+further growth is a gate, not another re-baseline.
 
 ## 5. Phase-0 extraction plan (one-time, unchanged, still phase 0)
 
@@ -344,7 +366,14 @@ its phase record before it is built.
    owner command); keep it there, outside every build, and never as
    a runtime input.
 
-## 6. Export / import (anti-lock-in — schema v6 since phase v2-05)
+## 6. Export / import (anti-lock-in — schema v8 since phase v2-08)
+
+> The prose below describes `schemaVersion: 6`, which is why it is kept verbatim:
+> it is the migration record for v2-05. The **current** writer is
+> **`schemaVersion: 8`** (phase v2-08), which adds the optional profile fields
+> `targetDate` and `targetListId` (an explicit `null` clears either) and nothing
+> else; `src/backup.ts` accepts schemas **1–8**. Phase v2-09 changes no backup
+> version. Rules stand at **v9**. No new collection, field or read.
 
 Export = one JSON file: `schemaVersion: 6`, `generatedBy`, `exportedAt`,
 profile settings (including the real `dailyGoal`), all `progressByTopic` rows
@@ -379,3 +408,43 @@ Progress outcomes (`o`) are preserved untouched. Symmetrically, a pre-v5 file th
 claims `snippets` content, or a v5 file that claims `notes` content, is refused
 rather than guessed. This is also the migration path off Firebase if the owner
 ever wants one — powerful must never mean trapped.
+
+---
+
+## 7. Data-model v5 — deletion contract & privacy (phase v2-09, 2026-11-05)
+
+The owner's clean-room rule and the "no lock-in" rule both need a real exit:
+`#/settings` now ships a two-step **Delete my data** control (a lazy
+`assets/account-*` add-on, never precached). `src/accountDelete.ts` is the single
+source of truth; `e2e/account-deletion.spec.ts` proves it against the real
+emulator and `src/accountDelete.test.ts` against a fake Firestore.
+
+| World | Removed on deletion | Deliberately kept |
+|---|---|---|
+| Firestore, per-user study | `progressByTopic/*`, `snippets/*`, `quizResults/*`, `lists/*`, `plans/*` | — |
+| Firestore, social | `friends/*`, the reciprocal `users/{friendUid}/friends/{myUid}`, `invites/{friendCode}` (when the profile carries a valid 32-hex capability), `users/{uid}/public/summary` | other users' own documents (never touched) |
+| Firestore, identity | `users/{uid}` **last**, so listeners in other tabs cannot recreate subcollections first; the caller signs out immediately afterwards | Auth account deletion itself (out of scope — no Functions on Spark) |
+| Local study records | `dsa-archive.progress.v1`, `.progress.updatedAt.v1`, `.quiz.v1`, `.detectors.v1`, `.speed.v1`, `dsa-archive.watch.v1` | `dsa-archive.settings.v1` (theme, `hideDone`, `targetDate`, `targetListId` are device preferences, not study data) |
+| Runner | — | `dsa-archive-runtime-v1` (an installed toolchain, not personal data; the learner clears it separately in Settings) |
+| Service Worker | — | the shell precache (public assets, not user data) |
+
+Deletion is **client-side, 400-document batches**, requires a signed-in session
+and therefore cannot run on a cold offline first launch. No rule was weakened:
+rules v9 already allow the owner to delete every named path, including the
+reciprocal friend link (`request.auth.uid == friendUid`) and the invite
+capability (`resource.data.uid == request.auth.uid`). **No new Firebase product,
+no Cloud Function, no analytics, no third-party request.** The Settings and
+README privacy copy lists the same seven paths; `tools/check-deadweight.mjs`
+fails CI if that section disappears, and `src/accountDelete.test.ts` pins the
+path list so code and copy cannot drift apart.
+
+**Network contract (§4 re-audit).** At runtime the app reaches only its own
+origin plus Firebase Auth/Firestore, and on `#/problem/<id>` with a video the
+official YouTube IFrame player (`www.youtube.com/iframe_api`,
+`www.youtube-nocookie.com`, `i.ytimg.com`, `*.googlevideo.com`). The oEmbed
+metadata is baked into `data/media/*.json` at build time and is **never fetched
+at runtime**. There is no analytics, tag manager, ad SDK, telemetry or error
+exporter. `e2e/network.spec.ts` records and aborts every cross-origin request
+and asserts zero on all 16 non-video routes and only YouTube-family hosts plus
+no tracker on the video route. `tools/csp.mjs` is the enforced allow-list;
+`e2e/csp.spec.ts` verifies it in report-only and enforced modes.

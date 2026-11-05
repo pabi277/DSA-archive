@@ -290,7 +290,16 @@ export type ToastMessage = {
   secondsLeft?: number
 }
 
-export function ToastHost({ toasts, onDismiss }: { toasts: ToastMessage[]; onDismiss: (id: number) => void }) {
+export function ToastHost({
+  toasts,
+  onDismiss,
+  children,
+}: {
+  toasts: ToastMessage[]
+  onDismiss: (id: number) => void
+  /** Phase v2-09: the SW update toast shares one host, so two fixed stacks never overlap. */
+  children?: ReactNode
+}) {
   return (
     <div className="toast-host" role="region" aria-label="Notifications" aria-live="polite">
       {toasts.map((toast) => (
@@ -315,6 +324,7 @@ export function ToastHost({ toasts, onDismiss }: { toasts: ToastMessage[]; onDis
           </button>
         </div>
       ))}
+      {children}
     </div>
   )
 }

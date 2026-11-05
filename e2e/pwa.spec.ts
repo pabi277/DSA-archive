@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { ALL_ROUTES, open, openTopic, auditPage } from './helpers'
+import { waitForServiceWorkerControl } from './matrix'
 
 /**
  * Roadmap phase 6 acceptance in real Chromium:
@@ -13,37 +14,6 @@ const emulatorProject = 'demo-dsa-archive'
 const phone = { width: 390, height: 844 }
 const desktop = { width: 1280, height: 900 }
 
-async function waitForServiceWorkerControl(page: Page) {
-  await page.evaluate(async () => {
-    if (!('serviceWorker' in navigator)) {
-      throw new Error('Service Worker is not supported in this browser')
-    }
-    await navigator.serviceWorker.ready
-    if (!navigator.serviceWorker.controller) {
-      await new Promise<void>((resolve, reject) => {
-        const timer = window.setTimeout(
-          () => reject(new Error('Service Worker did not claim the page in time')),
-          15_000,
-        )
-        navigator.serviceWorker.addEventListener(
-          'controllerchange',
-          () => {
-            window.clearTimeout(timer)
-            resolve()
-          },
-          { once: true },
-        )
-      })
-    }
-    const keys = await caches.keys()
-    const shellKey = keys.find((key) => key.startsWith('dsa-archive-shell-'))
-    if (!shellKey) throw new Error('Precache bucket dsa-archive-shell-* not found')
-    const cache = await caches.open(shellKey)
-    const indexHit = await cache.match('/index.html')
-    const offlineHit = await cache.match('/offline.html')
-    if (!indexHit || !offlineHit) throw new Error('Precache is missing /index.html or /offline.html')
-  })
-}
 
 /**
  * Audit steady-state colours, not a cross-fade.

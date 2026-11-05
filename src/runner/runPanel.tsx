@@ -95,6 +95,9 @@ export default function RunPanel({
   const [stdin, setStdin] = useState('')
   const [stdinOpen, setStdinOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  // Phase v2-09 offline matrix: a pack that was never installed cannot be
+  // downloaded in airplane mode. Say exactly that instead of blaming the deploy.
+  const [online, setOnline] = useState(() => typeof navigator === 'undefined' || navigator.onLine)
   const clientRef = useRef<RunnerClient | null>(null)
   const outputRef = useRef<HTMLPreElement>(null)
   const panelRef = useRef<HTMLElement>(null)
@@ -107,6 +110,23 @@ export default function RunPanel({
 
   useEffect(() => {
     injectRunnerStyles()
+  }, [])
+
+  useEffect(() => {
+    // The delivered event is authoritative: Chromium's offline emulation (and
+    // some captive-portal cases) can leave navigator.onLine stale for a beat.
+    const sync = (event?: Event) => {
+      if (event?.type === 'offline') setOnline(false)
+      else if (event?.type === 'online') setOnline(true)
+      else setOnline(navigator.onLine)
+    }
+    window.addEventListener('online', sync)
+    window.addEventListener('offline', sync)
+    sync()
+    return () => {
+      window.removeEventListener('online', sync)
+      window.removeEventListener('offline', sync)
+    }
   }, [])
 
   useEffect(() => {
@@ -404,6 +424,11 @@ export default function RunPanel({
         </>
       ) : null}
 
+      {!online && !installed ? (
+        <p className="run-note run-note-caution" data-testid="runner-offline" role="status">
+          Offline — the runner works here only if its pack is already cached on this device. Copy-out still works.
+        </p>
+      ) : null}
       {plan?.unavailable ? (
         <p className="run-note run-note-caution" data-testid="runner-unavailable">
           {plan.unavailable} You can still copy the code into Compiler Explorer.
@@ -453,6 +478,7 @@ export default function RunPanel({
           className="run-output"
           data-testid="runner-output"
           tabIndex={0}
+          role="region"
           aria-label="Program output"
           ref={outputRef}
         >

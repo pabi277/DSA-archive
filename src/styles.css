@@ -1131,14 +1131,6 @@ body {
   background: var(--overlay);
 }
 
-.sheet-top {
-  margin-top: 8vh;
-}
-
-.sheet-center {
-  margin: auto;
-}
-
 .palette-head {
   display: flex;
   align-items: center;
@@ -1212,6 +1204,13 @@ body {
 
 .palette-item.is-active svg {
   color: var(--action);
+}
+
+/* Phase v2-09: --subtle on the active --action-soft fill is 3.73:1 in dark
+   and 4.28:1 in light. The highlighted palette row must meet AA too. */
+.palette-item.is-active .palette-item-detail,
+.palette-item.is-active .palette-item-reason {
+  color: var(--muted);
 }
 
 .palette-item-label {
@@ -1914,7 +1913,6 @@ body {
 .settings-screen,
 .code-screen,
 .practice-screen,
-.quiz-screen,
 .insights-screen {
   display: grid;
   gap: var(--space-3);

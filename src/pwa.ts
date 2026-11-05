@@ -1,7 +1,8 @@
 /**
  * Phase 6.1 PWA shell helpers: route validation (so unknown paths render the
  * approved Not Found state online and offline), optional install prompt hook,
- * and production Service Worker registration.
+ * and production Service Worker registration. Phase v2-09 adds the two pure
+ * helpers behind the hash-versioned "New version ready — Reload" update flow.
  */
 import { useCallback, useEffect, useState } from 'react'
 
@@ -12,6 +13,28 @@ export interface BeforeInstallPromptEvent extends Event {
 
 export interface ServiceWorkerContainerLike {
   register: (scriptURL: string, options?: { scope?: string }) => Promise<unknown>
+}
+
+/** SW v2 message names (tools/build-sw.mjs emits the same literals). */
+export const SW_UPDATE_READY = 'DSA_UPDATE_READY'
+export const SW_SKIP_WAITING = 'SKIP_WAITING'
+
+/**
+ * A first install must activate immediately so an airplane-mode cold open
+ * works; it is not an "update" and must not interrupt the learner. Only a
+ * controlled tab that already has a live shell is offered Reload.
+ */
+export function shouldAnnounceUpdate(hasController: boolean): boolean {
+  return hasController
+}
+
+/** Accept only the message our own Service Worker posts, never arbitrary data. */
+export function isUpdateReadyMessage(data: unknown): boolean {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    (data as { type?: unknown }).type === SW_UPDATE_READY
+  )
 }
 
 /**
