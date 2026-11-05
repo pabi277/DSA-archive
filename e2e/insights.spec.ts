@@ -63,6 +63,13 @@ async function seedForgottenRows(): Promise<string[]> {
     })
     expect(response.ok).toBe(true)
   }
+  // Prove the write landed before any UI assertion, so a red run says
+  // "seeding" and not "chips".
+  const check = await fetch(`${firestore}/users/${uid}/progressByTopic/arrays`, {
+    headers: { Authorization: 'Bearer owner' },
+  })
+  const body = (await check.json()) as { fields?: Record<string, unknown> }
+  expect(Object.keys(body.fields ?? {})).toHaveLength(ids.length + 1)
   return ids
 }
 
@@ -159,6 +166,11 @@ test('the forgotten-done detector plans its rows and undo takes them back', asyn
   await freshOwner(page)
   const seeded = await seedAndReload(page)
 
+  // The same six rows are due for revision, which proves the app read the
+  // seeded shard before the detector is judged.
+  await open(page, '/#/review')
+  await expect(page.getByTestId(`due-item-${seeded[0]}`)).toBeVisible({ timeout: 20_000 })
+
   await open(page, '/#/today')
   const detector = page.getByTestId('detector-forgotten-done')
   await expect(detector).toContainText('6 problems marked done 30+ days ago and never revised')
@@ -192,7 +204,16 @@ test('#/insights reports momentum, one trajectory line and the two detectors', a
   // One sentence, and it answers to the target date it is given.
   const before = await page.getByTestId('insights-trajectory').innerText()
   expect(before.length).toBeGreaterThan(10)
-  await page.getByTestId('target-date').fill('2027-06-01')
+  // Set the day through React's own value setter: a date input is a controlled
+  // field, and only an `input` event reaches its onChange.
+  await page.getByTestId('target-date').evaluate((element, value) => {
+    const input = element as HTMLInputElement
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set
+    setter?.call(input, value)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+  }, '2027-06-01')
+  await expect(page.getByTestId('target-date')).toHaveValue('2027-06-01')
   await expect(page.getByTestId('insights-trajectory')).not.toHaveText(before)
 
   // Plan vs reality is arithmetic; the suggestion only appears when it is lower.
