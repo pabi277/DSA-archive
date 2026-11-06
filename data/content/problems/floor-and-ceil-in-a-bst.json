@@ -1,0 +1,32 @@
+{
+ "problemId": "floor-and-ceil-in-a-bst",
+ "statement": "A BST is given as: a line with n, then a line of n level-order entries where -1 marks an absent child; each placed node consumes the next two entries as its children. All stored values are distinct. A final line holds x. Print the floor (largest stored value at most x) and the ceil (smallest stored value at least x), separated by a space; print -1 for an answer that does not exist. Walk the search path once: stepping right past a value at most x updates the floor candidate, stepping left past a value at least x updates the ceil candidate, and equality sets both.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "Values and x are positive; -1 marks an absent child."
+ ],
+ "example": {
+  "input": "7\n8 5 12 2 7 -1 14\n6\n",
+  "output": "5 7",
+  "why": "Among 2 5 7 8 12 14, 5 is the largest value at most 6 and 7 the smallest at least 6."
+ },
+ "hint": "Two notebook variables, both starting at -1; the walk overwrites them as it turns.",
+ "mistake": "Stopping the walk when x itself is missing - the candidates collected so far are the whole answer.",
+ "tests": [
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n6\n",
+   "expected": "5 7",
+   "note": "between two stored values"
+  },
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n1\n",
+   "expected": "-1 2",
+   "note": "below the minimum"
+  },
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n15\n",
+   "expected": "14 -1",
+   "note": "above the maximum"
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+ "problemId": "assign-cookies",
+ "statement": "The first line holds n and m - children and cookies. The second line holds n greed values; the third holds m cookie sizes. A child is content with a cookie at least as big as their greed, and each cookie feeds at most one child. Print the maximum number of content children. Sort both lines ascending and sweep with two pointers: offer each cookie to the least demanding unfed child; if it satisfies them, both pointers advance, otherwise only the cookie moves on.",
+ "constraints": [
+  "1 ≤ n, m ≤ 100000",
+  "1 ≤ greed, size ≤ 1000000000"
+ ],
+ "example": {
+  "input": "3 2\n1 2 3\n1 1\n",
+  "output": "1",
+  "why": "A size-1 cookie contents the greed-1 child; the second size-1 cookie satisfies nobody left."
+ },
+ "hint": "Spending the smallest adequate cookie on the least demanding child wastes the least.",
+ "mistake": "Matching the greediest child first - satisfying them can burn a cookie two modest children needed.",
+ "tests": [
+  {
+   "input": "3 2\n1 2 3\n1 1\n",
+   "expected": "1",
+   "note": "cookies run short"
+  },
+  {
+   "input": "2 3\n1 2\n1 2 3\n",
+   "expected": "2",
+   "note": "everyone content"
+  },
+  {
+   "input": "3 3\n8 9 10\n5 6 7\n",
+   "expected": "0",
+   "note": "all cookies too small"
+  }
+ ]
+}

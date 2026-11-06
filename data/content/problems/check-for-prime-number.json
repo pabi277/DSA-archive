@@ -1,0 +1,32 @@
+{
+ "problemId": "check-for-prime-number",
+ "statement": "One line holds an integer n. Print yes when n is prime - exactly two divisors, 1 and itself - and no otherwise. Trial division needs to climb only to the square root of n: divisors come in pairs d and n over d, and the smaller partner of every pair sits at or below the root, so a clean sweep up there proves primality. Guard the small values first: anything below 2 is no prime, and 2 itself is the only even one.",
+ "constraints": [
+  "1 ≤ n ≤ 1000000000",
+  "A square-root loop is fast enough."
+ ],
+ "example": {
+  "input": "7\n",
+  "output": "yes",
+  "why": "Checks at 2 only (since 3 squared exceeds 7) find no divisor - 7 is prime."
+ },
+ "hint": "Loop while i times i stays at most n - no floating-point square root needed.",
+ "mistake": "Letting n = 1 fall through to yes; the loop body runs zero times and the guard must catch it.",
+ "tests": [
+  {
+   "input": "7\n",
+   "expected": "yes",
+   "note": "small prime"
+  },
+  {
+   "input": "1\n",
+   "expected": "no",
+   "note": "below two"
+  },
+  {
+   "input": "49\n",
+   "expected": "no",
+   "note": "square of a prime"
+  }
+ ]
+}

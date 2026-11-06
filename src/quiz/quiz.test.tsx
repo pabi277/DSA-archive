@@ -243,11 +243,13 @@ describe('QuizScreen & ResultScreen', () => {
     ).toContain('#/topic/arrays?tab=learn&section=')
   })
 
-  it('shows honest empty and missing states when a topic bank has 0 items or an invalid slug', () => {
+  it('shows the honest missing state for an invalid slug (and a live bank for every real topic)', () => {
     const { state } = makeQuizState()
+    // Since the 2026-11-06 promotion every catalogue topic carries a 12-item
+    // bank, so the "bank in authoring" empty state no longer occurs live; it
+    // stays in the component as the designed degrade for unauthored content.
     mount(<QuizScreen route={parseRoute('#/quiz/graphs')} quiz={state} />)
-    expect(q('[data-testid="screen-quiz-empty"]').textContent).toContain('12-item bank in authoring')
-    expect(q('[data-testid="screen-quiz-empty"]').textContent).toContain('theory concept checks are already live')
+    expect(q('[data-testid="screen-quiz-runner"]')).toBeTruthy()
 
     mount(<QuizScreen route={parseRoute('#/quiz/unknown-slug')} quiz={state} />)
     expect(q('[data-testid="screen-quiz-missing"]')).toBeTruthy()
@@ -300,10 +302,12 @@ describe('QuizHome', () => {
     mount(<QuizHome quiz={state} />)
 
     expect(qa('[data-testid^="quiz-home-topic-"]')).toHaveLength(20)
-    expect(q('[data-testid="quiz-view"]').textContent).toContain('Suggested next: Arrays')
+    // All 20 banks are live since the 2026-11-06 promotion: untaken topics
+    // rank by catalogue order, so the first topic is the suggestion.
+    expect(q('[data-testid="quiz-view"]').textContent).toContain('Suggested next: Beginner Problems')
     expect(q('[data-testid="quiz-home-topic-arrays"]').textContent).toContain('12 questions · pass ≥80%')
-    expect(q('[data-testid="quiz-home-topic-graphs"]').textContent).toContain('Open theory checks')
-    expect(q('[data-testid="quiz-home-topic-sorting"]').textContent).toContain('Open topic')
+    expect(q('[data-testid="quiz-home-topic-graphs"]').textContent).toContain('12 questions · pass ≥80%')
+    expect(q('[data-testid="quiz-home-topic-sorting"]').textContent).toContain('12 questions · pass ≥80%')
 
     state.recordAttempt('arrays', 11, 12)
     mount(<QuizHome quiz={state} />)

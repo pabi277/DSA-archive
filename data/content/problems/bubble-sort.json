@@ -1,0 +1,33 @@
+{
+ "problemId": "bubble-sort",
+ "statement": "You receive a row of integers. Sort it into ascending order by bubbling: sweep left to right and swap every neighbouring pair that is out of order. After one sweep the largest value of the unsorted part has reached its final slot, so each following sweep may stop one position earlier. If a whole sweep makes no swap, the row is sorted and you may stop early. Print the sorted values on one line, separated by single spaces.",
+ "constraints": [
+  "1 ≤ n ≤ 1000",
+  "-10000 ≤ each value ≤ 10000",
+  "Values may repeat."
+ ],
+ "example": {
+  "input": "4\n5 1 4 2\n",
+  "output": "1 2 4 5",
+  "why": "Sweep one parks the 5 at the end, sweep two parks the 4, and the final sweep confirms order."
+ },
+ "hint": "Keep a swapped flag per sweep; a clean sweep means you are done.",
+ "mistake": "Letting the inner loop reach the last index and comparing with the slot past the end of the row.",
+ "tests": [
+  {
+   "input": "4\n5 1 4 2\n",
+   "expected": "1 2 4 5",
+   "note": "classic shuffle"
+  },
+  {
+   "input": "5\n1 2 3 4 5\n",
+   "expected": "1 2 3 4 5",
+   "note": "already sorted, early exit"
+  },
+  {
+   "input": "3\n2 -1 2\n",
+   "expected": "-1 2 2",
+   "note": "negative and duplicate"
+  }
+ ]
+}

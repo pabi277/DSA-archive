@@ -1,0 +1,33 @@
+{
+ "problemId": "recursive-bubble-sort",
+ "statement": "You receive a row of integers. Sort it into ascending order with bubble sort written recursively: one call performs a single left-to-right sweep that swaps out-of-order neighbours, parking the largest value of the current range at its end; the call then recurses on the range that is one shorter. A range of one value is the base case. Print the sorted values on one line, separated by single spaces.",
+ "constraints": [
+  "1 ≤ n ≤ 1000",
+  "-10000 ≤ each value ≤ 10000",
+  "Values may repeat."
+ ],
+ "example": {
+  "input": "4\n9 2 7 1\n",
+  "output": "1 2 7 9",
+  "why": "Sweep one parks 9, the recursive call on the first three parks 7, and so on down to one value."
+ },
+ "hint": "The recursion mirrors the outer loop of the iterative version; the sweep is the same code either way.",
+ "mistake": "Recursing on the same length after a sweep - the recursion must shrink the range or it never reaches the base case.",
+ "tests": [
+  {
+   "input": "4\n9 2 7 1\n",
+   "expected": "1 2 7 9",
+   "note": "classic shuffle"
+  },
+  {
+   "input": "3\n1 2 3\n",
+   "expected": "1 2 3",
+   "note": "already sorted"
+  },
+  {
+   "input": "2\n0 -1\n",
+   "expected": "-1 0",
+   "note": "smallest case that swaps"
+  }
+ ]
+}

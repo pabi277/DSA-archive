@@ -1,0 +1,32 @@
+{
+ "problemId": "implement-queue-using-stack",
+ "statement": "Implement a queue using two stacks, an in-box and an out-box. push lands on the in-box. For pop and front, serve from the out-box - and only when the out-box is empty, move every element from the in-box onto it, which reverses them into arrival order. The first line holds q; each following line is push x, pop, front or size. Print the results of every pop, front and size, space-separated; the empty sentinel is -1. Each element crosses between stacks at most once, so operations cost amortized constant time.",
+ "constraints": [
+  "1 ≤ q ≤ 1000",
+  "-1000000 ≤ x ≤ 1000000"
+ ],
+ "example": {
+  "input": "7\npush 2\npush 5\npop\npush 9\npop\npop\npop\n",
+  "output": "2 5 9 -1",
+  "why": "The flip reverses 2 and 5 into arrival order; 9 crosses later in its own flip; the last pop meets emptiness."
+ },
+ "hint": "Flip only when the out-box is empty; elements already there are in correct order.",
+ "mistake": "Flipping on every operation - correctness survives, the amortized constant does not.",
+ "tests": [
+  {
+   "input": "7\npush 2\npush 5\npop\npush 9\npop\npop\npop\n",
+   "expected": "2 5 9 -1",
+   "note": "two flips, then empty"
+  },
+  {
+   "input": "4\npush 3\nfront\npop\nsize\n",
+   "expected": "3 3 0",
+   "note": "front then drain"
+  },
+  {
+   "input": "2\nfront\nsize\n",
+   "expected": "-1 0",
+   "note": "all empty"
+  }
+ ]
+}

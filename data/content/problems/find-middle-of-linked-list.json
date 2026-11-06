@@ -1,0 +1,32 @@
+{
+ "problemId": "find-middle-of-linked-list",
+ "statement": "Build a singly linked list from the given values and print the value of its middle node. When the list has an even number of nodes, print the second of the two middle values. Find the middle in one pass with two walkers: a slow one moving one hop per turn and a fast one moving two.",
+ "constraints": [
+  "1 ≤ n ≤ 1000",
+  "-10000 ≤ each value ≤ 10000"
+ ],
+ "example": {
+  "input": "6\n1 2 3 4 5 6\n",
+  "output": "4",
+  "why": "With six nodes the two middles are 3 and 4, and the second one is reported."
+ },
+ "hint": "Guard the loop on both fast and fast.next; the order of those two checks is load-bearing.",
+ "mistake": "Only checking fast.next - on even-length chains fast lands on null and the test itself crashes.",
+ "tests": [
+  {
+   "input": "6\n1 2 3 4 5 6\n",
+   "expected": "4",
+   "note": "even length, second middle"
+  },
+  {
+   "input": "5\n1 2 3 4 5\n",
+   "expected": "3",
+   "note": "odd length"
+  },
+  {
+   "input": "1\n9\n",
+   "expected": "9",
+   "note": "single node is its own middle"
+  }
+ ]
+}

@@ -1,7 +1,10 @@
 # Phase v2-10 — Release v2: docs, runbook, screenshots, deploy gate — RECORD
 
 **Branch:** `arena/9b4d2ec7-dsa-archive` (cut from `main` at `4f3bb94`, the merge of PR #21)
-**Contract:** [`PLAN.md`](PLAN.md) · **Status:** implemented; stopped at the owner's PR/merge gate
+**Contract:** [`PLAN.md`](PLAN.md) · **Status:** **merged** — PR #22, `main` = `72beb24`,
+CI green on the merge commit ([run #42081015465](https://github.com/pabi277/DSA-archive/actions/runs/42081015465));
+**deployed by the owner on 2026-11-06** to <https://dsa-archive.web.app> (rules v9 first,
+then Hosting — decision recorded in `docs/DECISIONS.md`)
 **CI:** [run #42071848080](https://github.com/pabi277/DSA-archive/actions/runs/42071848080) —
 **green**, every step, in 9m28s · **Tip sha:** `7193a8d1d97b8b174641536b5eca374c7ce0071f` ·
 **Artifacts:** `site-preview` **29,684,602 B** (carries the C++ toolchain) ·
@@ -16,10 +19,11 @@ fixed by pinning the v2 `name`/`short_name` pair) and `42069160190` was cancelle
 **Rules / backup:** **v9 / v8** — unchanged by this phase. No Firestore shape, rule or
 backup version was touched; `npm run check:rules` confirms `firestore.rules` is current
 for all 20 topics.
-**Deployed:** nothing. No PR, no merge, no `main` push, no tag, no Hosting command, no
-live Firebase command. Deploying is the owner's decision after walking
-[`docs/RELEASE-RUNBOOK.md`](../../RELEASE-RUNBOOK.md); that decision and its date go into
-`docs/DECISIONS.md` (PLAN §6).
+**Deployed:** by this phase and the agent — nothing; no tag, no Hosting command, no live
+Firebase command. **The owner then exercised the gate on 2026-11-06**: after reviewing
+and merging PR #22, they walked [`docs/RELEASE-RUNBOOK.md`](../../RELEASE-RUNBOOK.md)
+themselves (rules v9 → Hosting). The dated decision lives in `docs/DECISIONS.md` per
+PLAN §6; the Hosting release id stays in Firebase Console → Hosting → Releases.
 
 ---
 

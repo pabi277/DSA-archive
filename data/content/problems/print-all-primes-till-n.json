@@ -1,0 +1,32 @@
+{
+ "problemId": "print-all-primes-till-n",
+ "statement": "One line holds n (at least 2). Print every prime from 2 to n in increasing order, space-separated, using the sieve of Eratosthenes: an array of flags, everything from 2 presumed prime, and each surviving prime p striking out its multiples starting at p squared - smaller multiples of p fell earlier, to smaller primes. The outer loop needs to run only while p squared stays within n; everything still standing beyond that point is proven prime.",
+ "constraints": [
+  "2 ≤ n ≤ 1000000",
+  "Output fits easily within limits."
+ ],
+ "example": {
+  "input": "10\n",
+  "output": "2 3 5 7",
+  "why": "2 strikes 4, 6, 8, 10; then 3 strikes 9; the four survivors are the primes."
+ },
+ "hint": "Two loops over flags - the striking starts at p squared, and 0 and 1 are excused by hand.",
+ "mistake": "Running trial division per number; correct, but the sieve shares the work and runs in a blink at a million.",
+ "tests": [
+  {
+   "input": "10\n",
+   "expected": "2 3 5 7",
+   "note": "classic"
+  },
+  {
+   "input": "2\n",
+   "expected": "2",
+   "note": "smallest n"
+  },
+  {
+   "input": "30\n",
+   "expected": "2 3 5 7 11 13 17 19 23 29",
+   "note": "a longer read"
+  }
+ ]
+}

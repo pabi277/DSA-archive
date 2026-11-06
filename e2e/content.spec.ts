@@ -44,16 +44,15 @@ test('statement renders four blocks, ranked publishers and a local-only hint', a
   expect(jsonRequests).toEqual([])
 })
 
-test('missing statement and missing primer render designed states', async ({ page }) => {
+test('missing statement renders the designed state', async ({ page }) => {
+  // Since the 2026-11-06 promotion all 20 topics carry a primer, so the
+  // missing-primer state no longer occurs live (its degrade stays covered by
+  // the unit suite). A problem without an authored statement still exists.
   await page.setViewportSize(phone)
   await open(page, '/#/problem/two-sum')
   await expect(page.getByTestId('statement-missing')).toBeVisible()
   await expect(page.getByTestId('statement-further')).toBeVisible()
   await expect(page.getByTestId('hint-missing')).toBeVisible()
-
-  await open(page, '/#/topic/sorting')
-  await expect(page.getByTestId('topic-primer-missing')).toBeVisible()
-  await expect(page.getByTestId('topic-practice-cta')).toBeVisible()
 })
 
 test('Arrays is fully authored end to end and the quiz count is visible', async ({ page }) => {

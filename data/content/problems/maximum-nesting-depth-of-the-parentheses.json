@@ -1,0 +1,32 @@
+{
+ "problemId": "maximum-nesting-depth-of-the-parentheses",
+ "statement": "You receive one line holding a valid expression that may mix letters, digits, operators and round brackets. Print its nesting depth: the largest number of bracket pairs open at a single moment. Scan once, raise a counter on every (, lower it on every ), and record the highest value the counter reaches. Only brackets drive the counter; every other character passes through untouched.",
+ "constraints": [
+  "1 ≤ length ≤ 100000",
+  "All brackets in the expression are balanced."
+ ],
+ "example": {
+  "input": "(1+(2*3)+((8)/4))+1\n",
+  "output": "3",
+  "why": "The 8 sits inside three open pairs; at no moment are four pairs open."
+ },
+ "hint": "The answer is the counter's peak; its final value only confirms balance.",
+ "mistake": "Reporting the counter's final value - balance makes that 0 for every valid input.",
+ "tests": [
+  {
+   "input": "(1+(2*3)+((8)/4))+1\n",
+   "expected": "3",
+   "note": "mixed expression"
+  },
+  {
+   "input": "()(())\n",
+   "expected": "2",
+   "note": "two blocks"
+  },
+  {
+   "input": "abc\n",
+   "expected": "0",
+   "note": "no brackets"
+  }
+ ]
+}

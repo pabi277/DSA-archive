@@ -1,0 +1,32 @@
+{
+ "problemId": "check-if-a-number-is-power-of-2-or-not",
+ "statement": "You receive a positive integer n. Decide whether n is a power of two, meaning its binary row holds exactly one set bit. Use the erase identity: n AND n-1 removes the lowest set bit, so the result is zero exactly when that bit was the only one. Print 1 for a power of two and 0 otherwise.",
+ "constraints": [
+  "1 ≤ n ≤ 1000000000",
+  "The input is a single integer on one line."
+ ],
+ "example": {
+  "input": "64\n",
+  "output": "1",
+  "why": "64 is 1000000; erasing its only set bit leaves zero, which certifies the power of two."
+ },
+ "hint": "One subtract, one AND, one comparison with zero - resist the urge to loop.",
+ "mistake": "Dividing by two in a loop and declaring odd intermediate values failures - correct but slow, and easy to get off by one.",
+ "tests": [
+  {
+   "input": "64\n",
+   "expected": "1",
+   "note": "power of two"
+  },
+  {
+   "input": "96\n",
+   "expected": "0",
+   "note": "two set bits"
+  },
+  {
+   "input": "1\n",
+   "expected": "1",
+   "note": "two to the zero"
+  }
+ ]
+}

@@ -26,8 +26,14 @@ export const BUDGETS = {
   maxEntryJsGzipBytes: 55_000,
   maxSingleJsRawBytes: 520_000,
   maxSingleJsGzipBytes: 165_000,
-  /** Final shell cap — frozen in phase v2-09. Changing it is an owner GATE. */
-  maxShellGzipBytes: 393_000,
+  /**
+   * Shell cap — an owner GATE to change. Frozen at 393,000 B in phase v2-09;
+   * re-baselined 393,000 → 475,000 B by the owner on 2026-11-06 for the v3
+   * catalogue (hybrid precache split): all 20 topic primers + quizzes stay
+   * precached (measured 470,980 B gz), per-problem statements ride the lazy
+   * `assets/statements-*` add-on instead. docs/DECISIONS.md has the record.
+   */
+  maxShellGzipBytes: 475_000,
   /** Phase v2-07 add-on bucket, never precached. */
   maxRunnerChunkRawBytes: 120_000,
   maxRunnerChunkGzipBytes: 40_000,
@@ -36,6 +42,14 @@ export const BUDGETS = {
   /** Phase v2-09 on-demand account tools, never precached. */
   maxAccountChunkRawBytes: 40_000,
   maxAccountChunkGzipBytes: 15_000,
+  /**
+   * v3 hybrid precache split: per-problem statements/tests/hints ride a lazy
+   * add-on chunk so the catalogue can grow without touching the frozen shell.
+   * Sized for the full 20-topic catalogue (measured 127,832 B raw / 37,537 B gz
+   * on 2026-11-06) plus ~55% authoring headroom.
+   */
+  maxStatementsChunkRawBytes: 200_000,
+  maxStatementsChunkGzipBytes: 60_000,
 }
 
 /**
@@ -76,10 +90,13 @@ for (const rel of files) {
 }
 
 const isAddon = (rel) =>
-  rel.startsWith('runtime/') || rel.startsWith('assets/runner-') || rel.startsWith('assets/account-')
+  rel.startsWith('runtime/') ||
+  rel.startsWith('assets/runner-') ||
+  rel.startsWith('assets/account-') ||
+  rel.startsWith('assets/statements-')
 // Phase v2-10: the social card is not part of the app shell. Nothing in the app
 // requests it at runtime, so it is neither precached (tools/build-sw.mjs
-// NOT_SHELL) nor charged to the frozen 393,000 B shell budget.
+// NOT_SHELL) nor charged to the shell budget (475,000 B since the 2026-11-06 v3 gate).
 const isNotShell = (rel) => rel === 'og-image.png'
 const cssFiles = stats.filter((item) => item.rel.endsWith('.css') && !isAddon(item.rel))
 const jsAssets = stats.filter(
@@ -246,13 +263,25 @@ if (accountChunk.length === 0) {
   failures.push('the on-demand account tools chunk is missing from dist/assets/account-*.js')
 }
 
-for (const asset of [...fontAssets, ...runnerChunk, ...accountChunk, ...packAssets]) {
+// Statements add-on bucket (v3 hybrid precache split). Per-problem
+// statements/tests/hints ride a lazy chunk so the catalogue can grow without
+// touching the frozen shell; the SW serves it cache-first after first visit.
+const statementsChunk = stats.filter((item) => item.rel.startsWith('assets/statements-'))
+const statementsChunkRaw = statementsChunk.reduce((sum, item) => sum + item.raw, 0)
+const statementsChunkGzip = statementsChunk.reduce((sum, item) => sum + item.gzip, 0)
+check(statementsChunkRaw, BUDGETS.maxStatementsChunkRawBytes, 'Statements add-on chunk raw')
+check(statementsChunkGzip, BUDGETS.maxStatementsChunkGzipBytes, 'Statements add-on chunk gzip')
+if (statementsChunk.length === 0) {
+  failures.push('the lazy statements chunk is missing from dist/assets/statements-*.js')
+}
+
+for (const asset of [...fontAssets, ...runnerChunk, ...accountChunk, ...statementsChunk, ...packAssets]) {
   if (precacheList?.has(`/${asset.rel}`)) {
     failures.push(`dist/sw.js must not precache runtime asset /${asset.rel}`)
   }
 }
 const RUNTIME_MANIFESTS = new Set(['runtime/packs.json', 'runtime/runner/index.json'])
-for (const asset of [...runnerChunk, ...accountChunk, ...packAssets]) {
+for (const asset of [...runnerChunk, ...accountChunk, ...statementsChunk, ...packAssets]) {
   if (RUNTIME_MANIFESTS.has(asset.rel)) continue
   if (runtimeList && !runtimeList.has(`/${asset.rel}`)) {
     failures.push(`dist/sw.js must serve /${asset.rel} from the runtime cache`)
@@ -288,6 +317,7 @@ console.log(
     `    Fonts        ${fontRaw} B raw · cap ${BUDGETS.maxFontRawBytes} · separate bucket, never precached`,
     `    Runner UI    ${runnerChunkRaw} B raw / ${runnerChunkGzip} B gz · cap ${BUDGETS.maxRunnerChunkRawBytes} / ${BUDGETS.maxRunnerChunkGzipBytes} · lazy add-on`,
     `    Account UI   ${accountChunkRaw} B raw / ${accountChunkGzip} B gz · cap ${BUDGETS.maxAccountChunkRawBytes} / ${BUDGETS.maxAccountChunkGzipBytes} · lazy add-on`,
+    `    Statements   ${statementsChunkRaw.toLocaleString('en-US')} B raw / ${statementsChunkGzip.toLocaleString('en-US')} B gz · cap ${BUDGETS.maxStatementsChunkRawBytes} / ${BUDGETS.maxStatementsChunkGzipBytes} · lazy add-on (v3 split)`,
     `    Toolchains   ${(packRaw / 1000 / 1000).toFixed(1)} MB raw · cap ${BUDGETS.maxRuntimeAssetRawBytes / 1000 / 1000} MB · opt-in per language`,
     '',
     '  Shell parts (gzip kB): ' +

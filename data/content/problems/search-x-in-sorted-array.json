@@ -1,0 +1,33 @@
+{
+ "problemId": "search-x-in-sorted-array",
+ "statement": "You receive a sorted row of integers in ascending order and a target integer. Decide whether the target appears in the row using binary search: test the middle value, rule out the half that can no longer contain the target, and repeat on the remaining window. Print 1 if the target is present and 0 if it is absent.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-1000000 ≤ each value, target ≤ 1000000",
+  "The row is sorted ascending and may contain duplicates."
+ ],
+ "example": {
+  "input": "6\n1 3 5 7 9 11\n7\n",
+  "output": "1",
+  "why": "Mid value 5 is too small, so the left half is ruled out; the next window finds 7."
+ },
+ "hint": "After every comparison exactly one half plus the middle itself must leave the window.",
+ "mistake": "Moving a border to mid instead of past it - the window stops shrinking and the loop never ends.",
+ "tests": [
+  {
+   "input": "6\n1 3 5 7 9 11\n7\n",
+   "expected": "1",
+   "note": "present, right half"
+  },
+  {
+   "input": "6\n1 3 5 7 9 11\n4\n",
+   "expected": "0",
+   "note": "absent, falls between values"
+  },
+  {
+   "input": "1\n5\n5\n",
+   "expected": "1",
+   "note": "single element hit"
+  }
+ ]
+}

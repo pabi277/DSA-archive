@@ -4652,7 +4652,7 @@
                 {
                   "type": "practice",
                   "source": "leetcode",
-                  "url": "https://leetcode.com/problems/reorganize-string/",
+                  "url": "https://leetcode.com/problems/richest-customer-wealth/",
                   "label": "Near drill · LeetCode",
                   "rank": 1,
                   "verified": "2026-11-03",
@@ -13552,7 +13552,7 @@
                 {
                   "type": "practice",
                   "source": "leetcode",
-                  "url": "https://leetcode.com/problems/sum-of-two-integers/",
+                  "url": "https://leetcode.com/problems/non-overlapping-intervals/",
                   "label": "Near drill · LeetCode",
                   "rank": 1,
                   "verified": "2026-11-03",
@@ -18911,7 +18911,7 @@
                 {
                   "type": "practice",
                   "source": "leetcode",
-                  "url": "https://leetcode.com/problems/factorial-trailing-zeroes/",
+                  "url": "https://leetcode.com/problems/last-stone-weight/",
                   "label": "Near drill · LeetCode",
                   "rank": 1,
                   "verified": "2026-11-03",
@@ -18960,7 +18960,7 @@
                 {
                   "type": "practice",
                   "source": "leetcode",
-                  "url": "https://leetcode.com/problems/add-digits/",
+                  "url": "https://leetcode.com/problems/kth-largest-element-in-an-array/",
                   "label": "Near drill · LeetCode",
                   "rank": 1,
                   "verified": "2026-11-03",

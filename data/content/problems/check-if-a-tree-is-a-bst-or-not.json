@@ -1,0 +1,32 @@
+{
+ "problemId": "check-if-a-tree-is-a-bst-or-not",
+ "statement": "A tree is given as: a line with n, then a line of n level-order entries where -1 marks an absent child; each placed node consumes the next two entries as its children. Print yes when the tree is a valid BST - at every node, the entire left subtree is smaller and the entire right subtree larger - and no otherwise. Pass an allowed interval down: the root gets an unbounded one, a left child lowers the ceiling to the parent's value, a right child raises the floor. Checking only parent against children is the classic trap.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "Values are positive and distinct; -1 marks an absent child."
+ ],
+ "example": {
+  "input": "7\n8 5 12 2 7 -1 14\n",
+  "output": "yes",
+  "why": "Every node respects every ancestor turn; equivalently, inorder prints 2 5 7 8 12 14, strictly increasing."
+ },
+ "hint": "Either carry (low, high) ranges down, or inorder-walk and verify strictly increasing output.",
+ "mistake": "Comparing each node with its children only - a deep 9 under root 8 passes locally and breaks globally.",
+ "tests": [
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n",
+   "expected": "yes",
+   "note": "valid BST"
+  },
+  {
+   "input": "7\n1 2 3 4 5 -1 -1\n",
+   "expected": "no",
+   "note": "plain tree, order broken"
+  },
+  {
+   "input": "5\n1 -1 2 -1 3\n",
+   "expected": "yes",
+   "note": "right chain, increasing"
+  }
+ ]
+}

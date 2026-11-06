@@ -1,0 +1,32 @@
+{
+ "problemId": "maximum-points-you-can-obtain-from-cards",
+ "statement": "The first line holds n and k; the second holds n card values in a row. You must take exactly k cards, each from the left end or the right end of the row, scoring their sum. Print the maximum score. Flip the problem: the cards you leave form a contiguous window of fixed length n minus k, so the best play leaves the minimum-sum window of that length. Slide that fixed window across the row once, track its smallest sum, and subtract it from the total.",
+ "constraints": [
+  "1 ≤ k ≤ n ≤ 100000",
+  "1 ≤ each value ≤ 10000"
+ ],
+ "example": {
+  "input": "7 3\n1 2 3 4 5 6 1\n",
+  "output": "12",
+  "why": "Taking 1, 6 and 5 from the right scores 12; the three left cards score only 6."
+ },
+ "hint": "Fixed width means no shrink logic: add the entering value, subtract the leaving one.",
+ "mistake": "Greedily grabbing the bigger end card each turn - early picks can lock the best cards away.",
+ "tests": [
+  {
+   "input": "7 3\n1 2 3 4 5 6 1\n",
+   "expected": "12",
+   "note": "all from the right"
+  },
+  {
+   "input": "3 2\n2 2 2\n",
+   "expected": "4",
+   "note": "any two cards"
+  },
+  {
+   "input": "7 7\n9 7 7 9 7 7 9\n",
+   "expected": "55",
+   "note": "take everything"
+  }
+ ]
+}

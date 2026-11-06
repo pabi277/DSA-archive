@@ -25,8 +25,8 @@
 | Firestore rules | **v9** | `firestore.rules` (generated), `npm run check:rules` |
 | Backup schema | backup **v8**, accepts schemas **1 → 8** | `src/backup.ts`, `src/backup.test.ts` |
 | Catalogue | 495 rows · 20 topics · schemaVersion 2 | `npm run test:data` |
-| Content | 1 primer, 6 statements, 6 hints/mistakes, 12 quiz items, 42 theory MCQs, 136 drills | `npm run check:content`, `docs/content/coverage.md` |
-| Budgets | shell **393,000 B** gzip cap (measured 392,739 B) · CSS 61,000 B raw | `npm run check:budgets` |
+| Content | 20 primers, 116 statements, 116 hints/mistakes, 240 quiz items, 42 theory MCQs, 136 drills | `npm run check:content`, `docs/content/coverage.md` |
+| Budgets | shell **475,000 B** gzip cap (measured 470,980 B; owner re-baseline 2026-11-06) · CSS 61,000 B raw · statements add-on 60,000 B gz | `npm run check:budgets` |
 | CSP | 19 directives, enforced; `frame-src` YouTube, `worker-src` blob | `tools/csp.mjs`, `npm run check:csp` |
 | Versions in docs | one story across README/CHANGELOG/DATA-MODEL/ROADMAP | `npm run check:docs` |
 
@@ -59,6 +59,24 @@ Emulator-backed suites (needs Java 21 + Chromium — CI does this for you):
 npm run test:rules         # Firestore security-rules tests
 npm run test:emulator      # rules + all Playwright specs (axe, offline, CSP, deletion)
 ```
+
+> **Verifying from an Android phone (Termux) — learned on the 2.0.0 release
+> walkthrough.** The source-level checks (`test:data`, `check:content`,
+> `check:rules`, `check:docs`, `check:screenshots`, `check:hardening`, `npm test`)
+> all run fine on a phone. **`npm run build` cannot:** TypeScript 7 ships the
+> compiler as per-platform native binaries and there is no
+> `@typescript/typescript-android-arm64` package, so `tsc -b` fails before Vite
+> starts. Consequences:
+> 1. Build and deploy from a laptop or Cloud Shell (Options A/B below) — never
+>    from the phone.
+> 2. On the phone, `rm -rf dist` first, and **skip** `check:dist`,
+>    `check:links` and `check:budgets` — against a stale `dist/` they report
+>    the staleness of that old build, not the state of the release.
+> 3. A slow device can need >6 s for the heaviest unit test; the vitest
+>    timeout is sized for that (30 s, `vite.config.ts`), so a clean run is
+>    slow there but not red. If you ever see one timeout followed by a cascade
+>    of `missing element` failures in the same file, treat it as device speed,
+>    and trust the CI run on the same commit.
 
 - [ ] All of the above green on the commit you are deploying.
 - [ ] `git status` clean; you know the tip sha (the phase record has it).

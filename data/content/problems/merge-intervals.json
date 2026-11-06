@@ -1,0 +1,32 @@
+{
+ "problemId": "merge-intervals",
+ "statement": "The first line holds n; each of the next n lines holds an interval as two integers l and r. Merge every pair of overlapping or touching intervals and print the result, one merged interval per line as l and r separated by a space, sorted by left end. Sort the intervals by l and sweep: keep a current interval, extend its right end while the next interval starts at or before it, and emit it when a gap appears. Touching intervals - one ends where the next begins - merge into one.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "0 ≤ l ≤ r ≤ 1000000000"
+ ],
+ "example": {
+  "input": "4\n1 3\n2 6\n8 10\n15 18\n",
+  "output": "1 6\n8 10\n15 18",
+  "why": "1-3 and 2-6 overlap and fuse into 1-6; the other two stand apart."
+ },
+ "hint": "After sorting, a single comparison per interval decides: extend the current one, or emit and restart.",
+ "mistake": "Extending with the new right end unconditionally - a contained interval like 2-4 inside 1-6 must shrink nothing.",
+ "tests": [
+  {
+   "input": "4\n1 3\n2 6\n8 10\n15 18\n",
+   "expected": "1 6\n8 10\n15 18",
+   "note": "classic merge"
+  },
+  {
+   "input": "2\n1 4\n4 5\n",
+   "expected": "1 5",
+   "note": "touching intervals fuse"
+  },
+  {
+   "input": "1\n5 6\n",
+   "expected": "5 6",
+   "note": "single interval"
+  }
+ ]
+}

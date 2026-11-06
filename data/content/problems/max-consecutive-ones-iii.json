@@ -1,0 +1,33 @@
+{
+ "problemId": "max-consecutive-ones-iii",
+ "statement": "The first line holds n and k; the second holds n bits. Print the length of the longest contiguous run of 1s obtainable by flipping at most k 0s. Keep a window containing at most k zeros: advance the right end each step, counting zeros that enter; while the count exceeds k, advance the left end, decrementing the count whenever a 0 leaves. The widest window seen is the answer - nothing is actually flipped.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "0 ≤ k ≤ n",
+  "Each bit is 0 or 1."
+ ],
+ "example": {
+  "input": "11 2\n1 1 1 0 0 0 1 1 1 1 0\n",
+  "output": "6",
+  "why": "Flipping the zeros at indices 5 and 10 makes the final six positions all 1."
+ },
+ "hint": "The budget is spent by zeros inside the window; ones are free and extend it for nothing.",
+ "mistake": "Resetting the window to empty when a zero too many enters; slide the left end instead.",
+ "tests": [
+  {
+   "input": "11 2\n1 1 1 0 0 0 1 1 1 1 0\n",
+   "expected": "6",
+   "note": "spend both flips late"
+  },
+  {
+   "input": "19 3\n0 0 1 1 0 0 1 1 1 0 1 1 0 0 0 1 1 1 1\n",
+   "expected": "10",
+   "note": "budget of three"
+  },
+  {
+   "input": "4 0\n1 1 1 1\n",
+   "expected": "4",
+   "note": "no budget needed"
+  }
+ ]
+}

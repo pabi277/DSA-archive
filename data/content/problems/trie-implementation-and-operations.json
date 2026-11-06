@@ -1,0 +1,32 @@
+{
+ "problemId": "trie-implementation-and-operations",
+ "statement": "The first line holds q. Each of the next q lines is one of: insert w, search w, prefix w. Execute them against a trie that starts empty and print the results of every search and prefix on one line, space-separated, as yes or no. search w asks whether w was inserted as a whole word; prefix w asks whether any inserted word starts with w. Reaching a node proves a prefix exists - only the end-of-word flag proves a word ends there.",
+ "constraints": [
+  "1 ≤ q ≤ 10000",
+  "Words are lowercase, length 1 to 20."
+ ],
+ "example": {
+  "input": "6\ninsert apple\nsearch apple\nsearch app\nprefix app\ninsert app\nsearch app\n",
+  "output": "yes no yes yes",
+  "why": "app is a prefix of apple but no word, until its own insert flips the flag."
+ },
+ "hint": "One walk serves all three operations; they differ only in what the final node must prove.",
+ "mistake": "Answering search from path-existence alone - every prefix of a stored word then counts as a word.",
+ "tests": [
+  {
+   "input": "6\ninsert apple\nsearch apple\nsearch app\nprefix app\ninsert app\nsearch app\n",
+   "expected": "yes no yes yes",
+   "note": "prefix vs word"
+  },
+  {
+   "input": "3\nsearch x\ninsert x\nsearch x\n",
+   "expected": "no yes",
+   "note": "before and after"
+  },
+  {
+   "input": "4\ninsert ab\nprefix abc\nprefix ab\nsearch abc\n",
+   "expected": "no yes no",
+   "note": "prefix of nothing"
+  }
+ ]
+}

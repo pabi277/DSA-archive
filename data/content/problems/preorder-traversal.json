@@ -1,0 +1,32 @@
+{
+ "problemId": "preorder-traversal",
+ "statement": "A tree is given as: a line with n, then a line of n level-order entries where -1 marks an absent child; each placed node consumes the next two entries as its left and right children. Print the preorder traversal - root, then the whole left subtree, then the whole right subtree - as space-separated values. Preorder announces every node before anything inside its subtrees, which is why it is the order used to copy or serialise a tree.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "Node values are positive; -1 marks an absent child."
+ ],
+ "example": {
+  "input": "7\n1 2 3 4 5 -1 -1\n",
+  "output": "1 2 4 5 3",
+  "why": "Root 1 first, then the left subtree 2, 4, 5 under the same discipline, then the right subtree 3."
+ },
+ "hint": "Three lines: visit, recurse left, recurse right - and the empty tree does nothing.",
+ "mistake": "Emitting the node between or after the recursions; that is inorder or postorder instead.",
+ "tests": [
+  {
+   "input": "7\n1 2 3 4 5 -1 -1\n",
+   "expected": "1 2 4 5 3",
+   "note": "small bushy tree"
+  },
+  {
+   "input": "1\n5\n",
+   "expected": "5",
+   "note": "single node"
+  },
+  {
+   "input": "5\n3 2 -1 1 -1\n",
+   "expected": "3 2 1",
+   "note": "left chain"
+  }
+ ]
+}

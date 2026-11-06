@@ -1,0 +1,32 @@
+{
+ "problemId": "lemonade-change",
+ "statement": "The first line holds n; the second holds n bills in arrival order, each 5, 10 or 20. Lemonade costs 5 and the till starts empty, so a customer paying 10 needs 5 back and one paying 20 needs 15 back. Print yes when every customer can be given exact change and no otherwise. Track the counts of 5s and 10s. The greedy twist: change a 20 with a 10 plus a 5 when possible, and only otherwise with three 5s - the 5 is the flexible bill every future customer may need.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "Each bill is 5, 10 or 20."
+ ],
+ "example": {
+  "input": "5\n5 5 5 10 20\n",
+  "output": "yes",
+  "why": "The 10 takes one 5 back; the 20 takes the 10 plus a 5, and the till survives everyone."
+ },
+ "hint": "Twenties are hoarded, tens serve only twenties, fives serve everyone - spend in that order of rigidity.",
+ "mistake": "Breaking a 20 with three 5s while a 10 sits idle; the next 10-payer then finds an empty till.",
+ "tests": [
+  {
+   "input": "5\n5 5 5 10 20\n",
+   "expected": "yes",
+   "note": "classic survivable day"
+  },
+  {
+   "input": "5\n5 5 10 10 20\n",
+   "expected": "no",
+   "note": "both 5s consumed as change"
+  },
+  {
+   "input": "3\n5 5 10\n",
+   "expected": "yes",
+   "note": "small happy day"
+  }
+ ]
+}

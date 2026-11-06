@@ -1,0 +1,32 @@
+{
+ "problemId": "generate-binary-strings-without-consecutive-1s",
+ "statement": "The first line holds n. Print every binary string of length n that has no two 1s side by side, in increasing lexicographic order, separated by single spaces on one line. Build them recursively: at each position try 0 and then 1, and allow a 1 only when the previously placed character was 0 or the string is still empty. Trying 0 before 1 makes the output lexicographic automatically.",
+ "constraints": [
+  "1 ≤ n ≤ 15",
+  "Output strings are separated by single spaces."
+ ],
+ "example": {
+  "input": "3\n",
+  "output": "000 001 010 100 101",
+  "why": "Five strings of length 3 avoid adjacent 1s; 011, 110 and 111 all fail."
+ },
+ "hint": "Carry one boolean down the recursion - whether the last placed character was a 1.",
+ "mistake": "Building all strings and scanning each for 11 at the leaf, instead of pruning while placing.",
+ "tests": [
+  {
+   "input": "3\n",
+   "expected": "000 001 010 100 101",
+   "note": "five of eight survive"
+  },
+  {
+   "input": "2\n",
+   "expected": "00 01 10",
+   "note": "three of four"
+  },
+  {
+   "input": "1\n",
+   "expected": "0 1",
+   "note": "both singles allowed"
+  }
+ ]
+}

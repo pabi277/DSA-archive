@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { catalogue, catalogueProblems } from '../catalogue'
 import {
   contentCoverage,
@@ -20,7 +20,12 @@ import {
   sanitizeStatement,
   sanitizeTheoryMcq,
   sanitizeTopicContent,
+  statementsReady,
 } from './load'
+
+// Hybrid precache split: statements arrive from a lazy add-on chunk, so the
+// suite waits for it once — exactly what the app does on a problem visit.
+beforeAll(() => statementsReady())
 
 describe('shape-sanitised learner content', () => {
   it('tolerates garbage without throwing or leaking unsafe shapes', () => {
@@ -65,16 +70,20 @@ describe('coverage facts and authored sample', () => {
     expect(facts.asOf).toBe('2026-11-03')
     expect(facts.leetcodeTwins).toBe(420)
     expect(facts.drills).toBe(136)
-    expect(facts.quizItems).toBe(12)
+    expect(facts.quizItems).toBe(240)
   })
 
   it('loads one fully authored topic end to end and leaves missing content designed', () => {
     expect(getTopicPatterns('arrays')).toHaveLength(3)
     expect(getPrimer('arrays')).not.toBeNull()
-    expect(getPrimer('sorting')).toBeNull()
+    // Since the 2026-11-06 promotion every topic is authored; the designed
+    // null degrade is still exercised with an id that cannot exist.
+    expect(getPrimer('sorting')).not.toBeNull()
+    expect(getPrimer('no-such-topic')).toBeNull()
     expect(getQuiz('arrays')).toHaveLength(12)
     expect(getQuiz('arrays').every((item) => item.options.length === 4 && item.options.every((option) => option.explain))).toBe(true)
-    expect(getQuiz('sorting')).toEqual([])
+    expect(getQuiz('sorting')).toHaveLength(12)
+    expect(getQuiz('no-such-topic')).toEqual([])
 
     const statement = getStatement('linear-search')
     expect(statement).not.toBeNull()

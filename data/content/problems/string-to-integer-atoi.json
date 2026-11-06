@@ -1,0 +1,32 @@
+{
+ "problemId": "string-to-integer-atoi",
+ "statement": "You receive one line. Read an integer from its start the way atoi does: skip leading spaces, accept one optional + or -, then consume digits while they last. Everything after the digits is ignored. Clamp the result into the 32-bit range, -2147483648 to 2147483647, and print it. When no digit is found at the expected place, print 0.",
+ "constraints": [
+  "1 ≤ length ≤ 200",
+  "Characters are printable ASCII."
+ ],
+ "example": {
+  "input": "   -42 apples\n",
+  "output": "-42",
+  "why": "Spaces are skipped, the sign is taken, 42 is read, and the text after it is ignored."
+ },
+ "hint": "Test the clamp before multiplying by ten; in fixed-width arithmetic afterwards is too late.",
+ "mistake": "Accepting a sign after a digit or a second sign - the scan must stop there instead.",
+ "tests": [
+  {
+   "input": "   -42 apples\n",
+   "expected": "-42",
+   "note": "spaces, sign, trailing text"
+  },
+  {
+   "input": "4193 with words\n",
+   "expected": "4193",
+   "note": "plain prefix"
+  },
+  {
+   "input": "-91283472332\n",
+   "expected": "-2147483648",
+   "note": "clamped below"
+  }
+ ]
+}

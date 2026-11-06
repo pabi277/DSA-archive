@@ -1,0 +1,32 @@
+{
+ "problemId": "balanced-paranthesis",
+ "statement": "You receive one line holding a string of the six bracket characters ( ) [ ] { }. Print yes when the string is balanced - every opener is closed by the matching closer in the correct nesting order - and no otherwise. Use a stack: push every opener; on a closer, the stack must be non-empty and its top must be the matching opener, which is then popped. After the scan the stack must be empty.",
+ "constraints": [
+  "1 ≤ length ≤ 100000",
+  "Only the six bracket characters appear."
+ ],
+ "example": {
+  "input": "([{}])\n",
+  "output": "yes",
+  "why": "Each closer meets its own opener at the top: } closes {, ] closes [, ) closes (."
+ },
+ "hint": "Two failure doors: a closer on an empty stack, and leftovers on the stack at the end.",
+ "mistake": "Counting openers against closers; the counts of ([)] match although the nesting is broken.",
+ "tests": [
+  {
+   "input": "([{}])\n",
+   "expected": "yes",
+   "note": "proper nesting"
+  },
+  {
+   "input": "([)]\n",
+   "expected": "no",
+   "note": "interleaved types"
+  },
+  {
+   "input": "((\n",
+   "expected": "no",
+   "note": "unanswered openers"
+  }
+ ]
+}

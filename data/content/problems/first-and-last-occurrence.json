@@ -1,0 +1,33 @@
+{
+ "problemId": "first-and-last-occurrence",
+ "statement": "You receive a sorted row of integers and a target integer. Print two numbers separated by a space: the index of the first occurrence of the target and the index of the last occurrence. If the target is absent, print -1 -1. Two binary searches solve it; one search that stops on any equality does not.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-1000000 ≤ each value, target ≤ 1000000",
+  "The row is sorted ascending and may contain duplicates."
+ ],
+ "example": {
+  "input": "6\n5 7 7 8 8 10\n8\n",
+  "output": "3 4",
+  "why": "The 8s occupy indices 3 and 4; the first search hunts left, the second hunts right."
+ },
+ "hint": "Run the remembered-answer loop twice: once continuing left after a hit, once continuing right.",
+ "mistake": "Walking linearly outward from one found index - a row of all target values turns that walk into n steps.",
+ "tests": [
+  {
+   "input": "6\n5 7 7 8 8 10\n8\n",
+   "expected": "3 4",
+   "note": "block of two"
+  },
+  {
+   "input": "6\n5 7 7 8 8 10\n6\n",
+   "expected": "-1 -1",
+   "note": "absent"
+  },
+  {
+   "input": "4\n3 3 3 3\n3\n",
+   "expected": "0 3",
+   "note": "whole row is the block"
+  }
+ ]
+}

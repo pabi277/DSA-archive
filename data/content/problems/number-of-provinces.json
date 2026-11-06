@@ -1,0 +1,32 @@
+{
+ "problemId": "number-of-provinces",
+ "statement": "The first line holds n. The next n lines each hold n digits (0 or 1, space-separated): the adjacency matrix of n cities, where 1 means two cities are directly connected; the diagonal is 1. A province is a maximal group of cities reachable from each other. Print the number of provinces. Scan all cities; every time an unvisited one appears, count a new province and let a BFS or DFS swallow its whole group.",
+ "constraints": [
+  "1 ≤ n ≤ 500",
+  "The matrix is symmetric with 1s on the diagonal."
+ ],
+ "example": {
+  "input": "3\n1 1 0\n1 1 0\n0 0 1\n",
+  "output": "2",
+  "why": "Cities 0 and 1 connect to each other; city 2 connects only to itself."
+ },
+ "hint": "The outer loop over all cities is the algorithm; the walk is just the eater.",
+ "mistake": "Launching one walk from city 0 and reporting what it saw - that counts one province, always.",
+ "tests": [
+  {
+   "input": "3\n1 1 0\n1 1 0\n0 0 1\n",
+   "expected": "2",
+   "note": "pair plus loner"
+  },
+  {
+   "input": "2\n1 1\n1 1\n",
+   "expected": "1",
+   "note": "all connected"
+  },
+  {
+   "input": "3\n1 0 0\n0 1 0\n0 0 1\n",
+   "expected": "3",
+   "note": "no edges at all"
+  }
+ ]
+}

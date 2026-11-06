@@ -1,0 +1,32 @@
+{
+ "problemId": "longest-substring-without-repeating-characters",
+ "statement": "You receive one line holding a string s. Print the length of its longest substring in which every character is distinct. Slide a window: the right end advances one character per step, and a map remembers each character's most recent position. When the incoming character already occurs at or after the left end, move the left end to one past that earlier copy. Record the window's width after every step - this window is always valid.",
+ "constraints": [
+  "1 ≤ length ≤ 100000",
+  "Characters are lowercase letters and digits."
+ ],
+ "example": {
+  "input": "abcabcbb\n",
+  "output": "3",
+  "why": "abc is repeat-free, and every length-4 window of this string contains a duplicate."
+ },
+ "hint": "The left end only moves forward: take the larger of its current value and one past the repeat.",
+ "mistake": "Clearing the whole map when a repeat appears; only the left boundary needs to move.",
+ "tests": [
+  {
+   "input": "abcabcbb\n",
+   "expected": "3",
+   "note": "classic"
+  },
+  {
+   "input": "bbbbb\n",
+   "expected": "1",
+   "note": "all identical"
+  },
+  {
+   "input": "pwwkew\n",
+   "expected": "3",
+   "note": "repeat mid-string"
+  }
+ ]
+}

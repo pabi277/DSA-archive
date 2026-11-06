@@ -24,9 +24,11 @@ test('all topic cards open full topic pages with working placeholder tabs', asyn
   await expect(page.getByTestId('topic-quiz-count')).toContainText('12/12 topic quiz items')
   await expect(page.getByTestId('topic-quiz-start')).toBeEnabled()
 
+  // Since the 2026-11-06 promotion every topic carries a 12-item bank, so the
+  // pending state no longer occurs live — sorting is ready like arrays.
   await open(page, '/#/topic/sorting?tab=quiz')
-  await expect(page.getByTestId('topic-quiz-pending')).toBeVisible()
-  await expect(page.getByTestId('topic-quiz-start')).toBeDisabled()
+  await expect(page.getByTestId('topic-quiz-ready')).toBeVisible()
+  await expect(page.getByTestId('topic-quiz-start')).toBeEnabled()
 })
 
 test('search from Today keeps matches grouped under their owning topic', async ({ page }) => {

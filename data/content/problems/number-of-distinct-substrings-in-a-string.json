@@ -1,0 +1,32 @@
+{
+ "problemId": "number-of-distinct-substrings-in-a-string",
+ "statement": "One line holds a string s of lowercase letters. Print the number of distinct non-empty substrings of s. Insert every suffix of s into a trie, one character at a time, counting the nodes created: each new node is a prefix of a suffix that no earlier insertion spelled - which is exactly one distinct substring. The total nodes created is the answer, and the construction is the count.",
+ "constraints": [
+  "1 ≤ length ≤ 1000",
+  "Lowercase letters only."
+ ],
+ "example": {
+  "input": "abab\n",
+  "output": "7",
+  "why": "a, b, ab, ba, aba, bab and abab - seven distinct substrings in all."
+ },
+ "hint": "Count node creations during insertion; no second pass over the trie is needed.",
+ "mistake": "Counting all n(n+1)/2 substrings without deduplication - aaa has six substrings but only three distinct.",
+ "tests": [
+  {
+   "input": "abab\n",
+   "expected": "7",
+   "note": "repeats collapse"
+  },
+  {
+   "input": "aaa\n",
+   "expected": "3",
+   "note": "a, aa, aaa"
+  },
+  {
+   "input": "ab\n",
+   "expected": "3",
+   "note": "tiny case"
+  }
+ ]
+}

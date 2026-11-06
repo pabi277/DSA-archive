@@ -1,0 +1,33 @@
+{
+ "problemId": "merge-two-sorted-lists",
+ "statement": "You receive two separately sorted chains. Merge them into one ascending chain by splicing nodes - repeatedly take the smaller of the two current heads - and print the merged chain on one line, separated by single spaces. When one chain runs out, the remainder of the other is appended as a whole.",
+ "constraints": [
+  "0 ≤ n, m ≤ 1000",
+  "-10000 ≤ each value ≤ 10000",
+  "Each input chain is sorted ascending; an empty chain is an empty line."
+ ],
+ "example": {
+  "input": "3\n1 2 4\n3\n1 3 4\n",
+  "output": "1 1 2 3 4 4",
+  "why": "Equal heads may be taken from either side; every step takes a current minimum."
+ },
+ "hint": "A dummy head and a tail pointer turn the whole merge into one calm loop plus one final splice.",
+ "mistake": "Dropping the leftover tail after one chain empties - the loop ends, but the merge is only done after the splice.",
+ "tests": [
+  {
+   "input": "3\n1 2 4\n3\n1 3 4\n",
+   "expected": "1 1 2 3 4 4",
+   "note": "interleaving with duplicates"
+  },
+  {
+   "input": "0\n\n3\n2 5 9\n",
+   "expected": "2 5 9",
+   "note": "one chain empty"
+  },
+  {
+   "input": "2\n7 8\n2\n1 2\n",
+   "expected": "1 2 7 8",
+   "note": "no interleaving at all"
+  }
+ ]
+}

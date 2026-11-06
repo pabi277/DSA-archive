@@ -1,0 +1,33 @@
+{
+ "problemId": "longest-substring-with-at-most-k-distinct-characters",
+ "statement": "The first line holds a string s of lowercase letters; the second holds k. Print the length of the longest substring containing at most k distinct characters. Slide a window with a 26-slot count table and a live distinct counter: an entering character that brings its count from 0 to 1 raises distinct; while distinct exceeds k, advance the left end, and a count falling back to 0 lowers distinct. Offer the width as a candidate only while the window is valid.",
+ "constraints": [
+  "1 ≤ length ≤ 100000",
+  "1 ≤ k ≤ 26",
+  "Lowercase letters only."
+ ],
+ "example": {
+  "input": "aabacbebebe\n3\n",
+  "output": "7",
+  "why": "cbebebe holds exactly the three kinds c, b and e; every longer substring holds four."
+ },
+ "hint": "Keep distinct as a number maintained on zero-crossings; re-scanning the table each step wastes 26.",
+ "mistake": "Measuring the window while distinct still exceeds k - mid-repair widths are phantoms.",
+ "tests": [
+  {
+   "input": "aabacbebebe\n3\n",
+   "expected": "7",
+   "note": "three kinds"
+  },
+  {
+   "input": "aaaa\n1\n",
+   "expected": "4",
+   "note": "single kind"
+  },
+  {
+   "input": "abcde\n2\n",
+   "expected": "2",
+   "note": "all distinct input"
+  }
+ ]
+}

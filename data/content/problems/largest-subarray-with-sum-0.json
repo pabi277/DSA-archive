@@ -1,0 +1,32 @@
+{
+ "problemId": "largest-subarray-with-sum-0",
+ "statement": "The first line holds n; the second holds n integers, negatives allowed. Print the length of the largest contiguous subarray whose sum is 0, or 0 when none exists. This is the sum-k problem at k equals 0, with the cleanest possible signal: a zero-sum stretch exists exactly where a prefix value repeats, because equal markers mean the gap between them cancelled. Map each prefix value to its first index (seed 0 at -1) and measure the gap whenever a repeat appears.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-10000 ≤ values ≤ 10000"
+ ],
+ "example": {
+  "input": "6\n9 -3 3 -1 6 -5\n",
+  "output": "5",
+  "why": "Prefix 9 appears at index 0 and again at index 5 - the five elements between cancel to 0."
+ },
+ "hint": "Repeated prefix value equals zero-sum gap; first sighting fixed, latest repeat measured.",
+ "mistake": "Updating the stored index on every repeat - the map must keep the earliest, or spans shrink.",
+ "tests": [
+  {
+   "input": "6\n9 -3 3 -1 6 -5\n",
+   "expected": "5",
+   "note": "classic"
+  },
+  {
+   "input": "3\n1 2 3\n",
+   "expected": "0",
+   "note": "all positive, no cancel"
+  },
+  {
+   "input": "1\n0\n",
+   "expected": "1",
+   "note": "a single zero"
+  }
+ ]
+}

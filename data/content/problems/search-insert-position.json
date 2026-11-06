@@ -1,0 +1,33 @@
+{
+ "problemId": "search-insert-position",
+ "statement": "You receive a sorted row of distinct integers and a target integer. Print the index at which the target sits if it is present; otherwise print the index at which it would be inserted to keep the row sorted. Indices start at 0. Solve it with one binary search, without scanning the row.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-1000000 ≤ each value, target ≤ 1000000",
+  "Values are distinct and sorted ascending."
+ ],
+ "example": {
+  "input": "4\n1 3 5 6\n5\n",
+  "output": "2",
+  "why": "5 is present at index 2; a target of 4 would print 2 as well, landing before the 5."
+ },
+ "hint": "This is lower bound: the first index whose value is at least the target answers both cases at once.",
+ "mistake": "Handling present and absent targets as two separate searches - one lower bound already covers both.",
+ "tests": [
+  {
+   "input": "4\n1 3 5 6\n5\n",
+   "expected": "2",
+   "note": "present"
+  },
+  {
+   "input": "4\n1 3 5 6\n2\n",
+   "expected": "1",
+   "note": "absent, inside"
+  },
+  {
+   "input": "4\n1 3 5 6\n7\n",
+   "expected": "4",
+   "note": "absent, past the end"
+  }
+ ]
+}

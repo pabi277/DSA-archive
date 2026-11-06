@@ -1,0 +1,32 @@
+{
+ "problemId": "longest-word-with-all-prefixes",
+ "statement": "The first line holds n; the next n lines each hold one word. Print the longest word such that every one of its prefixes - length 1, 2, and so on up to the word itself - is also present in the list. When several longest candidates tie, print the lexicographically smallest; when no word qualifies, print none. Build a trie with end-of-word flags, then check candidates: a word qualifies when every node along its path carries the flag.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "Words are lowercase, length 1 to 20, all distinct."
+ ],
+ "example": {
+  "input": "6\nn\nni\nnin\nninj\nninja\nninga\n",
+  "output": "ninja",
+  "why": "Each prefix of ninja is in the list; ninga fails because ning is missing."
+ },
+ "hint": "Walk each word through the trie and demand the end flag at every single step.",
+ "mistake": "Checking only that the word itself is stored - the chain of flagged prefixes is the actual condition.",
+ "tests": [
+  {
+   "input": "6\nn\nni\nnin\nninj\nninja\nninga\n",
+   "expected": "ninja",
+   "note": "classic chain"
+  },
+  {
+   "input": "2\nab\nbc\n",
+   "expected": "none",
+   "note": "no single letters stored"
+  },
+  {
+   "input": "7\na\nbanana\napp\nappl\nap\napply\napple\n",
+   "expected": "apple",
+   "note": "tie broken alphabetically"
+  }
+ ]
+}

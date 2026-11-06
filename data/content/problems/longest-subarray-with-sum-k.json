@@ -1,0 +1,32 @@
+{
+ "problemId": "longest-subarray-with-sum-k",
+ "statement": "The first line holds n and k; the second holds n integers, negatives allowed. Print the length of the longest contiguous subarray summing to exactly k, or 0 when none exists. Walk once carrying the running prefix sum and a map from each prefix value to the first index where it appeared (seed: prefix 0 at index -1). At index i, if prefix minus k was first seen at j, the subarray j+1 to i sums to k - track the widest such gap. First occurrences only: overwriting shrinks the gap.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-10000 ≤ values ≤ 10000; k fits in 64 bits."
+ ],
+ "example": {
+  "input": "4 2\n1 -1 1 1\n",
+  "output": "4",
+  "why": "The whole array sums to 2: prefix 2 at the end minus the seeded prefix 0 at index -1."
+ },
+ "hint": "Store a prefix's index only on first sight - the earliest marker gives the longest span.",
+ "mistake": "Reaching for the sliding window; negatives break its grow-shrink logic, prefixes are immune.",
+ "tests": [
+  {
+   "input": "3 5\n2 3 5\n",
+   "expected": "2",
+   "note": "two answers, longest wins"
+  },
+  {
+   "input": "4 2\n1 -1 1 1\n",
+   "expected": "4",
+   "note": "negatives in play"
+  },
+  {
+   "input": "3 7\n1 2 3\n",
+   "expected": "0",
+   "note": "no such subarray"
+  }
+ ]
+}

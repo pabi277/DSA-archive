@@ -1,0 +1,32 @@
+{
+ "problemId": "z-function",
+ "statement": "One line holds a string s of lowercase letters. Print its Z-array, space-separated, with z[0] = 0 by convention: for every other position i, z[i] is the length of the longest substring starting at i that matches the beginning of s character for character. The linear construction keeps a window [l, r] of the rightmost prefix-match found so far: inside it, initialise z[i] from the mirror entry z[i - l], capped by the window; then extend by direct comparison and advance the window when the match pushes past r.",
+ "constraints": [
+  "1 ≤ length ≤ 100000",
+  "Lowercase letters only."
+ ],
+ "example": {
+  "input": "aabxaab\n",
+  "output": "0 1 0 0 3 1 0",
+  "why": "At position 4 the prefix aab reappears in full; at 5 only a single a survives."
+ },
+ "hint": "The mirror trick is reuse: position i inside the window repeats what i - l did, up to the cap.",
+ "mistake": "Copying the mirror value without the window cap - matches get claimed past verified territory.",
+ "tests": [
+  {
+   "input": "aabxaab\n",
+   "expected": "0 1 0 0 3 1 0",
+   "note": "full prefix reappears"
+  },
+  {
+   "input": "aaab\n",
+   "expected": "0 2 1 0",
+   "note": "shrinking overlaps"
+  },
+  {
+   "input": "abcd\n",
+   "expected": "0 0 0 0",
+   "note": "no repeats"
+  }
+ ]
+}

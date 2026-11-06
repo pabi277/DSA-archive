@@ -1,0 +1,32 @@
+{
+ "problemId": "palindrome-number",
+ "statement": "One line holds a non-negative integer n. Print yes when n reads the same forwards and backwards, and no otherwise. The arithmetic route: build the full reversal with the digit loop, then compare it to the original - which means the original must be saved before the loop, because the loop consumes its working copy down to 0. Negative signs never appear here, but trailing zeros matter: any number ending in 0 (except 0 itself) cannot be a palindrome, since no number starts with 0.",
+ "constraints": [
+  "0 ≤ n ≤ 1000000000",
+  "Input has no sign and no leading zeros."
+ ],
+ "example": {
+  "input": "121\n",
+  "output": "yes",
+  "why": "The reversal of 121 is 121 - the digits mirror around the centre 2."
+ },
+ "hint": "Two variables: the untouched original and the working copy the loop destroys.",
+ "mistake": "Comparing the reversal against the loop variable after the loop - that variable is 0 by then.",
+ "tests": [
+  {
+   "input": "121\n",
+   "expected": "yes",
+   "note": "odd length mirror"
+  },
+  {
+   "input": "123\n",
+   "expected": "no",
+   "note": "plain case"
+  },
+  {
+   "input": "10\n",
+   "expected": "no",
+   "note": "trailing zero"
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+ "problemId": "check-if-a-number-is-odd-or-not",
+ "statement": "You receive a non-negative integer n. Decide whether it is odd by reading its lowest bit: n AND 1 is 1 exactly for odd numbers. Print the word odd or the word even. No division and no remainder operator are needed - the last binary digit already is the parity.",
+ "constraints": [
+  "0 ≤ n ≤ 1000000000",
+  "The input is a single integer on one line."
+ ],
+ "example": {
+  "input": "7\n",
+  "output": "odd",
+  "why": "7 is 111 in binary; its lowest bit is 1, which is the definition of odd."
+ },
+ "hint": "Mask with 1 and branch on the result; the rest of the number is irrelevant.",
+ "mistake": "Checking the highest bit instead of bit zero - the top of the number says nothing about parity.",
+ "tests": [
+  {
+   "input": "7\n",
+   "expected": "odd",
+   "note": "small odd"
+  },
+  {
+   "input": "1024\n",
+   "expected": "even",
+   "note": "power of two is even"
+  },
+  {
+   "input": "0\n",
+   "expected": "even",
+   "note": "zero is even"
+  }
+ ]
+}

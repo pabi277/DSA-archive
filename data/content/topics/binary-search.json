@@ -1,11 +1,386 @@
 {
-  "topicId": "binary-search",
-  "patterns": [
-    "binary-search",
-    "binary-search-on-answer",
-    "two-pointers"
+ "topicId": "binary-search",
+ "patterns": [
+  "binary-search",
+  "binary-search-on-answer",
+  "two-pointers"
+ ],
+ "learnOrder": [
+  "search-x-in-sorted-array",
+  "search-insert-position",
+  "lower-bound",
+  "upper-bound",
+  "first-and-last-occurrence",
+  "count-occurrences-in-a-sorted-array"
+ ],
+ "primer": {
+  "intro": "Binary search answers a question about a sorted row by halving the search space instead of walking it. One comparison at the middle tells you which half can still hold the answer, so a row of a million values needs about twenty comparisons, never a million. The price of that speed is a contract: the row, or more generally the yes-and-no pattern of a test over the row, must be ordered. If the values are sorted, the test value at mid tells you everything about the left and right halves. The skill you are building in this topic is smaller than it looks and harder than it looks: keeping two indices honest. Every bug in binary search is a lie told by low, high or mid about which part of the row is still possible.",
+  "whenToUse": [
+   "The row is sorted, or can be sorted once before many lookups.",
+   "A yes-or-no test over positions flips exactly once from no to yes; the flip point is the answer.",
+   "You need the first or the last position satisfying a condition, which plain equality search does badly.",
+   "The answer is a number you can guess and verify cheaply, so you can search over answers instead of positions."
   ],
-  "learnOrder": [],
-  "primer": null,
-  "quiz": []
+  "mentalModel": "Keep an invariant sentence in your head and never break it: everything left of low is ruled out, everything right of high is ruled out, and the answer, if present, lies between them. Each step computes mid and runs the test there. The test result rules out mid itself together with one whole side, so either low becomes mid plus one or high becomes mid minus one, and the window shrinks every step. When low passes high, the window is empty and the ruled-out knowledge is the answer: for lower-bound style searches, low itself is the first index where the test says yes. Say the invariant before you move an index; a move you can say out loud is a move you can trust.",
+  "mistakes": [
+   "Shrinking the window without excluding mid, as in high equals mid when the test already judged mid; the loop then spins forever on a two-element window.",
+   "Computing mid as low plus high over two in a language with fixed integers, which overflows on large indices; write it as low plus the half of the distance.",
+   "Returning mid on the first equality in a row with duplicates when the task asks for the first or last occurrence; equality is a stop sign only for plain membership."
+  ],
+  "example": {
+   "title": "Lower bound: first index with value at least the target",
+   "code": "function lowerBound(values, target) {\n  let low = 0\n  let high = values.length - 1\n  let answer = values.length\n  while (low <= high) {\n    const mid = low + Math.floor((high - low) / 2)\n    if (values[mid] >= target) {\n      answer = mid\n      high = mid - 1\n    } else {\n      low = mid + 1\n    }\n  }\n  return answer\n}",
+   "explain": "The variable answer records the best yes seen so far, and the search keeps hunting left of it for an earlier yes. When the test at mid says yes, mid is remembered and the window moves left; when it says no, the window moves right. The loop ends with the smallest recorded yes, or the length of the row if the test never passed. Membership search, first occurrence, last occurrence and insert position are all this loop with the test or the remembered side changed."
+  },
+  "practice": "Ready? Open Practice and start with Search X in Sorted Array - the plain membership version of the loop."
+ },
+ "sections": [
+  {
+   "id": "the-flip-line",
+   "title": "Search the flip, and the family is one loop",
+   "text": "Picture the test as painting the row in two colours: positions where the test says no, then positions where it says yes. Sortedness guarantees the colours form two solid blocks with one flip line between them. Lower bound finds the first yes. Upper bound is the same hunt with the test value strictly greater than the target. First occurrence is lower bound plus a final equality check. Last occurrence is the mirror: remember mid on yes and continue right. Count of occurrences is upper bound minus lower bound, no third search needed. When a task sounds new, write its test as a sentence, check the sentence flips once, and reuse the same loop.",
+   "check": {
+    "id": "binary-search-check-flip",
+    "prompt": "A sorted row holds 2 4 4 4 9. Lower bound of 4 returns 1 and upper bound of 4 returns 4. How many 4s does the row contain?",
+    "codeSnippet": null,
+    "options": [
+     {
+      "text": "3",
+      "explain": "Upper bound minus lower bound: 4 - 1 = 3 occurrences."
+     },
+     {
+      "text": "4",
+      "explain": "That reads upper bound as a count; it is the first index after the last 4."
+     },
+     {
+      "text": "1",
+      "explain": "Lower bound alone is a position, never a count."
+     },
+     {
+      "text": "2",
+      "explain": "Subtracting one too many; the half-open window covers indices 1, 2 and 3."
+     }
+    ],
+    "answerIndex": 0,
+    "rereadSectionId": "the-flip-line",
+    "rereadSectionTitle": "Search the flip, and the family is one loop",
+    "reveal": {
+     "alwaysAvailable": true,
+     "solution": "Lower bound is the first index holding a value at least 4; upper bound is the first index holding a value strictly greater than 4. The 4s occupy exactly the half-open range between them, so their count is the difference of the two results: 4 - 1 = 3.",
+     "reference": {
+      "source": "takeuforward",
+      "url": "https://takeuforward.org/practice/dsa/lower-bound-",
+      "verified": "2026-11-03"
+     }
+    }
+   }
+  },
+  {
+   "id": "guess-the-answer",
+   "title": "Searching over answers instead of indices",
+   "text": "The second life of binary search has no array at all. If a question has a numeric answer, and a cheaper question of the form would a candidate value work flips exactly once as the candidate grows, you can binary search the candidates. The square root task works this way: does mid times mid stay within the number flips from yes to no as mid grows, and the last yes is the floor of the root. Later tasks in this topic - smallest divisor, eating speeds, shipping capacities - are the same shape with a fancier test. The discipline is unchanged: name the invariant, make every step shrink the window, and let the remembered best yes be the answer."
+  }
+ ],
+ "quiz": [
+  {
+   "kind": "pattern",
+   "prompt": "A sorted row, one target, return any matching index in logarithmic time. Which loop shape fits with the least machinery?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Plain membership: stop the moment values[mid] equals the target",
+     "explain": "Any match is acceptable, so equality is a valid stop sign here."
+    },
+    {
+     "text": "Lower bound with a remembered answer",
+     "explain": "Works, but the remembered-best machinery buys nothing when any match is fine."
+    },
+    {
+     "text": "Upper bound minus one",
+     "explain": "That targets the last occurrence - more than the task asks."
+    },
+    {
+     "text": "Linear scan from the left",
+     "explain": "Correct but wastes the sorted contract: n steps instead of log n."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "binary-search-q1"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "The task: first day on which enough flowers bloomed. Checking a given day is cheap; days grow more flowery over time. What is this?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Two pointers over the days",
+     "explain": "Two pointers need something to compare at both ends; here only a yes-no test along one axis exists."
+    },
+    {
+     "text": "A problem binary search cannot touch because there is no array",
+     "explain": "Answer-space search needs a monotone test, an array is optional."
+    },
+    {
+     "text": "Binary search on the answer with a once-flipping test",
+     "explain": "Would day d work flips no-to-yes as d grows - search the flip."
+    },
+    {
+     "text": "A sorting problem in disguise",
+     "explain": "Nothing needs reordering; days are already in order."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "binary-search-q2"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "You must return how many times a value occurs in a sorted row, in log time. Which combination is the standard tool?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "One membership search is enough",
+     "explain": "It finds some occurrence and says little about how wide the block is."
+    },
+    {
+     "text": "Last occurrence minus first occurrence",
+     "explain": "Close - but that difference is one less than the count; the half-open pair avoids the off-by-one."
+    },
+    {
+     "text": "Upper bound minus lower bound",
+     "explain": "The two flip points bracket the block of equal values; subtraction counts it."
+    },
+    {
+     "text": "Lower bound, then linear walk to the right",
+     "explain": "The walk can cost n on a row full of the same value."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "binary-search-q3"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Search Insert Position asks where a missing target would go in a sorted row. Which known result is that, exactly?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Lower bound of the target",
+     "explain": "The first index with a value at least the target is precisely the insert slot."
+    },
+    {
+     "text": "Upper bound of the target",
+     "explain": "For a present target that lands after the duplicates - the wrong slot for insert-before semantics here."
+    },
+    {
+     "text": "The last index with a smaller value",
+     "explain": "Off by one from the insert slot, and undefined when the target is smallest."
+    },
+    {
+     "text": "The middle of the final window",
+     "explain": "Mid at exit has no stable meaning; low carries the answer."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "binary-search-q4"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Row: 1 3 5 7 9 11. Membership search for 7. Which mids get tested, in order?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Index 0, 1, 2, 3 in a row",
+     "explain": "That is a linear scan; binary search jumps."
+    },
+    {
+     "text": "Index 2, then index 4, then index 3",
+     "explain": "5 is too small so go right; 9 is too big so come left; 7 found at index 3."
+    },
+    {
+     "text": "Index 3 immediately",
+     "explain": "The first mid of a six-element window is index 2, floor of (0+5)/2."
+    },
+    {
+     "text": "Index 2, then index 3",
+     "explain": "After 5, the window is 3..5 and its mid is 4, so 9 is tested before 7."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "binary-search-q5"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Row: 2 4 4 4 9. Lower bound of 4 runs with the remembered-answer loop. What is returned?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "4",
+     "explain": "That is upper bound territory: first value strictly greater than 4."
+    },
+    {
+     "text": "0",
+     "explain": "values[0] is 2, below the target, so the first index can never be the answer."
+    },
+    {
+     "text": "1",
+     "explain": "Mid 2 says yes and remembers 2; the hunt left finds index 1 also yes; index 0 says no."
+    },
+    {
+     "text": "3",
+     "explain": "That is the last 4 - the mirrored loop that keeps hunting right."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "binary-search-q6"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Square-root search for 26 over candidates 1..26: the test asks mid times mid stays at most 26. What ends up returned as the floor root?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "13",
+     "explain": "That is 26 over 2; halving values is a different operation than halving a window."
+    },
+    {
+     "text": "4",
+     "explain": "16 passes but 25 also passes, and the search keeps the largest yes."
+    },
+    {
+     "text": "5",
+     "explain": "25 passes, 36 fails; the last passing candidate is 5."
+    },
+    {
+     "text": "6",
+     "explain": "6 squared is 36, already past 26 - the first failing candidate, one too far."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "binary-search-q7"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "A sorted row has one billion values. Roughly how many comparisons does one binary search cost?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "About a million",
+     "explain": "The square root of a billion is about 31623, and halving needs far fewer still - about 30."
+    },
+    {
+     "text": "About 2",
+     "explain": "Halving needs log n steps; two steps only resolve four candidates."
+    },
+    {
+     "text": "About 30",
+     "explain": "Two to the thirtieth is about a billion; each step halves the window."
+    },
+    {
+     "text": "About 1000",
+     "explain": "About 1000 is the cube-root scale of a billion; halving reaches one element in about 30 steps."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "binary-search-q8"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "You will answer q membership queries over the same unsorted row of n values. Where is the break-even between scanning per query and sorting once?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Scanning is always cheaper",
+     "explain": "Each scan costs n; a hundred queries already repay one sort on most sizes."
+    },
+    {
+     "text": "Sorting is always cheaper",
+     "explain": "For one single query, a lone n-step scan beats n log n sorting."
+    },
+    {
+     "text": "The two plans always tie",
+     "explain": "They differ by a factor that grows with q; tie is the rare crossing point."
+    },
+    {
+     "text": "Sort once at n log n, then q searches at log n each; it wins once q is large",
+     "explain": "n log n + q log n beats q times n as soon as q passes about log n fraction of n."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "binary-search-q9"
+  },
+  {
+   "kind": "bug",
+   "prompt": "This loop sometimes never finishes. What is the bug?",
+   "codeSnippet": "while (low < high) {\n  const mid = low + Math.floor((high - low) / 2)\n  if (ok(mid)) high = mid\n  else low = mid\n}",
+   "options": [
+    {
+     "text": "The condition must be low <= high",
+     "explain": "That variant pairs with both branches excluding mid - a different, also valid, loop."
+    },
+    {
+     "text": "The else branch keeps mid inside the window; low = mid + 1 is required",
+     "explain": "ok(mid) false rules mid out, but low = mid retests it - on a two-wide window forever."
+    },
+    {
+     "text": "high = mid must be high = mid - 1",
+     "explain": "In this half-open style a yes at mid must stay inside; mid may be the flip."
+    },
+    {
+     "text": "mid rounds the wrong way",
+     "explain": "Flooring is consistent with the branches here; the stall is in the else."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "binary-search-q10"
+  },
+  {
+   "kind": "bug",
+   "prompt": "First-occurrence search over a row with duplicates. Why does this return a middle duplicate sometimes?",
+   "codeSnippet": "while (low <= high) {\n  const mid = low + Math.floor((high - low) / 2)\n  if (a[mid] === t) return mid\n  if (a[mid] < t) low = mid + 1\n  else high = mid - 1\n}",
+   "options": [
+    {
+     "text": "Equality returns immediately instead of continuing left",
+     "explain": "First occurrence must remember the match and keep searching the left half."
+    },
+    {
+     "text": "mid is computed with an overflow",
+     "explain": "The subtract-first form shown is the overflow-safe one."
+    },
+    {
+     "text": "The branches move the window the wrong way",
+     "explain": "Smaller value means go right, larger means go left - as written."
+    },
+    {
+     "text": "low <= high ends one step early",
+     "explain": "That bound is right for closed windows; the early return is the real culprit."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "binary-search-q11"
+  },
+  {
+   "kind": "edge",
+   "prompt": "Which situation forces extra care before running a plain membership binary search?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "The row length is odd",
+     "explain": "Mid flooring handles both parities."
+    },
+    {
+     "text": "The target equals the first element",
+     "explain": "The loop finds border values like any others."
+    },
+    {
+     "text": "The row arrives unsorted",
+     "explain": "The halving argument rests on order; sort first or the ruled-out half may hold the target."
+    },
+    {
+     "text": "The row holds negative values",
+     "explain": "Comparisons work the same below zero."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "binary-search-q12"
+  }
+ ]
 }

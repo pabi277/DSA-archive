@@ -1,0 +1,32 @@
+{
+ "problemId": "frog-jump",
+ "statement": "The first line holds n; the second holds n stone heights. A frog starts on stone 0 and must reach stone n-1, jumping 1 or 2 stones ahead; a jump costs the absolute height difference. Print the minimum total energy. State: f(i) is the cheapest way to stand on stone i. Transition: arrive from i-1 or i-2, paying the respective difference - take the cheaper. Roll two variables; f(0) is 0.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "0 ≤ each height ≤ 10000"
+ ],
+ "example": {
+  "input": "4\n10 20 30 10\n",
+  "output": "20",
+  "why": "The route 0 to 1 to 3 pays 10 plus 10; every route that touches the tall stone pays 40."
+ },
+ "hint": "Guard the i-2 case at i = 1 - there is no stone -1 to arrive from.",
+ "mistake": "Greedy hopping to the closer height; a pricey hop now can dodge two pricey hops later.",
+ "tests": [
+  {
+   "input": "4\n10 20 30 10\n",
+   "expected": "20",
+   "note": "skip the tall stone"
+  },
+  {
+   "input": "6\n30 10 60 10 60 50\n",
+   "expected": "40",
+   "note": "classic zigzag"
+  },
+  {
+   "input": "1\n7\n",
+   "expected": "0",
+   "note": "already there"
+  }
+ ]
+}

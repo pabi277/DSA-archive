@@ -2,12 +2,13 @@
 
 # DSA Archive — continuation prompt (v2 programme, one phase per chat)
 
-> **Self-contained handoff.** v1 is complete and **v2 is complete on the working
-> branch** — phases 01–08 are merged to `main` (PR #12 `558a25f`, #13 `bd9350b`, #14
-> `e51695a`, #15 `f4fa993`, #16 `4741a1b`, #17 `d44b55a`, #18 `ace2289`, the post-merge
-> CI fix #19 `79c6099`, **#20 `b81361a`** for phase 08, and **#21** for phase 09).
-> **Phase 10 (`10-release-v2`) is implemented on `arena/9b4d2ec7-dsa-archive` and
-> stopped at the owner's PR/review/merge gate.** It ships no Firestore change and no
+> **Self-contained handoff.** v1 and v2 are both complete and **v2.0.0 is live at
+> <https://dsa-archive.web.app>** — all ten phases are merged to `main` (PR #12
+> `558a25f`, #13 `bd9350b`, #14 `e51695a`, #15 `f4fa993`, #16 `4741a1b`, #17 `d44b55a`,
+> #18 `ace2289`, the post-merge CI fix #19 `79c6099`, **#20 `b81361a`** for phase 08,
+> **#21 `4f3bb94`** for phase 09 and **#22 `72beb24`** for phase 10), and the owner
+> executed the deploy gate on **2026-11-06** (rules v9 → Hosting, decision recorded in
+> `docs/DECISIONS.md`). Phase 10 shipped no Firestore change and no
 > new feature: README rewritten around the seven surfaces and the honest limits,
 > **16 generated screenshots** committed in `docs/screenshots/` (8 phone · 390×844,
 > 6 desktop · 1440×900, two `-light` references) with a generated manifest and a
@@ -17,8 +18,13 @@
 > and two real defects fixed (a cloud profile snapshot could revert a theme the
 > learner had just changed — now pinned in `src/settings.test.ts`; and the statement
 > card showed build history). Shipped versions: **rules v9 / backup v8** (schemas 1–8
-> import). Budget measured **392,739 B gzip against the frozen 393,000 B cap** — no
-> re-baseline. **Nothing is deployed**; deploy remains a standing owner gate.
+> import). The v2 budget measured **392,739 B gzip against the then-frozen 393,000 B
+> cap** — no re-baseline at release. **2026-11-06 update:** the content track shipped —
+> all 20 topics are authored and live in `data/content/` via the **hybrid precache
+> split** (statements in a lazy `assets/statements-*` add-on, 37,537 B gz; primers/quiz
+> precached), and the owner re-baselined the shell cap **393,000 → 475,000 B gz**
+> (measured 470,980 B). Any **re**deploy walks `docs/RELEASE-RUNBOOK.md` again and stays
+> an owner gate.
 > Authority order: `rule.md` → `docs/DECISIONS.md` (owner answers) → `docs/phases-v2/`
 > (phase contracts) → `docs/ROADMAP.md` (status) → `docs/DATA-MODEL.md`
 > (Firestore/backup shapes) → `docs/UI-REFERENCE.md` (design tokens) → this file (living
@@ -175,8 +181,7 @@ Do **not** start coding before step 5 is read end-to-end.
   green at `fc9452963baf405abb876c70fae2cfe317b6f255`, `site-preview` 29,680,148 B; 360 unit tests,
   147 Playwright tests, CI ≤12 min. Record:
   `docs/phases-v2/09-pwa-accessibility-hardening/RECORD.md`.
-- **v2-10 implemented; owner PR/review/merge gate pending**: branch
-  `arena/9b4d2ec7-dsa-archive`. The release phase ships **no Firestore change** (rules **v9**
+- **v2-10 merged (PR #22 `72beb24`)**: branch `arena/9b4d2ec7-dsa-archive`. The release phase ships **no Firestore change** (rules **v9**
   / backup **v8** stand), no new feature, and nothing deployed. What it does: the README is
   rewritten around the seven surfaces, the honest limits and a "deliberately absent" list;
   **16 generated screenshots** (8 phone · 390×844, 6 desktop · 1440×900, plus two `-light`
@@ -198,12 +203,32 @@ Do **not** start coding before step 5 is read end-to-end.
   gzip / 393,000 B cap** (261 B headroom) with no re-baseline (the social card is excluded from the shell and
   never precached). CI adds `check:release`, an OG byte-identity check and the
   `docs-screenshots` artifact. Record: `docs/phases-v2/10-release-v2/RECORD.md`.
-- **v2 is complete on the working branch; the merge gate is the only thing left.** After the
-  owner reviews and merges phase 09 and phase 10, the next chat starts from post-v2 state:
-  content authoring (`docs/content/AUTHORING.md`) is the real long pole — 1 primer of 20,
-  6 of 120 beginner statements, 6 of 495 hints/mistakes, 12 of 240 quiz items are authored,
-  and the **~300 runner test cases** now have a consumer in `Run tests`. Deploying remains a
-  standing owner gate (see `docs/RELEASE-RUNBOOK.md`).
+- **v2 is complete and live.** PR #22 merged on 2026-11-05/06 (`main` = `72beb24`, CI
+  green on the merge commit, run `42081015465`), and the owner executed the deploy gate on
+  **2026-11-06**: rules **v9** first, then Hosting, to <https://dsa-archive.web.app>. The
+  13-row post-deploy verification (runbook §4) was still pending when recorded; the
+  Hosting release id stays in the Firebase Console. The owner's release walkthrough on a
+  phone (Termux) found toolchain limits, not defects — recorded in `docs/DECISIONS.md`
+  (2026-11-06) and as the "verify from a phone" note in the runbook; vitest `testTimeout`
+  is now 30 s in `vite.config.ts` for slow devices. Post-v2, content authoring
+  (`docs/content/AUTHORING.md`) is the real long pole — 1 primer of 20, 6 of 120 beginner
+  statements, 6 of 495 hints/mistakes, 12 of 240 quiz items are authored, and the **~300
+  runner test cases** have a consumer in `Run tests`. Every content batch improves the
+  live site on the next deploy; any redeploy walks `docs/RELEASE-RUNBOOK.md` again.
+  **Parked draft batches (authoring complete):** all 19 remaining topics sit under
+  `docs/content/drafts/`, NOT in `data/content/` — batch 1 (sorting, binary-search,
+  linked-list, bit-manipulation), batch 2 (strings-basic-and-medium, recursion,
+  stack-queues, sliding-window-2-pointer), batch 3 (binary-trees, binary-search-trees,
+  heaps, greedy-algorithms), batch 4 (graphs, dynamic-programming, tries,
+  strings-advanced-algo), batch 5 (beginner-problems, hashing, maths) —
+  together +19 primers, +110 statements, +228 quiz items. **Shipped 2026-11-06:** after
+  two owner-run accuracy-review rounds the owner closed the gate and the hybrid
+  precache split landed (`virtual:dsa-statements` → lazy `assets/statements-*` add-on,
+  127,832 B raw / 37,537 B gz, cache-first after first problem visit; primers/sections/
+  quiz stay precached). Full 20-topic shell measured **470,980 B gz**; the owner
+  re-baselined the cap to **475,000 B** (recorded in `docs/DECISIONS.md`). All batches
+  are promoted into `data/content/` — the draft folders keep only their memos. Live
+  totals: 20 primers · 116 statements · 240 quiz items · 42 theory MCQs.
 
 - **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
   topics (Basic 84 · Core 287 · Pro 109 · 15 null; 453 `problem` + 42 `theory`).
@@ -230,10 +255,10 @@ Do **not** start coding before step 5 is read end-to-end.
 | 06 | `06-theatre-player/` | ✅ **merged in PR #17** (`d44b55a`) — official IFrame player on `#/problem/<id>` only, our bar *below* the frame (play/pause, ±10 s, per-topic speed, Stamp, `c`, skip-to-stamp, watched ≥60%; `f` consciously dropped), one mini player across routes, stamps in `snippets[id].moments` (rules **v8**, backup **v7**, undoable), build-time oEmbed metadata, opt-in auto-advance, Settings card; shell re-baselined **380 → 388 kB** by owner decision (`~2 kB` headroom); run `41825858179` green | 7–9 d | 01–03 |
 | 07 | `07-browser-runner/` | ✅ **merged in PR #18** (`ace2289`; post-merge CI fix PR #19 `79c6099`) — one sandboxed module worker: Clang 22 on wasm for **C/C++** (29.0 MB, opt-in), **Pyodide** for Python (13.5 MB, opt-in), native **JS** (no pack); `Run ▸` / `Run tests ▸ N` with first-diff, compile diagnostics + `N more`, `Stop` = `terminate()`, stdout/stderr caps 256 kB, 3 s per case / 30 s total, `⌘↵`/`Esc`, `stdin`, copy/clear; predict-the-output hook after an MCQ answer; copy-out with a reason for Java/Go/Rust/TS; cache reported + cleared in Settings (`dsa-archive-runtime-v1` only); **add-on chunk** design keeps the shell at **386,674 B gzip** (cap 388,000) and the toolchains in their own bucket; no Firestore change | 5–7 d | 04, 03 |
 | 08 | `08-insights-light/` | ✅ **merged in PR #20** (`b81361a`) — nine reasons, ≤2 chips per row, momentum (decays, never resets; rest day earned at 5/7), one trajectory sentence (median pace, `Needs 3.4/day` when stalled), `<details>` "How this plan was made", plan vs reality + one-tap goal, two detectors with one undo, `#/insights`, optional `targetDate`/`targetListId` under rules **v9** / backup **v8** (no new collection, no extra read); **shell 391,193 B gzip against the owner's re-baselined 393 kB** (and CSS raw 60,238 / 61,000) | 4–5 d | 01, 02, 05 |
-| 09 | `09-pwa-accessibility-hardening/` | 🟢 **implemented on `arena/6bef7496-dsa-archive`; owner PR/merge gate** — final caps with no re-baseline (392,136 B / 393,000 B), SW v2 + update toast, enforced CSP (both stages proven), 6×18 axe matrix, cold offline matrix, network assertion, tested Delete my data, dead-weight cleanup, DATA-MODEL v5, Tokens v2 FINAL; CI `42030262068` green | 4–5 d | 01–08 |
-| 10 | `10-release-v2/` | 🟢 **implemented on `arena/9b4d2ec7-dsa-archive`; owner PR/merge gate** — README v2 (seven surfaces, honest limits, deliberately-absent list), **16 committed screenshots** + manifest + sha-256 freshness stamp, `docs/CHANGELOG.md` v2.0.0, DATA-MODEL **v6**, rewritten release runbook, generated OG card, `npm run check:docs` / `check:screenshots`; rules v9 / backup v8 unchanged | 2–3 d | 09 |
+| 09 | `09-pwa-accessibility-hardening/` | ✅ **merged in PR #21** (`4f3bb94`) — final caps with no re-baseline (392,136 B / 393,000 B), SW v2 + update toast, enforced CSP (both stages proven), 6×18 axe matrix, cold offline matrix, network assertion, tested Delete my data, dead-weight cleanup, DATA-MODEL v5, Tokens v2 FINAL; CI `42030262068` green | 4–5 d | 01–08 |
+| 10 | `10-release-v2/` | ✅ **merged in PR #22** (`72beb24`), **deployed by the owner 2026-11-06** — README v2 (seven surfaces, honest limits, deliberately-absent list), **16 committed screenshots** + manifest + sha-256 freshness stamp, `docs/CHANGELOG.md` v2.0.0, DATA-MODEL **v6**, rewritten release runbook, generated OG card, `npm run check:docs` / `check:screenshots`; rules v9 / backup v8 unchanged | 2–3 d | 09 |
 
-**Sequential ≈57–69 build days.** Phases 01–08 are merged (`main` = PR #20 `b81361a`); Phase 09 is implemented on `arena/6bef7496-dsa-archive` at its owner PR/review/merge gate. Latest *merged* versions on `main` are rules **v9** / backup **v8** and the shell cap of **393,000 B gzip** (CSS raw 61,000 B), owner-re-baselined on 2026-11-05. Phase 09 completed the cap review without another re-baseline: measured **392,136 B gzip**, 864 B headroom, and any further growth is a gate. Phase 10 is next and remains owner-gated.
+**Sequential ≈57–69 build days — all spent; the programme is finished.** All ten phases are merged (`main` = PR #22 `72beb24`) and **v2.0.0 is live** (owner deploy, 2026-11-06). Shipped versions on `main`: rules **v9** / backup **v8**, shell cap **393,000 B gzip** (CSS raw 61,000 B, owner-re-baselined 2026-11-05), measured **392,739 B gzip** — any further shell growth is a GATE, not a re-baseline.
 
 Each `PLAN.md` already contains: charter · current-state evidence (`file:line`) · scope in ·
 scope **out with reasons** · design spec/wireframes · file plan (`NEW`/`EDIT`/`DELETE`) ·
@@ -253,7 +278,10 @@ exit gate. **The acceptance list is the contract** — do not add features outsi
   520,000 B raw / 165,000 B gz · shell **393,000 B gz** (owner re-baselined 380 → 388 →
   393 kB in phases 06/08) · fonts 60,000 B · runner UI 120 kB / 40 kB · account add-on
   40 kB / 15 kB · toolchains 48 MB — all in **separate** buckets, never precached.
-  Measured 392,136 B gz (864 B headroom); further growth is a GATE.
+  Measured 392,136 B gz (864 B headroom) at the phase-09 gate. **2026-11-06 (v3): the
+  owner re-baselined the shell cap to 475,000 B gz** for the full 20-topic catalogue
+  (measured 470,980 B; statements split into a lazy 200 kB/60 kB add-on bucket).
+  Further growth remains a GATE.
 - **Tailwind/daisyUI**: decided **REMOVE** in v2-01, re-verified in v2-09; enforced by
   `tools/check-deadweight.mjs`. No third state.
 - **CSP**: adopted, `frame-src` for YouTube and `worker-src` for the runner; report-only
@@ -314,13 +342,15 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 
 > **Next chat prompt — post-v2 content track:**
 >
-> I am continuing `pabi277/DSA-archive` after **v2.0.0** (phases 01–10 complete; the
-> build phases are done and nothing is deployed).
+> I am continuing `pabi277/DSA-archive` after **v2.0.0** (phases 01–10 merged; the site
+> is **live** at <https://dsa-archive.web.app> since the owner's 2026-11-06 deploy, so
+> every content batch improves the live site on the next owner-gated redeploy).
 > Read, in order: `rule.md`, `docs/DECISIONS.md` (every 2026-11-03 v2 batch, the
 > 2026-11-04/05 cap decisions, and the phase 01–10 implementation choices, especially
-> the 2026-11-05 phase-08 cap decision — shell **393,000 B gzip** / CSS raw
-> **61,000 B**, measured 392,739 B gzip in phase 10, any further shell growth is a
-> GATE, not a re-baseline — the YouTube ToS §4.13 rule, video links single-source, the
+> the 2026-11-05 phase-08 cap decision — shell 393,000 B gzip / CSS raw
+> **61,000 B**, measured 392,739 B gzip in phase 10 — superseded by the 2026-11-06 v3
+> re-baseline to **475,000 B gzip** for the full 20-topic catalogue (hybrid precache
+> split; shell growth is still a GATE) — the YouTube ToS §4.13 rule, video links single-source, the
 > no-invented-verdicts rule, the runner's never-precached add-on buckets, and the
 > screenshot decision), `docs/phases-v2/README.md`,
 > `docs/phases-v2/00-overview/PLAN.md`, `docs/CHANGELOG.md`, then
@@ -335,11 +365,11 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 > no PR, merge, deploy, `main` push, live Firebase command or Hosting preview channel
 > without my explicit command.
 
-> **If instead you are merging the finished phases:** phase 09 is PR #21 (merged) and
-> phase 10 is on `arena/9b4d2ec7-dsa-archive`. Review the `docs-screenshots` artifact and
-> the diff, then give the explicit PR/merge command. Deploying afterwards is its own
-> gate — follow `docs/RELEASE-RUNBOOK.md` (rules **before** hosting, 13 verification
-> rows, rollback section).
+> **If instead you are redeploying** (after merging a content batch): it is the same
+> standing owner gate — walk `docs/RELEASE-RUNBOOK.md` yourself (rules **before**
+> hosting, the 13 verification rows, rollback section). Build from a laptop or Cloud
+> Shell, never from a phone (TypeScript 7 has no android-arm64 binary — see the
+> runbook's Termux note), and record the deploy date in `docs/DECISIONS.md`.
 
 ## 11. Content track (runs in parallel from phase 02; the real long pole)
 

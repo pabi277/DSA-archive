@@ -1,0 +1,33 @@
+{
+ "problemId": "sort-a-k-sorted-array",
+ "statement": "The first line holds n and k; the second holds n integers, each sitting at most k positions away from its place in the sorted order. Print the fully sorted array, space-separated. Exploit the promise with a min-heap over a sliding window of k+1 elements: push the first k+1 values, then repeatedly pop the minimum into the output and push the next array element. The true next value is always inside the window, so the output comes out sorted in n log k time.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "0 ≤ k ≤ n - 1",
+  "-1000000000 ≤ each value ≤ 1000000000"
+ ],
+ "example": {
+  "input": "7 3\n6 5 3 2 8 10 9\n",
+  "output": "2 3 5 6 8 9 10",
+  "why": "Every element is within three slots of home, so the smallest of any k+1 window is the next output."
+ },
+ "hint": "Heap size k+1, no larger - the promise guarantees the minimum of the window is globally next.",
+ "mistake": "Sorting the whole array from scratch; right answer, but it pays n log n and ignores the gift.",
+ "tests": [
+  {
+   "input": "7 3\n6 5 3 2 8 10 9\n",
+   "expected": "2 3 5 6 8 9 10",
+   "note": "classic k-sorted"
+  },
+  {
+   "input": "4 1\n2 1 4 3\n",
+   "expected": "1 2 3 4",
+   "note": "adjacent swaps only"
+  },
+  {
+   "input": "3 2\n3 1 2\n",
+   "expected": "1 2 3",
+   "note": "window covers all"
+  }
+ ]
+}

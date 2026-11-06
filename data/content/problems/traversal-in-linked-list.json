@@ -1,0 +1,32 @@
+{
+ "problemId": "traversal-in-linked-list",
+ "statement": "Build a singly linked list from the given values, then traverse it from the head and print every value in order on one line, separated by single spaces. The point of the exercise is the walk itself: visit each node through its next pointer rather than re-reading the input row.",
+ "constraints": [
+  "1 ≤ n ≤ 1000",
+  "-10000 ≤ each value ≤ 10000"
+ ],
+ "example": {
+  "input": "4\n10 20 30 40\n",
+  "output": "10 20 30 40",
+  "why": "The walk starts at the head node 10 and follows three next pointers to the tail 40."
+ },
+ "hint": "A single walker pointer starting at head and a loop that stops at null is the whole program.",
+ "mistake": "Advancing the walker before printing the current node - the head value then silently disappears.",
+ "tests": [
+  {
+   "input": "4\n10 20 30 40\n",
+   "expected": "10 20 30 40",
+   "note": "plain chain"
+  },
+  {
+   "input": "1\n-5\n",
+   "expected": "-5",
+   "note": "single node"
+  },
+  {
+   "input": "3\n7 7 7\n",
+   "expected": "7 7 7",
+   "note": "equal values"
+  }
+ ]
+}

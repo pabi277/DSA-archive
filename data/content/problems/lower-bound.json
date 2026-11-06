@@ -1,0 +1,33 @@
+{
+ "problemId": "lower-bound",
+ "statement": "You receive a sorted row of integers and a target integer. Print the lower bound of the target: the smallest index whose value is greater than or equal to the target. If no such index exists, print n, the length of the row. Use binary search; a linear scan does the same job too slowly to count here.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-1000000 ≤ each value, target ≤ 1000000",
+  "The row is sorted ascending and may contain duplicates."
+ ],
+ "example": {
+  "input": "5\n2 4 4 4 9\n4\n",
+  "output": "1",
+  "why": "Index 1 holds the first value that is at least 4; index 0 holds 2, which is below."
+ },
+ "hint": "Remember mid as the best answer whenever its value passes the test, then keep hunting strictly left of it.",
+ "mistake": "Returning on the first equality - with duplicates the first passing index may sit further left than the first hit.",
+ "tests": [
+  {
+   "input": "5\n2 4 4 4 9\n4\n",
+   "expected": "1",
+   "note": "duplicates, inner flip"
+  },
+  {
+   "input": "5\n2 4 4 4 9\n10\n",
+   "expected": "5",
+   "note": "no index qualifies, print n"
+  },
+  {
+   "input": "5\n2 4 4 4 9\n1\n",
+   "expected": "0",
+   "note": "everything qualifies"
+  }
+ ]
+}

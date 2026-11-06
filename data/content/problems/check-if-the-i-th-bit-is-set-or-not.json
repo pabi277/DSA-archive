@@ -1,0 +1,32 @@
+{
+ "problemId": "check-if-the-i-th-bit-is-set-or-not",
+ "statement": "You receive a non-negative integer n and a bit position i, counted from 0 at the least significant end. Decide whether bit i of n is set. Build the mask 1 shifted left by i, AND it with n, and compare with zero. Print 1 if the bit is set and 0 if it is clear.",
+ "constraints": [
+  "0 ≤ n ≤ 1000000000",
+  "0 ≤ i ≤ 30"
+ ],
+ "example": {
+  "input": "13 2\n",
+  "output": "1",
+  "why": "13 is 1101 in binary; position 2 holds a one, positions 1 and 4 hold zeros."
+ },
+ "hint": "The AND result is either zero or the mask itself - test against zero, nothing else.",
+ "mistake": "Comparing the AND result with 1; for every position above zero the set case equals the mask, so the test always fails.",
+ "tests": [
+  {
+   "input": "13 2\n",
+   "expected": "1",
+   "note": "set bit inside"
+  },
+  {
+   "input": "13 1\n",
+   "expected": "0",
+   "note": "clear bit inside"
+  },
+  {
+   "input": "0 0\n",
+   "expected": "0",
+   "note": "zero has no set bits"
+  }
+ ]
+}

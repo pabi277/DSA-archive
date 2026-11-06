@@ -1,0 +1,32 @@
+{
+ "problemId": "count-subarrays-with-given-xor-k",
+ "statement": "The first line holds n and k; the second holds n non-negative integers. Print how many contiguous subarrays have XOR equal to k. The prefix trick carries over because XOR is its own inverse: with pre(i) the XOR of everything up to i, the segment after j ending at i has XOR pre(i) XOR pre(j) - so at each position, add how many earlier prefixes equal pre XOR k. Seed the map with prefix 0 occurring once, exactly as with sums, and the loop is the counting loop verbatim with plus swapped for XOR.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "0 ≤ values, k ≤ 1000000000"
+ ],
+ "example": {
+  "input": "5 6\n4 2 2 6 4\n",
+  "output": "4",
+  "why": "Four stretches XOR to 6, among them the lone 6 and the full five-element run."
+ },
+ "hint": "The lookup key is pre XOR k - XOR both sides of the segment identity to see it.",
+ "mistake": "Looking up pre minus k out of habit; subtraction belongs to sums, the XOR inverse is XOR.",
+ "tests": [
+  {
+   "input": "5 6\n4 2 2 6 4\n",
+   "expected": "4",
+   "note": "classic"
+  },
+  {
+   "input": "5 5\n5 6 7 8 9\n",
+   "expected": "2",
+   "note": "two stretches"
+  },
+  {
+   "input": "1 1\n1\n",
+   "expected": "1",
+   "note": "single element hit"
+  }
+ ]
+}

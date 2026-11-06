@@ -1,0 +1,32 @@
+{
+ "problemId": "count-primes-in-range-l-to-r",
+ "statement": "One line holds l and r. Print how many primes lie in the inclusive range l to r. Sieve once up to r, then prefix-sum the flags: cnt(x) counts primes up to x, and the answer is cnt(r) minus cnt(l - 1) - one subtraction, reusable across any number of queries. Respect the bottom edge: 1 is no prime (one divisor), 2 is (the only even one), and l may be as low as 1.",
+ "constraints": [
+  "1 ≤ l ≤ r ≤ 1000000",
+  "A single sieve to r suffices."
+ ],
+ "example": {
+  "input": "10 20\n",
+  "output": "4",
+  "why": "11, 13, 17 and 19 are prime; 15 is 3 times 5 and the evens fall to 2."
+ },
+ "hint": "Prefix counts turn the boolean array into an any-range answer machine.",
+ "mistake": "Counting 1 as prime when l is 1 - the sieve must excuse 0 and 1 before any marking begins.",
+ "tests": [
+  {
+   "input": "10 20\n",
+   "expected": "4",
+   "note": "the teens"
+  },
+  {
+   "input": "1 1\n",
+   "expected": "0",
+   "note": "1 alone, no primes"
+  },
+  {
+   "input": "2 2\n",
+   "expected": "1",
+   "note": "the smallest prime"
+  }
+ ]
+}

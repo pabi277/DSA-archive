@@ -1,11 +1,387 @@
 {
-  "topicId": "graphs",
-  "patterns": [
-    "union-find",
-    "graph-traversal",
-    "topological-sort"
+ "topicId": "graphs",
+ "patterns": [
+  "union-find",
+  "graph-traversal",
+  "topological-sort"
+ ],
+ "learnOrder": [
+  "number-of-provinces",
+  "number-of-islands",
+  "flood-fill-algorithm",
+  "rotten-oranges",
+  "detect-a-cycle-in-an-undirected-graph",
+  "bipartite-graph"
+ ],
+ "primer": {
+  "intro": "A graph is just things and connections: nodes, and edges joining some pairs of them. Social circles, grids of pixels, prerequisite charts - the same two traversals read them all. Breadth-first search explores in rings around its start, one edge-layer at a time, powered by a queue. Depth-first search dives as deep as it can before backing up, powered by a stack or recursion. Nearly every beginner graph problem is one of these two walks plus a question asked along the way: how many separate pieces are there, does a cycle exist, can the nodes be split into two camps, how many minutes until the fire spreads everywhere. Master the two walks and the visited array, and the topic opens.",
+  "whenToUse": [
+   "Counting connected pieces: launch a walk from every unvisited node and count the launches.",
+   "Fewest steps or minutes in an unweighted world: BFS, whose rings are exactly distances.",
+   "Something spreads from several places at once: multi-source BFS, all sources seeded at ring zero.",
+   "Splitting nodes into two camps with no clash: 2-colouring, checked during any walk.",
+   "A grid of cells is secretly a graph - each cell a node, each side-by-side pair an edge."
   ],
-  "learnOrder": [],
-  "primer": null,
-  "quiz": []
+  "mentalModel": "The visited array is the heart of every walk. Mark a node the moment it enters the queue or stack - at discovery, before it is served - and each node enters exactly once, so the walk touches every node and edge a constant number of times. For components, the outer loop is the real algorithm: scan all nodes, and each time an unvisited one appears, a new piece has been found and a walk swallows it whole. For distances, BFS rings do the measuring: everything in ring d is exactly d edges from the source, and seeding several sources before starting makes the rings measure distance from the nearest source. Grids need no adjacency list at all - the four direction offsets are the edges.",
+  "mistakes": [
+   "Marking visited when a node is served instead of when it is discovered - nodes enter the queue many times and the walk balloons.",
+   "Forgetting the outer loop over all nodes; a single walk only sees the piece containing its start.",
+   "In an undirected walk, treating the edge back to the parent as a cycle - remember who discovered you."
+  ],
+  "example": {
+   "title": "Counting islands with BFS",
+   "code": "function countIslands(grid) {\n  const R = grid.length, C = grid[0].length\n  const seen = grid.map(row => row.map(() => false))\n  const dirs = [[1,0],[-1,0],[0,1],[0,-1]]\n  let count = 0\n  for (let i = 0; i + 1 <= R; i++) for (let j = 0; j + 1 <= C; j++) {\n    if (grid[i][j] !== 1 || seen[i][j]) continue\n    count += 1\n    const q = [[i, j]]; seen[i][j] = true\n    while (q.length > 0) {\n      const [x, y] = q.shift()\n      for (const [dx, dy] of dirs) {\n        const a = x + dx, b = y + dy\n        if (a >= 0 && a + 1 <= R && b >= 0 && b + 1 <= C && grid[a][b] === 1 && !seen[a][b]) { seen[a][b] = true; q.push([a, b]) }\n      }\n    }\n  }\n  return count\n}",
+   "explain": "The outer double loop finds unvisited land and counts one island per launch; the inner BFS swallows that island so it is counted exactly once. Marking seen at discovery - the moment of pushing - keeps every cell's queue visits to one. The four offsets stand in for an adjacency list, which is the whole trick of grid graphs: the structure is implicit, so no edges are ever built. One note: grid here holds number rows - when input arrives as character strings, convert first."
+  },
+  "practice": "Open Practice with Number of Provinces - components on an adjacency matrix, the purest form of the launch-and-count loop."
+ },
+ "sections": [
+  {
+   "id": "the-visited-array",
+   "title": "The visited array",
+   "text": "Every walk owns three moments per node: discovery (it enters the queue or stack), service (it leaves and its neighbours are examined), and completion. The single most common graph bug is marking visited at service instead of discovery. Between those two moments a popular node can be pushed by many neighbours, and on dense graphs the queue swells far past n - correctness usually survives, performance dies. Mark at discovery and the arithmetic is clean: each node enqueued once, each edge examined twice (once per endpoint), total work proportional to nodes plus edges. The visited array also doubles as the component labeller: stamp each walk's nodes with the launch number and the labels are free.",
+   "check": {
+    "id": "graphs-check-visited",
+    "prompt": "In BFS, when must a node be marked visited so that it can enter the queue only once?",
+    "codeSnippet": null,
+    "options": [
+     {
+      "text": "At discovery - the moment it is pushed into the queue",
+      "explain": "Once marked, later neighbours skip it; one entry per node is guaranteed."
+     },
+     {
+      "text": "At service - when it is popped and processed",
+      "explain": "Between push and pop, other neighbours keep pushing duplicates of it."
+     },
+     {
+      "text": "After all its neighbours are examined",
+      "explain": "Even later than service - the duplicate window grows further."
+     },
+     {
+      "text": "The timing is a matter of style",
+      "explain": "On dense graphs the late-mark queue balloons; the timing is load-bearing."
+     }
+    ],
+    "answerIndex": 0,
+    "rereadSectionId": "the-visited-array",
+    "rereadSectionTitle": "The visited array",
+    "reveal": {
+     "alwaysAvailable": true,
+     "solution": "Mark at discovery. Suppose node x has five unserved neighbours already in the queue. If x is only marked when popped, each of those five pushes x again as it gets served - six copies of x wait in line. Marked at push time, the first neighbour claims x and the other four skip it. One entry per node, every edge examined twice: that is the linear-time guarantee.",
+     "reference": {
+      "source": "takeuforward",
+      "url": "https://takeuforward.org/practice/dsa/number-of-islands",
+      "verified": "2026-11-03"
+     }
+    }
+   }
+  },
+  {
+   "id": "waves-and-colours",
+   "title": "Waves and colours",
+   "text": "Two upgrades of plain BFS carry many problems. Multi-source: to time rot spreading from every rotten orange at once, seed the queue with all of them at minute zero before the loop starts. The rings then measure distance to the nearest source, and the largest ring number is the answer - with one honesty check at the end, that no fresh cell survived unreached. Two-colouring: to split nodes into two camps where every edge crosses camps, colour each newly discovered node opposite to its discoverer and compare colours whenever a walk meets an already-coloured neighbour. A clash proves an odd cycle and the split is impossible; no clash across the whole graph proves it bipartite."
+  }
+ ],
+ "quiz": [
+  {
+   "kind": "pattern",
+   "prompt": "Count how many separate friend-circles exist, given who knows whom. The plan?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Count nodes with no edges",
+     "explain": "Isolated nodes are one kind of circle; connected groups also count."
+    },
+    {
+     "text": "Divide the node count by the average degree",
+     "explain": "Degrees say nothing about how pieces split."
+    },
+    {
+     "text": "Scan all nodes; launch a walk from each unvisited one and count the launches",
+     "explain": "Each launch swallows exactly one component - the count is the answer."
+    },
+    {
+     "text": "One BFS from node 0",
+     "explain": "A single walk sees only the piece containing its start."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "graphs-q1"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Fewest minutes for a signal to cross an unweighted network. Which walk and why?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Sort nodes by degree first",
+     "explain": "Degree is popularity, unrelated to distance."
+    },
+    {
+     "text": "BFS - its rings visit all nodes at distance d before any at d+1",
+     "explain": "Ring numbers are distances; the first arrival is the shortest route."
+    },
+    {
+     "text": "DFS - it reaches the target fastest",
+     "explain": "DFS dives down one branch; its first arrival can be wildly indirect."
+    },
+    {
+     "text": "Either walk, the costs match",
+     "explain": "Both are linear in total, but only BFS orders nodes by distance."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "graphs-q2"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Rot spreads each minute from every rotten orange at once. How is the timing computed?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Multi-source BFS: seed all rotten cells at minute zero, rings are minutes",
+     "explain": "Rings measure distance to the nearest source - exactly simultaneous spread."
+    },
+    {
+     "text": "BFS from one rotten orange, repeated for each, taking the best",
+     "explain": "Can be combined per cell, but one seeded run does it in a single pass."
+    },
+    {
+     "text": "DFS from each rotten orange",
+     "explain": "Depth-first order scrambles the minute-by-minute frontier."
+    },
+    {
+     "text": "Count the fresh oranges",
+     "explain": "The count ignores where they sit relative to the rot."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "graphs-q3"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Can the nodes be split into two camps so every edge crosses camps? The test?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Check whether the node count is even",
+     "explain": "Camp sizes may differ; parity of n is irrelevant."
+    },
+    {
+     "text": "Look for any cycle",
+     "explain": "Even cycles are harmless; only odd ones block the split."
+    },
+    {
+     "text": "Sort nodes by degree and alternate",
+     "explain": "Degree order ignores the edges the colouring must respect."
+    },
+    {
+     "text": "2-colour during a walk; a same-colour edge proves it impossible",
+     "explain": "Alternating colours succeed exactly on graphs with no odd cycle."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "graphs-q4"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Adjacency matrix rows: 110 / 110 / 001. How many provinces?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "0",
+     "explain": "Every node belongs to some province, even alone."
+    },
+    {
+     "text": "2",
+     "explain": "Nodes 0 and 1 know each other; node 2 stands alone."
+    },
+    {
+     "text": "1",
+     "explain": "No edge joins node 2 to the others."
+    },
+    {
+     "text": "3",
+     "explain": "The 1s linking 0 and 1 merge them into one province."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "graphs-q5"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Grid rows 10 / 01, land is 1, movement is 4-directional. How many islands?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "4",
+     "explain": "Water cells form no islands."
+    },
+    {
+     "text": "2",
+     "explain": "The two land cells touch only at a corner - no 4-directional edge joins them."
+    },
+    {
+     "text": "1",
+     "explain": "Diagonal contact joins nothing under 4-directional movement."
+    },
+    {
+     "text": "0",
+     "explain": "Two land cells exist; each forms an island."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "graphs-q6"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Oranges: 211 / 110 / 011 (2 rotten, 1 fresh, 0 empty). Minutes until all rot?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "-1",
+     "explain": "Every fresh orange is reachable here."
+    },
+    {
+     "text": "2",
+     "explain": "Two minutes covers only the top-left block."
+    },
+    {
+     "text": "4",
+     "explain": "The wave walks the connected snake of fresh cells; the farthest sits 4 rings out."
+    },
+    {
+     "text": "3",
+     "explain": "The bottom-right orange is in the fourth ring, cut off from shortcuts by the 0s."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "graphs-q7"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "BFS on an adjacency list with V nodes and E edges costs how much?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "V squared always",
+     "explain": "V squared is the adjacency-matrix bill, where every row is scanned fully."
+    },
+    {
+     "text": "E log V",
+     "explain": "The log belongs to priority queues - weighted graphs, a later topic."
+    },
+    {
+     "text": "V times E",
+     "explain": "That would mean re-walking the graph from every node."
+    },
+    {
+     "text": "V plus E - each node queued once, each edge examined twice",
+     "explain": "The discovery-time mark makes both counts exact."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "graphs-q8"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "A full BFS or DFS over an R by C grid costs how much?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "(R times C) squared",
+     "explain": "Squared means revisiting; the visited array forbids that."
+    },
+    {
+     "text": "R plus C",
+     "explain": "That is one row plus one column, a vanishing fraction of the grid."
+    },
+    {
+     "text": "4 to the power of R times C",
+     "explain": "Exponential blowup is what the visited array exists to stop."
+    },
+    {
+     "text": "About R times C - each cell is discovered once and offers four edges",
+     "explain": "The implicit edges keep the constant tiny; work is linear in cells."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "graphs-q9"
+  },
+  {
+   "kind": "bug",
+   "prompt": "On dense graphs this BFS runs forever-ish and the queue explodes. What is the bug?",
+   "codeSnippet": "while (q.length > 0) {\n  const u = q.shift()\n  if (seen[u]) continue\n  seen[u] = true\n  for (const v of adj[u]) {\n    q.push(v)\n  }\n}",
+   "options": [
+    {
+     "text": "Nodes are marked at service, so every neighbour re-pushes them first",
+     "explain": "Mark and check at push time; one queue entry per node restores V+E."
+    },
+    {
+     "text": "shift() is slow on arrays",
+     "explain": "A real cost in JavaScript, but the asymptotic explosion is the marking."
+    },
+    {
+     "text": "The continue should be a break",
+     "explain": "break would abandon the whole walk at the first duplicate."
+    },
+    {
+     "text": "Neighbours must be sorted before pushing",
+     "explain": "Order changes the visiting sequence, none of the totals."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "graphs-q10"
+  },
+  {
+   "kind": "bug",
+   "prompt": "This undirected cycle check cries cycle on a plain path like 0-1-2. What is the bug?",
+   "codeSnippet": "// u was discovered from parent p\nfor (const v of adj[u]) {\n  if (!seen[v]) {\n    seen[v] = true\n    q.push([v, u])\n  } else {\n    return true\n  }\n}",
+   "options": [
+    {
+     "text": "seen is set too early",
+     "explain": "Discovery-time marking is right; the parent exemption is what is missing."
+    },
+    {
+     "text": "The pair should store the child",
+     "explain": "Storing the discoverer is exactly what the fix needs - it is already there."
+    },
+    {
+     "text": "return true should return false",
+     "explain": "Inverting the answer breaks real cycles too."
+    },
+    {
+     "text": "The edge back to the parent counts as a cycle - require v different from p",
+     "explain": "In undirected lists every edge appears twice; the reverse copy is innocent."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "graphs-q11"
+  },
+  {
+   "kind": "edge",
+   "prompt": "Which input most deserves a dedicated test for a component counter?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "A node with no edges at all",
+     "explain": "It must count as its own component - the outer loop, not the walk, finds it."
+    },
+    {
+     "text": "A complete graph",
+     "explain": "Dense but boring: one launch swallows everything."
+    },
+    {
+     "text": "A long chain",
+     "explain": "Stresses recursion depth in DFS, but the lonely node breaks counters more often."
+    },
+    {
+     "text": "Duplicate edges between two nodes",
+     "explain": "The visited array shrugs them off."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "graphs-q12"
+  }
+ ]
 }

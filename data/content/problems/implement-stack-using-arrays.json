@@ -1,0 +1,32 @@
+{
+ "problemId": "implement-stack-using-arrays",
+ "statement": "Implement a stack over an array. The first line holds q, the number of operations; each of the next q lines is one of: push x, pop, top, size. Execute them in order and print the results of every pop, top and size on one line, separated by single spaces. pop removes and returns the newest value; top returns it without removing; both return -1 when the stack is empty; size returns the current element count.",
+ "constraints": [
+  "1 ≤ q ≤ 1000",
+  "-1000000 ≤ x ≤ 1000000"
+ ],
+ "example": {
+  "input": "7\npush 4\npush 7\ntop\npop\npop\npop\nsize\n",
+  "output": "7 7 4 -1 0",
+  "why": "top sees 7, the pops yield 7 then 4, the third pop finds the stack empty, and size ends at 0."
+ },
+ "hint": "Keep one top index starting at -1: push increments then writes, pop reads then decrements.",
+ "mistake": "Decrementing the top index on a pop of an empty stack; guard first, return -1, leave the index alone.",
+ "tests": [
+  {
+   "input": "7\npush 4\npush 7\ntop\npop\npop\npop\nsize\n",
+   "expected": "7 7 4 -1 0",
+   "note": "full vocabulary"
+  },
+  {
+   "input": "3\npop\npush 5\ntop\n",
+   "expected": "-1 5",
+   "note": "empty pop first"
+  },
+  {
+   "input": "4\npush 1\npush 2\nsize\npop\n",
+   "expected": "2 2",
+   "note": "size then pop"
+  }
+ ]
+}

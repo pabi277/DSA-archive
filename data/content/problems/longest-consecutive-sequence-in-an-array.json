@@ -1,0 +1,32 @@
+{
+ "problemId": "longest-consecutive-sequence-in-an-array",
+ "statement": "The first line holds n; the second holds n integers in any order, duplicates allowed. Print the length of the longest run of consecutive values present - the values need to exist somewhere in the array, their positions are irrelevant. Pour everything into a hash set, then count upward only from run-starts: a value whose predecessor is absent from the set. Each run is then walked exactly once, keeping the whole scan linear despite the nested while.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "Values fit in 32 bits; duplicates allowed."
+ ],
+ "example": {
+  "input": "7\n102 4 100 1 101 3 2\n",
+  "output": "4",
+  "why": "The values 1, 2, 3, 4 all exist - a run of four, beating the trio 100, 101, 102."
+ },
+ "hint": "One membership question filters the starts: is value minus 1 in the set?",
+ "mistake": "Counting upward from every value - a single long run then gets rewalked from each member, quadratic.",
+ "tests": [
+  {
+   "input": "7\n102 4 100 1 101 3 2\n",
+   "expected": "4",
+   "note": "classic"
+  },
+  {
+   "input": "3\n1 1 1\n",
+   "expected": "1",
+   "note": "duplicates collapse"
+  },
+  {
+   "input": "1\n7\n",
+   "expected": "1",
+   "note": "single value"
+  }
+ ]
+}

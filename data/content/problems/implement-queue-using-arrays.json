@@ -1,0 +1,32 @@
+{
+ "problemId": "implement-queue-using-arrays",
+ "statement": "Implement a queue over an array. The first line holds q, the number of operations; each of the next q lines is one of: push x, pop, front, size. Execute them in order and print the results of every pop, front and size on one line, separated by single spaces. push adds at the back; pop removes and returns the oldest value; front returns it without removing; both return -1 when the queue is empty; size returns the element count.",
+ "constraints": [
+  "1 ≤ q ≤ 1000",
+  "-1000000 ≤ x ≤ 1000000"
+ ],
+ "example": {
+  "input": "6\npush 4\npush 7\nfront\npop\nfront\nsize\n",
+  "output": "4 4 7 1",
+  "why": "The oldest value 4 is seen and removed first; 7 then stands at the front with one element left."
+ },
+ "hint": "Keep head and tail indices that only move forward; pop advances the head, no shifting.",
+ "mistake": "Shifting every element left on pop - linear work that the moving head index does for free.",
+ "tests": [
+  {
+   "input": "6\npush 4\npush 7\nfront\npop\nfront\nsize\n",
+   "expected": "4 4 7 1",
+   "note": "arrival order"
+  },
+  {
+   "input": "3\npop\npush 9\nfront\n",
+   "expected": "-1 9",
+   "note": "empty pop first"
+  },
+  {
+   "input": "5\npush 1\npush 2\npop\npop\npop\n",
+   "expected": "1 2 -1",
+   "note": "drained to empty"
+  }
+ ]
+}

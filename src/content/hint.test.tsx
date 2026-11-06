@@ -1,7 +1,12 @@
 import { act } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { HintDisclosure } from './hint'
+import { statementsReady } from './load'
+
+// Hybrid precache split: hints live in the lazy statements chunk; wait for it
+// once so the first render already has the authored hint.
+beforeAll(() => statementsReady())
 
 let container: HTMLDivElement
 let root: Root

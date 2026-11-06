@@ -1,0 +1,32 @@
+{
+ "problemId": "longest-palindromic-substring",
+ "statement": "You receive one line holding a string s of lowercase letters. Print the length of its longest palindromic substring. Treat every position as a centre - each character for odd lengths and each gap between two characters for even lengths, 2n-1 centres in all. Expand outward from each centre while the two end characters match, and keep the widest success seen.",
+ "constraints": [
+  "1 ≤ length ≤ 1000",
+  "Lowercase letters only."
+ ],
+ "example": {
+  "input": "babad\n",
+  "output": "3",
+  "why": "Both bab and aba have length 3, and no palindromic substring of length 4 exists."
+ },
+ "hint": "Even-length palindromes hide between characters; expanding only from characters misses bb.",
+ "mistake": "Trying odd centres alone - on cbbd that answers 1 instead of 2.",
+ "tests": [
+  {
+   "input": "babad\n",
+   "expected": "3",
+   "note": "odd-length winner"
+  },
+  {
+   "input": "cbbd\n",
+   "expected": "2",
+   "note": "even-length winner"
+  },
+  {
+   "input": "a\n",
+   "expected": "1",
+   "note": "single character"
+  }
+ ]
+}

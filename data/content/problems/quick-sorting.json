@@ -1,0 +1,33 @@
+{
+ "problemId": "quick-sorting",
+ "statement": "You receive a row of integers. Sort it into ascending order with quick sort: choose a pivot value, partition the row so that values smaller than the pivot end up on its left and larger values on its right, then sort the two sides the same way. Print the sorted values on one line, separated by single spaces.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-1000000 ≤ each value ≤ 1000000",
+  "Values may repeat."
+ ],
+ "example": {
+  "input": "5\n10 80 30 90 40\n",
+  "output": "10 30 40 80 90",
+  "why": "With 40 as pivot, 10 and 30 fall left, 80 and 90 fall right, and each side sorts on its own."
+ },
+ "hint": "After partitioning, the pivot is final - recurse strictly on the left and right sides, excluding it.",
+ "mistake": "Recursing on a side that still includes the pivot slot - the recursion then may compute forever on equal values.",
+ "tests": [
+  {
+   "input": "5\n10 80 30 90 40\n",
+   "expected": "10 30 40 80 90",
+   "note": "classic shuffle"
+  },
+  {
+   "input": "6\n1 2 3 4 5 6\n",
+   "expected": "1 2 3 4 5 6",
+   "note": "sorted input, pivot stress"
+  },
+  {
+   "input": "5\n3 3 1 3 3\n",
+   "expected": "1 3 3 3 3",
+   "note": "many equal keys"
+  }
+ ]
+}

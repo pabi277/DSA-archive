@@ -1,0 +1,33 @@
+{
+ "problemId": "pow-x-n",
+ "statement": "You receive integers x and n on one line. Print x raised to the power n. Use fast exponentiation: the answer for exponent n is the square of the answer for the floored half of n, times one extra x when n is odd. The base case is exponent 0, which answers 1. The exponent chain halves each call, so the whole computation takes a logarithmic number of multiplications.",
+ "constraints": [
+  "-9 ≤ x ≤ 9",
+  "0 ≤ n ≤ 18",
+  "The answer fits in a 64-bit integer."
+ ],
+ "example": {
+  "input": "2 10\n",
+  "output": "1024",
+  "why": "The exponent falls along 10, 5, 2, 1, 0 and the squares rebuild 1024 in a handful of multiplies."
+ },
+ "hint": "Recurse once on the floored half and square the result - two recursive calls ruin the logarithm.",
+ "mistake": "Forgetting the extra factor of x when n is odd; 2 to the 3 then returns 4.",
+ "tests": [
+  {
+   "input": "2 10\n",
+   "expected": "1024",
+   "note": "even and odd halvings"
+  },
+  {
+   "input": "-3 3\n",
+   "expected": "-27",
+   "note": "negative base, odd exponent"
+  },
+  {
+   "input": "5 0\n",
+   "expected": "1",
+   "note": "base case"
+  }
+ ]
+}

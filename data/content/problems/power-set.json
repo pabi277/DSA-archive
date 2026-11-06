@@ -1,0 +1,32 @@
+{
+ "problemId": "power-set",
+ "statement": "You receive a string s of distinct lowercase letters. Print all its subsequences but the empty one, separated by single spaces, in the order produced by this recursion: at each position, first include the character, then exclude it, and emit at the end of the string. Characters keep their original relative order inside every subsequence.",
+ "constraints": [
+  "1 ≤ length ≤ 10",
+  "All characters are distinct lowercase letters."
+ ],
+ "example": {
+  "input": "abc\n",
+  "output": "abc ab ac a bc b c",
+  "why": "Include-first exploration emits both-in paths before their shorter variants, ending at single letters."
+ },
+ "hint": "Emit at position n, where the built prefix is one finished subsequence.",
+ "mistake": "Printing the empty subsequence too - the task asks for the other 2 to the n minus 1.",
+ "tests": [
+  {
+   "input": "abc\n",
+   "expected": "abc ab ac a bc b c",
+   "note": "seven subsequences"
+  },
+  {
+   "input": "ab\n",
+   "expected": "ab a b",
+   "note": "three subsequences"
+  },
+  {
+   "input": "a\n",
+   "expected": "a",
+   "note": "single letter"
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+ "problemId": "flood-fill-algorithm",
+ "statement": "The first line holds R and C. The next R lines each hold a string of C digits - an image, one colour digit per pixel. A final line holds sr, sc and newColor. Repaint the region of the starting pixel: every pixel reachable from (sr, sc) through side-sharing pixels of the starting pixel's original colour takes newColor. Print the resulting image, R lines. Guard the do-nothing case: when newColor equals the original colour, the image is unchanged - and a naive walk loops forever.",
+ "constraints": [
+  "1 ≤ R, C ≤ 300",
+  "Colours are single digits 0 to 9."
+ ],
+ "example": {
+  "input": "3 3\n111\n110\n101\n1 1 2\n",
+  "output": "222\n220\n201",
+  "why": "The connected 1-region around (1,1) repaints to 2; the 1 at (2,2) touches it only diagonally."
+ },
+ "hint": "Record the original colour first; the walk tests against it, paints newColor, and moves on.",
+ "mistake": "Skipping the equal-colours guard - painting 2 over 2 re-queues the same region without end.",
+ "tests": [
+  {
+   "input": "3 3\n111\n110\n101\n1 1 2\n",
+   "expected": "222\n220\n201",
+   "note": "classic fill"
+  },
+  {
+   "input": "2 2\n00\n00\n0 0 2\n",
+   "expected": "22\n22",
+   "note": "whole image one region"
+  },
+  {
+   "input": "1 1\n2\n0 0 2\n",
+   "expected": "2",
+   "note": "newColor equals old"
+  }
+ ]
+}

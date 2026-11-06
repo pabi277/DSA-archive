@@ -1,33 +1,33 @@
 {
-  "problemId": "move-zeros-to-end",
-  "statement": "A row of integers contains at least one 0. Move every 0 to the end while keeping the order of all non-zero values. Print the resulting row on one line separated by spaces. The length does not change.",
-  "constraints": [
-    "1 ≤ n ≤ 1000",
-    "-100 ≤ each value ≤ 100",
-    "At least one 0 is present."
-  ],
-  "example": {
-    "input": "7\n0 4 0 1 8 0 3\n",
-    "output": "4 1 8 3 0 0 0",
-    "why": "The non-zero values keep their order and the three zeros follow them."
+ "problemId": "move-zeros-to-end",
+ "statement": "The first line holds n; the second holds the row of n integers, which contains at least one 0. Move every 0 to the end while keeping the order of all non-zero values. Print the resulting row on one line separated by spaces. The length does not change.",
+ "constraints": [
+  "1 ≤ n ≤ 1000",
+  "-100 ≤ each value ≤ 100",
+  "At least one 0 is present."
+ ],
+ "example": {
+  "input": "7\n0 4 0 1 8 0 3\n",
+  "output": "4 1 8 3 0 0 0",
+  "why": "The non-zero values keep their order and the three zeros follow them."
+ },
+ "hint": "Write each non-zero value into the next output position, then fill the remaining positions with 0.",
+ "mistake": "Swapping a non-zero value with a zero and accidentally reversing two non-zero values.",
+ "tests": [
+  {
+   "input": "7\n0 4 0 1 8 0 3\n",
+   "expected": "4 1 8 3 0 0 0",
+   "note": "mixed positions"
   },
-  "hint": "Write each non-zero value into the next output position, then fill the remaining positions with 0.",
-  "mistake": "Swapping a non-zero value with a zero and accidentally reversing two non-zero values.",
-  "tests": [
-    {
-      "input": "7\n0 4 0 1 8 0 3\n",
-      "expected": "4 1 8 3 0 0 0",
-      "note": "mixed positions"
-    },
-    {
-      "input": "4\n0 0 0 0\n",
-      "expected": "0 0 0 0",
-      "note": "all zeros"
-    },
-    {
-      "input": "5\n2 -1 0 6 0\n",
-      "expected": "2 -1 6 0 0",
-      "note": "negative value"
-    }
-  ]
+  {
+   "input": "4\n0 0 0 0\n",
+   "expected": "0 0 0 0",
+   "note": "all zeros"
+  },
+  {
+   "input": "5\n2 -1 0 6 0\n",
+   "expected": "2 -1 6 0 0",
+   "note": "negative value"
+  }
+ ]
 }

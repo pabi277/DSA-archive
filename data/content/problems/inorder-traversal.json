@@ -1,0 +1,32 @@
+{
+ "problemId": "inorder-traversal",
+ "statement": "A tree is given as: a line with n, then a line of n level-order entries where -1 marks an absent child; each placed node consumes the next two entries as its left and right children. Print the inorder traversal - the whole left subtree, then the root, then the whole right subtree - as space-separated values. Inorder places every node between its two subtrees; on a binary search tree this order emits the values sorted ascending, a fact the next topic depends on.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "Node values are positive; -1 marks an absent child."
+ ],
+ "example": {
+  "input": "7\n1 2 3 4 5 -1 -1\n",
+  "output": "4 2 5 1 3",
+  "why": "The left subtree prints 4 2 5, the root 1 follows, and the right subtree 3 closes."
+ },
+ "hint": "Recurse left, visit, recurse right - the visit line sits in the middle slot.",
+ "mistake": "Visiting the root first out of habit; that is preorder and the output order shifts everywhere.",
+ "tests": [
+  {
+   "input": "7\n1 2 3 4 5 -1 -1\n",
+   "expected": "4 2 5 1 3",
+   "note": "small bushy tree"
+  },
+  {
+   "input": "5\n3 2 -1 1 -1\n",
+   "expected": "1 2 3",
+   "note": "left chain reads ascending"
+  },
+  {
+   "input": "1\n5\n",
+   "expected": "5",
+   "note": "single node"
+  }
+ ]
+}

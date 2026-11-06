@@ -16,20 +16,20 @@ third-party video frame is photographed (the YouTube player is not ours to captu
 | File | Size | What it shows |
 |---|---|---|
 | `phone-today.png` | 432.8 kB | Today: momentum, the plan, reason chips on the suggested rows |
-| `phone-topics.png` | 193.5 kB | All 20 topics, always visible, with progress and quiz badges |
+| `phone-topics.png` | 192.6 kB | All 20 topics, always visible, with progress and quiz badges |
 | `phone-topic-learn.png` | 210.5 kB | The authored Arrays primer (Learn tab) |
 | `phone-topic-practice.png` | 182.9 kB | Practice tab: outcomes and the drill set |
-| `phone-problem.png` | 147.6 kB | Our own statement, constraints, hint and common mistakes |
+| `phone-problem.png` | 152.9 kB | Our own statement, constraints, hint and common mistakes |
 | `phone-code.png` | 151.5 kB | Code: saved solutions with language and verdict badges |
 | `phone-quiz.png` | 149.6 kB | The quiz runner mid-question with keyboard hints |
 | `phone-insights.png` | 139.7 kB | Insights: momentum strip, one trajectory sentence, detectors |
 | `phone-today-light.png` | 429.6 kB | The light theme on Today (same record, same layout) |
 | `desktop-today.png` | 517.7 kB | Today with the sidebar rail and the plan |
-| `desktop-topics.png` | 518.5 kB | The 20-topic grid at 1440 px |
-| `desktop-problem.png` | 323.2 kB | The problem page at desktop width: the stage with its offline state, tabs and the reference rail |
+| `desktop-topics.png` | 510.3 kB | The 20-topic grid at 1440 px |
+| `desktop-problem.png` | 322.1 kB | The problem page at desktop width: the stage with its offline state, tabs and the reference rail |
 | `desktop-code.png` | 217.0 kB | Code screen with the search and language filters |
-| `desktop-quiz.png` | 313.9 kB | Quiz home: every topic with its pass state |
-| `desktop-topics-light.png` | 515.2 kB | The 20-topic grid in the light theme |
+| `desktop-quiz.png` | 276.4 kB | Quiz home: every topic with its pass state |
+| `desktop-topics-light.png` | 507.3 kB | The 20-topic grid in the light theme |
 | `desktop-insights.png` | 243.1 kB | Insights: momentum, trajectory, detectors, finish line |
 
 
@@ -43,4 +43,4 @@ this folder as the `docs-screenshots` artifact: the committed PNGs are the
 evidence, and a reviewer opens them from the run page.
 
 Regenerate: `npm run build:emulator && npm run screenshots`.
-Total: 16 files, 4.6 MB.
+Total: 16 files, 4.5 MB.

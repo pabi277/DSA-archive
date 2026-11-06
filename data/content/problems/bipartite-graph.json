@@ -1,0 +1,33 @@
+{
+ "problemId": "bipartite-graph",
+ "statement": "The first line holds n and m - nodes 0 to n-1 and undirected edges. The next m lines each hold an edge. Print yes when the nodes can be split into two camps such that every edge joins the camps, and no otherwise. Two-colour during a BFS or DFS: colour each newly discovered node opposite to its discoverer; when a walk meets an already-coloured neighbour wearing the same colour, an odd cycle exists and the split is impossible. Walk every component - the graph may be disconnected.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "0 ≤ m ≤ 200000",
+  "No self-loops or duplicate edges."
+ ],
+ "example": {
+  "input": "4 4\n0 1\n1 2\n2 3\n3 0\n",
+  "output": "yes",
+  "why": "The square alternates camps cleanly: nodes 0 and 2 against nodes 1 and 3."
+ },
+ "hint": "Three states per node: uncoloured, camp 0, camp 1 - and the clash test runs on every edge.",
+ "mistake": "Colouring a fresh component with the leftover colour variable instead of starting it at camp 0 deliberately.",
+ "tests": [
+  {
+   "input": "4 4\n0 1\n1 2\n2 3\n3 0\n",
+   "expected": "yes",
+   "note": "even cycle"
+  },
+  {
+   "input": "3 3\n0 1\n1 2\n2 0\n",
+   "expected": "no",
+   "note": "triangle, odd cycle"
+  },
+  {
+   "input": "2 1\n0 1\n",
+   "expected": "yes",
+   "note": "single edge"
+  }
+ ]
+}
