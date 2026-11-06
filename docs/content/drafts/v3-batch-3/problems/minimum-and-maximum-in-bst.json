@@ -1,0 +1,32 @@
+{
+ "problemId": "minimum-and-maximum-in-bst",
+ "statement": "A BST is given as: a line with n, then a line of n level-order entries where -1 marks an absent child; each placed node consumes the next two entries as its children. All stored values are distinct. Print the minimum and the maximum stored values, separated by a space. The invariant makes both walks trivial: keep stepping left and the last node before the pointer falls off holds the minimum; keep stepping right for the maximum. No comparisons with the values are needed - the direction alone is the algorithm.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "Values are positive; -1 marks an absent child."
+ ],
+ "example": {
+  "input": "7\n8 5 12 2 7 -1 14\n",
+  "output": "2 14",
+  "why": "The leftmost node is 2 and the rightmost is 14; inorder confirms: 2 5 7 8 12 14."
+ },
+ "hint": "Two loops of one line each: follow left until null, follow right until null.",
+ "mistake": "Scanning every node for min and max - that works on any tree, but here it ignores the invariant's gift.",
+ "tests": [
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n",
+   "expected": "2 14",
+   "note": "bushy BST"
+  },
+  {
+   "input": "5\n10 5 -1 2 -1\n",
+   "expected": "2 10",
+   "note": "left chain: root is max"
+  },
+  {
+   "input": "1\n7\n",
+   "expected": "7 7",
+   "note": "single node is both"
+  }
+ ]
+}

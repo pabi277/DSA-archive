@@ -1,0 +1,32 @@
+{
+ "problemId": "search-in-bst",
+ "statement": "A BST is given as: a line with n, then a line of n level-order entries where -1 marks an absent child; each placed node consumes the next two entries as its children. All stored values are distinct. A final line holds a target x. Print yes when x is stored in the tree and no otherwise. Walk from the root: equal means found; when the node's value is larger than x step left, otherwise step right. Each comparison discards one whole subtree, so the walk follows a single root-to-leaf path.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "Values and x are positive; -1 marks an absent child."
+ ],
+ "example": {
+  "input": "7\n8 5 12 2 7 -1 14\n7\n",
+  "output": "yes",
+  "why": "7 is smaller than 8 (left), larger than 5 (right), and found in three visits."
+ },
+ "hint": "A loop beats recursion here - nothing happens on the way back up.",
+ "mistake": "Searching both subtrees like a plain tree; the invariant exists so one side can be discarded.",
+ "tests": [
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n7\n",
+   "expected": "yes",
+   "note": "found at depth 3"
+  },
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n9\n",
+   "expected": "no",
+   "note": "falls off at 12's left"
+  },
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n2\n",
+   "expected": "yes",
+   "note": "leftmost leaf"
+  }
+ ]
+}

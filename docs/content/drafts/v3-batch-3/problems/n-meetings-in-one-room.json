@@ -1,0 +1,32 @@
+{
+ "problemId": "n-meetings-in-one-room",
+ "statement": "The first line holds n; the second holds n start times; the third holds n end times. One room exists, and a meeting may be accepted only when it starts strictly after the previously accepted meeting ends. Print the maximum number of meetings the room can host. Sort the meetings by end time and sweep once: accept whatever starts strictly after the last accepted end. The earliest finisher leaves the most room - the exchange argument makes this pick safe at every step.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "0 ≤ start ≤ end ≤ 1000000000"
+ ],
+ "example": {
+  "input": "6\n1 3 0 5 8 5\n2 4 6 7 9 9\n",
+  "output": "4",
+  "why": "The end-sorted sweep accepts the meetings running 1 to 2, 3 to 4, 5 to 7 and 8 to 9."
+ },
+ "hint": "Sort by end time, keep one lastEnd variable, and count acceptances - that is the whole program.",
+ "mistake": "Sorting by start time; one early marathon blocks a chain of short meetings behind it.",
+ "tests": [
+  {
+   "input": "6\n1 3 0 5 8 5\n2 4 6 7 9 9\n",
+   "expected": "4",
+   "note": "classic instance"
+  },
+  {
+   "input": "3\n10 12 20\n20 25 30\n",
+   "expected": "1",
+   "note": "all overlapping"
+  },
+  {
+   "input": "2\n1 5\n5 9\n",
+   "expected": "1",
+   "note": "touching is a clash here"
+  }
+ ]
+}

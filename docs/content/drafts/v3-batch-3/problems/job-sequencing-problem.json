@@ -1,0 +1,33 @@
+{
+ "problemId": "job-sequencing-problem",
+ "statement": "The first line holds n; the second holds n deadlines (day numbers from 1); the third holds n profits. Each job takes one day, pays its profit only if finished by its deadline, and only one job runs per day. Print two numbers: the maximum count of jobs done and the maximum total profit, separated by a space. Sort by profit descending and drop each job into the latest free day at or before its deadline; skip it when no such day remains. Late placement keeps early days open for tight deadlines.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "1 ≤ deadline ≤ n",
+  "1 ≤ profit ≤ 1000000000"
+ ],
+ "example": {
+  "input": "4\n4 1 1 1\n20 10 40 30\n",
+  "output": "2 60",
+  "why": "The 40-profit job takes day 1; the 20-profit job, deadline 4, takes day 4; the rest find day 1 occupied."
+ },
+ "hint": "For each job scan days deadline, deadline-1, down to 1 and grab the first free one.",
+ "mistake": "Placing rich jobs on the earliest free day - that squanders exactly the days tight-deadline jobs need.",
+ "tests": [
+  {
+   "input": "4\n4 1 1 1\n20 10 40 30\n",
+   "expected": "2 60",
+   "note": "classic"
+  },
+  {
+   "input": "5\n2 1 2 1 1\n100 19 27 25 15\n",
+   "expected": "2 127",
+   "note": "two slots, best pair"
+  },
+  {
+   "input": "2\n1 1\n5 7\n",
+   "expected": "1 7",
+   "note": "one day, pick the richer"
+  }
+ ]
+}

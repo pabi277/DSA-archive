@@ -211,10 +211,11 @@ Do **not** start coding before step 5 is read end-to-end.
   statements, 6 of 495 hints/mistakes, 12 of 240 quiz items are authored, and the **~300
   runner test cases** have a consumer in `Run tests`. Every content batch improves the
   live site on the next deploy; any redeploy walks `docs/RELEASE-RUNBOOK.md` again.
-  **Parked draft batches:** 8 more topics sit under `docs/content/drafts/`, NOT in
-  `data/content/` — batch 1 (sorting, binary-search, linked-list, bit-manipulation) and
+  **Parked draft batches:** 12 more topics sit under `docs/content/drafts/`, NOT in
+  `data/content/` — batch 1 (sorting, binary-search, linked-list, bit-manipulation),
   batch 2 (strings-basic-and-medium, recursion, stack-queues, sliding-window-2-pointer),
-  together +8 primers, +48 statements, +96 quiz items, validator-green when staged. The
+  batch 3 (binary-trees, binary-search-trees, heaps, greedy-algorithms) —
+  together +12 primers, +72 statements, +144 quiz items, validator-green when staged. The
   measured cost of batch 1 alone is **+23,471 B gz** (precached shell 416,210 B vs the
   frozen 393,000 B cap, 261 B headroom today). **The owner decided on 2026-11-06
   (recorded in `docs/DECISIONS.md`): hybrid precache split** — primers/sections/quiz stay

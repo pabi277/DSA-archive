@@ -1,0 +1,32 @@
+{
+ "problemId": "check-if-two-trees-are-identical-or-not",
+ "statement": "Two trees are given, each as: a line with n, then a line of n level-order entries where -1 marks an absent child (each placed node consumes the next two entries as its children). Print yes when the trees are identical - same shape and the same value at every position - and no otherwise. Walk both in lockstep: both empty is yes, exactly one empty is no, and otherwise the root values must match and both subtree pairs must be identical.",
+ "constraints": [
+  "1 ≤ each n ≤ 10000",
+  "Node values are positive; -1 marks an absent child."
+ ],
+ "example": {
+  "input": "7\n1 2 3 4 5 -1 -1\n7\n1 2 3 4 5 -1 -1\n",
+  "output": "yes",
+  "why": "Shape and values agree at every position in the lockstep walk."
+ },
+ "hint": "Three base cases first: both empty, one empty, values differ - then recurse on both pairs.",
+ "mistake": "Comparing traversal strings; different shapes can print identical sequences.",
+ "tests": [
+  {
+   "input": "7\n1 2 3 4 5 -1 -1\n7\n1 2 3 4 5 -1 -1\n",
+   "expected": "yes",
+   "note": "equal trees"
+  },
+  {
+   "input": "7\n1 2 3 4 5 -1 -1\n7\n1 2 3 4 6 -1 -1\n",
+   "expected": "no",
+   "note": "one value differs"
+  },
+  {
+   "input": "3\n1 2 -1\n3\n1 -1 2\n",
+   "expected": "no",
+   "note": "mirror shapes differ"
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+ "problemId": "k-th-largest-element-in-an-array",
+ "statement": "The first line holds n and k; the second holds n integers. Print the kth largest element - the value that would sit at position k if the array were sorted descending. Keep a min-heap of at most k values while scanning: push each element, and pop the minimum whenever the size spills past k. After the scan the heap holds the k largest values, and its root is exactly the kth largest. Duplicates count separately: in 7 7 8, the 2nd largest is 7.",
+ "constraints": [
+  "1 ≤ k ≤ n ≤ 100000",
+  "-1000000000 ≤ each value ≤ 1000000000"
+ ],
+ "example": {
+  "input": "6 2\n3 2 1 5 6 4\n",
+  "output": "5",
+  "why": "Sorted descending the array reads 6 5 4 3 2 1, and the second entry is 5."
+ },
+ "hint": "The heap's root is the weakest of the current champions - exactly the kth largest so far.",
+ "mistake": "Keeping a max-heap of size k and evicting its maximum; that discards the champions and keeps the k smallest.",
+ "tests": [
+  {
+   "input": "6 2\n3 2 1 5 6 4\n",
+   "expected": "5",
+   "note": "classic"
+  },
+  {
+   "input": "1 1\n1\n",
+   "expected": "1",
+   "note": "single element"
+  },
+  {
+   "input": "3 3\n7 7 8\n",
+   "expected": "7",
+   "note": "duplicates count"
+  }
+ ]
+}

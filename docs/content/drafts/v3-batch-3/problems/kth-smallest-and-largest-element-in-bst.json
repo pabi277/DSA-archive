@@ -1,0 +1,33 @@
+{
+ "problemId": "kth-smallest-and-largest-element-in-bst",
+ "statement": "A BST is given as: a line with n, then a line of n level-order entries where -1 marks an absent child; each placed node consumes the next two entries as its children. All stored values are distinct. A final line holds k. Print the kth smallest and the kth largest stored values, separated by a space. Run an inorder walk with a live counter and stop the moment the counter reaches k - that visit is the kth smallest. The kth largest is the same idea mirrored: a reverse inorder (right, node, left) stopped at k. Avoid materialising the whole sorted array; the counter makes both walks stop early.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "1 ≤ k ≤ n",
+  "Values are positive; -1 marks an absent child."
+ ],
+ "example": {
+  "input": "7\n8 5 12 2 7 -1 14\n2\n",
+  "output": "5 12",
+  "why": "Sorted order is 2 5 7 8 12 14; second from the front is 5, second from the back is 12."
+ },
+ "hint": "The counter lives outside the recursion (or is threaded through returns) - one shared count per walk.",
+ "mistake": "Resetting the counter inside each recursive call; every subtree then reports its own first visit.",
+ "tests": [
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n2\n",
+   "expected": "5 12",
+   "note": "second from each end"
+  },
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n1\n",
+   "expected": "2 14",
+   "note": "min and max"
+  },
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n4\n",
+   "expected": "8 7",
+   "note": "middle crossing"
+  }
+ ]
+}

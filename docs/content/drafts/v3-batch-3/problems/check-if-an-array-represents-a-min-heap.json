@@ -1,0 +1,32 @@
+{
+ "problemId": "check-if-an-array-represents-a-min-heap",
+ "statement": "The first line holds n; the second holds n integers viewed as a complete binary tree in an array: the children of index i sit at 2i+1 and 2i+2. Print yes when the array satisfies the min-heap promise - every parent is at most each existing child - and no otherwise. One loop over the internal nodes (indices 0 to n/2 - 1) comparing each with its one or two children settles it.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-1000000000 ≤ each value ≤ 1000000000"
+ ],
+ "example": {
+  "input": "5\n10 20 30 21 23\n",
+  "output": "yes",
+  "why": "10 is under its children 20 and 30; 20 is under its children 21 and 23; leaves prove nothing."
+ },
+ "hint": "Guard the child indices against n before comparing - the last internal node may have one child only.",
+ "mistake": "Expecting the array to be sorted; the promise runs along parent-child edges only, and siblings may be in any order.",
+ "tests": [
+  {
+   "input": "5\n10 20 30 21 23\n",
+   "expected": "yes",
+   "note": "valid heap, unsorted array"
+  },
+  {
+   "input": "5\n10 20 30 25 15\n",
+   "expected": "no",
+   "note": "15 beats its parent 20"
+  },
+  {
+   "input": "1\n5\n",
+   "expected": "yes",
+   "note": "single element"
+  }
+ ]
+}

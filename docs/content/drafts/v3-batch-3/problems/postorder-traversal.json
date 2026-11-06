@@ -1,0 +1,32 @@
+{
+ "problemId": "postorder-traversal",
+ "statement": "A tree is given as: a line with n, then a line of n level-order entries where -1 marks an absent child; each placed node consumes the next two entries as its left and right children. Print the postorder traversal - the whole left subtree, then the whole right subtree, then the root - as space-separated values. Postorder finishes both children before their parent, making it the only safe order for jobs where a node needs its children's results first, like subtree sizes or safe deletion.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "Node values are positive; -1 marks an absent child."
+ ],
+ "example": {
+  "input": "7\n1 2 3 4 5 -1 -1\n",
+  "output": "4 5 2 3 1",
+  "why": "Leaves 4 and 5 report before their parent 2; the right subtree 3 follows; the root 1 is last."
+ },
+ "hint": "Recurse left, recurse right, visit - the root is always the final value printed.",
+ "mistake": "Expecting postorder to read bottom level first across the tree; it is per-subtree, left before right.",
+ "tests": [
+  {
+   "input": "7\n1 2 3 4 5 -1 -1\n",
+   "expected": "4 5 2 3 1",
+   "note": "small bushy tree"
+  },
+  {
+   "input": "5\n3 2 -1 1 -1\n",
+   "expected": "1 2 3",
+   "note": "chain: deepest first"
+  },
+  {
+   "input": "1\n5\n",
+   "expected": "5",
+   "note": "single node"
+  }
+ ]
+}

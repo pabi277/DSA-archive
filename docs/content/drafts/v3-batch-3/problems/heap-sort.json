@@ -1,0 +1,32 @@
+{
+ "problemId": "heap-sort",
+ "statement": "The first line holds n; the second holds n integers. Sort them ascending with heap sort and print the result, space-separated. Build a max-heap bottom-up, then repeat n-1 times: swap the root (the current maximum) with the last element of the active region, shrink the region by one, and sift the new root down. The array sorts in place back to front, with no extra memory beyond a few indices.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-1000000000 ≤ each value ≤ 1000000000"
+ ],
+ "example": {
+  "input": "5\n4 10 3 5 1\n",
+  "output": "1 3 4 5 10",
+  "why": "Each round parks the current maximum at the end of the shrinking region; ascending order emerges."
+ },
+ "hint": "Ascending output wants a max-heap - the biggest value must be the one parked at the back each round.",
+ "mistake": "Sifting the new root down over the full length instead of the shrunk region - parked maxima get dragged back in.",
+ "tests": [
+  {
+   "input": "5\n4 10 3 5 1\n",
+   "expected": "1 3 4 5 10",
+   "note": "mixed order"
+  },
+  {
+   "input": "2\n2 1\n",
+   "expected": "1 2",
+   "note": "single swap"
+  },
+  {
+   "input": "3\n7 7 7\n",
+   "expected": "7 7 7",
+   "note": "all equal"
+  }
+ ]
+}

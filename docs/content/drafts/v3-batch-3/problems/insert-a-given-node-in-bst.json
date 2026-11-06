@@ -1,0 +1,33 @@
+{
+ "problemId": "insert-a-given-node-in-bst",
+ "statement": "A BST is given as: a line with n, then a line of n level-order entries where -1 marks an absent child; each placed node consumes the next two entries as its children. All stored values are distinct. A final line holds a new value x, absent from the tree. Insert x where the search for it falls off a leaf, then print the tree's inorder traversal. BST insertion creates no rebalancing here: walk down as in search, remember the last node, and hang the new leaf on the side the walk fell from. The inorder output must come back sorted with x in place.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "Values and x are positive; -1 marks an absent child.",
+  "x is absent from the tree."
+ ],
+ "example": {
+  "input": "7\n8 5 12 2 7 -1 14\n9\n",
+  "output": "2 5 7 8 9 12 14",
+  "why": "The search for 9 falls off 12's empty left side, so 9 hangs there; inorder stays sorted."
+ },
+ "hint": "In the recursive form, assign the child link to the recursion's return value - or the new node is lost.",
+ "mistake": "Recursing into insert without reattaching the result; the tree prints unchanged.",
+ "tests": [
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n9\n",
+   "expected": "2 5 7 8 9 12 14",
+   "note": "inner gap"
+  },
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n1\n",
+   "expected": "1 2 5 7 8 12 14",
+   "note": "new minimum"
+  },
+  {
+   "input": "7\n8 5 12 2 7 -1 14\n13\n",
+   "expected": "2 5 7 8 12 13 14",
+   "note": "deep right gap"
+  }
+ ]
+}

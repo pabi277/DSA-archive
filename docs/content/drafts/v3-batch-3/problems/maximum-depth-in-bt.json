@@ -1,0 +1,32 @@
+{
+ "problemId": "maximum-depth-in-bt",
+ "statement": "A tree is given as: a line with n, then a line of n level-order entries where -1 marks an absent child; each placed node consumes the next two entries as its left and right children. Print the tree's maximum depth counted in nodes: the number of nodes on the longest chain from the root down to a leaf. Recurse with the leap of faith - the depth of an empty tree is 0, and the depth at any node is 1 plus the larger of its two subtree depths.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "Node values are positive; -1 marks an absent child."
+ ],
+ "example": {
+  "input": "7\n1 2 3 4 5 -1 -1\n",
+  "output": "3",
+  "why": "The chain 1, 2, 4 holds three nodes; no chain in this tree is longer."
+ },
+ "hint": "One line of combine: 1 plus the max of the two child depths, with 0 for the empty tree.",
+ "mistake": "Returning the max of the child depths with no +1 - every answer collapses to 0.",
+ "tests": [
+  {
+   "input": "7\n1 2 3 4 5 -1 -1\n",
+   "expected": "3",
+   "note": "bushy tree"
+  },
+  {
+   "input": "1\n5\n",
+   "expected": "1",
+   "note": "single node is depth 1"
+  },
+  {
+   "input": "5\n3 2 -1 1 -1\n",
+   "expected": "3",
+   "note": "chain depth equals length"
+  }
+ ]
+}

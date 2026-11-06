@@ -1,0 +1,32 @@
+{
+ "problemId": "level-order-traversal",
+ "statement": "A tree is given as: a line with n, then a line of n level-order entries where -1 marks an absent child; each placed node consumes the next two entries as its left and right children. Print the level order traversal - the values floor by floor, left to right within each floor - as space-separated values. Use a queue: seed it with the root; repeatedly serve a node, record its value, and enqueue its existing children. Children join at the back while parents leave from the front, so floors come out in order automatically.",
+ "constraints": [
+  "1 ≤ n ≤ 10000",
+  "Node values are positive; -1 marks an absent child."
+ ],
+ "example": {
+  "input": "7\n1 2 3 4 5 -1 -1\n",
+  "output": "1 2 3 4 5",
+  "why": "Floor one holds 1, floor two holds 2 and 3, floor three holds 4 and 5."
+ },
+ "hint": "The queue does the ordering; your loop only serves, records and enqueues.",
+ "mistake": "Using a stack out of reflex - last in, first out visits the tree depth-first instead.",
+ "tests": [
+  {
+   "input": "7\n1 2 3 4 5 -1 -1\n",
+   "expected": "1 2 3 4 5",
+   "note": "two full floors"
+  },
+  {
+   "input": "5\n3 2 -1 1 -1\n",
+   "expected": "3 2 1",
+   "note": "chain: one node per floor"
+  },
+  {
+   "input": "1\n5\n",
+   "expected": "5",
+   "note": "single node"
+  }
+ ]
+}

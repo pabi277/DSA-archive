@@ -1,0 +1,32 @@
+{
+ "problemId": "kth-largest-element-in-a-stream-of-running-integers",
+ "statement": "The first line holds n and k; the second holds the n stream values in arrival order. After each arrival print the kth largest seen so far, or -1 while fewer than k values have arrived - all answers on one line, space-separated. Maintain a min-heap capped at k: push the newcomer, pop the minimum when the size spills past k, and report the root. Each arrival costs log k and the memory stays at k slots however long the stream runs.",
+ "constraints": [
+  "1 ≤ k ≤ n ≤ 100000",
+  "-1000000000 ≤ each value ≤ 1000000000"
+ ],
+ "example": {
+  "input": "5 3\n10 20 11 70 50\n",
+  "output": "-1 -1 10 11 20",
+  "why": "After three arrivals the 3rd largest is 10; 70 evicts it leaving root 11; 50 evicts 11 leaving 20."
+ },
+ "hint": "The root is the answer the instant the heap reaches size k - no sorting, no scanning.",
+ "mistake": "Re-sorting everything seen on each arrival; the stream's whole point is paying log k, never n log n.",
+ "tests": [
+  {
+   "input": "5 3\n10 20 11 70 50\n",
+   "expected": "-1 -1 10 11 20",
+   "note": "evictions shift the answer"
+  },
+  {
+   "input": "3 1\n5 3 9\n",
+   "expected": "5 5 9",
+   "note": "running maximum"
+  },
+  {
+   "input": "2 2\n4 4\n",
+   "expected": "-1 4",
+   "note": "duplicate fills the heap"
+  }
+ ]
+}
