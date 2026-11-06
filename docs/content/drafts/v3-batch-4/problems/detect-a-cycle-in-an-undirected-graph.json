@@ -1,0 +1,33 @@
+{
+ "problemId": "detect-a-cycle-in-an-undirected-graph",
+ "statement": "The first line holds n and m - nodes 0 to n-1 and undirected edges. The next m lines each hold an edge as two node numbers. Print yes when the graph contains a cycle and no otherwise. Walk every component, remembering for each discovered node who discovered it. Meeting an already-visited neighbour is a cycle - unless that neighbour is the node's own parent, since every undirected edge is seen once from each side. The graph may be disconnected: the outer loop over all nodes is part of the answer.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "0 ≤ m ≤ 200000",
+  "No self-loops or duplicate edges."
+ ],
+ "example": {
+  "input": "4 4\n0 1\n1 2\n2 3\n3 0\n",
+  "output": "yes",
+  "why": "The four edges close a square; the walk meets a visited node that is nobody's parent."
+ },
+ "hint": "Carry the parent through the queue or the recursion; exempt exactly that one neighbour.",
+ "mistake": "Reporting the reverse copy of the discovery edge as a cycle - every tree then looks cyclic.",
+ "tests": [
+  {
+   "input": "4 4\n0 1\n1 2\n2 3\n3 0\n",
+   "expected": "yes",
+   "note": "square cycle"
+  },
+  {
+   "input": "3 2\n0 1\n1 2\n",
+   "expected": "no",
+   "note": "plain path"
+  },
+  {
+   "input": "3 0\n",
+   "expected": "no",
+   "note": "no edges at all"
+  }
+ ]
+}

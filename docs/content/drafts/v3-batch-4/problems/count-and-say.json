@@ -1,0 +1,32 @@
+{
+ "problemId": "count-and-say",
+ "statement": "One line holds n. The count-and-say sequence starts at the term 1; each later term reads the previous one aloud, run by run - three 1s becomes 31, one 2 becomes 12. Print the nth term. Generate iteratively: walk the current term, measure each run of equal digits, and append the run's length followed by its digit. The terms grow quickly but stay well within limits for the allowed n.",
+ "constraints": [
+  "1 ≤ n ≤ 25",
+  "The first term is the string 1."
+ ],
+ "example": {
+  "input": "5\n",
+  "output": "111221",
+  "why": "Term 4 is 1211, read aloud as one 1, one 2, two 1s."
+ },
+ "hint": "Two nested loops: outer per term, inner per run - the run scan is a j-pointer walk.",
+ "mistake": "Saying digit-then-count; the rule is count first, then the digit being counted.",
+ "tests": [
+  {
+   "input": "5\n",
+   "expected": "111221",
+   "note": "classic"
+  },
+  {
+   "input": "1\n",
+   "expected": "1",
+   "note": "the seed"
+  },
+  {
+   "input": "6\n",
+   "expected": "312211",
+   "note": "one more read"
+  }
+ ]
+}

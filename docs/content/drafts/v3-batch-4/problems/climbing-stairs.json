@@ -1,0 +1,32 @@
+{
+ "problemId": "climbing-stairs",
+ "statement": "The first line holds n. You climb a staircase of n stairs taking 1 or 2 steps at a time; print the number of distinct ways to reach the top. Split by the last move: every way ends with a single step from stair n-1 or a double from n-2, so the counts add - f(n) = f(n-1) + f(n-2) with f(0) = f(1) = 1. Roll two variables forward; the answer fits in a 64-bit integer for every allowed n.",
+ "constraints": [
+  "0 ≤ n ≤ 45",
+  "The answer fits in a 64-bit integer."
+ ],
+ "example": {
+  "input": "4\n",
+  "output": "5",
+  "why": "1+1+1+1, 1+1+2, 1+2+1, 2+1+1 and 2+2 - five ways, the fibonacci count."
+ },
+ "hint": "Two rolling variables are the whole table - only the last two counts are ever read.",
+ "mistake": "Recursing without a memo; the twin branches turn n = 45 into billions of calls.",
+ "tests": [
+  {
+   "input": "4\n",
+   "expected": "5",
+   "note": "small case"
+  },
+  {
+   "input": "2\n",
+   "expected": "2",
+   "note": "two ways: 1+1 or 2"
+  },
+  {
+   "input": "45\n",
+   "expected": "1836311903",
+   "note": "the large end"
+  }
+ ]
+}

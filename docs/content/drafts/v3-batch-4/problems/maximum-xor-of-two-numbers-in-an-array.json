@@ -1,0 +1,32 @@
+{
+ "problemId": "maximum-xor-of-two-numbers-in-an-array",
+ "statement": "The first line holds n; the second holds n non-negative integers. Print the maximum value of any pair's XOR. Build a bitwise trie: each number inserted as its 32 bits, highest bit first. Then for each number walk down preferring the child with the opposite of its current bit - opposite bits contribute a 1 to that position of the XOR, and a high 1 outweighs everything below it - falling back to the same bit when the opposite child is missing. Track the best result across all numbers.",
+ "constraints": [
+  "2 ≤ n ≤ 100000",
+  "0 ≤ each value ≤ 1000000000"
+ ],
+ "example": {
+  "input": "6\n3 10 5 25 2 8\n",
+  "output": "28",
+  "why": "5 XOR 25 is 28: their binary rows disagree at three high positions."
+ },
+ "hint": "Insert all numbers first, then query each; the greedy is safe because high bits dominate.",
+ "mistake": "Walking toward the same bit - that hunts the minimum XOR, the exact opposite errand.",
+ "tests": [
+  {
+   "input": "6\n3 10 5 25 2 8\n",
+   "expected": "28",
+   "note": "classic"
+  },
+  {
+   "input": "2\n2 4\n",
+   "expected": "6",
+   "note": "single pair"
+  },
+  {
+   "input": "2\n8 8\n",
+   "expected": "0",
+   "note": "equal values cancel"
+  }
+ ]
+}

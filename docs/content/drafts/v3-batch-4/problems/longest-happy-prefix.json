@@ -1,0 +1,32 @@
+{
+ "problemId": "longest-happy-prefix",
+ "statement": "One line holds a string s of lowercase letters. A happy prefix is a proper prefix of s that is also a suffix of s. Print the length of the longest one, or 0 when none exists. This is the border array's closing statement: build lps for s and read its final entry - the definition of that entry is exactly this question. One pass, linear time, and the fallback chain inside the construction does all the thinking.",
+ "constraints": [
+  "1 ≤ length ≤ 100000",
+  "Lowercase letters only."
+ ],
+ "example": {
+  "input": "ababab\n",
+  "output": "4",
+  "why": "abab is both a proper prefix and a suffix; nothing longer works since ababa is no suffix."
+ },
+ "hint": "No new algorithm - the border array's last cell is the whole answer.",
+ "mistake": "Comparing every prefix against every suffix by hand; quadratic, and the border array already knows.",
+ "tests": [
+  {
+   "input": "ababab\n",
+   "expected": "4",
+   "note": "periodic overlap"
+  },
+  {
+   "input": "level\n",
+   "expected": "1",
+   "note": "single letter border"
+  },
+  {
+   "input": "abc\n",
+   "expected": "0",
+   "note": "no border"
+  }
+ ]
+}

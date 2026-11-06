@@ -1,0 +1,32 @@
+{
+ "problemId": "rabin-karp-algorithm",
+ "statement": "The first line holds a text; the second holds a pattern, both lowercase. Print every 0-based index where the pattern occurs in the text, space-separated, or -1 when it occurs nowhere. Use a rolling hash: treat strings as base-B digit rows under a large modulus, compute the pattern's hash and the first window's, then slide - one subtract, one multiply, one add per step. On every hash agreement verify the window character by character before reporting it, since distinct strings can share a hash.",
+ "constraints": [
+  "1 ≤ pattern length ≤ text length ≤ 100000",
+  "Lowercase letters only."
+ ],
+ "example": {
+  "input": "ababcabab\nabab\n",
+  "output": "0 5",
+  "why": "The pattern sits at the very start and again five characters in; the windows overlap at nothing."
+ },
+ "hint": "Precompute the highest-power term once - removing the leaving character needs it every step.",
+ "mistake": "Reporting on hash equality alone; a collision then invents an occurrence that is not there.",
+ "tests": [
+  {
+   "input": "ababcabab\nabab\n",
+   "expected": "0 5",
+   "note": "two occurrences"
+  },
+  {
+   "input": "aaaa\naa\n",
+   "expected": "0 1 2",
+   "note": "overlapping matches count"
+  },
+  {
+   "input": "abc\nxy\n",
+   "expected": "-1",
+   "note": "no occurrence"
+  }
+ ]
+}

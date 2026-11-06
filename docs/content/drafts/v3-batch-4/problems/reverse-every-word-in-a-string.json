@@ -1,0 +1,32 @@
+{
+ "problemId": "reverse-every-word-in-a-string",
+ "statement": "One line holds a sentence: words of printable characters separated by spaces, possibly with extra spaces at the ends or between words. Print the words in reverse order, separated by single spaces, with no leading or trailing spaces - the words themselves keep their spelling. Split on runs of spaces, collect the words, and join them back to front; or walk the line from the end, emitting each word as its boundaries are found.",
+ "constraints": [
+  "1 ≤ length ≤ 100000",
+  "Words contain no spaces; separators are spaces only."
+ ],
+ "example": {
+  "input": "the sky is blue\n",
+  "output": "blue is sky the",
+  "why": "The four words trade ends; each word's own letters stay in order."
+ },
+ "hint": "Normalise the spacing as you split - the output contract is single spaces, trimmed ends.",
+ "mistake": "Reversing the whole character string - that reverses the letters inside every word too.",
+ "tests": [
+  {
+   "input": "the sky is blue\n",
+   "expected": "blue is sky the",
+   "note": "classic"
+  },
+  {
+   "input": "  hello   world  \n",
+   "expected": "world hello",
+   "note": "messy spacing"
+  },
+  {
+   "input": "a\n",
+   "expected": "a",
+   "note": "single word"
+  }
+ ]
+}

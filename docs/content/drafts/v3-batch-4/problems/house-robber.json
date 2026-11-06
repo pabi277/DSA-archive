@@ -1,0 +1,32 @@
+{
+ "problemId": "house-robber",
+ "statement": "The first line holds n; the second holds n house values arranged in a circle, so house 0 and house n-1 are neighbours. Rob any set of houses with no two adjacent (around the circle too) and print the maximum haul. The circle breaks the plain pick-or-skip line, and the honest fix is two linear runs: one on houses 0 to n-2, one on houses 1 to n-1 - every valid plan skips the first house or the last, so the better run is the answer. A single house is its own answer.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "1 ≤ each value ≤ 10000"
+ ],
+ "example": {
+  "input": "4\n1 2 3 1\n",
+  "output": "4",
+  "why": "Positions 0 and 2 net 1 plus 3; around the circle no better non-adjacent pair exists."
+ },
+ "hint": "Write the linear robber once as a helper taking a range; call it twice.",
+ "mistake": "One pass over all n houses - it happily robs both ends, which the circle forbids.",
+ "tests": [
+  {
+   "input": "3\n2 3 2\n",
+   "expected": "3",
+   "note": "ends clash, middle wins"
+  },
+  {
+   "input": "4\n1 2 3 1\n",
+   "expected": "4",
+   "note": "positions 0 and 2"
+  },
+  {
+   "input": "1\n5\n",
+   "expected": "5",
+   "note": "single house"
+  }
+ ]
+}

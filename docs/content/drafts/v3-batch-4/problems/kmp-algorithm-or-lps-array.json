@@ -1,0 +1,32 @@
+{
+ "problemId": "kmp-algorithm-or-lps-array",
+ "statement": "One line holds a string s of lowercase letters. Print its border array (lps), space-separated: entry i is the length of the longest proper prefix of s[0..i] that is also its suffix. Build it in one pass with a running border length: on a match with s[len] extend by one; on a mismatch fall back to lps[len - 1] and retry - the chain of borders of borders - reaching 0 at worst. This array is the engine inside KMP pattern search.",
+ "constraints": [
+  "1 ≤ length ≤ 100000",
+  "Lowercase letters only."
+ ],
+ "example": {
+  "input": "aabaaab\n",
+  "output": "0 1 0 1 2 2 3",
+  "why": "At position 5 the border aab fails to extend, falls back to a, and regrows - entry 2."
+ },
+ "hint": "Values rise by at most 1 per step and the first entry is always 0 - two instant sanity checks.",
+ "mistake": "Zeroing the border on mismatch instead of following the fallback chain; nested borders vanish.",
+ "tests": [
+  {
+   "input": "aabaaab\n",
+   "expected": "0 1 0 1 2 2 3",
+   "note": "fallback in action"
+  },
+  {
+   "input": "abcd\n",
+   "expected": "0 0 0 0",
+   "note": "no self-overlap"
+  },
+  {
+   "input": "aaaa\n",
+   "expected": "0 1 2 3",
+   "note": "maximal overlap"
+  }
+ ]
+}

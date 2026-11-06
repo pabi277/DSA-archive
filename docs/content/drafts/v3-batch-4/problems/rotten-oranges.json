@@ -1,0 +1,32 @@
+{
+ "problemId": "rotten-oranges",
+ "statement": "The first line holds R and C. The next R lines each hold a string of C digits: 0 empty, 1 fresh orange, 2 rotten orange. Every minute, each rotten orange rots the fresh oranges sharing a side with it. Print the number of minutes until no fresh orange remains, or -1 if some fresh orange can never rot. Run a multi-source BFS: seed the queue with every rotten cell at minute 0, expand ring by ring, and count fresh cells as they rot - any survivor at the end means -1.",
+ "constraints": [
+  "1 ≤ R, C ≤ 300",
+  "Cells are the characters 0, 1 and 2."
+ ],
+ "example": {
+  "input": "3 3\n211\n110\n011\n",
+  "output": "4",
+  "why": "The rot snakes through the connected fresh cells; the farthest one sits four rings from the source."
+ },
+ "hint": "All sources enter the queue before the loop starts - that is what makes the spread simultaneous.",
+ "mistake": "Running a separate BFS per rotten orange and merging per-cell minimums; one seeded queue does it in a single pass.",
+ "tests": [
+  {
+   "input": "3 3\n211\n110\n011\n",
+   "expected": "4",
+   "note": "snake of fresh cells"
+  },
+  {
+   "input": "3 3\n211\n011\n101\n",
+   "expected": "-1",
+   "note": "one orange unreachable"
+  },
+  {
+   "input": "1 2\n02\n",
+   "expected": "0",
+   "note": "nothing fresh to rot"
+  }
+ ]
+}

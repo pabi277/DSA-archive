@@ -1,0 +1,32 @@
+{
+ "problemId": "number-of-islands",
+ "statement": "The first line holds R and C. The next R lines each hold a string of C digits: 1 is land, 0 is water. An island is a maximal group of land cells connected 4-directionally - up, down, left, right; diagonal contact joins nothing. Print the number of islands. Scan every cell; each time unvisited land appears, count one island and flood it with a BFS or DFS using the four direction offsets as implicit edges.",
+ "constraints": [
+  "1 ≤ R, C ≤ 300",
+  "Cells are the characters 0 and 1."
+ ],
+ "example": {
+  "input": "4 5\n11000\n11000\n00100\n00011\n",
+  "output": "3",
+  "why": "The top-left block, the centre cell and the bottom-right pair are mutually unreachable."
+ },
+ "hint": "No adjacency list exists or is needed - the four offsets are the edges.",
+ "mistake": "Treating diagonal neighbours as connected; under the 4-directional rule corners are strangers.",
+ "tests": [
+  {
+   "input": "4 5\n11000\n11000\n00100\n00011\n",
+   "expected": "3",
+   "note": "classic three islands"
+  },
+  {
+   "input": "3 3\n111\n010\n111\n",
+   "expected": "1",
+   "note": "one connected shape"
+  },
+  {
+   "input": "1 1\n0\n",
+   "expected": "0",
+   "note": "all water"
+  }
+ ]
+}

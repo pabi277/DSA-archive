@@ -1,0 +1,32 @@
+{
+ "problemId": "best-time-to-buy-and-sell-stock",
+ "statement": "The first line holds n; the second holds n daily prices. You may buy on one day and sell on any later day - one transaction, or none at all. Print the maximum profit, or 0 when every sale loses money. One pass with two carried values: the lowest price seen so far (the floor) and the best profit so far. Each day, try selling today against the floor, then let today's price lower the floor for the future.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "0 ≤ each price ≤ 100000"
+ ],
+ "example": {
+  "input": "6\n7 1 5 3 6 4\n",
+  "output": "5",
+  "why": "Buy at 1 on day 2 and sell at 6 on day 5; no other pairing beats 5."
+ },
+ "hint": "Update the profit before the floor - selling and buying on the same day must stay profitless.",
+ "mistake": "Taking max price minus min price of the whole array; the max can come before the min.",
+ "tests": [
+  {
+   "input": "6\n7 1 5 3 6 4\n",
+   "expected": "5",
+   "note": "classic"
+  },
+  {
+   "input": "5\n7 6 4 3 1\n",
+   "expected": "0",
+   "note": "falling market"
+  },
+  {
+   "input": "2\n1 2\n",
+   "expected": "1",
+   "note": "single rise"
+  }
+ ]
+}

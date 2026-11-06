@@ -1,0 +1,32 @@
+{
+ "problemId": "maximum-sum-of-non-adjacent-elements",
+ "statement": "The first line holds n; the second holds n positive integers in a row. Pick any subset with no two picks adjacent and print the maximum possible sum. Carry two rolling values along the row: take, the best sum if the current element is picked (previous skipped), and skip, the best if it is passed. Update: new take is old skip plus the element; new skip is the better of the old pair. The answer is the better of the final pair.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "1 ≤ each value ≤ 10000"
+ ],
+ "example": {
+  "input": "4\n2 1 4 9\n",
+  "output": "11",
+  "why": "2 and 9 sit apart and sum to 11; taking the 4 blocks the 9 on one side."
+ },
+ "hint": "Two names, two lines of update - resist the urge for a whole array.",
+ "mistake": "Picking alternate positions mechanically; value-aware skipping beats every fixed pattern.",
+ "tests": [
+  {
+   "input": "4\n2 1 4 9\n",
+   "expected": "11",
+   "note": "ends beat middles"
+  },
+  {
+   "input": "4\n3 2 7 10\n",
+   "expected": "13",
+   "note": "first and last"
+  },
+  {
+   "input": "1\n5\n",
+   "expected": "5",
+   "note": "single element"
+  }
+ ]
+}

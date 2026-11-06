@@ -1,0 +1,386 @@
+{
+ "topicId": "dynamic-programming",
+ "patterns": [
+  "dp-1d",
+  "dp-knapsack",
+  "dp-lis"
+ ],
+ "learnOrder": [
+  "climbing-stairs",
+  "frog-jump",
+  "maximum-sum-of-non-adjacent-elements",
+  "house-robber",
+  "grid-unique-paths",
+  "best-time-to-buy-and-sell-stock"
+ ],
+ "primer": {
+  "intro": "Dynamic programming is recursion that refuses to repeat itself. Write the natural recursive solution, notice that the same subproblems return again and again, and store each answer the first time it is computed. That is the whole idea - everything else is craft. The craft has three steps, always the same. Define the state: what does f(i) mean, in one honest sentence. Write the transition: how does f(i) follow from smaller states - this is usually a case split on the last choice made. Order the work: recursion with a memo (top-down) or a loop filling a table (bottom-up), and often the table then collapses to two rolling variables. Every problem in this topic is those three sentences wearing a different costume.",
+  "whenToUse": [
+   "Counting the ways to do something, where the last step splits the count into smaller counts.",
+   "Minimum or maximum cost built from overlapping smaller versions of the same question.",
+   "Pick-or-skip decisions along a line, where adjacency or budgets link neighbours.",
+   "The naive recursion is exponential but only a linear or quadratic number of distinct calls exist."
+  ],
+  "mentalModel": "Interrogate the last move. To stand on stair n you stepped from n-1 or jumped from n-2, so the way-counts add: f(n) = f(n-1) + f(n-2). To rob house i you skipped house i-1; to skip it you were free at i-1 - so carry two numbers, best-if-taken and best-if-skipped, and roll them forward. The frog on stone i arrived from i-1 or i-2, so take the cheaper of two costs. The state is whatever the future genuinely needs from the past - usually an index plus one bit of context - and the moment two different histories lead to the same state, the memo merges them. That merging of histories is the entire speed-up: exponential paths collapse into a linear count of distinct states.",
+  "mistakes": [
+   "A state that silently means two different things - write the one-sentence definition before any code.",
+   "Memoising nothing because the recursion looks fast - the fibonacci-shaped call tree is exponential.",
+   "Handling circular constraints with one linear pass - split into two runs: forbid the first item, or forbid the last."
+  ],
+  "example": {
+   "title": "Climbing stairs, three ways",
+   "code": "function ways(n) {\n  let a = 1\n  let b = 1\n  for (let i = 2; i + 1 <= n + 1; i++) {\n    const next = a + b\n    a = b\n    b = next\n  }\n  return n === 0 ? 1 : b\n}",
+   "explain": "The state reads: b is the number of ways to reach the current stair, a the stair before it. The transition adds them, because the last move was a single step from one or a double from the other. The rolling pair is the bottom-up table compressed to its live cells - only the last two entries are ever read, so only two are kept. The same loop shape solves the frog, the robber and the stock problem; only what a and b mean changes."
+  },
+  "practice": "Open Practice with Climbing Stairs, then immediately re-tell Frog Jump in the same three sentences - state, transition, order."
+ },
+ "sections": [
+  {
+   "id": "name-the-state",
+   "title": "Name the state",
+   "text": "Every DP that confuses you is a state you have under-described. Say it aloud: f(i) is the number of ways to reach stair i; f(i) is the cheapest energy to stand on stone i; f(i) is the best profit selling on or before day i. The sentence must mention i and nothing vague. Then the transition is a case split on the last decision, and each case must land on a state the sentence already covers. When a transition needs something the sentence does not carry - did I rob the previous house? - the state grows a second coordinate, and the sentence grows a clause. Only after the sentence is honest do you choose top-down or bottom-up; both compute the same table.",
+   "check": {
+    "id": "dynamic-programming-check-state",
+    "prompt": "Stairs are climbed 1 or 2 steps at a time. Why does f(n) = f(n-1) + f(n-2) count the ways to reach stair n?",
+    "codeSnippet": null,
+    "options": [
+     {
+      "text": "Every way ends with a 1-step from n-1 or a 2-step from n-2, and the two sets share nothing",
+      "explain": "The last move splits all ways into two disjoint groups, so the counts add."
+     },
+     {
+      "text": "Because the answer happens to be fibonacci",
+      "explain": "True but backwards - the split is why fibonacci appears."
+     },
+     {
+      "text": "Averaging the two previous counts smooths the estimate",
+      "explain": "Nothing is estimated; the two groups are counted exactly."
+     },
+     {
+      "text": "n-1 and n-2 are the two largest smaller stairs",
+      "explain": "Size is irrelevant - reachability by one move is what picks them."
+     }
+    ],
+    "answerIndex": 0,
+    "rereadSectionId": "name-the-state",
+    "rereadSectionTitle": "Name the state",
+    "reveal": {
+     "alwaysAvailable": true,
+     "solution": "Partition by the last move. A way to reach stair n either finishes with a single step - and its prefix is a way to reach n-1 - or with a double step, prefixed by a way to reach n-2. Every way falls in exactly one group, and each prefix is itself a complete, countable way. Disjoint and exhaustive means the counts add: f(n) = f(n-1) + f(n-2), with f(0) = f(1) = 1.",
+     "reference": {
+      "source": "takeuforward",
+      "url": "https://takeuforward.org/practice/dsa/climbing-stairs",
+      "verified": "2026-11-03"
+     }
+    }
+   }
+  },
+  {
+   "id": "pick-or-skip",
+   "title": "Pick or skip",
+   "text": "The second great costume is the pick-or-skip line: items in a row, a reward per item, and a rule linking neighbours - no two adjacent houses, for instance. Carry two rolling values: take, the best total if the current item is taken, and skip, the best if it is passed. The update is two lines: new take is old skip plus the item; new skip is the better of old take and old skip. Circles add one twist - the first and last items are now neighbours - and the honest fix is two linear runs, one excluding the first item, one excluding the last, keeping the better. The stock problem is the same discipline from another angle: one pass carrying the lowest price so far and the best sale seen."
+  }
+ ],
+ "quiz": [
+  {
+   "kind": "pattern",
+   "prompt": "Count the ways to climb n stairs taking 1 or 2 steps. What is the transition?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "f(n) = f(n-1) + f(n-2): the last move came from one of two stairs",
+     "explain": "Disjoint groups by last move; the counts add."
+    },
+    {
+     "text": "f(n) = 2 times f(n-1)",
+     "explain": "Doubling counts illegal moves - a 2-step from n-1 lands past n."
+    },
+    {
+     "text": "f(n) = f(n-1) times f(n-2)",
+     "explain": "Multiplication pairs every way with every other - meaningless here."
+    },
+    {
+     "text": "f(n) = n squared over 2",
+     "explain": "The counts grow exponentially; no polynomial fits them."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q1"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "A frog jumps 1 or 2 stones ahead, paying the height difference. Cheapest route to the last stone?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "f(i) = min of f(i-1) plus one hop cost, f(i-2) plus the other",
+     "explain": "The arrival split again - but with min over costs instead of a sum of counts."
+    },
+    {
+     "text": "Always hop to the nearer height",
+     "explain": "Greedy ignores that a dear hop now can dodge two dear hops later."
+    },
+    {
+     "text": "Sort stones by height first",
+     "explain": "The path is fixed left to right; sorting destroys it."
+    },
+    {
+     "text": "Try all 2 to the n hop sequences",
+     "explain": "That is the unmemoised tree the DP collapses."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q2"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Houses in a circle, adjacent houses clash. How does the linear pick-or-skip survive the circle?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Two linear runs - forbid the first house, then forbid the last - and keep the better",
+     "explain": "Any valid plan skips the first or the last, so the two runs cover everything."
+    },
+    {
+     "text": "One linear run around the whole circle",
+     "explain": "It can take both ends, which the circle forbids."
+    },
+    {
+     "text": "Take every second house",
+     "explain": "Alternating is one candidate plan, usually beaten by value-aware choices."
+    },
+    {
+     "text": "Remove the richest house to break the circle",
+     "explain": "The richest house is often in the optimal plan."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q3"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "One buy then one sell, prices known per day. The single-pass state?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "The lowest price so far and the best profit so far",
+     "explain": "Each day either improves the floor or improves the sale against it."
+    },
+    {
+     "text": "The highest price so far",
+     "explain": "Selling needs the cheapest earlier buy, so the floor is the memory."
+    },
+    {
+     "text": "Every pair of days, compared",
+     "explain": "Quadratic pairs; the floor collapses them into one pass."
+    },
+    {
+     "text": "The average price",
+     "explain": "Profit depends on two extremes, invisible to an average."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q4"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Ways to climb 4 stairs with steps of 1 or 2?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "5",
+     "explain": "1111, 112, 121, 211, 22 - the fibonacci count."
+    },
+    {
+     "text": "4",
+     "explain": "The all-singles way is easy to drop - there are five."
+    },
+    {
+     "text": "8",
+     "explain": "Eight would be 2 to the 3 - but step order is constrained by the sum."
+    },
+    {
+     "text": "3",
+     "explain": "Three misses the orderings of the mixed ways."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q5"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Frog heights 10 20 30 10, hops of 1 or 2 stones cost the height difference. Minimum energy to the last stone?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "20",
+     "explain": "Stone 0 to 1 costs 10, then the double hop 1 to 3 costs 10."
+    },
+    {
+     "text": "30",
+     "explain": "30 pays a detour; the 1-then-double route pays 20."
+    },
+    {
+     "text": "40",
+     "explain": "40 is every route that touches the tall stone 30."
+    },
+    {
+     "text": "0",
+     "explain": "The frog must reach the last stone; standing still is no plan."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q6"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Prices 7 1 5 3 6 4 - one buy, one sell. Best profit?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "5",
+     "explain": "Buy at 1, sell at 6; the floor-and-best pass finds it."
+    },
+    {
+     "text": "7",
+     "explain": "7 would need selling at 8 or buying below zero."
+    },
+    {
+     "text": "4",
+     "explain": "Buy 1 sell 5 is good; day 5's price 6 beats it."
+    },
+    {
+     "text": "6",
+     "explain": "Selling at 7 happens before the 1 exists - time only flows forward."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q7"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "A 1-D DP over n items with an O(1) transition costs how much, at best?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Linear time and constant space with rolling variables",
+     "explain": "Only the last one or two states are ever read, so the table compresses."
+    },
+    {
+     "text": "Linear time, linear space, always",
+     "explain": "Keep the full table only when answers must be reconstructed."
+    },
+    {
+     "text": "Quadratic time",
+     "explain": "Quadratic needs a linear-cost transition - these are constant."
+    },
+    {
+     "text": "n log n",
+     "explain": "No sorting or searching happens in the loop."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q8"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "The same recursion with the memo deleted - what happens to climbing stairs at n = 50?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "The call tree goes exponential - near 2 to the 50 nodes - and hangs",
+     "explain": "Each call spawns two; identical subproblems are recomputed endlessly."
+    },
+    {
+     "text": "It stays linear, just warmer",
+     "explain": "The memo is the only thing standing between n and 2 to the n."
+    },
+    {
+     "text": "It crashes the stack at depth 50",
+     "explain": "Depth 50 is harmless; the width of the tree is the killer."
+    },
+    {
+     "text": "It returns a different answer",
+     "explain": "Correctness survives; time is what dies."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q9"
+  },
+  {
+   "kind": "bug",
+   "prompt": "Correct answers, but n = 50 takes forever. What is the bug?",
+   "codeSnippet": "function ways(n) {\n  if (n <= 1) return 1\n  return ways(n - 1) + ways(n - 2)\n}",
+   "options": [
+    {
+     "text": "No memo - the two branches recompute the same subproblems exponentially",
+     "explain": "Store each result the first time; fifty entries replace 2 to the 50 calls."
+    },
+    {
+     "text": "The base case is off by one",
+     "explain": "f(0) = f(1) = 1 is the right grounding."
+    },
+    {
+     "text": "Recursion itself is too slow in JavaScript",
+     "explain": "Memoised recursion at n = 50 is instant in any language."
+    },
+    {
+     "text": "It should subtract 2 and 3 instead",
+     "explain": "The moves are 1 and 2; the split mirrors them."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q10"
+  },
+  {
+   "kind": "bug",
+   "prompt": "This circular robber sometimes robs the first and last houses together. What is the bug?",
+   "codeSnippet": "// houses form a circle\nconst ans = linearRob(a, 0, n - 1)\nreturn ans",
+   "options": [
+    {
+     "text": "One linear pass ignores the circle - run it twice, dropping the first or the last house",
+     "explain": "Houses 0 and n-1 are neighbours now; max of the two restricted runs is the fix."
+    },
+    {
+     "text": "linearRob is broken inside",
+     "explain": "The helper is fine on a line; the circle is what nobody told it about."
+    },
+    {
+     "text": "The range should be 1 to n",
+     "explain": "Shifting the window still allows both ends of the circle together."
+    },
+    {
+     "text": "The answer needs a plus a[0]",
+     "explain": "Adding a house unconditionally breaks the adjacency rule outright."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q11"
+  },
+  {
+   "kind": "edge",
+   "prompt": "Which input most deserves a dedicated test for the pick-or-skip family?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "A single item",
+     "explain": "Circles degenerate, both restricted runs see one house, and base cases stand naked."
+    },
+    {
+     "text": "A long random array",
+     "explain": "Shakes out little that the single item does more cheaply."
+    },
+    {
+     "text": "All equal values",
+     "explain": "Pleasant symmetry, no boundary behaviour."
+    },
+    {
+     "text": "Strictly increasing values",
+     "explain": "A tidy case the generic transition already handles."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "dynamic-programming-q12"
+  }
+ ]
+}

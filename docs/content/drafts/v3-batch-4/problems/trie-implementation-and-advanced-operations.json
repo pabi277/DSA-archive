@@ -1,0 +1,33 @@
+{
+ "problemId": "trie-implementation-and-advanced-operations",
+ "statement": "The first line holds q. Each of the next q lines is one of: insert w, count w, countpre w, erase w. The trie allows duplicates: insert w may run many times. count w reports how many copies of exactly w are stored; countpre w reports how many stored words (with multiplicity) start with w; erase w removes one copy of w (guaranteed present). Print the results of every count and countpre on one line, space-separated. Maintain two counters per node - words ending here, words passing through - adjusted by insert and erase.",
+ "constraints": [
+  "1 ≤ q ≤ 10000",
+  "Words are lowercase, length 1 to 20.",
+  "Every erase targets a stored copy."
+ ],
+ "example": {
+  "input": "8\ninsert apple\ninsert apple\ninsert apps\ncount apple\ncountpre app\nerase apple\ncount apple\ncountpre app\n",
+  "output": "2 3 1 2",
+  "why": "Two apples and one apps share the app path; one erase lowers both counters by one."
+ },
+ "hint": "Erase is insert with minus one - same walk, counters decremented, no nodes deleted.",
+ "mistake": "Deleting nodes on erase; apps still needs the app path the deletion just destroyed.",
+ "tests": [
+  {
+   "input": "8\ninsert apple\ninsert apple\ninsert apps\ncount apple\ncountpre app\nerase apple\ncount apple\ncountpre app\n",
+   "expected": "2 3 1 2",
+   "note": "duplicates and shared prefix"
+  },
+  {
+   "input": "3\ninsert a\nerase a\ncount a\n",
+   "expected": "0",
+   "note": "erased to zero"
+  },
+  {
+   "input": "3\ninsert xy\ncountpre x\ncountpre y\n",
+   "expected": "1 0",
+   "note": "prefix is positional"
+  }
+ ]
+}
