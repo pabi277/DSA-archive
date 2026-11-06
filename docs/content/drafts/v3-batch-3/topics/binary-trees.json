@@ -88,10 +88,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Postorder - both children finish before the parent combines their sizes",
-     "explain": "Size at a node is 1 plus the two child sizes, so children must report first."
-    },
-    {
      "text": "Preorder",
      "explain": "The parent is visited before the children's sizes exist."
     },
@@ -102,9 +98,13 @@
     {
      "text": "Level order",
      "explain": "Parents are served before children - exactly backwards for this."
+    },
+    {
+     "text": "Postorder - both children finish before the parent combines their sizes",
+     "explain": "Size at a node is 1 plus the two child sizes, so children must report first."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "binary-trees-q1"
   },
   {
@@ -112,10 +112,6 @@
    "prompt": "Serialise a tree so it can be rebuilt exactly. Which order is the natural choice?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Preorder with explicit markers for absent children",
-     "explain": "Each root is announced before its contents, so rebuilding peels values off the front."
-    },
     {
      "text": "Inorder alone",
      "explain": "Many different trees share one inorder; the shape is lost."
@@ -127,9 +123,13 @@
     {
      "text": "Values sorted ascending",
      "explain": "Sorting erases the structure entirely."
+    },
+    {
+     "text": "Preorder with explicit markers for absent children",
+     "explain": "Each root is announced before its contents, so rebuilding peels values off the front."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "binary-trees-q2"
   },
   {
@@ -137,10 +137,6 @@
    "prompt": "Find the shallowest node satisfying some property. Which traversal guarantees the first hit is shallowest?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Level order - it visits all of depth d before anything at depth d+1",
-     "explain": "Breadth-first order makes the first match automatically the shallowest."
-    },
     {
      "text": "Preorder",
      "explain": "Depth-first dives to the bottom of the left side before touching depth 2 elsewhere."
@@ -152,9 +148,13 @@
     {
      "text": "Inorder",
      "explain": "Depth plays no role in inorder's sequence."
+    },
+    {
+     "text": "Level order - it visits all of depth d before anything at depth d+1",
+     "explain": "Breadth-first order makes the first match automatically the shallowest."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "binary-trees-q3"
   },
   {
@@ -163,23 +163,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Walk both in lockstep: both empty yes, one empty no, match values, recurse on both pairs",
-     "explain": "Structure and values are checked together at every position."
-    },
-    {
-     "text": "Compare their inorder outputs",
-     "explain": "Different shapes can share an inorder - the sequence underdetermines the tree."
-    },
-    {
      "text": "Compare their depths and node counts",
      "explain": "Two different trees can agree on both numbers."
     },
     {
      "text": "Compare the sums of their values",
      "explain": "Sums collide constantly; they certify nothing."
+    },
+    {
+     "text": "Walk both in lockstep: both empty yes, one empty no, match values, recurse on both pairs",
+     "explain": "Structure and values are checked together at every position."
+    },
+    {
+     "text": "Compare their inorder outputs",
+     "explain": "Different shapes can share an inorder - the sequence underdetermines the tree."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-trees-q4"
   },
   {
@@ -187,6 +187,10 @@
    "prompt": "For the tree built from 1 2 3 4 5 -1 -1 (level order, -1 absent), what does postorder print?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "1 2 3 4 5",
+     "explain": "Floor by floor is level order."
+    },
     {
      "text": "4 5 2 3 1",
      "explain": "Left subtree bottom-up (4, 5, then 2), right subtree (3), root last."
@@ -198,13 +202,9 @@
     {
      "text": "4 2 5 1 3",
      "explain": "Root in the middle is inorder."
-    },
-    {
-     "text": "1 2 3 4 5",
-     "explain": "Floor by floor is level order."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "binary-trees-q5"
   },
   {
@@ -263,10 +263,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Linear time, stack proportional to the height",
-     "explain": "Each node is visited once; open calls line up along one root-to-leaf path."
-    },
-    {
      "text": "Linear time, stack proportional to n always",
      "explain": "Only a degenerate chain costs n stack; bushy trees cost log n."
     },
@@ -277,9 +273,13 @@
     {
      "text": "Quadratic time",
      "explain": "Quadratic needs re-visiting; traversal visits once."
+    },
+    {
+     "text": "Linear time, stack proportional to the height",
+     "explain": "Each node is visited once; open calls line up along one root-to-leaf path."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "binary-trees-q8"
   },
   {
@@ -313,10 +313,6 @@
    "codeSnippet": "function depth(node) {\n  if (node === null) return 0\n  return Math.max(depth(node.left), depth(node.right))\n}",
    "options": [
     {
-     "text": "The node itself is uncounted - return 1 plus the max of the child depths",
-     "explain": "Without the +1 every path reports the base case's 0 all the way up."
-    },
-    {
      "text": "Math.max is the problem; use Math.min",
      "explain": "Depth wants the taller subtree; min computes the shallowest leaf instead."
     },
@@ -327,9 +323,13 @@
     {
      "text": "left and right are swapped",
      "explain": "Depth is symmetric; swapping changes nothing."
+    },
+    {
+     "text": "The node itself is uncounted - return 1 plus the max of the child depths",
+     "explain": "Without the +1 every path reports the base case's 0 all the way up."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "binary-trees-q10"
   },
   {
@@ -363,23 +363,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "The single-node tree",
-     "explain": "Both children absent at the root - every base case and the depth convention fire at once."
-    },
-    {
-     "text": "A perfectly balanced large tree",
-     "explain": "Pleasant, but it avoids the boundary paths."
-    },
-    {
      "text": "A tree with large values",
      "explain": "Value magnitude flows through untouched."
     },
     {
      "text": "A tree with duplicate values",
      "explain": "Traversals report positions; duplicates change nothing structural."
+    },
+    {
+     "text": "The single-node tree",
+     "explain": "Both children absent at the root - every base case and the depth convention fire at once."
+    },
+    {
+     "text": "A perfectly balanced large tree",
+     "explain": "Pleasant, but it avoids the boundary paths."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-trees-q12"
   }
  ]

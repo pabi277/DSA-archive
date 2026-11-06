@@ -33,7 +33,7 @@
    "code": "function maxDepth(s) {\n  let depth = 0\n  let best = 0\n  for (const ch of s) {\n    if (ch === '(') {\n      depth += 1\n      if (depth > best) best = depth\n    } else if (ch === ')') {\n      depth -= 1\n    }\n  }\n  return best\n}",
    "explain": "The counter is the whole state. An opening bracket pushes the depth up and the best-so-far updates immediately; a closing bracket pulls it down. Letters and digits fall through untouched, which is why the same loop handles expressions that mix brackets with other text. One pass, constant extra space - and the identical skeleton solves the outermost-parentheses task by copying a bracket only when its step keeps the counter inside the block."
   },
-  "practice": "Open Practice and start with Remove Outermost Parentheses - the depth counter there reappears in four of the six problems."
+  "practice": "Open Practice and start with Remove Outermost Parentheses - the depth counter there returns in Maximum Nesting Depth, and the same one-pass reflex carries the other four problems."
  },
  "sections": [
   {
@@ -46,23 +46,23 @@
     "codeSnippet": null,
     "options": [
      {
-      "text": "3",
-      "explain": "The fifth character is a third unmatched opener: depths run 1 2 1 2 3 2 1 0."
-     },
-     {
-      "text": "2",
-      "explain": "Two is a peak the counter visits twice, but the inner (( climbs past it."
-     },
-     {
       "text": "4",
       "explain": "Four would need four openers stacked at one moment; at most three are open."
      },
      {
       "text": "0",
       "explain": "Zero is the final value - it confirms balance, it does not measure depth."
+     },
+     {
+      "text": "3",
+      "explain": "The fifth character is a third unmatched opener: depths run 1 2 1 2 3 2 1 0."
+     },
+     {
+      "text": "2",
+      "explain": "Two is a peak the counter visits twice, but the inner (( climbs past it."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 2,
     "rereadSectionId": "one-scan-one-counter",
     "rereadSectionTitle": "One scan, one counter",
     "reveal": {
@@ -89,23 +89,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "A depth counter; copy a bracket only when its step stays inside the block",
-     "explain": "Shell brackets are exactly the steps that leave or return to depth zero."
-    },
-    {
-     "text": "A stack holding every open bracket's index",
-     "explain": "Works, but with one bracket type the count carries all the information."
-    },
-    {
      "text": "One regular-expression replacement",
      "explain": "Nesting of unbounded depth is beyond a single pattern pass."
     },
     {
      "text": "Recursion over each matched pair",
      "explain": "Correct yet heavy; the one-pass counter does it with no call stack."
+    },
+    {
+     "text": "A depth counter; copy a bracket only when its step stays inside the block",
+     "explain": "Shell brackets are exactly the steps that leave or return to depth zero."
+    },
+    {
+     "text": "A stack holding every open bracket's index",
+     "explain": "Works, but with one bracket type the count carries all the information."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "strings-basic-and-medium-q1"
   },
   {
@@ -113,6 +113,10 @@
    "prompt": "A roman numeral mixes shapes like IV and VI. What single rule decodes the whole string?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "Look the whole numeral up in a table",
+     "explain": "Thousands of numerals exist; the pairwise rule covers them all in one line."
+    },
     {
      "text": "Compare each symbol with the next: smaller before larger subtracts, otherwise add",
      "explain": "IV is 5 minus 1 because I stands before the larger V; the last symbol always adds."
@@ -124,13 +128,9 @@
     {
      "text": "Scan right to left and always subtract",
      "explain": "Direction alone fixes nothing - the add-or-subtract choice still needs a rule."
-    },
-    {
-     "text": "Look the whole numeral up in a table",
-     "explain": "Thousands of numerals exist; the pairwise rule covers them all in one line."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "strings-basic-and-medium-q2"
   },
   {
@@ -139,23 +139,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Expand around each of the 2n-1 centres and keep the widest match",
-     "explain": "Every palindrome has a centre; expanding from all of them covers every candidate."
-    },
-    {
-     "text": "Test every substring for being a palindrome",
-     "explain": "n squared substrings times a linear check is cubic - hopeless at 1000."
-    },
-    {
      "text": "Take the longest common substring with the reversed string",
      "explain": "A classic trap: a reversed copy elsewhere can match without being a palindrome."
     },
     {
      "text": "Sort the characters first",
      "explain": "Order is the whole question; sorting destroys it."
+    },
+    {
+     "text": "Expand around each of the 2n-1 centres and keep the widest match",
+     "explain": "Every palindrome has a centre; expanding from all of them covers every candidate."
+    },
+    {
+     "text": "Test every substring for being a palindrome",
+     "explain": "n squared substrings times a linear check is cubic - hopeless at 1000."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "strings-basic-and-medium-q3"
   },
   {
@@ -163,10 +163,6 @@
    "prompt": "Sum the beauty of all substrings, where beauty is top frequency minus bottom frequency. Plan?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Fix each start, extend the end, update a 26-slot table, add the beauty per step",
-     "explain": "Each extension changes one count; the table makes every substring cheap."
-    },
     {
      "text": "Materialise every substring and count its letters from scratch",
      "explain": "Cubic time and heavy allocation; the table version reuses all prior work."
@@ -178,9 +174,13 @@
     {
      "text": "Slide a two-pointer window",
      "explain": "No monotone rule says when to shrink - every substring must be visited here."
+    },
+    {
+     "text": "Fix each start, extend the end, update a 26-slot table, add the beauty per step",
+     "explain": "Each extension changes one count; the table makes every substring cheap."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "strings-basic-and-medium-q4"
   },
   {
@@ -188,6 +188,10 @@
    "prompt": "A depth scan runs over (a(b)((c))). What maximum does it record?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "0",
+     "explain": "Zero is where the counter ends, by balance; the peak is what is recorded."
+    },
     {
      "text": "3",
      "explain": "At c three brackets are open: the outer one plus the double opener."
@@ -199,13 +203,9 @@
     {
      "text": "4",
      "explain": "Count only brackets open at once - letters never raise the counter."
-    },
-    {
-     "text": "0",
-     "explain": "Zero is where the counter ends, by balance; the peak is what is recorded."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "strings-basic-and-medium-q5"
   },
   {
@@ -213,10 +213,6 @@
    "prompt": "Decode the roman numeral XLIX.",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "49",
-     "explain": "XL is 40 because X precedes the larger L; IX is 9 for the same reason."
-    },
     {
      "text": "71",
      "explain": "That adds 10, 50, 1, 10 blindly - both subtractive pairs were missed."
@@ -228,9 +224,13 @@
     {
      "text": "41",
      "explain": "That drops the final X entirely instead of folding it into IX."
+    },
+    {
+     "text": "49",
+     "explain": "XL is 40 because X precedes the larger L; IX is 9 for the same reason."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "strings-basic-and-medium-q6"
   },
   {
@@ -238,10 +238,6 @@
    "prompt": "Run the standard atoi scan on the line \"  -042abc\". What does it return?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "-42",
-     "explain": "Blanks skipped, one sign taken, the leading zero is harmless, the scan stops at a."
-    },
     {
      "text": "42",
      "explain": "The minus sign was consumed and must flip the result."
@@ -253,9 +249,13 @@
     {
      "text": "An error",
      "explain": "Stopping quietly at the first letter is the contract; throwing is needless."
+    },
+    {
+     "text": "-42",
+     "explain": "Blanks skipped, one sign taken, the leading zero is harmless, the scan stops at a."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "strings-basic-and-medium-q7"
   },
   {
@@ -263,6 +263,10 @@
    "prompt": "Expand-around-centre on a string of length n: time and extra space?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "Cubic time",
+     "explain": "Cubic is the test-every-substring plan this one replaces."
+    },
     {
      "text": "Quadratic time, constant space",
      "explain": "2n-1 centres, each expanding up to n steps; only two indices are stored."
@@ -274,13 +278,9 @@
     {
      "text": "Quadratic time and quadratic space",
      "explain": "Nothing is tabulated; the expansion keeps two moving indices only."
-    },
-    {
-     "text": "Cubic time",
-     "explain": "Cubic is the test-every-substring plan this one replaces."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "strings-basic-and-medium-q8"
   },
   {
@@ -288,6 +288,10 @@
    "prompt": "The beauty sum with a per-start frequency table: how much work in total?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "n squared with no constant at all",
+     "explain": "The honest cost keeps the 26-sweep; dropping it hides real work."
+    },
     {
      "text": "About 26 times n squared",
      "explain": "n starts, up to n extensions each, and a 26-slot sweep after every extension."
@@ -299,13 +303,9 @@
     {
      "text": "Exponential",
      "explain": "Substrings are contiguous, so n squared of them exist, no more."
-    },
-    {
-     "text": "n squared with no constant at all",
-     "explain": "The honest cost keeps the 26-sweep; dropping it hides real work."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "strings-basic-and-medium-q9"
   },
   {
@@ -314,23 +314,23 @@
    "codeSnippet": "function roman(s) {\n  const v = { I: 1, V: 5, X: 10, L: 50, C: 100, D: 500, M: 1000 }\n  let total = 0\n  for (const ch of s) {\n    total += v[ch]\n  }\n  return total\n}",
    "options": [
     {
-     "text": "Subtractive pairs are missed: a symbol smaller than its successor must subtract",
-     "explain": "Compare v of the current symbol with v of the next; smaller-first means minus."
-    },
-    {
-     "text": "The value table is miskeyed",
-     "explain": "The seven values are the standard ones."
-    },
-    {
      "text": "The loop must run right to left",
      "explain": "Left to right is fine - the missing piece is the neighbour comparison."
     },
     {
      "text": "IX is invalid input",
      "explain": "IX is the canonical way to write 9."
+    },
+    {
+     "text": "Subtractive pairs are missed: a symbol smaller than its successor must subtract",
+     "explain": "Compare v of the current symbol with v of the next; smaller-first means minus."
+    },
+    {
+     "text": "The value table is miskeyed",
+     "explain": "The seven values are the standard ones."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "strings-basic-and-medium-q10"
   },
   {
@@ -338,10 +338,6 @@
    "prompt": "On 32-bit integers this parser clamps too late. Why?",
    "codeSnippet": "let r = 0\nfor (const d of digits) {\n  r = r * 10 + d\n}\nif (r > 2147483647) r = 2147483647",
    "options": [
-    {
-     "text": "r can overflow inside the loop; the guard must run before each multiply-and-add",
-     "explain": "Once fixed-width r wraps, the final comparison inspects garbage."
-    },
     {
      "text": "The clamp constant is off by one",
      "explain": "2147483647 is the correct positive limit."
@@ -353,9 +349,13 @@
     {
      "text": "The clamp belongs to the caller",
      "explain": "Where it lives is style; running it after the wrap is the real fault."
+    },
+    {
+     "text": "r can overflow inside the loop; the guard must run before each multiply-and-add",
+     "explain": "Once fixed-width r wraps, the final comparison inspects garbage."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "strings-basic-and-medium-q11"
   },
   {

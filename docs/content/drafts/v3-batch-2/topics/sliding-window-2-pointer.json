@@ -33,7 +33,7 @@
    "code": "function longestUnique(s) {\n  const last = new Map()\n  let left = 0\n  let best = 0\n  for (let right = 0; right <= s.length - 1; right++) {\n    const ch = s[right]\n    if (last.has(ch) && last.get(ch) >= left) {\n      left = last.get(ch) + 1\n    }\n    last.set(ch, right)\n    const len = right - left + 1\n    if (len > best) best = len\n  }\n  return best\n}",
    "explain": "The map remembers each character's most recent position. When the new character already occurs inside the window, the left end teleports to one past that earlier copy - a shortcut for the usual while loop of evictions. Taking the larger of the old and new left keeps the pointer from ever sliding backward. Both ends move at most n steps, so the pass is linear, and the best length is read off after every single step because this window is always valid."
   },
-  "practice": "Open Practice with Longest Substring Without Repeating Characters; every later problem swaps in a new invariant but keeps this exact loop."
+  "practice": "Open Practice with Longest Substring Without Repeating Characters; most later problems swap in a new invariant but keep this loop - Maximum Points in a Card Row alone trades it for a fixed-width window."
  },
  "sections": [
   {
@@ -46,10 +46,6 @@
     "codeSnippet": null,
     "options": [
      {
-      "text": "Advance left repeatedly until some letter's count drops to exactly zero",
-      "explain": "Only a count hitting zero reduces the number of kinds inside."
-     },
-     {
       "text": "Advance left exactly one step",
       "explain": "The departing letter may still occur further inside - the kinds count would stay k+1."
      },
@@ -60,9 +56,13 @@
      {
       "text": "Move the right end back one step",
       "explain": "The right end only advances; retreating would re-scan and break linearity."
+     },
+     {
+      "text": "Advance left repeatedly until some letter's count drops to exactly zero",
+      "explain": "Only a count hitting zero reduces the number of kinds inside."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 3,
     "rereadSectionId": "grow-right-shrink-left",
     "rereadSectionTitle": "Grow right, shrink left",
     "reveal": {
@@ -89,6 +89,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Count the total number of 1s",
+     "explain": "The run must be contiguous; a global count ignores position entirely."
+    },
+    {
      "text": "Longest window containing at most k zeros - flip nothing, just tolerate",
      "explain": "Inside such a window the k flips would finish the job; the widest one is the answer."
     },
@@ -99,13 +103,9 @@
     {
      "text": "Try every pair of endpoints",
      "explain": "Quadratic pairs, and the budget check per pair adds more."
-    },
-    {
-     "text": "Count the total number of 1s",
-     "explain": "The run must be contiguous; a global count ignores position entirely."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "sliding-window-2-pointer-q1"
   },
   {
@@ -113,6 +113,10 @@
    "prompt": "Two baskets, each holding one fruit type; pick a contiguous stretch of trees. The window rule?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "The two most frequent fruits overall",
+     "explain": "Global frequency says nothing about one contiguous stretch."
+    },
     {
      "text": "At most two distinct values inside the window",
      "explain": "Baskets are types: the stretch is pickable exactly when it has two kinds or fewer."
@@ -124,13 +128,9 @@
     {
      "text": "Exactly two distinct values, no fewer",
      "explain": "A single-type stretch is also pickable and can be the longest."
-    },
-    {
-     "text": "The two most frequent fruits overall",
-     "explain": "Global frequency says nothing about one contiguous stretch."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "sliding-window-2-pointer-q2"
   },
   {
@@ -164,23 +164,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "atMost(k) minus atMost(k-1)",
-     "explain": "Every exactly-k subarray is in the first count and absent from the second."
-    },
-    {
-     "text": "atMost(k) divided by k",
-     "explain": "The counts share no such ratio; the subtraction is exact, division is folklore."
-    },
-    {
      "text": "Run atMost(k) and filter afterwards",
      "explain": "atMost returns a number, so there is nothing left to filter."
     },
     {
      "text": "atMost(k+1) minus atMost(k)",
      "explain": "That counts subarrays with exactly k+1 kinds, one off."
+    },
+    {
+     "text": "atMost(k) minus atMost(k-1)",
+     "explain": "Every exactly-k subarray is in the first count and absent from the second."
+    },
+    {
+     "text": "atMost(k) divided by k",
+     "explain": "The counts share no such ratio; the subtraction is exact, division is folklore."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "sliding-window-2-pointer-q4"
   },
   {
@@ -189,23 +189,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "3",
-     "explain": "wke (and kew) has three distinct letters; any longer stretch repeats a w."
-    },
-    {
-     "text": "2",
-     "explain": "pw starts things, but wke beats it after the window jumps past the repeat."
-    },
-    {
      "text": "5",
      "explain": "wwkew holds two w's - the window may only hold one of each."
     },
     {
      "text": "6",
      "explain": "The whole string repeats w twice over."
+    },
+    {
+     "text": "3",
+     "explain": "wke (and kew) has three distinct letters; any longer stretch repeats a w."
+    },
+    {
+     "text": "2",
+     "explain": "pw starts things, but wke beats it after the window jumps past the repeat."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "sliding-window-2-pointer-q5"
   },
   {
@@ -239,23 +239,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "4",
-     "explain": "2 3 2 2 uses kinds 2 and 3 only; adding the leading 1 makes a third kind."
-    },
-    {
-     "text": "3",
-     "explain": "3 2 2 works, but one more tree to the left still fits the two kinds."
-    },
-    {
      "text": "5",
      "explain": "The full row has kinds 1, 2 and 3 - one basket short."
     },
     {
      "text": "2",
      "explain": "Windows well beyond length 2 satisfy the two-kind rule here."
+    },
+    {
+     "text": "4",
+     "explain": "2 3 2 2 uses kinds 2 and 3 only; adding the leading 1 makes a third kind."
+    },
+    {
+     "text": "3",
+     "explain": "3 2 2 works, but one more tree to the left still fits the two kinds."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "sliding-window-2-pointer-q7"
   },
   {
@@ -263,6 +263,10 @@
    "prompt": "Why is the grow-shrink window linear despite its nested-looking loops?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "It is quadratic, but fast in practice",
+     "explain": "The bound is genuinely linear - charge each shrink to the cell evicted."
+    },
     {
      "text": "Each pointer only advances, so together they take at most 2n steps",
      "explain": "The inner while spends left-steps, and left has only n to spend in the whole run."
@@ -274,13 +278,9 @@
     {
      "text": "The table lookups are logarithmic",
      "explain": "Table updates are constant; the argument is about pointer movement."
-    },
-    {
-     "text": "It is quadratic, but fast in practice",
-     "explain": "The bound is genuinely linear - charge each shrink to the cell evicted."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "sliding-window-2-pointer-q8"
   },
   {
@@ -310,13 +310,9 @@
   },
   {
    "kind": "bug",
-   "prompt": "This window sometimes reports stretches holding more than k kinds. Why?",
+   "prompt": "After one eviction this window can still hold more than k kinds. Why is a single removal no guarantee?",
    "codeSnippet": "for (let r = 0; r <= n - 1; r++) {\n  add(s[r])\n  if (distinct > k) {\n    remove(s[l])\n    l += 1\n  }\n  best = Math.max(best, r - l + 1)\n}",
    "options": [
-    {
-     "text": "One eviction may leave distinct above k when the evicted letter repeats inside - use while",
-     "explain": "The if mends nothing unless a count hits zero; best then measures a broken window."
-    },
     {
      "text": "best must be updated before the if",
      "explain": "Even earlier measurement would include the just-broken window more often."
@@ -328,9 +324,13 @@
     {
      "text": "add must come after the if",
      "explain": "Adding first is the standard order; the rule check must just be a loop."
+    },
+    {
+     "text": "One eviction may leave distinct above k when the evicted letter repeats inside - use while",
+     "explain": "The if mends nothing unless a count hits zero; best then measures a broken window."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "sliding-window-2-pointer-q10"
   },
   {
@@ -339,23 +339,23 @@
    "codeSnippet": "while (zeros > k) {\n  l += 1\n}",
    "options": [
     {
-     "text": "l moves but zeros is unchanged - decrement it when the departing bit is 0",
-     "explain": "Without exit bookkeeping the condition can stay true while l runs off the array."
-    },
-    {
-     "text": "The guard should be zeros >= k",
-     "explain": "At exactly k the window is legal; the guard is right, the body is empty of bookkeeping."
-    },
-    {
      "text": "r should advance here instead",
      "explain": "Growing is the outer loop's job; shrinking must fix the budget."
     },
     {
      "text": "zeros was initialised too high",
      "explain": "Any start value still requires the body to change it; the loop body is the fault."
+    },
+    {
+     "text": "l moves but zeros is unchanged - decrement it when the departing bit is 0",
+     "explain": "Without exit bookkeeping the condition can stay true while l runs off the array."
+    },
+    {
+     "text": "The guard should be zeros >= k",
+     "explain": "At exactly k the window is legal; the guard is right, the body is empty of bookkeeping."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "sliding-window-2-pointer-q11"
   },
   {
@@ -364,23 +364,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "k at least the total number of zeros",
-     "explain": "The window must swallow the whole array and return n - shrink logic must idle cleanly."
-    },
-    {
-     "text": "An array of all ones with k = 1",
-     "explain": "Covered by the same code path as any zero-free prefix."
-    },
-    {
      "text": "Strictly alternating bits",
      "explain": "A pretty pattern, but no special branch fires on it."
     },
     {
      "text": "A single-element array",
      "explain": "Worth a test eventually, yet the swallow-everything case breaks real code more often."
+    },
+    {
+     "text": "k at least the total number of zeros",
+     "explain": "The window must swallow the whole array and return n - shrink logic must idle cleanly."
+    },
+    {
+     "text": "An array of all ones with k = 1",
+     "explain": "Covered by the same code path as any zero-free prefix."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "sliding-window-2-pointer-q12"
   }
  ]

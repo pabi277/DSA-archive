@@ -66,7 +66,7 @@
     "rereadSectionTitle": "Two walkers at two speeds",
     "reveal": {
      "alwaysAvailable": true,
-     "solution": "Walk it: start both on 1. Turn one: slow 2, fast 3. Turn two: slow 3, fast 5. Turn three: fast needs two hops but only one exists past 5, so the walk stops with slow on 4 - the second middle of an even chain, the convention this app uses.",
+     "solution": "Walk it: both start on 1. Turn one: slow 2, fast 3. Turn two: slow 3, fast 5. Turn three still runs, because 5 has a next: slow moves to 4 while fast runs off the end to null, and the loop stops. Slow rests on 4 - the second middle of an even chain, the convention this app uses.",
      "reference": {
       "source": "takeuforward",
       "url": "https://takeuforward.org/practice/dsa/reverse-a-ll",
@@ -113,6 +113,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Use a fast walker",
+     "explain": "Speeds help with positions, which has nothing to do with head rewiring."
+    },
+    {
      "text": "Add a dummy node in front and work from it",
      "explain": "Every real node then has a predecessor; return dummy.next at the end."
     },
@@ -123,24 +127,16 @@
     {
      "text": "Store the values in an array first",
      "explain": "Copying out defeats the point of pointer surgery."
-    },
-    {
-     "text": "Use a fast walker",
-     "explain": "Speeds help with positions, which has nothing to do with head rewiring."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "linked-list-q2"
   },
   {
    "kind": "pattern",
-   "prompt": "Two sorted chains must become one sorted chain without allocating new value nodes. Which plan fits?",
+   "prompt": "Two sorted chains must become one sorted chain in a single pass, without allocating new value nodes. Which plan fits?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Merge by splicing: grow a tail from a dummy, taking the smaller head each turn",
-     "explain": "Pointers are rewired, nodes are reused, order is preserved."
-    },
     {
      "text": "Concatenate, then run bubble sort on the chain",
      "explain": "Sorting a list by swaps costs n squared and ignores that both inputs are sorted."
@@ -152,9 +148,13 @@
     {
      "text": "Reverse both chains first",
      "explain": "Reversal gives descending order and solves no part of the merge."
+    },
+    {
+     "text": "Merge by splicing: grow a tail from a dummy, taking the smaller head each turn",
+     "explain": "Pointers are rewired, nodes are reused, order is preserved."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "linked-list-q3"
   },
   {
@@ -238,23 +238,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "0",
-     "explain": "The head already holds 7; the walk stops before its first hop."
-    },
-    {
-     "text": "2",
-     "explain": "That is the second 7 - the walk must stop at the first."
-    },
-    {
      "text": "1",
      "explain": "Hop 1 lands on the 3."
     },
     {
      "text": "3",
      "explain": "Hop 3 is the 9, past both hits."
+    },
+    {
+     "text": "0",
+     "explain": "The head already holds 7; the walk stops before its first hop."
+    },
+    {
+     "text": "2",
+     "explain": "That is the second 7 - the walk must stop at the first."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "linked-list-q7"
   },
   {
@@ -262,6 +262,10 @@
    "prompt": "Reaching the value at position k in a singly linked chain costs how much?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "About k squared",
+     "explain": "Each hop is constant work; the walk is linear in k."
+    },
     {
      "text": "About k pointer hops",
      "explain": "There is no index arithmetic; the chain must be walked."
@@ -273,13 +277,9 @@
     {
      "text": "About log k",
      "explain": "Halving needs random access to the middle, which a chain lacks."
-    },
-    {
-     "text": "About k squared",
-     "explain": "Each hop is constant work; the walk is linear in k."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "linked-list-q8"
   },
   {
@@ -309,7 +309,7 @@
   },
   {
    "kind": "bug",
-   "prompt": "This delete-after drops more than one node on some chains. What is the bug?",
+   "prompt": "This delete-after crashes on some perfectly ordinary calls. What is the bug?",
    "codeSnippet": "function deleteAfter(node) {\n  node.next = node.next.next\n}",
    "options": [
     {
@@ -338,6 +338,10 @@
    "codeSnippet": "let slow = head\nlet fast = head\nwhile (fast.next !== null) {\n  slow = slow.next\n  fast = fast.next.next\n}",
    "options": [
     {
+     "text": "The loop needs a counter variable",
+     "explain": "The two-walker point is to avoid counting; the guard is what is missing."
+    },
+    {
      "text": "After fast.next.next, fast can be null, and the loop test reads null.next",
      "explain": "The test must check fast and fast.next; even lengths park fast on null."
     },
@@ -348,13 +352,9 @@
     {
      "text": "fast must move three hops",
      "explain": "Speed two is what makes slow land on the middle."
-    },
-    {
-     "text": "The loop needs a counter variable",
-     "explain": "The two-walker point is to avoid counting; the guard is what is missing."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "linked-list-q11"
   },
   {
@@ -363,23 +363,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "The empty chain and the one-node chain",
-     "explain": "Head changes and null dereferences hide exactly there."
-    },
-    {
-     "text": "A chain of length one thousand",
-     "explain": "Long chains stress speed, but the logic bugs live at the tiny ends."
-    },
-    {
      "text": "A chain with negative values",
      "explain": "Pointer surgery nowhere reads the sign of a value."
     },
     {
      "text": "A chain built in reverse order",
      "explain": "Build order leaves no trace in the final pointers."
+    },
+    {
+     "text": "The empty chain and the one-node chain",
+     "explain": "Head changes and null dereferences hide exactly there."
+    },
+    {
+     "text": "A chain of length one thousand",
+     "explain": "Long chains stress speed, but the logic bugs live at the tiny ends."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "linked-list-q12"
   }
  ]

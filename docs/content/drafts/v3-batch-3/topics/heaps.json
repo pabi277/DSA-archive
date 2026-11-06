@@ -45,10 +45,6 @@
     "codeSnippet": null,
     "options": [
      {
-      "text": "Parent 3; children 15 and 16",
-      "explain": "Floor of (7-1)/2 is 3, and 2*7+1, 2*7+2 give 15 and 16."
-     },
-     {
       "text": "Parent 6; children 8 and 9",
       "explain": "Neighbouring indices are cousins, left and right in the same level."
      },
@@ -59,9 +55,13 @@
      {
       "text": "Parent 4; children 15 and 16",
       "explain": "(7-1)/2 floors to 3; index 4 parents 9 and 10."
+     },
+     {
+      "text": "Parent 3; children 15 and 16",
+      "explain": "Floor of (7-1)/2 is 3, and 2*7+1, 2*7+2 give 15 and 16."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 3,
     "rereadSectionId": "the-array-is-the-tree",
     "rereadSectionTitle": "The array is the tree",
     "reveal": {
@@ -88,10 +88,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "A min-heap capped at k values; its root is the answer",
-     "explain": "The heap guards the k champions; the smallest of them is exactly the kth largest."
-    },
-    {
      "text": "Keep the whole stream sorted",
      "explain": "Every arrival pays a full insertion into n elements, and memory grows forever."
     },
@@ -102,9 +98,13 @@
     {
      "text": "A running maximum and minimum",
      "explain": "Two numbers cannot represent the k-frontier in between."
+    },
+    {
+     "text": "A min-heap capped at k values; its root is the answer",
+     "explain": "The heap guards the k champions; the smallest of them is exactly the kth largest."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "heaps-q1"
   },
   {
@@ -112,10 +112,6 @@
    "prompt": "Merge k sorted lists into one sorted output. What belongs in the heap?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "One current head per list - pop the smallest, push its successor",
-     "explain": "The overall next element is always the smallest of the k heads."
-    },
     {
      "text": "All elements of all lists at once",
      "explain": "Works, but n log n beats nothing; the k-head version costs n log k."
@@ -127,9 +123,13 @@
     {
      "text": "Only the first list, then merge pairwise",
      "explain": "Pairwise merging re-touches elements log k times without a heap's guidance."
+    },
+    {
+     "text": "One current head per list - pop the smallest, push its successor",
+     "explain": "The overall next element is always the smallest of the k heads."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "heaps-q2"
   },
   {
@@ -163,6 +163,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Sorted arrays cannot extract the minimum",
+     "explain": "They can - it sits at one end; insertion is what hurts them."
+    },
+    {
      "text": "Heap insert and extract both cost log n; the sorted array pays linear per insert",
      "explain": "Shifting elements to keep an array sorted is the hidden linear bill."
     },
@@ -173,13 +177,9 @@
     {
      "text": "Heaps find any element quickly",
      "explain": "Arbitrary search in a heap is a full scan; only the root is instant."
-    },
-    {
-     "text": "Sorted arrays cannot extract the minimum",
-     "explain": "They can - it sits at one end; insertion is what hurts them."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "heaps-q4"
   },
   {
@@ -187,6 +187,10 @@
    "prompt": "Does the array 10 20 30 21 23 satisfy the min-heap promise?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "It fails because the array is unsorted",
+     "explain": "Heap order is parent-child only; sortedness is a stronger, different thing."
+    },
     {
      "text": "Yes - 10 is under 20 and 30; 20 is under 21 and 23",
      "explain": "Both internal nodes beat their children; leaves have nothing to prove."
@@ -198,13 +202,9 @@
     {
      "text": "It fails because 30 stands before 21",
      "explain": "30 and 21 are in different subtrees; no edge connects them."
-    },
-    {
-     "text": "It fails because the array is unsorted",
-     "explain": "Heap order is parent-child only; sortedness is a stronger, different thing."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "heaps-q5"
   },
   {
@@ -238,6 +238,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "20",
+     "explain": "20 is the 2nd largest; the root sits one below it."
+    },
+    {
      "text": "11",
      "explain": "The champions are 70, 20, 11; the heap's root 11 is the 3rd largest."
     },
@@ -248,13 +252,9 @@
     {
      "text": "70",
      "explain": "70 is the 1st largest; the root holds the smallest champion, the kth."
-    },
-    {
-     "text": "20",
-     "explain": "20 is the 2nd largest; the root sits one below it."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "heaps-q7"
   },
   {
@@ -338,6 +338,10 @@
    "codeSnippet": "heap.push(x)\nif (heap.size() > k) {\n  heap.popMax()\n}",
    "options": [
     {
+     "text": "popMax is too slow",
+     "explain": "Speed is fine - it is removing exactly the values worth keeping."
+    },
+    {
      "text": "Evicting the maximum keeps the small; a min-heap evicting its minimum keeps the champions",
      "explain": "The guardian must discard its weakest champion, the root of a min-heap."
     },
@@ -348,13 +352,9 @@
     {
      "text": "k is off by one",
      "explain": "Size k is correct for the kth largest; the eviction policy is backwards."
-    },
-    {
-     "text": "popMax is too slow",
-     "explain": "Speed is fine - it is removing exactly the values worth keeping."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "heaps-q11"
   },
   {
@@ -362,10 +362,6 @@
    "prompt": "Which case most deserves a dedicated test for a kth-largest routine?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "k equal to the array's length",
-     "explain": "The answer is the minimum, the heap fills completely, and off-by-ones surface."
-    },
     {
      "text": "All distinct values",
      "explain": "The comfortable case - nothing boundary-shaped happens."
@@ -377,9 +373,13 @@
     {
      "text": "A very long stream",
      "explain": "Length stresses time, but the k = n boundary stresses correctness."
+    },
+    {
+     "text": "k equal to the array's length",
+     "explain": "The answer is the minimum, the heap fills completely, and off-by-ones surface."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "heaps-q12"
   }
  ]

@@ -45,23 +45,23 @@
     "codeSnippet": null,
     "options": [
      {
-      "text": "4",
-      "explain": "c, ca, car from the first word; cat adds only its final node."
-     },
-     {
-      "text": "6",
-      "explain": "Six would mean no sharing - but c and ca are stored once, used twice."
-     },
-     {
       "text": "3",
       "explain": "Three covers car alone; cat still needs its own last node."
      },
      {
       "text": "2",
       "explain": "Two words, yes - but nodes count prefixes, and there are four distinct ones."
+     },
+     {
+      "text": "4",
+      "explain": "c, ca, car from the first word; cat adds only its final node."
+     },
+     {
+      "text": "6",
+      "explain": "Six would mean no sharing - but c and ca are stored once, used twice."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 2,
     "rereadSectionId": "one-node-per-prefix",
     "rereadSectionTitle": "One node per prefix",
     "reveal": {
@@ -88,10 +88,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "A trie - both are the same walk, differing only in the final flag check",
-     "explain": "Paths are prefixes; the end flag separates stored words from mere prefixes."
-    },
-    {
      "text": "A hash set of the words",
      "explain": "Exact lookups shine, but starts-with needs scanning every stored word."
     },
@@ -102,9 +98,13 @@
     {
      "text": "A heap of the words",
      "explain": "Heaps order by priority, nothing about shared letters."
+    },
+    {
+     "text": "A trie - both are the same walk, differing only in the final flag check",
+     "explain": "Paths are prefixes; the end flag separates stored words from mere prefixes."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "tries-q1"
   },
   {
@@ -112,10 +112,6 @@
    "prompt": "Count how many stored words start with a given prefix, in time proportional to the prefix. How?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "A pass-through counter on every node, incremented per insert, decremented per erase",
-     "explain": "The counter at the prefix's node is the answer - one walk, no subtree scan."
-    },
     {
      "text": "Walk the subtree under the prefix and count flags",
      "explain": "Correct but proportional to the subtree, exactly what the counter avoids."
@@ -127,9 +123,13 @@
     {
      "text": "Binary search in a sorted list",
      "explain": "Two binary searches can do it - the trie does it in prefix-length steps."
+    },
+    {
+     "text": "A pass-through counter on every node, incremented per insert, decremented per erase",
+     "explain": "The counter at the prefix's node is the answer - one walk, no subtree scan."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "tries-q2"
   },
   {
@@ -137,10 +137,6 @@
    "prompt": "Maximum XOR of any two numbers in an array. The trie plan?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Insert bits top-down; for each number walk preferring the opposite bit",
-     "explain": "Opposite bits set a 1 high in the result; higher beats everything below."
-    },
     {
      "text": "Try all pairs",
      "explain": "Quadratic - correct but the trie does each number in 32 steps."
@@ -152,9 +148,13 @@
     {
      "text": "XOR everything together",
      "explain": "That folds the whole array into one value - a different question entirely."
+    },
+    {
+     "text": "Insert bits top-down; for each number walk preferring the opposite bit",
+     "explain": "Opposite bits set a 1 high in the result; higher beats everything below."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "tries-q3"
   },
   {
@@ -162,10 +162,6 @@
    "prompt": "Count the distinct substrings of a string using a trie. The construction?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Insert every suffix; the number of nodes created is the answer",
-     "explain": "Each node is a distinct prefix of some suffix - which is exactly a distinct substring."
-    },
     {
      "text": "Insert every prefix",
      "explain": "Prefixes alone spell n substrings, missing everything interior."
@@ -177,9 +173,13 @@
     {
      "text": "Insert all rotations",
      "explain": "Rotations wrap around the end - they spell strings that are no substrings."
+    },
+    {
+     "text": "Insert every suffix; the number of nodes created is the answer",
+     "explain": "Each node is a distinct prefix of some suffix - which is exactly a distinct substring."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "tries-q4"
   },
   {
@@ -187,10 +187,6 @@
    "prompt": "Empty trie; insert car, then cat, then card. How many new nodes does card create?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "1",
-     "explain": "c, ca, car already exist - card adds only the d node."
-    },
     {
      "text": "4",
      "explain": "Four would rebuild the whole word; the trie reuses the car path."
@@ -202,9 +198,13 @@
     {
      "text": "0",
      "explain": "card is longer than car, so at least its last letter is new."
+    },
+    {
+     "text": "1",
+     "explain": "c, ca, car already exist - card adds only the d node."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "tries-q5"
   },
   {
@@ -213,23 +213,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "ninja",
-     "explain": "n, ni, nin, ninj are all present; ninga breaks at ning."
-    },
-    {
-     "text": "ninga",
-     "explain": "Its prefix ning is nowhere in the set."
-    },
-    {
      "text": "ninj",
      "explain": "Fully backed, but ninja is longer and equally backed."
     },
     {
      "text": "n",
      "explain": "Trivially backed - and shortest, the opposite of the question."
+    },
+    {
+     "text": "ninja",
+     "explain": "n, ni, nin, ninj are all present; ninga breaks at ning."
+    },
+    {
+     "text": "ninga",
+     "explain": "Its prefix ning is nowhere in the set."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "tries-q6"
   },
   {
@@ -263,6 +263,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Constant",
+     "explain": "Every letter of the word must be walked - L steps, no fewer."
+    },
+    {
      "text": "Proportional to L, independent of N",
      "explain": "One step per letter; the stored volume changes memory, nothing about the walk."
     },
@@ -273,13 +277,9 @@
     {
      "text": "Proportional to N",
      "explain": "Scanning all words is the hash-blind plan the trie replaces."
-    },
-    {
-     "text": "Constant",
-     "explain": "Every letter of the word must be walked - L steps, no fewer."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "tries-q8"
   },
   {
@@ -287,6 +287,10 @@
    "prompt": "Building the suffix trie of a string of length n costs, in nodes, up to about?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "n log n",
+     "explain": "That is a sorting bill; node growth follows substring counts."
+    },
     {
      "text": "n squared over 2 - one node per distinct substring",
      "explain": "n suffixes of average length n/2; distinct substrings bound the node count."
@@ -298,13 +302,9 @@
     {
      "text": "2 to the n",
      "explain": "Substrings are contiguous - quadratically many, nothing exponential."
-    },
-    {
-     "text": "n log n",
-     "explain": "That is a sorting bill; node growth follows substring counts."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "tries-q9"
   },
   {
@@ -313,23 +313,23 @@
    "codeSnippet": "function search(root, word) {\n  let node = root\n  for (const ch of word) {\n    node = node.next[ch]\n    if (!node) return false\n  }\n  return true\n}",
    "options": [
     {
-     "text": "It returns path-existence - the final line must check the end-of-word flag",
-     "explain": "car is a prefix of carpet, so the path exists; only the flag separates words."
-    },
-    {
-     "text": "The loop starts at the root's child",
-     "explain": "Starting at the root is correct; the walk is fine."
-    },
-    {
      "text": "The null check comes too late",
      "explain": "Checking after stepping is safe - undefined simply returns false."
     },
     {
      "text": "carpet corrupted the trie",
      "explain": "Insertion is innocent; the query lies about what reaching a node means."
+    },
+    {
+     "text": "It returns path-existence - the final line must check the end-of-word flag",
+     "explain": "car is a prefix of carpet, so the path exists; only the flag separates words."
+    },
+    {
+     "text": "The loop starts at the root's child",
+     "explain": "Starting at the root is correct; the walk is fine."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "tries-q10"
   },
   {
@@ -337,6 +337,10 @@
    "prompt": "This XOR-trie walk returns tiny values for a maximum-XOR query. What is the bug?",
    "codeSnippet": "for (let b = 31; b >= 0; b--) {\n  const bit = (x >> b) & 1\n  if (node.next[bit]) {\n    node = node.next[bit]\n  } else if (node.next[1 - bit]) {\n    node = node.next[1 - bit]\n  }\n}",
    "options": [
+    {
+     "text": "31 bits are too few",
+     "explain": "Bit width matters for huge values, but the direction of preference is the bug."
+    },
     {
      "text": "It prefers the same bit - the maximum wants the opposite bit at every level",
      "explain": "Same bits XOR to 0; the walk is computing something close to the minimum."
@@ -348,13 +352,9 @@
     {
      "text": "The mask arithmetic is off by one",
      "explain": "The preference order is the flaw, before any masking details."
-    },
-    {
-     "text": "31 bits are too few",
-     "explain": "Bit width matters for huge values, but the direction of preference is the bug."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "tries-q11"
   },
   {

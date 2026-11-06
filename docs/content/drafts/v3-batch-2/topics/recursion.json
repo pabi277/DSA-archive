@@ -46,10 +46,6 @@
     "codeSnippet": null,
     "options": [
      {
-      "text": "5",
-      "explain": "One call per value in the chain 13, 6, 3, 1, 0 - the base case is a real call."
-     },
-     {
       "text": "13",
       "explain": "Thirteen is the naive multiply-one-at-a-time chain this algorithm replaces."
      },
@@ -60,9 +56,13 @@
      {
       "text": "10",
       "explain": "Two calls per level happens only in the broken version that recomputes the half."
+     },
+     {
+      "text": "5",
+      "explain": "One call per value in the chain 13, 6, 3, 1, 0 - the base case is a real call."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 3,
     "rereadSectionId": "the-leap-of-faith",
     "rereadSectionTitle": "The leap of faith",
     "reveal": {
@@ -89,10 +89,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Include-exclude recursion over the indices, passing the remaining target down",
-     "explain": "Two branches per index cover every subset; 2 to the 20 paths is about a million."
-    },
-    {
      "text": "Sort, then walk two pointers inward",
      "explain": "Two pointers finds pairs; subsets of any size defeat it."
     },
@@ -103,9 +99,13 @@
     {
      "text": "Greedy, taking the largest value that still fits",
      "explain": "With target 6 over 5, 4, 2 greedy takes 5 and dead-ends; 4 plus 2 succeeds."
+    },
+    {
+     "text": "Include-exclude recursion over the indices, passing the remaining target down",
+     "explain": "Two branches per index cover every subset; 2 to the 20 paths is about a million."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "recursion-q1"
   },
   {
@@ -113,10 +113,6 @@
    "prompt": "Compute x to the n under a modulus for n up to 10 to the 15. Plan?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Recurse on the halved exponent, square the result, extra x on odd n",
-     "explain": "About 50 multiplications; the chain length is the logarithm of n."
-    },
     {
      "text": "Multiply x into an accumulator n times",
      "explain": "10 to the 15 iterations is weeks of work."
@@ -128,20 +124,20 @@
     {
      "text": "Call the library power on floats and round",
      "explain": "Floats lose exactness long before 15 digits under a modulus."
+    },
+    {
+     "text": "Recurse on the halved exponent, square the result, extra x on odd n",
+     "explain": "About 50 multiplications; the chain length is the logarithm of n."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "recursion-q2"
   },
   {
    "kind": "pattern",
-   "prompt": "Generate every binary string of length n with no two adjacent 1s. Which recursion is right?",
+   "prompt": "Generate every binary string of length n with no two adjacent 1s. Which recursion prunes as it places?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Place one character per call, carrying whether the previous one was 1",
-     "explain": "The constraint is local, so one boolean prunes every dead branch early."
-    },
     {
      "text": "Generate all 2 to the n strings, then filter out offenders",
      "explain": "Correct but wasteful - most strings are built only to be discarded."
@@ -153,9 +149,13 @@
     {
      "text": "Shuffle strings randomly until enough appear",
      "explain": "Enumeration must be exhaustive and ordered, so chance has no place."
+    },
+    {
+     "text": "Place one character per call, carrying whether the previous one was 1",
+     "explain": "The constraint is local, so one boolean prunes every dead branch early."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "recursion-q3"
   },
   {
@@ -163,6 +163,10 @@
    "prompt": "Count digit strings of length n where even indices hold even digits and odd indices hold primes. Best plan?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "Multiply factorials of the two counts",
+     "explain": "Factorials count orderings; each position here is an independent choice."
+    },
     {
      "text": "Multiply independent choices: 5 to the even-count times 4 to the odd-count, via fast power",
      "explain": "Positions are independent, so the count is a product of two powers."
@@ -174,13 +178,9 @@
     {
      "text": "Dynamic programming over prefixes",
      "explain": "Linear states lose outright when n reaches 10 to the 15; the closed form is free."
-    },
-    {
-     "text": "Multiply factorials of the two counts",
-     "explain": "Factorials count orderings; each position here is an independent choice."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "recursion-q4"
   },
   {
@@ -188,10 +188,6 @@
    "prompt": "Include-first recursion lists the subsequences of \"ab\" as: ab, a, b, then the empty one. Which is produced third?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "b",
-     "explain": "After exhausting the include-a subtree (ab, a), the exclude-a branch starts with b."
-    },
     {
      "text": "a",
      "explain": "a is second - the include-a, exclude-b path."
@@ -203,9 +199,13 @@
     {
      "text": "The empty subsequence",
      "explain": "Excluding everything is the very last path explored."
+    },
+    {
+     "text": "b",
+     "explain": "After exhausting the include-a subtree (ab, a), the exclude-a branch starts with b."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "recursion-q5"
   },
   {
@@ -239,10 +239,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "2",
-     "explain": "The middle 2 alone, and the two 1s together."
-    },
-    {
      "text": "1",
      "explain": "The pair of 1s also reaches 2 - the two 1s sit at distinct indices."
     },
@@ -253,9 +249,13 @@
     {
      "text": "0",
      "explain": "The single element 2 already qualifies."
+    },
+    {
+     "text": "2",
+     "explain": "The middle 2 alone, and the two 1s together."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "recursion-q7"
   },
   {
@@ -289,6 +289,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "About n factorial",
+     "explain": "Factorial counts permutations; subsequences keep the original order."
+    },
+    {
      "text": "About 2 to the n, because that many subsequences exist",
      "explain": "The output itself has 2 to the n lines; no algorithm beats its own output size."
     },
@@ -299,13 +303,9 @@
     {
      "text": "About n log n",
      "explain": "That is sorting's bill, a different errand."
-    },
-    {
-     "text": "About n factorial",
-     "explain": "Factorial counts permutations; subsequences keep the original order."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "recursion-q9"
   },
   {
@@ -313,10 +313,6 @@
    "prompt": "p(2, 3) crashes with a stack overflow. What is the bug?",
    "codeSnippet": "function p(x, n) {\n  return x * p(x, n - 1)\n}",
    "options": [
-    {
-     "text": "There is no base case: n passes 0 and falls forever; return 1 when n is 0",
-     "explain": "Every recursion needs a floor it can answer without calling itself."
-    },
     {
      "text": "The multiplication order is reversed",
      "explain": "Multiplication commutes; order changes nothing here."
@@ -328,15 +324,19 @@
     {
      "text": "x must shrink along with n",
      "explain": "x is the base; only the exponent counts down."
+    },
+    {
+     "text": "There is no base case: n passes 0 and falls forever; return 1 when n is 0",
+     "explain": "Every recursion needs a floor it can answer without calling itself."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "recursion-q10"
   },
   {
    "kind": "bug",
    "prompt": "fast(2, 3) returns 4 instead of 8. What is the bug?",
-   "codeSnippet": "function fast(x, n) {\n  if (n === 0) return 1\n  const h = fast(x, Math.floor(n / 2))\n  return h * h\n}",
+   "codeSnippet": "function fast(x, n) {\n  if (n === 0) return 1\n  if (n === 1) return x\n  const h = fast(x, Math.floor(n / 2))\n  return h * h\n}",
    "options": [
     {
      "text": "Odd exponents drop one factor of x - multiply by x when n is odd",
@@ -364,23 +364,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Exponent 0",
-     "explain": "It is the base case itself - must return 1 immediately, for any base."
-    },
-    {
-     "text": "A large even exponent",
-     "explain": "Useful, but it exercises the same halving path as smaller evens."
-    },
-    {
      "text": "Base 2 specifically",
      "explain": "The base value flows through unchanged logic."
     },
     {
      "text": "A base of one million",
      "explain": "Big bases stress overflow, a separate concern from the recursion."
+    },
+    {
+     "text": "Exponent 0",
+     "explain": "It is the base case itself - must return 1 immediately, for any base."
+    },
+    {
+     "text": "A large even exponent",
+     "explain": "Useful, but it exercises the same halving path as smaller evens."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "recursion-q12"
   }
  ]

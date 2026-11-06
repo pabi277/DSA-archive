@@ -19,7 +19,7 @@
    "The question names a single bit: test it, set it, clear it or toggle it.",
    "Parity or divisibility by a power of two is involved; the lowest bits already hold that answer.",
    "Every value appears an even number of times apart from one; XOR cancels the pairs and leaves the exception.",
-   "You must enumerate subsets, since the bits of the numbers zero to two to the n count them exactly.",
+   "You must enumerate subsets, since the bits of the numbers 0 through 2 to the n minus 1 name them exactly.",
    "Memory for flags is tight, and thirty-two independent booleans fit into one integer."
   ],
   "mentalModel": "Picture the number written in binary with position 0 on the right. A mask is a number you build on purpose so its ones mark the positions you care about: one shifted left by i is the mask for position i alone. Then the grammar is small. AND with a mask reads or clears positions. OR with a mask forces positions on. XOR with a mask flips positions. Three identities carry most tricks: a number AND its predecessor erases the lowest set bit; a number AND its negation isolates that bit; XOR of a value with itself is zero, and zero is XOR's do-nothing element, which is why XOR over a whole row cancels every pair and leaves the lonely value standing.",
@@ -46,6 +46,10 @@
     "codeSnippet": null,
     "options": [
      {
+      "text": "000100 - it isolated the lowest set bit",
+      "explain": "Isolation is the other identity, n AND minus n."
+     },
+     {
       "text": "101000 - it erased the lowest set bit",
       "explain": "43 is 101011; the AND keeps only the bits above the lowest one of 44."
      },
@@ -56,13 +60,9 @@
      {
       "text": "010100 - it shifted the row right",
       "explain": "A shift moves every bit; this identity touches exactly one."
-     },
-     {
-      "text": "000100 - it isolated the lowest set bit",
-      "explain": "Isolation is the other identity, n AND minus n."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 1,
     "rereadSectionId": "masks-and-identities",
     "rereadSectionTitle": "Masks, and the three identities that do the work",
     "reveal": {
@@ -89,10 +89,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "XOR the whole row together",
-     "explain": "Pairs cancel to zero; the fold ends holding the single survivor."
-    },
-    {
      "text": "Sort, then scan for a lonely neighbour",
      "explain": "Works, but costs n log n time and gave up the one-pass promise."
     },
@@ -103,9 +99,13 @@
     {
      "text": "Sum the row and subtract",
      "explain": "Subtract what? Without the set of distinct values the sum tells nothing."
+    },
+    {
+     "text": "XOR the whole row together",
+     "explain": "Pairs cancel to zero; the fold ends holding the single survivor."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "bit-manipulation-q1"
   },
   {
@@ -139,10 +139,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "AND to read, OR to set",
-     "explain": "AND with the mask isolates the position; OR with the mask forces it on."
-    },
-    {
      "text": "OR to read, AND to set",
      "explain": "OR always reports a one at the masked spot once ORed in - it cannot read."
     },
@@ -153,9 +149,13 @@
     {
      "text": "Shift to read, add to set",
      "explain": "A shift can move the bit into place for reading, but adding may carry into neighbours."
+    },
+    {
+     "text": "AND to read, OR to set",
+     "explain": "AND with the mask isolates the position; OR with the mask forces it on."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "bit-manipulation-q3"
   },
   {
@@ -163,6 +163,10 @@
    "prompt": "Subsets of a four-element set must be enumerated. Why do the numbers 0 to 15 do the job?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "It only works for sets of even size",
+     "explain": "Any size n maps to the numbers 0 to two to the n minus one."
+    },
     {
      "text": "Each number's four bits say which elements are in the subset",
      "explain": "Bit i on means element i included; sixteen numbers, sixteen subsets."
@@ -174,13 +178,9 @@
     {
      "text": "Only sorted subsets appear this way",
      "explain": "Subsets have no internal order; the bits are membership flags."
-    },
-    {
-     "text": "It only works for sets of even size",
-     "explain": "Any size n maps to the numbers 0 to two to the n minus one."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "bit-manipulation-q4"
   },
   {
@@ -189,23 +189,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "0 - the lowest bit is off, so 10 is even",
-     "explain": "Parity lives in bit zero; AND with mask 1 reads exactly that bit."
-    },
-    {
-     "text": "1 - 10 is odd",
-     "explain": "1010 ends in zero; the AND keeps nothing."
-    },
-    {
      "text": "10 - the number is returned unchanged",
      "explain": "AND with 1 clears every bit above position zero."
     },
     {
      "text": "2 - the second bit is reported",
      "explain": "Mask 1 has no one at position one, so position one is unread."
+    },
+    {
+     "text": "0 - the lowest bit is off, so 10 is even",
+     "explain": "Parity lives in bit zero; AND with mask 1 reads exactly that bit."
+    },
+    {
+     "text": "1 - 10 is odd",
+     "explain": "1010 ends in zero; the AND keeps nothing."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "bit-manipulation-q5"
   },
   {
@@ -239,23 +239,23 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "13",
+     "explain": "Halving 13 takes four turns and a fixed 32-bit scan takes 32 - thirteen matches neither loop."
+    },
+    {
+     "text": "1",
+     "explain": "One turn erases only the lowest one; two set bits remain after it."
+    },
+    {
      "text": "3",
      "explain": "1101 to 1100 to 1000 to 0 - one turn per set bit, and 13 has three."
     },
     {
      "text": "4",
      "explain": "Four is the bit width here; the loop skips the zero position entirely."
-    },
-    {
-     "text": "13",
-     "explain": "Thirteen turns is the naive halving loop at its worst, a different algorithm."
-    },
-    {
-     "text": "1",
-     "explain": "One turn erases only the lowest one; two set bits remain after it."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "bit-manipulation-q7"
   },
   {
@@ -263,10 +263,6 @@
    "prompt": "The n AND n-1 bit counter runs on a 64-bit word holding k set bits. How many AND steps does it take?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Exactly k",
-     "explain": "Each step erases one set bit; the loop ends when they are gone."
-    },
     {
      "text": "Always 64",
      "explain": "That is the fixed cost of the halve-and-test loop, which inspects every position."
@@ -278,9 +274,13 @@
     {
      "text": "k squared",
      "explain": "Steps are independent; nothing multiplies."
+    },
+    {
+     "text": "Exactly k",
+     "explain": "Each step erases one set bit; the loop ends when they are gone."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "bit-manipulation-q8"
   },
   {
@@ -288,10 +288,6 @@
    "prompt": "Testing whether a number is a power of two via n AND (n - 1) equal to zero costs how much?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Constant - one subtract, one AND, one compare",
-     "explain": "No loop at all; a single erase step decides."
-    },
     {
      "text": "One step per bit of the number",
      "explain": "That is the cost of the shifting loop this identity replaces."
@@ -303,9 +299,13 @@
     {
      "text": "It depends on the number of set bits",
      "explain": "The identity runs once regardless; only the counter loops per set bit."
+    },
+    {
+     "text": "Constant - one subtract, one AND, one compare",
+     "explain": "No loop at all; a single erase step decides."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "bit-manipulation-q9"
   },
   {
@@ -314,23 +314,23 @@
    "codeSnippet": "function isSet(n, i) {\n  return (n & (1 << i)) === 1\n}",
    "options": [
     {
-     "text": "The AND result equals 1 << i when set, so comparing with 1 fails for i > 0",
-     "explain": "Compare against 0 instead - or shift n right by i and AND with 1."
-    },
-    {
      "text": "The mask is built in the wrong direction",
      "explain": "1 shifted left by i is exactly the mask for position i."
     },
     {
      "text": "AND must be OR",
-     "explain": "OR would force the bit on and report true for every input."
+     "explain": "OR forces the bit on instead of reading it - and with the === 1 compare it still fails for i above 0."
     },
     {
      "text": "n must be shifted left, the mask right",
      "explain": "Either side may shift, but the comparison constant is the real fault."
+    },
+    {
+     "text": "The AND result equals 1 << i when set, so comparing with 1 fails for i > 0",
+     "explain": "Compare against 0 instead - or shift n right by i and AND with 1."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "bit-manipulation-q10"
   },
   {
@@ -338,6 +338,10 @@
    "prompt": "This XOR swap sometimes destroys data. When, and why?",
    "codeSnippet": "function swapAt(a, i, j) {\n  a[i] = a[i] ^ a[j]\n  a[j] = a[i] ^ a[j]\n  a[i] = a[i] ^ a[j]\n}",
    "options": [
+    {
+     "text": "The three lines are in the wrong order",
+     "explain": "This order is the classic dance; the aliasing case is the flaw."
+    },
     {
      "text": "When i equals j: the first line zeroes the slot and both reads then see 0",
      "explain": "XOR swap on one single memory cell annihilates it; guard i equal j first."
@@ -349,13 +353,9 @@
     {
      "text": "When the two values are equal but the slots differ",
      "explain": "Equal values in distinct slots pass through the dance safely to equal values."
-    },
-    {
-     "text": "The three lines are in the wrong order",
-     "explain": "This order is the classic dance; the aliasing case is the flaw."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "bit-manipulation-q11"
   },
   {
@@ -364,23 +364,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Zero",
-     "explain": "Zero has no set bits; loops keyed on reaching zero must terminate immediately, at count 0."
-    },
-    {
-     "text": "A prime number",
-     "explain": "Primality says nothing about the bit row."
-    },
-    {
      "text": "A number with alternating bits",
      "explain": "Pretty, but exercised no differently from any mixed pattern."
     },
     {
      "text": "A multiple of ten",
      "explain": "Base-ten shapes are invisible in binary."
+    },
+    {
+     "text": "Zero",
+     "explain": "Zero has no set bits; loops keyed on reaching zero must terminate immediately, at count 0."
+    },
+    {
+     "text": "A prime number",
+     "explain": "Primality says nothing about the bit row."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "bit-manipulation-q12"
   }
  ]

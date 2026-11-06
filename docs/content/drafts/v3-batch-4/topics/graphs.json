@@ -89,23 +89,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Scan all nodes; launch a walk from each unvisited one and count the launches",
-     "explain": "Each launch swallows exactly one component - the count is the answer."
-    },
-    {
-     "text": "One BFS from node 0",
-     "explain": "A single walk sees only the piece containing its start."
-    },
-    {
      "text": "Count nodes with no edges",
      "explain": "Isolated nodes are one kind of circle; connected groups also count."
     },
     {
      "text": "Divide the node count by the average degree",
      "explain": "Degrees say nothing about how pieces split."
+    },
+    {
+     "text": "Scan all nodes; launch a walk from each unvisited one and count the launches",
+     "explain": "Each launch swallows exactly one component - the count is the answer."
+    },
+    {
+     "text": "One BFS from node 0",
+     "explain": "A single walk sees only the piece containing its start."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "graphs-q1"
   },
   {
@@ -113,6 +113,10 @@
    "prompt": "Fewest minutes for a signal to cross an unweighted network. Which walk and why?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "Sort nodes by degree first",
+     "explain": "Degree is popularity, unrelated to distance."
+    },
     {
      "text": "BFS - its rings visit all nodes at distance d before any at d+1",
      "explain": "Ring numbers are distances; the first arrival is the shortest route."
@@ -124,13 +128,9 @@
     {
      "text": "Either walk, the costs match",
      "explain": "Both are linear in total, but only BFS orders nodes by distance."
-    },
-    {
-     "text": "Sort nodes by degree first",
-     "explain": "Degree is popularity, unrelated to distance."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "graphs-q2"
   },
   {
@@ -164,10 +164,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "2-colour during a walk; a same-colour edge proves it impossible",
-     "explain": "Alternating colours succeed exactly on graphs with no odd cycle."
-    },
-    {
      "text": "Check whether the node count is even",
      "explain": "Camp sizes may differ; parity of n is irrelevant."
     },
@@ -178,9 +174,13 @@
     {
      "text": "Sort nodes by degree and alternate",
      "explain": "Degree order ignores the edges the colouring must respect."
+    },
+    {
+     "text": "2-colour during a walk; a same-colour edge proves it impossible",
+     "explain": "Alternating colours succeed exactly on graphs with no odd cycle."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "graphs-q4"
   },
   {
@@ -188,6 +188,10 @@
    "prompt": "Adjacency matrix rows: 110 / 110 / 001. How many provinces?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "0",
+     "explain": "Every node belongs to some province, even alone."
+    },
     {
      "text": "2",
      "explain": "Nodes 0 and 1 know each other; node 2 stands alone."
@@ -199,13 +203,9 @@
     {
      "text": "3",
      "explain": "The 1s linking 0 and 1 merge them into one province."
-    },
-    {
-     "text": "0",
-     "explain": "Every node belongs to some province, even alone."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "graphs-q5"
   },
   {
@@ -213,6 +213,10 @@
    "prompt": "Grid rows 10 / 01, land is 1, movement is 4-directional. How many islands?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "4",
+     "explain": "Water cells form no islands."
+    },
     {
      "text": "2",
      "explain": "The two land cells touch only at a corner - no 4-directional edge joins them."
@@ -224,13 +228,9 @@
     {
      "text": "0",
      "explain": "Two land cells exist; each forms an island."
-    },
-    {
-     "text": "4",
-     "explain": "Water cells form no islands."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "graphs-q6"
   },
   {
@@ -239,23 +239,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "4",
-     "explain": "The wave walks the connected snake of fresh cells; the farthest sits 4 rings out."
-    },
-    {
-     "text": "3",
-     "explain": "The bottom-right orange is in the fourth ring, cut off from shortcuts by the 0s."
-    },
-    {
      "text": "-1",
      "explain": "Every fresh orange is reachable here."
     },
     {
      "text": "2",
      "explain": "Two minutes covers only the top-left block."
+    },
+    {
+     "text": "4",
+     "explain": "The wave walks the connected snake of fresh cells; the farthest sits 4 rings out."
+    },
+    {
+     "text": "3",
+     "explain": "The bottom-right orange is in the fourth ring, cut off from shortcuts by the 0s."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "graphs-q7"
   },
   {
@@ -263,10 +263,6 @@
    "prompt": "BFS on an adjacency list with V nodes and E edges costs how much?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "V plus E - each node queued once, each edge examined twice",
-     "explain": "The discovery-time mark makes both counts exact."
-    },
     {
      "text": "V squared always",
      "explain": "V squared is the adjacency-matrix bill, where every row is scanned fully."
@@ -278,9 +274,13 @@
     {
      "text": "V times E",
      "explain": "That would mean re-walking the graph from every node."
+    },
+    {
+     "text": "V plus E - each node queued once, each edge examined twice",
+     "explain": "The discovery-time mark makes both counts exact."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "graphs-q8"
   },
   {
@@ -288,10 +288,6 @@
    "prompt": "A full BFS or DFS over an R by C grid costs how much?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "About R times C - each cell is discovered once and offers four edges",
-     "explain": "The implicit edges keep the constant tiny; work is linear in cells."
-    },
     {
      "text": "(R times C) squared",
      "explain": "Squared means revisiting; the visited array forbids that."
@@ -303,9 +299,13 @@
     {
      "text": "4 to the power of R times C",
      "explain": "Exponential blowup is what the visited array exists to stop."
+    },
+    {
+     "text": "About R times C - each cell is discovered once and offers four edges",
+     "explain": "The implicit edges keep the constant tiny; work is linear in cells."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "graphs-q9"
   },
   {
@@ -339,10 +339,6 @@
    "codeSnippet": "// u was discovered from parent p\nfor (const v of adj[u]) {\n  if (!seen[v]) {\n    seen[v] = true\n    q.push([v, u])\n  } else {\n    return true\n  }\n}",
    "options": [
     {
-     "text": "The edge back to the parent counts as a cycle - require v different from p",
-     "explain": "In undirected lists every edge appears twice; the reverse copy is innocent."
-    },
-    {
      "text": "seen is set too early",
      "explain": "Discovery-time marking is right; the parent exemption is what is missing."
     },
@@ -353,9 +349,13 @@
     {
      "text": "return true should return false",
      "explain": "Inverting the answer breaks real cycles too."
+    },
+    {
+     "text": "The edge back to the parent counts as a cycle - require v different from p",
+     "explain": "In undirected lists every edge appears twice; the reverse copy is innocent."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "graphs-q11"
   },
   {

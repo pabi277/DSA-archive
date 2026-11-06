@@ -11,7 +11,7 @@
   "why": "7 is 111 in binary; its lowest bit is 1, which is the definition of odd."
  },
  "hint": "Mask with 1 and branch on the result; the rest of the number is irrelevant.",
- "mistake": "Checking the highest bit or the decimal last digit - parity lives in binary position zero only.",
+ "mistake": "Checking the highest bit instead of bit zero - the top of the number says nothing about parity.",
  "tests": [
   {
    "input": "7\n",

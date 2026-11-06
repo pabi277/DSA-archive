@@ -14,7 +14,7 @@
   "recursive-bubble-sort"
  ],
  "primer": {
-  "intro": "Sorting rearranges a row of values into order, usually smallest to largest. It matters for two reasons. First, many answers are easier to read off a sorted row: the minimum sits at the front, the maximum at the back, duplicates sit next to each other, and the median sits in the middle. Second, sorting unlocks faster tools. Binary search, two pointers and many greedy proofs only work when the input is ordered, so a single sort often turns a slow nested-loop idea into a fast scan. The simple sorts in this topic - selection, bubble and insertion - each pass over the row many times and cost about n squared steps. The divide-and-conquer sorts - merge and quick - split the row, handle the halves, and combine, costing about n log n steps. You will implement all of them once so that, later, you can call a library sort and still explain what it is doing underneath.",
+  "intro": "Sorting rearranges a row of values into order, usually smallest to largest. It matters for two reasons. First, many answers are easier to read off a sorted row: the minimum sits at the front, the maximum at the back, duplicates sit next to each other, and the median sits in the middle. Second, sorting unlocks faster tools. Binary search, the sorted two-pointer walks and many greedy proofs only work when the input is ordered, so a single sort often turns a slow nested-loop idea into a fast scan. The simple sorts in this topic - selection, bubble and insertion - each pass over the row many times and cost about n squared steps. The divide-and-conquer sorts - merge and quick - split the row, handle the halves, and combine, costing about n log n steps. You will implement all of them once so that, later, you can call a library sort and still explain what it is doing underneath.",
   "whenToUse": [
    "The answer reads naturally off an ordered row: minimum, maximum, median, closest pair or duplicates.",
    "You plan to use binary search, two pointers or a greedy argument that needs order.",
@@ -45,23 +45,23 @@
     "codeSnippet": null,
     "options": [
      {
-      "text": "Insertion sort",
-      "explain": "Each card walks at most three slots left, so the whole run costs about 3n steps."
-     },
-     {
-      "text": "Selection sort",
-      "explain": "It scans the whole unsorted part every pass regardless of order - always about n squared."
-     },
-     {
       "text": "Merge sort",
       "explain": "It works, but it does the full n log n split-and-merge and ignores the near-order."
      },
      {
       "text": "Quick sort with first-element pivot",
       "explain": "Near-sorted input with an extreme pivot is exactly its n squared trap."
+     },
+     {
+      "text": "Insertion sort",
+      "explain": "Each card walks at most three slots left, so the whole run costs about 3n steps."
+     },
+     {
+      "text": "Selection sort",
+      "explain": "It scans the whole unsorted part every pass regardless of order - always about n squared."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 2,
     "rereadSectionId": "pick-the-tool",
     "rereadSectionTitle": "Pick the tool by cost and input",
     "reveal": {
@@ -88,6 +88,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Insertion sort of the whole row",
+     "explain": "Also orders everything; the task only needs a tiny ordered prefix."
+    },
+    {
      "text": "Selection: repeat find-minimum three times",
      "explain": "Three selection passes cost about 3n and deliver exactly the three smallest."
     },
@@ -98,13 +102,9 @@
     {
      "text": "Bubble passes from the left end",
      "explain": "Bubble pushes maxima to the back; you would need right-to-left passes and care."
-    },
-    {
-     "text": "Insertion sort of the whole row",
-     "explain": "Also orders everything; the task only needs a tiny ordered prefix."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "sorting-q1"
   },
   {
@@ -113,23 +113,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Stability",
-     "explain": "Equal keys keep original order - the definition of a stable sort."
-    },
-    {
-     "text": "In-place operation",
-     "explain": "That is about extra memory, and says nothing about equal keys."
-    },
-    {
      "text": "Adaptivity",
      "explain": "That is about exploiting near-sorted input, a different property."
     },
     {
      "text": "Divide and conquer",
      "explain": "A strategy for speed; it does not by itself preserve arrival order."
+    },
+    {
+     "text": "Stability",
+     "explain": "Equal keys keep original order - the definition of a stable sort."
+    },
+    {
+     "text": "In-place operation",
+     "explain": "That is about extra memory, and says nothing about equal keys."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "sorting-q2"
   },
   {
@@ -163,10 +163,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Duplicates, closest pair of values, median",
-     "explain": "Neighbours in a sorted row answer all three in one pass."
-    },
-    {
      "text": "Original index of each value",
      "explain": "Sorting loses original positions; you must record them before sorting."
     },
@@ -176,10 +172,14 @@
     },
     {
      "text": "The exact number of swaps bubble sort would make",
-     "explain": "That is a property of the run, read off the sorted output alone."
+     "explain": "It is a property of the original order - the inversion count - which the sorted output no longer remembers."
+    },
+    {
+     "text": "Duplicates, closest pair of values, median",
+     "explain": "Neighbours in a sorted row answer all three in one pass."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "sorting-q4"
   },
   {
@@ -187,6 +187,10 @@
    "prompt": "One bubble pass runs left to right over 5 1 4 2. What does the row look like after that single pass?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "1 4 5 2",
+     "explain": "The 5 keeps moving right past the 2 as well before the pass ends."
+    },
     {
      "text": "1 4 2 5",
      "explain": "Each neighbour swap pushes the 5 rightward until it parks at the end."
@@ -198,13 +202,9 @@
     {
      "text": "5 1 4 2",
      "explain": "Compares do happen: 5 beats every neighbour, so swaps occur."
-    },
-    {
-     "text": "1 4 5 2",
-     "explain": "The 5 keeps moving right past the 2 as well before the pass ends."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "sorting-q5"
   },
   {
@@ -213,8 +213,8 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "2 and 3 swap, then 8 and 9 swap",
-     "explain": "Pass one picks 2 for index 0; pass two finds 3 already placed; pass three picks 8."
+     "text": "3 swaps with 2, then 9 with 3, then 9 with 8",
+     "explain": "The row walks 2 9 3 8, then 2 3 9 8, then 2 3 8 9 - one swap per pass, three passes."
     },
     {
      "text": "9 and 8 swap, then 3 and 2 swap",
@@ -222,7 +222,7 @@
     },
     {
      "text": "Every neighbour pair swaps once",
-     "explain": "That describes bubble behaviour, and selection swaps at most once per pass."
+     "explain": "Bubble swaps only out-of-order neighbours as it meets them; selection swaps at most once per pass."
     },
     {
      "text": "No swap at all",
@@ -238,6 +238,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "2",
+     "explain": "2 is written second, right after 1."
+    },
+    {
      "text": "3",
      "explain": "Writes go 1, 2, then the heads are 4 and 3, so 3 is written third."
     },
@@ -248,13 +252,9 @@
     {
      "text": "7",
      "explain": "7 is the largest of its half and goes out near the end."
-    },
-    {
-     "text": "2",
-     "explain": "2 is written second, right after 1."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "sorting-q7"
   },
   {
@@ -262,6 +262,10 @@
    "prompt": "Insertion sort on an already sorted row of n values costs about how many comparisons?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "About log n",
+     "explain": "Every element must at least be visited once, so n is a floor."
+    },
     {
      "text": "About n",
      "explain": "Each card compares once with its left neighbour and stays - the adaptive best case."
@@ -273,13 +277,9 @@
     {
      "text": "About n log n",
      "explain": "Insertion sort has no halving step to produce a log factor."
-    },
-    {
-     "text": "About log n",
-     "explain": "Every element must at least be visited once, so n is a floor."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "sorting-q8"
   },
   {
@@ -287,10 +287,6 @@
    "prompt": "Which sort keeps the same step count on every input of size n, sorted or shuffled?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Selection sort",
-     "explain": "It always scans the whole unsorted part to certify each minimum."
-    },
     {
      "text": "Bubble sort with the early-exit flag",
      "explain": "The flag lets a sorted input finish after one pass."
@@ -302,9 +298,13 @@
     {
      "text": "Quick sort",
      "explain": "Its cost swings between n log n and n squared with pivot luck."
+    },
+    {
+     "text": "Selection sort",
+     "explain": "It always scans the whole unsorted part to certify each minimum."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "sorting-q9"
   },
   {
@@ -338,10 +338,6 @@
    "codeSnippet": "for (let i = 0; i < n - 1; i += 1) {\n  let best = i\n  for (let j = i + 1; j < n; j += 1) {\n    if (a[j] < a[best]) best = j\n  }\n  swap(a, i, best + 1)\n}",
    "options": [
     {
-     "text": "The swap uses best + 1 instead of best",
-     "explain": "The found minimum sits at index best; shifting by one plants a neighbour instead."
-    },
-    {
      "text": "The inner loop must start at i",
      "explain": "Starting at i + 1 is correct - a[i] is the running candidate already."
     },
@@ -352,9 +348,13 @@
     {
      "text": "best should start at j",
      "explain": "j is undefined there; the candidate starts at the border i."
+    },
+    {
+     "text": "The swap uses best + 1 instead of best",
+     "explain": "The found minimum sits at index best; shifting by one plants a neighbour instead."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "sorting-q11"
   },
   {

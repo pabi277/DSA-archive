@@ -87,6 +87,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Two nested loops hunting value + 1",
+     "explain": "Quadratic - every member searches the whole array."
+    },
+    {
      "text": "A set; walk up only from values whose predecessor is absent",
      "explain": "Each run is counted once, from its true start - linear total."
     },
@@ -95,15 +99,11 @@
      "explain": "Correct, but n log n - the set answers membership without ordering."
     },
     {
-     "text": "A frequency map of the values",
-     "explain": "Frequencies collapse duplicates but say nothing about neighbours."
-    },
-    {
-     "text": "Two nested loops hunting value + 1",
-     "explain": "Quadratic - every member searches the whole array."
+     "text": "A prefix-sum array over the values",
+     "explain": "Prefix sums answer subarray-sum questions; streaks are about membership of neighbouring values."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "hashing-q1"
   },
   {
@@ -112,23 +112,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "First-seen index per prefix sum; at p, the earliest p - k gives the widest gap",
-     "explain": "First occurrence maximises length; negatives are no obstacle to prefixes."
-    },
-    {
-     "text": "A sliding window that shrinks when the sum passes k",
-     "explain": "Shrinking assumes adding elements grows the sum - negatives break that."
-    },
-    {
      "text": "Sort the array first",
      "explain": "Subarrays live in the original order; sorting destroys them."
     },
     {
      "text": "Try every start and end",
      "explain": "The quadratic baseline the prefix map replaces."
+    },
+    {
+     "text": "First-seen index per prefix sum; at p, the earliest p - k gives the widest gap",
+     "explain": "First occurrence maximises length; negatives are no obstacle to prefixes."
+    },
+    {
+     "text": "A sliding window that shrinks when the sum passes k",
+     "explain": "Shrinking assumes adding elements grows the sum - negatives break that."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "hashing-q2"
   },
   {
@@ -187,23 +187,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "2",
-     "explain": "Positions 0-1 and 1-2 - the prefix walk closes once at 2, once at 3."
-    },
-    {
-     "text": "3",
-     "explain": "The whole array sums to 3, one too many."
-    },
-    {
      "text": "1",
      "explain": "The two windows overlap but count separately."
     },
     {
      "text": "0",
      "explain": "Two adjacent ones make 2 twice over."
+    },
+    {
+     "text": "2",
+     "explain": "Positions 0-1 and 1-2 - the prefix walk closes once at 2, once at 3."
+    },
+    {
+     "text": "3",
+     "explain": "The whole array sums to 3, one too many."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "hashing-q5"
   },
   {
@@ -211,6 +211,10 @@
    "prompt": "Array 102 4 100 1 101 3 2. Longest consecutive streak?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "2",
+     "explain": "Both runs are longer than a pair."
+    },
     {
      "text": "4",
      "explain": "1, 2, 3, 4 beats the 100, 101, 102 trio."
@@ -222,13 +226,9 @@
     {
      "text": "7",
      "explain": "Seven needs every value consecutive - 4 and 100 break it."
-    },
-    {
-     "text": "2",
-     "explain": "Both runs are longer than a pair."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "hashing-q6"
   },
   {
@@ -236,6 +236,10 @@
    "prompt": "Array 9 -3 3 -1 6 -5. Length of the largest zero-sum subarray?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "0",
+     "explain": "Repeated prefix value 9 proves a zero-sum stretch exists."
+    },
     {
      "text": "5",
      "explain": "-3 + 3 - 1 + 6 - 5 = 0: prefix 9 reappears at the end, gap of five."
@@ -247,13 +251,9 @@
     {
      "text": "6",
      "explain": "The whole array sums to 9, no cancel."
-    },
-    {
-     "text": "0",
-     "explain": "Repeated prefix value 9 proves a zero-sum stretch exists."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "hashing-q7"
   },
   {
@@ -261,10 +261,6 @@
    "prompt": "The prefix-map counting loop over n elements costs how much?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Linear time, linear space - one pass, one map entry per prefix",
-     "explain": "Each element does one lookup and one insert at constant expected cost."
-    },
     {
      "text": "Quadratic time",
      "explain": "Quadratic is the all-subarrays baseline the map removes."
@@ -276,9 +272,13 @@
     {
      "text": "Linear time, constant space",
      "explain": "The map can hold n distinct prefixes - space is the price paid."
+    },
+    {
+     "text": "Linear time, linear space - one pass, one map entry per prefix",
+     "explain": "Each element does one lookup and one insert at constant expected cost."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "hashing-q8"
   },
   {
@@ -286,10 +286,6 @@
    "prompt": "Longest consecutive: sorting solves it in n log n. What does the set version pay?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Expected linear - each run is walked once from its start",
-     "explain": "The predecessor filter guarantees one traversal per run."
-    },
     {
      "text": "Also n log n",
      "explain": "Hash sets skip ordering entirely; no log remains."
@@ -301,9 +297,13 @@
     {
      "text": "Constant",
      "explain": "Every element must at least be inserted - linear is the floor."
+    },
+    {
+     "text": "Expected linear - each run is walked once from its start",
+     "explain": "The predecessor filter guarantees one traversal per run."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "hashing-q9"
   },
   {
@@ -312,23 +312,23 @@
    "codeSnippet": "for (const x of set) {\n  let len = 1\n  while (set.has(x + len)) {\n    len += 1\n  }\n  best = Math.max(best, len)\n}",
    "options": [
     {
-     "text": "No start filter - every member rewalks the run; skip x when x - 1 is in the set",
-     "explain": "With the filter each run is traversed once; without it, quadratic."
-    },
-    {
-     "text": "The while should test x - len",
-     "explain": "Walking downward has the same cost; direction is no cure."
-    },
-    {
      "text": "len must start at 0",
      "explain": "Starting at 1 counts x itself, which is right."
     },
     {
      "text": "Math.max is slow",
      "explain": "The rewalking dominates everything else."
+    },
+    {
+     "text": "No start filter - every member rewalks the run; skip x when x - 1 is in the set",
+     "explain": "With the filter each run is traversed once; without it, quadratic."
+    },
+    {
+     "text": "The while should test x - len",
+     "explain": "Walking downward has the same cost; direction is no cure."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "hashing-q10"
   },
   {
@@ -337,23 +337,23 @@
    "codeSnippet": "const seen = new Map()\nlet prefix = 0, count = 0\nfor (const x of a) {\n  prefix += x\n  count += seen.get(prefix - k) || 0\n  seen.set(prefix, (seen.get(prefix) || 0) + 1)\n}",
    "options": [
     {
-     "text": "The empty prefix is unseeded - start the map with 0 mapping to 1",
-     "explain": "Subarrays from index 0 close against the empty prefix; seed it."
-    },
-    {
-     "text": "The insert must happen before the lookup",
-     "explain": "That order would let a subarray of length zero count itself."
-    },
-    {
      "text": "prefix should reset when it exceeds k",
      "explain": "Prefixes never reset - the map remembers for them."
     },
     {
      "text": "count needs Math.max instead of +=",
      "explain": "Counting accumulates; max would answer a different question."
+    },
+    {
+     "text": "The empty prefix is unseeded - start the map with 0 mapping to 1",
+     "explain": "Subarrays from index 0 close against the empty prefix; seed it."
+    },
+    {
+     "text": "The insert must happen before the lookup",
+     "explain": "That order would let a subarray of length zero count itself."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "hashing-q11"
   },
   {

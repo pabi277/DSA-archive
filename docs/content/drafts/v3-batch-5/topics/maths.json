@@ -42,10 +42,6 @@
     "codeSnippet": null,
     "options": [
      {
-      "text": "2 3 5 7",
-      "explain": "4, 6, 8, 10 fall to 2; 9 falls to 3; the rest stand."
-     },
-     {
       "text": "1 2 3 5 7",
       "explain": "1 has a single divisor and is excused from primality by definition."
      },
@@ -56,9 +52,13 @@
      {
       "text": "3 5 7",
       "explain": "2 is prime - the only even one, but fully qualified."
+     },
+     {
+      "text": "2 3 5 7",
+      "explain": "4, 6, 8, 10 fall to 2; 9 falls to 3; the rest stand."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 3,
     "rereadSectionId": "the-sieve",
     "rereadSectionTitle": "The sieve",
     "reveal": {
@@ -75,7 +75,7 @@
   {
    "id": "divide-it-out",
    "title": "Divide it out",
-   "text": "Factorisation is repeated subtraction of structure: try d = 2, and while d divides n, print d and divide it out; then advance d while d squared stays within n. Dividing out as you go is what keeps the loop honest - once all the 2s are gone, no even candidate can divide what remains, and n itself shrinks, pulling the square-root ceiling down with it. The subtle clause comes after the loop: if what remains exceeds 1, it is prime, and it is a factor - the one that lived above the original root. 26 divides out one 2, leaving 13; the loop ends because 4 exceeds 13, and only the leftover clause reports the 13. Skipping it is the single most common factorisation bug."
+   "text": "Factorisation is repeated subtraction of structure: try d = 2, and while d divides n, print d and divide it out; then advance d while d squared stays within n. Dividing out as you go is what keeps the loop honest - once all the 2s are gone, no even candidate can divide what remains, and n itself shrinks, pulling the square-root ceiling down with it. The subtle clause comes after the loop: if what remains exceeds 1, it is prime, and it is a factor - the one that lived above the original root. 26 divides out one 2, leaving 13; the loop ends because 4 squared exceeds 13, and only the leftover clause reports the 13. Skipping it is the single most common factorisation bug."
   }
  ],
  "quiz": [
@@ -110,10 +110,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Divide out each candidate fully, advance while d squared fits, keep any leftover above 1",
-     "explain": "Dividing out shrinks n and silences composite candidates automatically."
-    },
-    {
      "text": "Test every number up to n for divisibility once",
      "explain": "Single tests miss multiplicity - 8 needs three 2s, and the bound overshoots."
     },
@@ -124,9 +120,13 @@
     {
      "text": "Halve n until it turns odd, then stop",
      "explain": "That extracts the 2s and abandons every odd factor."
+    },
+    {
+     "text": "Divide out each candidate fully, advance while d squared fits, keep any leftover above 1",
+     "explain": "Dividing out shrinks n and silences composite candidates automatically."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "maths-q2"
   },
   {
@@ -134,10 +134,6 @@
    "prompt": "Many queries: how many primes lie in l..r, bounds up to a million. The setup?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Sieve to the top bound once, prefix-sum the flags; each query is one subtraction",
-     "explain": "Preprocessing linear-ish, queries constant - the classic trade."
-    },
     {
      "text": "Trial-divide every number of every range",
      "explain": "Reruns the same work per query; the sieve pays once."
@@ -149,9 +145,13 @@
     {
      "text": "Count odd numbers in the range",
      "explain": "9, 15, 21 are odd and composite - parity is no primality."
+    },
+    {
+     "text": "Sieve to the top bound once, prefix-sum the flags; each query is one subtraction",
+     "explain": "Preprocessing linear-ish, queries constant - the classic trade."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "maths-q3"
   },
   {
@@ -185,10 +185,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "2 3 5 7",
-     "explain": "2 strikes the evens, 3 strikes 9 - four survivors."
-    },
-    {
      "text": "1 2 3 5 7",
      "explain": "1 is excused before marking begins - one divisor only."
     },
@@ -199,9 +195,13 @@
     {
      "text": "2 4 8",
      "explain": "Powers of two beyond 2 are the first to fall."
+    },
+    {
+     "text": "2 3 5 7",
+     "explain": "2 strikes the evens, 3 strikes 9 - four survivors."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "maths-q5"
   },
   {
@@ -260,23 +260,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "n log log n - the harmonic series over primes barely grows",
-     "explain": "n/2 + n/3 + n/5 + ... sums to nearly linear; ten million is instant."
-    },
-    {
-     "text": "n squared",
-     "explain": "Quadratic would mean every number striking every other."
-    },
-    {
      "text": "n times square root of n",
      "explain": "That is per-number trial division, the plan the sieve replaces."
     },
     {
      "text": "Exactly n",
      "explain": "Close - the log log factor is tiny but real."
+    },
+    {
+     "text": "n log log n - the harmonic series over primes barely grows",
+     "explain": "n/2 + n/3 + n/5 + ... sums to nearly linear; ten million is instant."
+    },
+    {
+     "text": "n squared",
+     "explain": "Quadratic would mean every number striking every other."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "maths-q8"
   },
   {
@@ -284,6 +284,10 @@
    "prompt": "Worst case for divide-out factorisation of n - and which inputs hit it?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "Constant",
+     "explain": "The candidate climb is genuine work, bounded by the root."
+    },
     {
      "text": "About square root of n, when n is prime or a product of two huge primes",
      "explain": "Nothing divides out early, so d climbs all the way to the root."
@@ -295,23 +299,23 @@
     {
      "text": "Linear in n",
      "explain": "The loop stops at d squared above n, far short of n."
-    },
-    {
-     "text": "Constant",
-     "explain": "The candidate climb is genuine work, bounded by the root."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "maths-q9"
   },
   {
    "kind": "bug",
-   "prompt": "This sieve declares every number composite. What is the bug?",
+   "prompt": "This sieve reports 0 and 1 as prime and strikes out everything from 2 upward. What is the bug?",
    "codeSnippet": "const isPrime = new Array(n + 1).fill(true)\nfor (let p = 1; p * p <= n; p++) {\n  if (!isPrime[p]) continue\n  for (let m = p + p; m + 1 <= n + 1; m += p) {\n    isPrime[m] = false\n  }\n}",
    "options": [
     {
-     "text": "p starts at 1 - every number is a multiple of 1, so everything gets struck",
-     "explain": "Start p at 2 (and ideally mark from p squared); 1 is no prime."
+     "text": "The outer bound is too small",
+     "explain": "Stopping at the root is right; beyond it, survivors are proven."
+    },
+    {
+     "text": "p starts at 1 - every number from 2 up is a multiple of 1, so all of them get struck",
+     "explain": "Start p at 2 and excuse 0 and 1 by hand - the survivors are then the true primes."
     },
     {
      "text": "The inner loop should step by 1",
@@ -320,13 +324,9 @@
     {
      "text": "fill(true) should be fill(false)",
      "explain": "Presumed prime until struck is the sieve's direction."
-    },
-    {
-     "text": "The outer bound is too small",
-     "explain": "Stopping at the root is right; beyond it, survivors are proven."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "maths-q10"
   },
   {
@@ -334,6 +334,10 @@
    "prompt": "Factorising 26, this prints 2 and stops - the 13 vanishes. What is the bug?",
    "codeSnippet": "let d = 2\nwhile (d * d <= n) {\n  while (n % d === 0) {\n    print(d)\n    n = Math.floor(n / d)\n  }\n  d += 1\n}",
    "options": [
+    {
+     "text": "The inner while should be an if",
+     "explain": "Multiplicity needs the while - 8 owes three 2s."
+    },
     {
      "text": "No leftover clause - after the loop, any n above 1 is the last prime factor",
      "explain": "13 sits above the root of 26; only the final check reports it."
@@ -345,13 +349,9 @@
     {
      "text": "d should start at 1",
      "explain": "Dividing out 1 loops forever - 1 divides everything eternally."
-    },
-    {
-     "text": "The inner while should be an if",
-     "explain": "Multiplicity needs the while - 8 owes three 2s."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "maths-q11"
   },
   {
@@ -359,10 +359,6 @@
    "prompt": "Which range most deserves a dedicated test for a prime-counting routine?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "A range starting at 1 - the count must exclude 1 and still include 2",
-     "explain": "The bottom boundary carries both classic traps at once."
-    },
     {
      "text": "A wide range of large values",
      "explain": "Volume tests speed; the boundary tests truth."
@@ -374,9 +370,13 @@
     {
      "text": "A range with r below l",
      "explain": "Worth a guard, but the 1 boundary bites real submissions more."
+    },
+    {
+     "text": "A range starting at 1 - the count must exclude 1 and still include 2",
+     "explain": "The bottom boundary carries both classic traps at once."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "maths-q12"
   }
  ]

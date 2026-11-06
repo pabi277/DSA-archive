@@ -45,10 +45,6 @@
     "codeSnippet": null,
     "options": [
      {
-      "text": "The tree is a valid BST",
-      "explain": "Inorder strictly increasing and being a BST are the same condition."
-     },
-     {
       "text": "The tree is balanced",
       "explain": "A sorted chain prints the same sequence; shape stays unknown."
      },
@@ -59,9 +55,13 @@
      {
       "text": "Nothing without also checking each node's children",
       "explain": "The inorder test is complete on its own; no second pass is needed."
+     },
+     {
+      "text": "The tree is a valid BST",
+      "explain": "Inorder strictly increasing and being a BST are the same condition."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 3,
     "rereadSectionId": "an-invariant-about-ranges",
     "rereadSectionTitle": "An invariant about ranges",
     "reveal": {
@@ -88,6 +88,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "An unsorted list",
+     "explain": "Both operations degrade to full scans."
+    },
+    {
      "text": "A binary search tree - height-cost search plus a sorted inorder walk",
      "explain": "One structure answers both: the walk discards a subtree per step, inorder lists sorted."
     },
@@ -98,13 +102,9 @@
     {
      "text": "A hash table",
      "explain": "Membership is fast, but ordered listing needs a full sort every time."
-    },
-    {
-     "text": "An unsorted list",
-     "explain": "Both operations degrade to full scans."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "binary-search-trees-q1"
   },
   {
@@ -113,23 +113,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Inorder walk with a live counter, stopping the moment it reaches k",
-     "explain": "Inorder emits sorted order, so the kth visit is the answer - no array needed."
-    },
-    {
-     "text": "Copy all values out and sort them",
-     "explain": "The tree is already sorted in its bones; sorting again wastes n log n."
-    },
-    {
      "text": "Level order, counting served nodes",
      "explain": "Floor order has nothing to do with value order."
     },
     {
      "text": "Repeatedly delete the minimum k times",
      "explain": "Destroys the tree to read from it."
+    },
+    {
+     "text": "Inorder walk with a live counter, stopping the moment it reaches k",
+     "explain": "Inorder emits sorted order, so the kth visit is the answer - no array needed."
+    },
+    {
+     "text": "Copy all values out and sort them",
+     "explain": "The tree is already sorted in its bones; sorting again wastes n log n."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-search-trees-q2"
   },
   {
@@ -188,23 +188,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "8, 5, 7",
-     "explain": "7 is smaller than 8 (go left), larger than 5 (go right), found."
-    },
-    {
-     "text": "8, 12, 7",
-     "explain": "7 is smaller than 8, so the whole right subtree is discarded."
-    },
-    {
      "text": "2, 5, 7",
      "explain": "Searches start at the root 8, nowhere else."
     },
     {
      "text": "8, 5, 2, 7",
      "explain": "At 5 the walk turns right immediately; 2 is on the discarded side."
+    },
+    {
+     "text": "8, 5, 7",
+     "explain": "7 is smaller than 8 (go left), larger than 5 (go right), found."
+    },
+    {
+     "text": "8, 12, 7",
+     "explain": "7 is smaller than 8, so the whole right subtree is discarded."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-search-trees-q5"
   },
   {
@@ -213,23 +213,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "5 and 7",
-     "explain": "5 is the largest stored value at most 6; 7 the smallest at least 6."
-    },
-    {
-     "text": "7 and 5",
-     "explain": "Floor sits below the target, ceil above - these are swapped."
-    },
-    {
      "text": "2 and 14",
      "explain": "Those are the global min and max, blind to the target."
     },
     {
      "text": "5 and 8",
      "explain": "7 stands between 6 and 8 and is the tighter ceiling."
+    },
+    {
+     "text": "5 and 7",
+     "explain": "5 is the largest stored value at most 6; 7 the smallest at least 6."
+    },
+    {
+     "text": "7 and 5",
+     "explain": "Floor sits below the target, ceil above - these are swapped."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-search-trees-q6"
   },
   {
@@ -237,10 +237,6 @@
    "prompt": "Insert 9 into the BST holding 2 5 7 8 12 14, then walk inorder. What prints?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "2 5 7 8 9 12 14",
-     "explain": "Inorder is always sorted, and 9 slots between 8 and 12."
-    },
     {
      "text": "2 5 7 9 8 12 14",
      "explain": "Then it would no longer be sorted - inorder on a BST cannot print this."
@@ -252,9 +248,13 @@
     {
      "text": "2 5 7 8 12 14",
      "explain": "The insert must actually attach the node - this is the lost-link symptom."
+    },
+    {
+     "text": "2 5 7 8 9 12 14",
+     "explain": "Inorder is always sorted, and 9 slots between 8 and 12."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "binary-search-trees-q7"
   },
   {
@@ -313,23 +313,23 @@
    "codeSnippet": "function ok(node) {\n  if (node === null) return true\n  if (node.left !== null && node.left.val > node.val) return false\n  if (node.right !== null && node.right.val === node.val) return false\n  if (node.right !== null && node.val > node.right.val) return false\n  return ok(node.left) && ok(node.right)\n}",
    "options": [
     {
-     "text": "Only parent-child pairs are checked; the promise binds whole subtrees - pass ranges down",
-     "explain": "The 9 is fine against its own parent but violates the root's ceiling of 8."
-    },
-    {
-     "text": "The null checks are in the way",
-     "explain": "The guards are correct; the comparison scope is what falls short."
-    },
-    {
      "text": "The equality test is missing on the left side",
      "explain": "Duplicates matter too, but the accepted 9 is a range violation, deeper than that."
     },
     {
      "text": "The recursion visits children twice",
      "explain": "Each child is visited once per side; the flaw is what is compared."
+    },
+    {
+     "text": "Only parent-child pairs are checked; the promise binds whole subtrees - pass ranges down",
+     "explain": "The 9 is fine against its own parent but violates the root's ceiling of 8."
+    },
+    {
+     "text": "The null checks are in the way",
+     "explain": "The guards are correct; the comparison scope is what falls short."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-search-trees-q10"
   },
   {
@@ -337,10 +337,6 @@
    "prompt": "After this insert the tree looks unchanged. What is the bug?",
    "codeSnippet": "function insert(node, x) {\n  if (node === null) return { val: x, left: null, right: null }\n  if (x > node.val) insert(node.right, x)\n  else insert(node.left, x)\n  return node\n}",
    "options": [
-    {
-     "text": "The recursive result is thrown away - assign node.right or node.left to it",
-     "explain": "The new leaf is built and instantly lost; the parent's link still points at null."
-    },
     {
      "text": "The comparison direction is flipped",
      "explain": "Larger values going right is the convention, and it is honoured here."
@@ -352,9 +348,13 @@
     {
      "text": "return node is in the way",
      "explain": "Returning the subtree root is exactly right - once the links are reassigned."
+    },
+    {
+     "text": "The recursive result is thrown away - assign node.right or node.left to it",
+     "explain": "The new leaf is built and instantly lost; the parent's link still points at null."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "binary-search-trees-q11"
   },
   {
@@ -363,23 +363,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "A target below the minimum - the floor must come back empty, ceil the minimum",
-     "explain": "One candidate side stays unwritten; the empty answer path must work."
-    },
-    {
-     "text": "A target equal to the root",
-     "explain": "Easy case: both answers are the root itself."
-    },
-    {
      "text": "A large balanced tree",
      "explain": "Size stresses performance; the empty-side answer stresses correctness."
     },
     {
      "text": "A target between two deep leaves",
      "explain": "Worth having, but the unwritten-candidate path breaks real code more often."
+    },
+    {
+     "text": "A target below the minimum - the floor must come back empty, ceil the minimum",
+     "explain": "One candidate side stays unwritten; the empty answer path must work."
+    },
+    {
+     "text": "A target equal to the root",
+     "explain": "Easy case: both answers are the root itself."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-search-trees-q12"
   }
  ]

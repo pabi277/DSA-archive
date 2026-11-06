@@ -84,7 +84,7 @@
  "quiz": [
   {
    "kind": "pattern",
-   "prompt": "A sorted row, one target, and the task says return any matching index. Which loop shape fits with the least machinery?",
+   "prompt": "A sorted row, one target, return any matching index in logarithmic time. Which loop shape fits with the least machinery?",
    "codeSnippet": null,
    "options": [
     {
@@ -113,23 +113,23 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Two pointers over the days",
+     "explain": "Two pointers need something to compare at both ends; here only a yes-no test along one axis exists."
+    },
+    {
+     "text": "A problem binary search cannot touch because there is no array",
+     "explain": "Answer-space search needs a monotone test, an array is optional."
+    },
+    {
      "text": "Binary search on the answer with a once-flipping test",
      "explain": "Would day d work flips no-to-yes as d grows - search the flip."
     },
     {
      "text": "A sorting problem in disguise",
      "explain": "Nothing needs reordering; days are already in order."
-    },
-    {
-     "text": "Two pointers over the days",
-     "explain": "Two pointers walk two sequences; here only the test over one axis matters."
-    },
-    {
-     "text": "A problem binary search cannot touch because there is no array",
-     "explain": "Answer-space search needs a monotone test, an array is optional."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-search-q2"
   },
   {
@@ -138,23 +138,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Upper bound minus lower bound",
-     "explain": "The two flip points bracket the block of equal values; subtraction counts it."
-    },
-    {
-     "text": "Lower bound, then linear walk to the right",
-     "explain": "The walk can cost n on a row full of the same value."
-    },
-    {
      "text": "One membership search is enough",
      "explain": "It finds some occurrence and says little about how wide the block is."
     },
     {
      "text": "Last occurrence minus first occurrence",
      "explain": "Close - but that difference is one less than the count; the half-open pair avoids the off-by-one."
+    },
+    {
+     "text": "Upper bound minus lower bound",
+     "explain": "The two flip points bracket the block of equal values; subtraction counts it."
+    },
+    {
+     "text": "Lower bound, then linear walk to the right",
+     "explain": "The walk can cost n on a row full of the same value."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-search-q3"
   },
   {
@@ -188,6 +188,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Index 0, 1, 2, 3 in a row",
+     "explain": "That is a linear scan; binary search jumps."
+    },
+    {
      "text": "Index 2, then index 4, then index 3",
      "explain": "5 is too small so go right; 9 is too big so come left; 7 found at index 3."
     },
@@ -198,13 +202,9 @@
     {
      "text": "Index 2, then index 3",
      "explain": "After 5, the window is 3..5 and its mid is 4, so 9 is tested before 7."
-    },
-    {
-     "text": "Index 0, 1, 2, 3 in a row",
-     "explain": "That is a linear scan; binary search jumps."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "binary-search-q5"
   },
   {
@@ -213,23 +213,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "1",
-     "explain": "Mid 2 says yes and remembers 2; the hunt left finds index 1 also yes; index 0 says no."
-    },
-    {
-     "text": "3",
-     "explain": "That is the last 4 - the mirrored loop that keeps hunting right."
-    },
-    {
      "text": "4",
      "explain": "That is upper bound territory: first value strictly greater than 4."
     },
     {
      "text": "0",
      "explain": "values[0] is 2, below the target, so the first index can never be the answer."
+    },
+    {
+     "text": "1",
+     "explain": "Mid 2 says yes and remembers 2; the hunt left finds index 1 also yes; index 0 says no."
+    },
+    {
+     "text": "3",
+     "explain": "That is the last 4 - the mirrored loop that keeps hunting right."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-search-q6"
   },
   {
@@ -238,23 +238,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "5",
-     "explain": "25 passes, 36 fails; the last passing candidate is 5."
-    },
-    {
-     "text": "6",
-     "explain": "6 squared is 36, already past 26 - the first failing candidate, one too far."
-    },
-    {
      "text": "13",
      "explain": "That is 26 over 2; halving values is a different operation than halving a window."
     },
     {
      "text": "4",
      "explain": "16 passes but 25 also passes, and the search keeps the largest yes."
+    },
+    {
+     "text": "5",
+     "explain": "25 passes, 36 fails; the last passing candidate is 5."
+    },
+    {
+     "text": "6",
+     "explain": "6 squared is 36, already past 26 - the first failing candidate, one too far."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-search-q7"
   },
   {
@@ -263,23 +263,23 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "About a million",
+     "explain": "The square root of a billion is about 31623, and halving needs far fewer still - about 30."
+    },
+    {
+     "text": "About 2",
+     "explain": "Halving needs log n steps; two steps only resolve four candidates."
+    },
+    {
      "text": "About 30",
      "explain": "Two to the thirtieth is about a billion; each step halves the window."
     },
     {
      "text": "About 1000",
-     "explain": "That would be the cost if each step cut the window by a fixed thousand."
-    },
-    {
-     "text": "About a million",
-     "explain": "That is the square-root scale, no halving involved."
-    },
-    {
-     "text": "About 2",
-     "explain": "Halving needs log n steps; two steps only resolve four candidates."
+     "explain": "About 1000 is the cube-root scale of a billion; halving reaches one element in about 30 steps."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-search-q8"
   },
   {
@@ -287,10 +287,6 @@
    "prompt": "You will answer q membership queries over the same unsorted row of n values. Where is the break-even between scanning per query and sorting once?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Sort once at n log n, then q searches at log n each; it wins once q is large",
-     "explain": "n log n + q log n beats q times n as soon as q passes about log n fraction of n."
-    },
     {
      "text": "Scanning is always cheaper",
      "explain": "Each scan costs n; a hundred queries already repay one sort on most sizes."
@@ -302,9 +298,13 @@
     {
      "text": "The two plans always tie",
      "explain": "They differ by a factor that grows with q; tie is the rare crossing point."
+    },
+    {
+     "text": "Sort once at n log n, then q searches at log n each; it wins once q is large",
+     "explain": "n log n + q log n beats q times n as soon as q passes about log n fraction of n."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "binary-search-q9"
   },
   {
@@ -312,6 +312,10 @@
    "prompt": "This loop sometimes never finishes. What is the bug?",
    "codeSnippet": "while (low < high) {\n  const mid = low + Math.floor((high - low) / 2)\n  if (ok(mid)) high = mid\n  else low = mid\n}",
    "options": [
+    {
+     "text": "The condition must be low <= high",
+     "explain": "That variant pairs with both branches excluding mid - a different, also valid, loop."
+    },
     {
      "text": "The else branch keeps mid inside the window; low = mid + 1 is required",
      "explain": "ok(mid) false rules mid out, but low = mid retests it - on a two-wide window forever."
@@ -323,13 +327,9 @@
     {
      "text": "mid rounds the wrong way",
      "explain": "Flooring is consistent with the branches here; the stall is in the else."
-    },
-    {
-     "text": "The condition must be low <= high",
-     "explain": "That variant pairs with both branches excluding mid - a different, also valid, loop."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "binary-search-q10"
   },
   {
@@ -363,23 +363,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "The row arrives unsorted",
-     "explain": "The halving argument rests on order; sort first or the ruled-out half may hold the target."
-    },
-    {
-     "text": "The row holds negative values",
-     "explain": "Comparisons work the same below zero."
-    },
-    {
      "text": "The row length is odd",
      "explain": "Mid flooring handles both parities."
     },
     {
      "text": "The target equals the first element",
      "explain": "The loop finds border values like any others."
+    },
+    {
+     "text": "The row arrives unsorted",
+     "explain": "The halving argument rests on order; sort first or the ruled-out half may hold the target."
+    },
+    {
+     "text": "The row holds negative values",
+     "explain": "Comparisons work the same below zero."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "binary-search-q12"
   }
  ]

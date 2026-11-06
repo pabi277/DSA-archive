@@ -45,6 +45,10 @@
     "codeSnippet": null,
     "options": [
      {
+      "text": "n-1 and n-2 are the two largest smaller stairs",
+      "explain": "Size is irrelevant - reachability by one move is what picks them."
+     },
+     {
       "text": "Every way ends with a 1-step from n-1 or a 2-step from n-2, and the two sets share nothing",
       "explain": "The last move splits all ways into two disjoint groups, so the counts add."
      },
@@ -55,13 +59,9 @@
      {
       "text": "Averaging the two previous counts smooths the estimate",
       "explain": "Nothing is estimated; the two groups are counted exactly."
-     },
-     {
-      "text": "n-1 and n-2 are the two largest smaller stairs",
-      "explain": "Size is irrelevant - reachability by one move is what picks them."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 1,
     "rereadSectionId": "name-the-state",
     "rereadSectionTitle": "Name the state",
     "reveal": {
@@ -88,6 +88,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "f(n) = n squared over 2",
+     "explain": "The counts grow exponentially; no polynomial fits them."
+    },
+    {
      "text": "f(n) = f(n-1) + f(n-2): the last move came from one of two stairs",
      "explain": "Disjoint groups by last move; the counts add."
     },
@@ -98,13 +102,9 @@
     {
      "text": "f(n) = f(n-1) times f(n-2)",
      "explain": "Multiplication pairs every way with every other - meaningless here."
-    },
-    {
-     "text": "f(n) = n squared over 2",
-     "explain": "The counts grow exponentially; no polynomial fits them."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "dynamic-programming-q1"
   },
   {
@@ -112,6 +112,10 @@
    "prompt": "A frog jumps 1 or 2 stones ahead, paying the height difference. Cheapest route to the last stone?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "Try all 2 to the n hop sequences",
+     "explain": "That is the unmemoised tree the DP collapses."
+    },
     {
      "text": "f(i) = min of f(i-1) plus one hop cost, f(i-2) plus the other",
      "explain": "The arrival split again - but with min over costs instead of a sum of counts."
@@ -123,13 +127,9 @@
     {
      "text": "Sort stones by height first",
      "explain": "The path is fixed left to right; sorting destroys it."
-    },
-    {
-     "text": "Try all 2 to the n hop sequences",
-     "explain": "That is the unmemoised tree the DP collapses."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "dynamic-programming-q2"
   },
   {
@@ -188,6 +188,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "3",
+     "explain": "Three misses the orderings of the mixed ways."
+    },
+    {
      "text": "5",
      "explain": "1111, 112, 121, 211, 22 - the fibonacci count."
     },
@@ -198,13 +202,9 @@
     {
      "text": "8",
      "explain": "Eight would be 2 to the 3 - but step order is constrained by the sum."
-    },
-    {
-     "text": "3",
-     "explain": "Three misses the orderings of the mixed ways."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "dynamic-programming-q5"
   },
   {
@@ -212,6 +212,10 @@
    "prompt": "Frog heights 10 20 30 10, hops of 1 or 2 stones cost the height difference. Minimum energy to the last stone?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "0",
+     "explain": "The frog must reach the last stone; standing still is no plan."
+    },
     {
      "text": "20",
      "explain": "Stone 0 to 1 costs 10, then the double hop 1 to 3 costs 10."
@@ -223,13 +227,9 @@
     {
      "text": "40",
      "explain": "40 is every route that touches the tall stone 30."
-    },
-    {
-     "text": "0",
-     "explain": "The frog must reach the last stone; standing still is no plan."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "dynamic-programming-q6"
   },
   {
@@ -237,10 +237,6 @@
    "prompt": "Prices 7 1 5 3 6 4 - one buy, one sell. Best profit?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "5",
-     "explain": "Buy at 1, sell at 6; the floor-and-best pass finds it."
-    },
     {
      "text": "7",
      "explain": "7 would need selling at 8 or buying below zero."
@@ -252,9 +248,13 @@
     {
      "text": "6",
      "explain": "Selling at 7 happens before the 1 exists - time only flows forward."
+    },
+    {
+     "text": "5",
+     "explain": "Buy at 1, sell at 6; the floor-and-best pass finds it."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "dynamic-programming-q7"
   },
   {
@@ -263,23 +263,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Linear time and constant space with rolling variables",
-     "explain": "Only the last one or two states are ever read, so the table compresses."
-    },
-    {
-     "text": "Linear time, linear space, always",
-     "explain": "Keep the full table only when answers must be reconstructed."
-    },
-    {
      "text": "Quadratic time",
      "explain": "Quadratic needs a linear-cost transition - these are constant."
     },
     {
      "text": "n log n",
      "explain": "No sorting or searching happens in the loop."
+    },
+    {
+     "text": "Linear time and constant space with rolling variables",
+     "explain": "Only the last one or two states are ever read, so the table compresses."
+    },
+    {
+     "text": "Linear time, linear space, always",
+     "explain": "Keep the full table only when answers must be reconstructed."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "dynamic-programming-q8"
   },
   {
@@ -338,6 +338,10 @@
    "codeSnippet": "// houses form a circle\nconst ans = linearRob(a, 0, n - 1)\nreturn ans",
    "options": [
     {
+     "text": "The answer needs a plus a[0]",
+     "explain": "Adding a house unconditionally breaks the adjacency rule outright."
+    },
+    {
      "text": "One linear pass ignores the circle - run it twice, dropping the first or the last house",
      "explain": "Houses 0 and n-1 are neighbours now; max of the two restricted runs is the fix."
     },
@@ -348,13 +352,9 @@
     {
      "text": "The range should be 1 to n",
      "explain": "Shifting the window still allows both ends of the circle together."
-    },
-    {
-     "text": "The answer needs a plus a[0]",
-     "explain": "Adding a house unconditionally breaks the adjacency rule outright."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "dynamic-programming-q11"
   },
   {

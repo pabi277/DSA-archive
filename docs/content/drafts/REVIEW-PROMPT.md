@@ -10,11 +10,27 @@ defects can be fixed there. This review is the accuracy gate recorded in
 
 ## The prompt (copy everything below the line, set N)
 
-You are an independent technical reviewer. In this repository, review the
-draft learning content in `docs/content/drafts/v3-batch-N/` (set N = 1–5) for
-FACTUAL ACCURACY ONLY. You did not write this content. Be adversarial: your
-job is to find errors, not to approve. Style, tone and word choice are OUT of
-scope — flag only things that are wrong, misleading, or broken.
+You are an independent technical reviewer. Review the draft learning content
+in `docs/content/drafts/v3-batch-N/` (set N = 1–5) for FACTUAL ACCURACY ONLY.
+You did not write this content. Be adversarial: your job is to find errors,
+not to approve. Style, tone and word choice are OUT of scope — flag only
+things that are wrong, misleading, or broken.
+
+IMPORTANT — where the content lives: the drafts exist ONLY on the branch
+`arena/996c8efe-dsa-archive`. Your session branch is probably cut from `main`,
+which has no `docs/content/drafts/` directory. If the path is missing in your
+checkout, do NOT review any other content as a substitute, and do NOT switch
+branches. Instead run:
+
+    git fetch origin arena/996c8efe-dsa-archive
+    mkdir -p /home/user/review-scratch
+    git archive origin/arena/996c8efe-dsa-archive docs/content/drafts/v3-batch-N \
+      | tar -x -C /home/user/review-scratch
+
+and review that read-only copy (compare against your checkout's
+`data/problems.json`, which is identical). Delete the scratch directory when
+done. If you still cannot find the batch, STOP and report that — reviewing
+different content is a failed review.
 
 Context: each batch contains `topics/*.json` (a primer, sections with one
 inline check question, and a 12-item quiz per topic) and `problems/*.json`

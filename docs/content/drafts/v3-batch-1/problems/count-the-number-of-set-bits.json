@@ -11,7 +11,7 @@
   "why": "13 is 1101; three erase steps take it to 1100, then 1000, then 0."
  },
  "hint": "Each erase removes exactly the lowest set bit; the loop guard is simply n different from zero.",
- "mistake": "Halving n and testing the remainder each turn - it works, but it runs thirty times on every input instead of once per one.",
+ "mistake": "Halving with remainder tests visits every bit up to the top one; Kernighan's n AND n-1 pays only once per set bit.",
  "tests": [
   {
    "input": "13\n",

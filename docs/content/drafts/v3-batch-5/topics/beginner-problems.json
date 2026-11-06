@@ -22,16 +22,16 @@
    "GCD questions: Euclid's remainder dance beats any factor list.",
    "Summaries over an array - sum, count, largest - are one accumulator and one pass."
   ],
-  "mentalModel": "Every number is a queue of digits that modulo and division let you pop from the right. The loop while n is positive: take n remainder 10, then divide n by 10 - reads the digits last-to-first, and almost every digit problem is that loop plus a different line in the middle: count one per pass, push onto a growing reverse, track a maximum, add into a sum. The second standing idea is the paired divisor: when d divides n, so does n over d, and one of the pair sits at or below the square root - so primality needs only square-root many checks. The third is Euclid: the gcd of a and b equals the gcd of b and a remainder b, which shrinks fast enough to finish in a handful of steps. Three small ideas, endlessly recombined.",
+  "mentalModel": "Every number is a stack of digits that modulo and division let you pop from the right end. The loop while n is positive: take n remainder 10, then divide n by 10 - reads the digits last-to-first, and almost every digit problem is that loop plus a different line in the middle: count one per pass, push onto a growing reverse, track a maximum, add into a sum. The second standing idea is the paired divisor: when d divides n, so does n over d, and one of the pair sits at or below the square root - so primality needs only square-root many checks. The third is Euclid: the gcd of a and b equals the gcd of b and a remainder b, which shrinks fast enough to finish in a handful of steps. Three small ideas, endlessly recombined.",
   "mistakes": [
    "Destroying the input while computing - reverse eats n, then the palindrome compare runs against the eaten value; keep a copy.",
    "Forgetting the edges below 2: a while-positive digit loop counts zero digits for 0, and 1 is no prime.",
-   "Looping to n instead of its square root in primality tests - correct, but a million times slower near a billion."
+   "Looping to n instead of its square root in primality tests - correct, but about thirty thousand times slower near a billion."
   ],
   "example": {
    "title": "Reversing a number with the digit loop",
    "code": "function reverseNumber(n) {\n  let rev = 0\n  while (n > 0) {\n    const digit = n % 10\n    rev = rev * 10 + digit\n    n = Math.floor(n / 10)\n  }\n  return rev\n}",
-   "explain": "Each pass pops the last digit of n and pushes it onto rev from the right - rev times 10 slides the digits already collected one place left to make room. Trace it on 1200: rev walks 0, 2, 21 as the zeros melt into the multiplication, which is why the reverse of 1200 is 21 and no leading-zero bookkeeping is ever needed. The same skeleton counts digits, sums them or finds the largest - only the middle line changes."
+   "explain": "Each pass pops the last digit of n and pushes it onto rev from the right - rev times 10 slides the digits already collected one place left to make room. Trace it on 1200: rev walks 0, 0, 2, 21 as the zeros melt into the multiplication, which is why the reverse of 1200 is 21 and no leading-zero bookkeeping is ever needed. The same skeleton counts digits, sums them or finds the largest - only the middle line changes."
   },
   "practice": "Open Practice with Count All Digits, then do Reverse a Number immediately after - the second is the first with one line swapped, and feeling that is the lesson."
  },
@@ -46,8 +46,12 @@
     "codeSnippet": null,
     "options": [
      {
+      "text": "12",
+      "explain": "12 would be the front half; the loop reads from the back."
+     },
+     {
       "text": "21",
-      "explain": "Passes build 0, 2, 21 - the trailing zeros of 1200 vanish into the multiply."
+      "explain": "Passes build 0, 0, 2, 21 - the trailing zeros of 1200 vanish into the multiply."
      },
      {
       "text": "0021",
@@ -56,13 +60,9 @@
      {
       "text": "2100",
       "explain": "That keeps the digits in place - reversal reads them from the right."
-     },
-     {
-      "text": "12",
-      "explain": "12 would be the front half; the loop reads from the back."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 1,
     "rereadSectionId": "the-digit-loop",
     "rereadSectionTitle": "The digit loop",
     "reveal": {
@@ -89,6 +89,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Add the digits and read the total",
+     "explain": "A digit sum measures value, the count measures length."
+    },
+    {
      "text": "While n stays positive: divide n by 10 and count one pass per digit",
      "explain": "Each division drops one digit; the pass count is the digit count."
     },
@@ -99,13 +103,9 @@
     {
      "text": "Subtract 10 repeatedly",
      "explain": "Subtraction counts tens, one digit's worth - division shifts whole places."
-    },
-    {
-     "text": "Add the digits and read the total",
-     "explain": "A digit sum measures value, the count measures length."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "beginner-problems-q1"
   },
   {
@@ -113,6 +113,10 @@
    "prompt": "Reverse the digits of a number inside the digit loop. The middle line?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "rev = n * 10",
+     "explain": "That shifts n itself, collecting nothing across passes."
+    },
     {
      "text": "rev = rev * 10 + (n % 10) - slide left, append the popped digit",
      "explain": "The multiply makes room on the right; the remainder fills it."
@@ -124,13 +128,9 @@
     {
      "text": "rev = rev / 10 + n",
      "explain": "Dividing rev erases what was already built."
-    },
-    {
-     "text": "rev = n * 10",
-     "explain": "That shifts n itself, collecting nothing across passes."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "beginner-problems-q2"
   },
   {
@@ -164,6 +164,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Multiply them and halve until odd",
+     "explain": "That computes nothing related; halving ruins odd factors."
+    },
+    {
      "text": "Euclid: keep replacing the pair (a, b) by (b, a mod b) until b is 0",
      "explain": "The remainder shrinks fast; the surviving value is the gcd."
     },
@@ -174,13 +178,9 @@
     {
      "text": "Divide the larger by the smaller and round",
      "explain": "A quotient is a ratio - the gcd is about shared structure."
-    },
-    {
-     "text": "Multiply them and halve until odd",
-     "explain": "That computes nothing related; halving ruins odd factors."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "beginner-problems-q4"
   },
   {
@@ -214,10 +214,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "(12,18) then (18,12) then (12,6) then (6,0) - answer 6",
-     "explain": "Each step takes the remainder; 6 survives when the partner dies."
-    },
-    {
      "text": "(12,18) then (6,9) then (2,3) - answer 1",
      "explain": "Halving both numbers is no step of Euclid; remainders drive it."
     },
@@ -228,9 +224,13 @@
     {
      "text": "(12,18) then (30,12) - answer 30",
      "explain": "Adding the numbers grows them; the gcd can be no bigger than either."
+    },
+    {
+     "text": "(12,18) then (18,12) then (12,6) then (6,0) - answer 6",
+     "explain": "Each step takes the remainder; 6 survives when the partner dies."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "beginner-problems-q6"
   },
   {
@@ -239,23 +239,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "4",
-     "explain": "5678, 567, 56, 5, 0 - one pass per digit."
-    },
-    {
-     "text": "3",
-     "explain": "The final 5 still needs a pass to become 0."
-    },
-    {
      "text": "5678",
      "explain": "Division by 10 jumps a whole place, no counting by ones."
     },
     {
      "text": "10",
      "explain": "Ten is the base, the passes follow the digit count."
+    },
+    {
+     "text": "4",
+     "explain": "5678, 567, 56, 5, 0 - one pass per digit."
+    },
+    {
+     "text": "3",
+     "explain": "The final 5 still needs a pass to become 0."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "beginner-problems-q7"
   },
   {
@@ -263,6 +263,10 @@
    "prompt": "How many passes does the digit loop make on a number n?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "Square root of n",
+     "explain": "The root belongs to divisor pairing, a different trick."
+    },
     {
      "text": "About log base 10 of n - one per digit",
      "explain": "A 9-digit number takes 9 passes; growth is logarithmic in the value."
@@ -274,13 +278,9 @@
     {
      "text": "Always exactly 10",
      "explain": "The base is 10; the pass count tracks the number's length."
-    },
-    {
-     "text": "Square root of n",
-     "explain": "The root belongs to divisor pairing, a different trick."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "beginner-problems-q8"
   },
   {
@@ -310,17 +310,9 @@
   },
   {
    "kind": "bug",
-   "prompt": "This palindrome check says no to every number, even 121. What is the bug?",
+   "prompt": "This palindrome check says no to every positive number, even 121. What is the bug?",
    "codeSnippet": "let rev = 0\nwhile (n > 0) {\n  rev = rev * 10 + (n % 10)\n  n = Math.floor(n / 10)\n}\nreturn rev === n",
    "options": [
-    {
-     "text": "The loop grinds n to 0, then compares rev against that 0 - stash a copy first",
-     "explain": "Compare rev to the saved original; the loop's n is a casualty."
-    },
-    {
-     "text": "rev must start at 1",
-     "explain": "Starting at 1 plants a phantom digit in every reversal."
-    },
     {
      "text": "The modulo and division are swapped",
      "explain": "Read the digit before dropping it - the order shown is right."
@@ -328,9 +320,17 @@
     {
      "text": "Math.floor is unnecessary",
      "explain": "Without it, fractional n poisons the next remainder."
+    },
+    {
+     "text": "The loop grinds n to 0, then compares rev against that 0 - stash a copy first",
+     "explain": "Compare rev to the saved original; the loop's n is a casualty."
+    },
+    {
+     "text": "rev must start at 1",
+     "explain": "Starting at 1 plants a phantom digit in every reversal."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "beginner-problems-q10"
   },
   {
@@ -338,6 +338,10 @@
    "prompt": "isPrime(1) returns true from this code. What is the bug?",
    "codeSnippet": "function isPrime(n) {\n  for (let i = 2; i * i <= n; i++) {\n    if (n % i === 0) return false\n  }\n  return true\n}",
    "options": [
+    {
+     "text": "return true and false are swapped",
+     "explain": "Finding a divisor rightly means composite."
+    },
     {
      "text": "Values below 2 skip the loop entirely and fall through to true - guard n less than 2",
      "explain": "For n = 1 the loop body runs zero times; the guard must be explicit."
@@ -349,13 +353,9 @@
     {
      "text": "i * i overflows",
      "explain": "At these sizes the square is safe; the missing guard is the flaw."
-    },
-    {
-     "text": "return true and false are swapped",
-     "explain": "Finding a divisor rightly means composite."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "beginner-problems-q11"
   },
   {
@@ -364,23 +364,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "0 - the while-positive loop runs zero times and reports zero digits",
-     "explain": "Zero has one digit; a special case or do-while is required."
-    },
-    {
-     "text": "A 9-digit number",
-     "explain": "Big but regular - the loop handles it like any other."
-    },
-    {
      "text": "A number ending in 5",
      "explain": "The last digit's value changes nothing about counting."
     },
     {
      "text": "A power of 2",
      "explain": "Binary structure is invisible to a base-10 loop."
+    },
+    {
+     "text": "0 - the while-positive loop runs zero times and reports zero digits",
+     "explain": "Zero has one digit; a special case or do-while is required."
+    },
+    {
+     "text": "A 9-digit number",
+     "explain": "Big but regular - the loop handles it like any other."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "beginner-problems-q12"
   }
  ]

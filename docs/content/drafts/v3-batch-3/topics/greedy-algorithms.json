@@ -45,6 +45,10 @@
     "codeSnippet": null,
     "options": [
      {
+      "text": "Fewest overlaps with others",
+      "explain": "Expensive to compute, and counterexamples still exist."
+     },
+     {
       "text": "Earliest end time",
       "explain": "The earliest finisher leaves maximal room; the exchange argument completes."
      },
@@ -55,13 +59,9 @@
      {
       "text": "Shortest duration",
       "explain": "Plausible and famous - and beaten by a short meeting straddling two others."
-     },
-     {
-      "text": "Fewest overlaps with others",
-      "explain": "Expensive to compute, and counterexamples still exist."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 1,
     "rereadSectionId": "the-exchange-argument",
     "rereadSectionTitle": "The exchange argument",
     "reveal": {
@@ -88,23 +88,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Sort by end time; accept whatever starts after the last accepted end",
-     "explain": "Earliest finisher leaves the most room - the exchange argument closes cleanly."
-    },
-    {
-     "text": "Sort by start time and pack from the morning",
-     "explain": "A long early meeting can eclipse several short ones."
-    },
-    {
      "text": "Sort by duration, shortest first",
      "explain": "A short bridge meeting can still knock out two compatible ones."
     },
     {
      "text": "Try every subset of meetings",
      "explain": "Correct and exponential - the greedy exists to avoid exactly this."
+    },
+    {
+     "text": "Sort by end time; accept whatever starts after the last accepted end",
+     "explain": "Earliest finisher leaves the most room - the exchange argument closes cleanly."
+    },
+    {
+     "text": "Sort by start time and pack from the morning",
+     "explain": "A long early meeting can eclipse several short ones."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "greedy-algorithms-q1"
   },
   {
@@ -113,23 +113,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Sort both; give each child the smallest cookie that satisfies them",
-     "explain": "Cheapest-first matching wastes the least and the exchange argument holds."
-    },
-    {
-     "text": "Give the biggest cookies to the greediest children first",
-     "explain": "Satisfying the hardest child can burn a cookie two modest children needed."
-    },
-    {
      "text": "Hand cookies out in input order",
      "explain": "Order carries no meaning before sorting."
     },
     {
      "text": "Give every child the largest remaining cookie",
      "explain": "Maximum waste per match - the exact opposite of the matching rule."
+    },
+    {
+     "text": "Sort both; give each child the smallest cookie that satisfies them",
+     "explain": "Cheapest-first matching wastes the least and the exchange argument holds."
+    },
+    {
+     "text": "Give the biggest cookies to the greediest children first",
+     "explain": "Satisfying the hardest child can burn a cookie two modest children needed."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "greedy-algorithms-q2"
   },
   {
@@ -138,23 +138,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "The furthest index reachable so far",
-     "explain": "Stand beyond it and the walk is over; reach the end and the answer is yes."
-    },
-    {
-     "text": "The full set of reachable indices",
-     "explain": "The set is always a prefix, so its right edge - one number - suffices."
-    },
-    {
      "text": "The number of jumps taken",
      "explain": "Feasibility asks whether, at no point how many."
     },
     {
      "text": "The largest jump value seen",
      "explain": "A big jump far behind the frontier helps nothing."
+    },
+    {
+     "text": "The furthest index reachable so far",
+     "explain": "Stand beyond it and the walk is over; reach the end and the answer is yes."
+    },
+    {
+     "text": "The full set of reachable indices",
+     "explain": "The set is always a prefix, so its right edge - one number - suffices."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "greedy-algorithms-q3"
   },
   {
@@ -162,10 +162,6 @@
    "prompt": "Jobs with deadlines and profits, one job per day. How does the greedy place them?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "Richest first, each into the latest free day at or before its deadline",
-     "explain": "Late placement preserves early days for jobs with tighter deadlines."
-    },
     {
      "text": "Sort by deadline and take jobs in that order",
      "explain": "Deadline order can fill early days with cheap jobs while rich ones expire."
@@ -177,9 +173,13 @@
     {
      "text": "Richest first, always into the earliest free day",
      "explain": "Early placement squanders the exact days tight-deadline jobs will need."
+    },
+    {
+     "text": "Richest first, each into the latest free day at or before its deadline",
+     "explain": "Late placement preserves early days for jobs with tighter deadlines."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "greedy-algorithms-q4"
   },
   {
@@ -213,23 +213,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "The day fails at the 20",
-     "explain": "The two 10s ate both 5s as change; 20 needs 15 and the till holds only 10s."
-    },
-    {
-     "text": "The day survives",
-     "explain": "Trace the till: after the second 10 no 5 remains, and 20 cannot be changed."
-    },
-    {
      "text": "It fails at the second 10",
      "explain": "The till still holds one 5 at that moment - that change succeeds."
     },
     {
      "text": "It fails at the first 10",
      "explain": "Two 5s are in the till; one covers the change."
+    },
+    {
+     "text": "The day fails at the 20",
+     "explain": "The two 10s ate both 5s as change; 20 needs 15 and the till holds only 10s."
+    },
+    {
+     "text": "The day survives",
+     "explain": "Trace the till: after the second 10 no 5 remains, and 20 cannot be changed."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "greedy-algorithms-q6"
   },
   {
@@ -237,6 +237,10 @@
    "prompt": "Greed values 1 2 3, cookie sizes 1 1. How many children end up content?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "3",
+     "explain": "Two cookies can content at most two children even in dreams."
+    },
     {
      "text": "1",
      "explain": "A size-1 cookie satisfies the greed-1 child; nothing satisfies greed 2 or 3."
@@ -248,13 +252,9 @@
     {
      "text": "0",
      "explain": "The least demanding child is satisfiable - smallest cookie, smallest greed."
-    },
-    {
-     "text": "3",
-     "explain": "Two cookies can content at most two children even in dreams."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "greedy-algorithms-q7"
   },
   {
@@ -263,23 +263,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "The initial sort, n log n; the sweep after it is linear",
-     "explain": "One comparison sort, then a single pass with constant work per item."
-    },
-    {
-     "text": "The sweep, which is quadratic",
-     "explain": "The sweep touches each item once; no pair is ever revisited."
-    },
-    {
      "text": "Exponential subset search",
      "explain": "That is the brute force the greedy replaces."
     },
     {
      "text": "Constant overall",
      "explain": "Sorting alone costs n log n."
+    },
+    {
+     "text": "The initial sort, n log n; the sweep after it is linear",
+     "explain": "One comparison sort, then a single pass with constant work per item."
+    },
+    {
+     "text": "The sweep, which is quadratic",
+     "explain": "The sweep touches each item once; no pair is ever revisited."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "greedy-algorithms-q8"
   },
   {
@@ -287,6 +287,10 @@
    "prompt": "Jump-game feasibility with the furthest-reachable frontier costs?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "Linear time, linear space",
+     "explain": "The reachable set is a prefix; its right edge replaces the whole set."
+    },
     {
      "text": "Linear time, constant extra space",
      "explain": "One pass, one integer of state - the frontier."
@@ -298,13 +302,9 @@
     {
      "text": "n log n",
      "explain": "Nothing is sorted - arrival order is the walk itself."
-    },
-    {
-     "text": "Linear time, linear space",
-     "explain": "The reachable set is a prefix; its right edge replaces the whole set."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "greedy-algorithms-q9"
   },
   {
@@ -363,6 +363,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Meetings in random order",
+     "explain": "The sort erases input order immediately."
+    },
+    {
      "text": "Two meetings that touch: one ends at 5, the next starts at 5",
      "explain": "Exactly the boundary the tie rule decides; both outcomes look plausible."
     },
@@ -373,13 +377,9 @@
     {
      "text": "A meeting of length zero",
      "explain": "Degenerate but usually excluded by constraints."
-    },
-    {
-     "text": "Meetings in random order",
-     "explain": "The sort erases input order immediately."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "greedy-algorithms-q12"
   }
  ]

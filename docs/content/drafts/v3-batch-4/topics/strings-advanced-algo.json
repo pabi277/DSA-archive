@@ -45,6 +45,10 @@
     "codeSnippet": null,
     "options": [
      {
+      "text": "0 1 1 1",
+      "explain": "Longer prefixes of aaaa keep longer overlaps; the values climb."
+     },
+     {
       "text": "0 1 2 3",
       "explain": "Each prefix of a-runs overlaps itself one shorter: a, aa, aaa."
      },
@@ -55,13 +59,9 @@
      {
       "text": "1 2 3 4",
       "explain": "A border must be proper - the whole prefix may no more count itself."
-     },
-     {
-      "text": "0 1 1 1",
-      "explain": "Longer prefixes of aaaa keep longer overlaps; the values climb."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 1,
     "rereadSectionId": "the-border-array",
     "rereadSectionTitle": "The border array",
     "reveal": {
@@ -88,6 +88,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "A trie of the text's characters",
+     "explain": "A trie indexes words; single-pattern search wants borders or hashes."
+    },
+    {
      "text": "KMP: the pattern's border array tells how much match survives each mismatch",
      "explain": "The text pointer only advances; the pattern slides by border arithmetic."
     },
@@ -98,13 +102,9 @@
     {
      "text": "Sort the text's characters",
      "explain": "Occurrence positions live in the original order; sorting erases them."
-    },
-    {
-     "text": "A trie of the text's characters",
-     "explain": "A trie indexes words; single-pattern search wants borders or hashes."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "strings-advanced-algo-q1"
   },
   {
@@ -112,6 +112,10 @@
    "prompt": "Longest prefix of s that is also a suffix (shorter than s itself). Where is the answer?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "The count of nonzero entries",
+     "explain": "Counting measures how many prefixes have borders, a different statistic."
+    },
     {
      "text": "The last entry of the border array of s",
      "explain": "That entry is literally defined as this length."
@@ -123,13 +127,9 @@
     {
      "text": "The maximum entry anywhere in the array",
      "explain": "Interior entries describe interior prefixes; the question is about all of s."
-    },
-    {
-     "text": "The count of nonzero entries",
-     "explain": "Counting measures how many prefixes have borders, a different statistic."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "strings-advanced-algo-q2"
   },
   {
@@ -138,23 +138,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Prefix hashes with a rolling base - any substring's hash in O(1), verify on hits",
-     "explain": "Equality becomes number comparison; verification guards against collisions."
-    },
-    {
-     "text": "Compare character by character each time",
-     "explain": "Each check costs the substring length - the bill the hashes delete."
-    },
-    {
      "text": "A border array per query",
      "explain": "Borders describe self-overlap of one string, pairwise equality wants hashes."
     },
     {
      "text": "Store all substrings in a set",
      "explain": "Quadratically many substrings exist; materialising them is the memory wall."
+    },
+    {
+     "text": "Prefix hashes with a rolling base - any substring's hash in O(1), verify on hits",
+     "explain": "Equality becomes number comparison; verification guards against collisions."
+    },
+    {
+     "text": "Compare character by character each time",
+     "explain": "Each check costs the substring length - the bill the hashes delete."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "strings-advanced-algo-q3"
   },
   {
@@ -162,10 +162,6 @@
    "prompt": "What does z[i] of the Z-array promise about the string s?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "s starting at i matches its own beginning for exactly z[i] characters",
-     "explain": "Each entry measures how far the prefix reappears at position i."
-    },
     {
      "text": "The suffix at i is a palindrome of length z[i]",
      "explain": "Palindromes face backwards; Z compares against the prefix, forwards."
@@ -177,9 +173,13 @@
     {
      "text": "i is a period of the string when z[i] is zero",
      "explain": "Periods come from borders; a zero only says the prefix is absent here."
+    },
+    {
+     "text": "s starting at i matches its own beginning for exactly z[i] characters",
+     "explain": "Each entry measures how far the prefix reappears at position i."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "strings-advanced-algo-q4"
   },
   {
@@ -187,6 +187,10 @@
    "prompt": "Border (lps) array of aabaaab?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "0 1 0 1 2 0 1",
+     "explain": "The mismatch falls back to the border of the border - 1, then extends to 2."
+    },
     {
      "text": "0 1 0 1 2 2 3",
      "explain": "The fallback at position 5 drops from aab to a, then extends - entry 2."
@@ -198,13 +202,9 @@
     {
      "text": "0 0 0 0 0 0 0",
      "explain": "All zeros is for strings with no self-overlap at all; aab overlaps a."
-    },
-    {
-     "text": "0 1 0 1 2 0 1",
-     "explain": "The mismatch falls back to the border of the border - 1, then extends to 2."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "strings-advanced-algo-q5"
   },
   {
@@ -212,6 +212,10 @@
    "prompt": "Count-and-say starts at 1. What is the 5th term?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "12211",
+     "explain": "Dropping the leading count breaks the read-aloud rule."
+    },
     {
      "text": "111221",
      "explain": "1211 reads as one 1, one 2, two 1s."
@@ -223,13 +227,9 @@
     {
      "text": "312211",
      "explain": "312211 is the 6th term - one step too far."
-    },
-    {
-     "text": "12211",
-     "explain": "Dropping the leading count breaks the read-aloud rule."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "strings-advanced-algo-q6"
   },
   {
@@ -237,6 +237,10 @@
    "prompt": "Z-array of aaab (with z[0] = 0 by convention)?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "4 2 1 0",
+     "explain": "The convention zeroes the first entry; the whole string is no proper overlap."
+    },
     {
      "text": "0 2 1 0",
      "explain": "From position 1 the prefix matches aa; from 2 just a; b matches nothing."
@@ -248,13 +252,9 @@
     {
      "text": "0 1 1 0",
      "explain": "Position 1 matches two characters, aa, before hitting the b."
-    },
-    {
-     "text": "4 2 1 0",
-     "explain": "The convention zeroes the first entry; the whole string is no proper overlap."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "strings-advanced-algo-q7"
   },
   {
@@ -288,10 +288,6 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "About n times m, hit by inputs like aaaa text and aaab pattern",
-     "explain": "Every position matches m-1 characters before failing at the last."
-    },
-    {
      "text": "n plus m always",
      "explain": "Linear is KMP's promise; the naive loop re-reads matched text."
     },
@@ -302,9 +298,13 @@
     {
      "text": "m squared",
      "explain": "The text length drives the outer loop; m alone understates it."
+    },
+    {
+     "text": "About n times m, hit by inputs like aaaa text and aaab pattern",
+     "explain": "Every position matches m-1 characters before failing at the last."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "strings-advanced-algo-q9"
   },
   {
@@ -312,6 +312,10 @@
    "prompt": "This lps builder returns 0 1 0 1 2 1 2 for aabaaab (truth: 0 1 0 1 2 2 3). What is the bug?",
    "codeSnippet": "for (let i = 1; i + 1 <= s.length; i++) {\n  if (s[i] === s[len]) {\n    len += 1\n  } else {\n    len = 0\n  }\n  lps[i] = len\n}",
    "options": [
+    {
+     "text": "The comparison is reversed",
+     "explain": "s[i] against s[len] is exactly the extend test."
+    },
     {
      "text": "The mismatch resets len to 0 - it must fall back to lps[len - 1] and retry",
      "explain": "Borders nest; the border of the border often still extends, and zeroing discards it."
@@ -323,13 +327,9 @@
     {
      "text": "len should start at 1",
      "explain": "An empty border is the honest start."
-    },
-    {
-     "text": "The comparison is reversed",
-     "explain": "s[i] against s[len] is exactly the extend test."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "strings-advanced-algo-q10"
   },
   {
@@ -337,6 +337,10 @@
    "prompt": "This Rabin-Karp reports an occurrence where the text differs from the pattern. What is the bug?",
    "codeSnippet": "if (windowHash === patternHash) {\n  results.push(i)\n}",
    "options": [
+    {
+     "text": "push is the issue; use unshift",
+     "explain": "Result order is cosmetic; truth of the entries is the point."
+    },
     {
      "text": "Equal hashes are evidence - compare the characters before reporting",
      "explain": "Collisions are rare, real and adversarial; verify on every hash hit."
@@ -348,13 +352,9 @@
     {
      "text": "i is off by one",
      "explain": "The position may be fine - the phantom match is the reported lie."
-    },
-    {
-     "text": "push is the issue; use unshift",
-     "explain": "Result order is cosmetic; truth of the entries is the point."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "strings-advanced-algo-q11"
   },
   {
@@ -363,23 +363,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "A pattern longer than the text",
-     "explain": "The loop bounds go negative unless guarded - report no occurrences, cleanly."
-    },
-    {
-     "text": "A pattern of length one",
-     "explain": "Simple and common - the degenerate long pattern breaks loops first."
-    },
-    {
      "text": "Text and pattern identical",
      "explain": "One clean occurrence at zero; nothing boundary-shaped."
     },
     {
      "text": "A pattern with mixed case",
      "explain": "Alphabet questions are policy, the length inversion is arithmetic."
+    },
+    {
+     "text": "A pattern longer than the text",
+     "explain": "The loop bounds go negative unless guarded - report no occurrences, cleanly."
+    },
+    {
+     "text": "A pattern of length one",
+     "explain": "Simple and common - the degenerate long pattern breaks loops first."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "strings-advanced-algo-q12"
   }
  ]

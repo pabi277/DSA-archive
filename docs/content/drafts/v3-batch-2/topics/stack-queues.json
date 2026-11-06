@@ -46,6 +46,10 @@
     "codeSnippet": null,
     "options": [
      {
+      "text": "-1",
+      "explain": "The sentinel is for an empty stack; this one holds two items."
+     },
+     {
       "text": "8",
       "explain": "The pop removed 5; 8 was then pushed above 3 and is the newest item."
      },
@@ -56,13 +60,9 @@
      {
       "text": "3",
       "explain": "3 is still there, but buried below 8; top sees only the newest."
-     },
-     {
-      "text": "-1",
-      "explain": "The sentinel is for an empty stack; this one holds two items."
      }
     ],
-    "answerIndex": 0,
+    "answerIndex": 1,
     "rereadSectionId": "one-shelf-two-disciplines",
     "rereadSectionTitle": "One shelf, two disciplines",
     "reveal": {
@@ -89,6 +89,10 @@
    "codeSnippet": null,
    "options": [
     {
+     "text": "Compare counts of openers and closers",
+     "explain": "Totals say balance is possible, nothing about type or order."
+    },
+    {
      "text": "A stack of open brackets; each closer must match the popped top",
      "explain": "Nesting means the newest open bracket is the one a closer answers."
     },
@@ -99,13 +103,9 @@
     {
      "text": "A queue of open brackets",
      "explain": "FIFO pairs a closer with the oldest opener; nesting demands the newest."
-    },
-    {
-     "text": "Compare counts of openers and closers",
-     "explain": "Totals say balance is possible, nothing about type or order."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "stack-queues-q1"
   },
   {
@@ -114,23 +114,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Two stacks: pushes land in one, pops leave the other; flip only when the out side is empty",
-     "explain": "Each element crosses once in its lifetime, so the average cost stays constant."
-    },
-    {
-     "text": "One stack, reversed in full before every pop",
-     "explain": "Correct output, but every pop pays a linear reversal."
-    },
-    {
      "text": "Two stacks, flipped back and forth on every operation",
      "explain": "Perpetual flipping is the exact waste the lazy flip avoids."
     },
     {
      "text": "One stack used upside down",
      "explain": "A stack has one usable end; attitude changes nothing."
+    },
+    {
+     "text": "Two stacks: pushes land in one, pops leave the other; flip only when the out side is empty",
+     "explain": "Each element crosses once in its lifetime, so the average cost stays constant."
+    },
+    {
+     "text": "One stack, reversed in full before every pop",
+     "explain": "Correct output, but every pop pays a linear reversal."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "stack-queues-q2"
   },
   {
@@ -138,10 +138,6 @@
    "prompt": "For every array element, find the first larger value to its right. Which plan is linear?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "A stack of waiting indices kept in decreasing value order; arrivals pop and answer them",
-     "explain": "Push once, pop once per index - linear despite the nested-looking pops."
-    },
     {
      "text": "For each element, scan rightward until something bigger appears",
      "explain": "A descending array makes every scan run to the end: quadratic."
@@ -153,9 +149,13 @@
     {
      "text": "A max-heap of all elements",
      "explain": "The global maximum answers nothing about what lies to one element's right."
+    },
+    {
+     "text": "A stack of waiting indices kept in decreasing value order; arrivals pop and answer them",
+     "explain": "Push once, pop once per index - linear despite the nested-looking pops."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "stack-queues-q3"
   },
   {
@@ -163,6 +163,10 @@
    "prompt": "Convert infix like a+b*c to postfix. What role does the stack play?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "It reverses the whole string",
+     "explain": "Reversal alone produces neither correct order nor correct precedence."
+    },
     {
      "text": "Operators wait on it; an arrival pops those of higher or equal precedence first",
      "explain": "Operands stream straight to the output; the stack defers weaker operators."
@@ -174,13 +178,9 @@
     {
      "text": "It stores the final answer digit by digit",
      "explain": "Conversion rearranges symbols; nothing is evaluated."
-    },
-    {
-     "text": "It reverses the whole string",
-     "explain": "Reversal alone produces neither correct order nor correct precedence."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "stack-queues-q4"
   },
   {
@@ -188,6 +188,10 @@
    "prompt": "From empty, run: push 4, push 7, top, pop, pop, pop, size - printing each result. What appears?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "7 4 -1 -1 0",
+     "explain": "top only peeks - it reports 7 without removing it, so the first pop still gets 7."
+    },
     {
      "text": "7 7 4 -1 0",
      "explain": "top shows 7, pops yield 7 then 4, the third pop hits empty (-1), size ends 0."
@@ -199,13 +203,9 @@
     {
      "text": "4 4 7 -1 0",
      "explain": "That is queue order; a stack surrenders the newest first."
-    },
-    {
-     "text": "7 4 -1 -1 0",
-     "explain": "top only peeks - it reports 7 without removing it, so the first pop still gets 7."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "stack-queues-q5"
   },
   {
@@ -214,23 +214,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "abc*+",
-     "explain": "* binds tighter, so b*c happens first; + waits on the stack until the end."
-    },
-    {
-     "text": "ab+c*",
-     "explain": "That is the postfix of (a+b)*c - parentheses would be needed."
-    },
-    {
      "text": "abc+*",
      "explain": "That multiplies by the sum b+c; precedence got inverted."
     },
     {
      "text": "*+abc",
      "explain": "Operators leading is prefix notation, a different convention."
+    },
+    {
+     "text": "abc*+",
+     "explain": "* binds tighter, so b*c happens first; + waits on the stack until the end."
+    },
+    {
+     "text": "ab+c*",
+     "explain": "That is the postfix of (a+b)*c - parentheses would be needed."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "stack-queues-q6"
   },
   {
@@ -238,6 +238,10 @@
    "prompt": "Next greater element to the right for the array 2, 1, 3. What is printed?",
    "codeSnippet": null,
    "options": [
+    {
+     "text": "3 -1 -1",
+     "explain": "1 also meets 3 as its next greater - the middle answer is 3."
+    },
     {
      "text": "3 3 -1",
      "explain": "3 is the first larger value for both 2 and 1; the final 3 finds nothing after it."
@@ -249,13 +253,9 @@
     {
      "text": "-1 2 -1",
      "explain": "That looked left; the question points right."
-    },
-    {
-     "text": "3 -1 -1",
-     "explain": "1 also meets 3 as its next greater - the middle answer is 3."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 1,
    "id": "stack-queues-q7"
   },
   {
@@ -289,23 +289,23 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "Amortized constant - each element crosses between stacks once in its lifetime",
-     "explain": "A single pop may pay for a flip, but the total crossings equal total pushes."
-    },
-    {
-     "text": "Always linear",
-     "explain": "Linear happens only on the rare pop that triggers a flip, and it is prepaid."
-    },
-    {
      "text": "Logarithmic",
      "explain": "Nothing halves; there is no tree or search here."
     },
     {
      "text": "Always exactly one step",
      "explain": "The flip pops are real work - the claim is about the average, so amortized."
+    },
+    {
+     "text": "Amortized constant - each element crosses between stacks once in its lifetime",
+     "explain": "A single pop may pay for a flip, but the total crossings equal total pushes."
+    },
+    {
+     "text": "Always linear",
+     "explain": "Linear happens only on the rare pop that triggers a flip, and it is prepaid."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "stack-queues-q9"
   },
   {
@@ -339,23 +339,23 @@
    "codeSnippet": "function pop() {\n  const v = a[t]\n  t = t - 1\n  return v\n}",
    "options": [
     {
-     "text": "No empty guard: the second pop drags t to -2; return the sentinel and leave t alone",
-     "explain": "Guard t at -1 first - return -1 without decrementing."
-    },
-    {
-     "text": "push is the broken one",
-     "explain": "A push that pairs with one pop leaves t consistent; the damage needs the second pop."
-    },
-    {
      "text": "size must return t, without the plus 1",
      "explain": "size equal to t plus 1 is right by design; the drift below -1 is the fault."
     },
     {
      "text": "v must be read after the decrement",
      "explain": "Reading after the step returns the slot below the top - a different bug."
+    },
+    {
+     "text": "No empty guard: the second pop drags t to -2; return the sentinel and leave t alone",
+     "explain": "Guard t at -1 first - return -1 without decrementing."
+    },
+    {
+     "text": "push is the broken one",
+     "explain": "A push that pairs with one pop leaves t consistent; the damage needs the second pop."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 2,
    "id": "stack-queues-q11"
   },
   {
@@ -363,10 +363,6 @@
    "prompt": "Which case most deserves the first test for any stack or queue you implement?",
    "codeSnippet": null,
    "options": [
-    {
-     "text": "pop, top and front on a freshly created empty structure",
-     "explain": "The -1 sentinel contract and index floors break here first, before any happy path."
-    },
     {
      "text": "A million pushes in a row",
      "explain": "Capacity stress is useful later; the empty contract fails earlier and cheaper."
@@ -378,9 +374,13 @@
     {
      "text": "Alternating push and pop forever",
      "explain": "A fine soak test, but it rarely finds what the first empty pop finds instantly."
+    },
+    {
+     "text": "pop, top and front on a freshly created empty structure",
+     "explain": "The -1 sentinel contract and index floors break here first, before any happy path."
     }
    ],
-   "answerIndex": 0,
+   "answerIndex": 3,
    "id": "stack-queues-q12"
   }
  ]
