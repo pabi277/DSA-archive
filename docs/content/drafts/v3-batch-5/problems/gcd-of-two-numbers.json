@@ -1,0 +1,32 @@
+{
+ "problemId": "gcd-of-two-numbers",
+ "statement": "One line holds two positive integers a and b. Print their greatest common divisor. Euclid's algorithm does it in a handful of steps: the gcd of a and b equals the gcd of b and a mod b, so keep replacing the pair until the second number reaches 0 - the first number standing is the answer. The remainder shrinks at least geometrically, which is why this beats listing divisors by miles on large inputs.",
+ "constraints": [
+  "1 ≤ a, b ≤ 1000000000",
+  "Order of a and b does not matter."
+ ],
+ "example": {
+  "input": "12 18\n",
+  "output": "6",
+  "why": "The pairs walk (12,18), (18,12), (12,6), (6,0) - and 6 remains."
+ },
+ "hint": "A two-line while loop: while b is positive, set (a, b) to (b, a mod b).",
+ "mistake": "Looping d from the smaller number downward testing divisibility - correct, but painfully slow near a billion.",
+ "tests": [
+  {
+   "input": "12 18\n",
+   "expected": "6",
+   "note": "classic"
+  },
+  {
+   "input": "7 13\n",
+   "expected": "1",
+   "note": "coprime pair"
+  },
+  {
+   "input": "100 75\n",
+   "expected": "25",
+   "note": "shared quarter"
+  }
+ ]
+}

@@ -1,0 +1,32 @@
+{
+ "problemId": "count-subarrays-with-given-sum",
+ "statement": "The first line holds n and k; the second holds n integers, negatives allowed. Print how many contiguous subarrays sum to exactly k. Carry the running prefix sum and a map from prefix value to how many times it has occurred, seeded with 0 mapping to 1 for the empty prefix. At each element, add the stored count of prefix minus k - every one of those earlier markers starts a subarray ending here with sum k - then record the current prefix. Counts, not indexes: this problem tallies, the longest-variants measure.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "-10000 ≤ values ≤ 10000; the count fits in 64 bits."
+ ],
+ "example": {
+  "input": "3 2\n1 1 1\n",
+  "output": "2",
+  "why": "Prefixes 1, 2, 3: prefix 2 closes against the seed, prefix 3 against the earlier 1."
+ },
+ "hint": "Lookup before insert - the current prefix must never pair with itself.",
+ "mistake": "Skipping the seed; every subarray that starts at index 0 silently goes uncounted.",
+ "tests": [
+  {
+   "input": "3 2\n1 1 1\n",
+   "expected": "2",
+   "note": "overlapping pair"
+  },
+  {
+   "input": "4 6\n3 1 2 4\n",
+   "expected": "2",
+   "note": "3+1+2 and 2+4"
+  },
+  {
+   "input": "3 3\n1 2 3\n",
+   "expected": "2",
+   "note": "1+2 and the lone 3"
+  }
+ ]
+}

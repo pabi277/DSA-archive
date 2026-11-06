@@ -1,0 +1,32 @@
+{
+ "problemId": "reverse-a-number",
+ "statement": "One line holds a non-negative integer n. Print the number formed by reversing its digits. Use the digit loop with an accumulator: start rev at 0, and each pass set rev to rev times 10 plus the last digit of n, then drop that digit from n. Trailing zeros of n vanish naturally - the reverse of 1200 is 21 - because rev is a number and numbers carry no leading zeros. No string conversion is needed, though it is a fine cross-check.",
+ "constraints": [
+  "0 ≤ n ≤ 1000000000",
+  "The reversed value fits comfortably in 64 bits."
+ ],
+ "example": {
+  "input": "123\n",
+  "output": "321",
+  "why": "rev grows 3, 32, 321 as the loop pops 3, then 2, then 1 off the right of n."
+ },
+ "hint": "rev times 10 slides everything collected one place left; the fresh digit fills the gap.",
+ "mistake": "Padding the reversal with the original's trailing zeros - 0021 is no number; 21 is the answer.",
+ "tests": [
+  {
+   "input": "123\n",
+   "expected": "321",
+   "note": "plain case"
+  },
+  {
+   "input": "1200\n",
+   "expected": "21",
+   "note": "trailing zeros vanish"
+  },
+  {
+   "input": "7\n",
+   "expected": "7",
+   "note": "single digit"
+  }
+ ]
+}

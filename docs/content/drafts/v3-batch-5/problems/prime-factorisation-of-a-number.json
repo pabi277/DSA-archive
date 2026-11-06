@@ -1,0 +1,32 @@
+{
+ "problemId": "prime-factorisation-of-a-number",
+ "statement": "One line holds an integer n (at least 2). Print the prime factorisation of n in non-decreasing order with multiplicity, space-separated - 60 prints as 2 2 3 5. Divide out: for each candidate d from 2 while d squared stays within the current n, print and divide out d as long as it divides; then the closing clause - whatever remains above 1 after the loop is itself prime and must be printed, being the one factor that lived above the square root.",
+ "constraints": [
+  "2 ≤ n ≤ 1000000000",
+  "A square-root loop is fast enough."
+ ],
+ "example": {
+  "input": "60\n",
+  "output": "2 2 3 5",
+  "why": "Two 2s bring 60 to 15, a 3 brings it to 5, and the leftover 5 is prime."
+ },
+ "hint": "Divide n down as you print - the shrinking n is what lets composite candidates pass harmlessly.",
+ "mistake": "Dropping the leftover: 26 divides out one 2, the loop ends at 13, and without the final clause the 13 is lost.",
+ "tests": [
+  {
+   "input": "60\n",
+   "expected": "2 2 3 5",
+   "note": "classic"
+  },
+  {
+   "input": "13\n",
+   "expected": "13",
+   "note": "prime input, all leftover"
+  },
+  {
+   "input": "100\n",
+   "expected": "2 2 5 5",
+   "note": "two squared pairs"
+  }
+ ]
+}

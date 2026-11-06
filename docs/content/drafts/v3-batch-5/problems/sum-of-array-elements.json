@@ -1,0 +1,32 @@
+{
+ "problemId": "sum-of-array-elements",
+ "statement": "The first line holds n; the second holds n integers. Print their sum. One accumulator, one pass: start a total at 0 and add each element as the loop visits it. The shape matters more than the task - the same skeleton counts matches, tracks a maximum or builds a product, with only the update line changing. Use a 64-bit total: a hundred thousand elements of ten thousand each already overflow 32 bits.",
+ "constraints": [
+  "1 ≤ n ≤ 100000",
+  "0 ≤ each value ≤ 10000"
+ ],
+ "example": {
+  "input": "5\n1 2 3 4 5\n",
+  "output": "15",
+  "why": "The accumulator walks 1, 3, 6, 10, 15 - one addition per element."
+ },
+ "hint": "Initialise to 0, add in a loop, print once at the end - resist printing inside the loop.",
+ "mistake": "Keeping the running total in a 32-bit integer; large n times large values silently wraps around.",
+ "tests": [
+  {
+   "input": "5\n1 2 3 4 5\n",
+   "expected": "15",
+   "note": "classic"
+  },
+  {
+   "input": "1\n10\n",
+   "expected": "10",
+   "note": "single element"
+  },
+  {
+   "input": "3\n5 8 2\n",
+   "expected": "15",
+   "note": "unordered values"
+  }
+ ]
+}

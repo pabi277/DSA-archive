@@ -1,0 +1,32 @@
+{
+ "problemId": "count-all-digits-of-a-number",
+ "statement": "One line holds a non-negative integer n. Print how many digits n has. The digit loop does it with arithmetic alone: while n is positive, divide it by 10 (integer division) and count one pass - each division drops the rightmost digit. Mind the special case: 0 has one digit, but a while-positive loop runs zero times on it, so guard it explicitly or use a do-while shape.",
+ "constraints": [
+  "0 ≤ n ≤ 1000000000",
+  "n arrives without leading zeros."
+ ],
+ "example": {
+  "input": "5678\n",
+  "output": "4",
+  "why": "The loop sees 5678, 567, 56, 5 and then 0 - four passes, four digits."
+ },
+ "hint": "Count passes, nothing else - the digits' values are irrelevant to their count.",
+ "mistake": "Returning 0 for n = 0 because the loop body ran zero times; zero is a one-digit number.",
+ "tests": [
+  {
+   "input": "5678\n",
+   "expected": "4",
+   "note": "plain case"
+  },
+  {
+   "input": "0\n",
+   "expected": "1",
+   "note": "the guard case"
+  },
+  {
+   "input": "1000000\n",
+   "expected": "7",
+   "note": "zeros count too"
+  }
+ ]
+}
