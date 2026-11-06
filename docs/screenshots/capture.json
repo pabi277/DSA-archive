@@ -1,5 +1,5 @@
 {
-  "takenAt": "2026-11-06T03:51:40.201Z",
+  "takenAt": "2026-11-06T04:07:42.932Z",
   "clock": "2026-11-05T09:30:00.000Z",
   "viewports": {
     "phone": {
@@ -15,7 +15,7 @@
   "theme": "dark, plus two -light references of the same record",
   "record": "seeded through the Firebase Emulator Suite owner REST API after signing in; no localStorage seeding and no fixture file",
   "captures": 16,
-  "source": "ad6a91118c90ee99c1416c7272a632e04f812fdc374ea8852effbf7beffd349a",
+  "source": "998156523ccdb1c9594729214977191cb489ebdaf6b7bfb0a62ed407cd2bf2bd",
   "files": {
     "phone-today.png": 443233,
     "phone-topics.png": 197224,

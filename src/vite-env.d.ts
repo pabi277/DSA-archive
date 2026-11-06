@@ -28,4 +28,6 @@ declare module 'virtual:dsa-content' {
 declare module 'virtual:dsa-statements' {
   const statements: Record<string, unknown>
   export default statements
+  /** Absolute URL of the built chunk — persisted into the runtime cache. */
+  export const chunkUrl: string
 }

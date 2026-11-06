@@ -469,12 +469,37 @@ export function statementsReady(): Promise<void> {
     .then((mod) => {
       statements = collect((mod.default ?? {}) as Record<string, unknown>, sanitizeStatement)
       statementsTick += 1
+      void persistStatementsChunk(mod.chunkUrl)
       for (const listener of [...statementListeners]) listener()
     })
     .catch(() => {
       statementsImport = null
     })
   return statementsImport
+}
+
+/**
+ * The SW serves `assets/statements-*` cache-first from the runtime bucket but
+ * never writes it (phase v2-07 decision: the page owns runtime-cache writes,
+ * so a stale SW can never pin stale bytes). Mirror of the runner pattern:
+ * after a successful import, store the chunk so the next offline boot still
+ * has every statement this session saw, and drop superseded hashes.
+ */
+async function persistStatementsChunk(chunkUrl: unknown): Promise<void> {
+  try {
+    if (typeof caches === 'undefined' || typeof chunkUrl !== 'string') return
+    if (!chunkUrl.startsWith(`${location.origin}/assets/statements-`)) return
+    const cache = await caches.open('dsa-archive-runtime-v1')
+    for (const key of await cache.keys()) {
+      if (key.url !== chunkUrl && key.url.startsWith(`${location.origin}/assets/statements-`)) {
+        await cache.delete(key)
+      }
+    }
+    if (!(await cache.match(chunkUrl))) await cache.add(chunkUrl)
+  } catch {
+    // Offline or Cache Storage unavailable: the in-memory import already
+    // succeeded, so the screens still render; the next online boot retries.
+  }
 }
 
 /** `useSyncExternalStore` subscribe — also starts the import. */

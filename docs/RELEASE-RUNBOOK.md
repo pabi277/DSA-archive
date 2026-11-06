@@ -26,7 +26,7 @@
 | Backup schema | backup **v8**, accepts schemas **1 → 8** | `src/backup.ts`, `src/backup.test.ts` |
 | Catalogue | 495 rows · 20 topics · schemaVersion 2 | `npm run test:data` |
 | Content | 20 primers, 116 statements, 116 hints/mistakes, 240 quiz items, 42 theory MCQs, 136 drills | `npm run check:content`, `docs/content/coverage.md` |
-| Budgets | shell **475,000 B** gzip cap (measured 470,895 B; owner re-baseline 2026-11-06) · CSS 61,000 B raw · statements add-on 60,000 B gz | `npm run check:budgets` |
+| Budgets | shell **475,000 B** gzip cap (measured 470,980 B; owner re-baseline 2026-11-06) · CSS 61,000 B raw · statements add-on 60,000 B gz | `npm run check:budgets` |
 | CSP | 19 directives, enforced; `frame-src` YouTube, `worker-src` blob | `tools/csp.mjs`, `npm run check:csp` |
 | Versions in docs | one story across README/CHANGELOG/DATA-MODEL/ROADMAP | `npm run check:docs` |
 

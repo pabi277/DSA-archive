@@ -326,14 +326,14 @@ for the two target fields). Firestore reads/writes/day stay at the table above.
 
 | Bucket | v1 (2026-11-02) | v2 final (2026-11-05) | Cap | Where |
 |---|---|---|---|---|
-| Full precached shell | **317.66 kB gzip** | **470,895 B gzip** (18 precached URLs, full 20-topic catalogue) | **475,000 B gzip** (owner re-baseline 2026-11-06, v3 split; was 393,000, phase v2-08) | `tools/check-budgets.mjs` |
+| Full precached shell | **317.66 kB gzip** | **470,980 B gzip** (18 precached URLs, full 20-topic catalogue) | **475,000 B gzip** (owner re-baseline 2026-11-06, v3 split; was 393,000, phase v2-08) | `tools/check-budgets.mjs` |
 | CSS | 26.86 kB raw / 6.30 kB gz | **60,523 B raw / 10,364 B gz** | 61,000 B raw / 18,000 B gz | `tools/check-budgets.mjs` |
 | Entry JS | 103.25 kB raw / 28.39 kB gz | **128,007 B raw / 36,981 B gz** | 180,000 B raw / 55,000 B gz | `tools/check-budgets.mjs` |
 | Largest single chunk | <500 kB single bundle | **457,704 B raw / 129,864 B gz** (Firestore SDK in its own chunk) | 520,000 B raw / 165,000 B gz | `tools/check-budgets.mjs` |
 | Fonts | 0 B (system fonts) | **57,496 B raw**, separate bucket, never precached | 60,000 B | `tools/check-budgets.mjs` |
 | Runner UI | none | **27,698 B raw / 10,201 B gz**, lazy add-on | 120,000 B / 40,000 B | `tools/check-budgets.mjs` |
 | Account/delete UI | none | **2,759 B raw / 1,318 B gz**, lazy add-on | 40,000 B / 15,000 B | `tools/check-budgets.mjs` |
-| Statements add-on | none | **127,799 B raw / 37,513 B gz**, lazy add-on (v3 hybrid precache split, 2026-11-06) | 200,000 B / 60,000 B | `tools/check-budgets.mjs` |
+| Statements add-on | none | **127,832 B raw / 37,537 B gz**, lazy add-on (v3 hybrid precache split, 2026-11-06) | 200,000 B / 60,000 B | `tools/check-budgets.mjs` |
 | Toolchains | none | **1.3 MB worker + 42.5 MB packs**, opt-in per language, `dsa-archive-runtime-v1` only | 48 MB | `tools/check-budgets.mjs` |
 
 The full cold shell is **~471 kB per uncached install**, so Spark Hosting's

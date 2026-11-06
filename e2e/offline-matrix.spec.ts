@@ -28,6 +28,14 @@ test.describe('phase v2-09 offline matrix', () => {
       await openTopic(page)
       await page.getByTestId('status-two-sum').click()
       await expect(page.getByTestId('progress-pill')).toHaveText('1/495 done')
+
+      // v3 hybrid precache split: the statements chunk is runtime-cached, not
+      // precached. The very first page load fetched it before the Service
+      // Worker took control, so load it once from a controlled page here —
+      // that fetch lands in the cache-first add-on bucket the cold offline
+      // problem route below reads from.
+      await open(page, '/#/problem/linear-search')
+      await expect(page.getByTestId('statement-what')).toContainText(/first position where the target appears/i)
       await page.close()
 
       await context.setOffline(true)

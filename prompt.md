@@ -21,9 +21,9 @@
 > import). The v2 budget measured **392,739 B gzip against the then-frozen 393,000 B
 > cap** — no re-baseline at release. **2026-11-06 update:** the content track shipped —
 > all 20 topics are authored and live in `data/content/` via the **hybrid precache
-> split** (statements in a lazy `assets/statements-*` add-on, 37,513 B gz; primers/quiz
+> split** (statements in a lazy `assets/statements-*` add-on, 37,537 B gz; primers/quiz
 > precached), and the owner re-baselined the shell cap **393,000 → 475,000 B gz**
-> (measured 470,895 B). Any **re**deploy walks `docs/RELEASE-RUNBOOK.md` again and stays
+> (measured 470,980 B). Any **re**deploy walks `docs/RELEASE-RUNBOOK.md` again and stays
 > an owner gate.
 > Authority order: `rule.md` → `docs/DECISIONS.md` (owner answers) → `docs/phases-v2/`
 > (phase contracts) → `docs/ROADMAP.md` (status) → `docs/DATA-MODEL.md`
@@ -224,8 +224,8 @@ Do **not** start coding before step 5 is read end-to-end.
   together +19 primers, +110 statements, +228 quiz items. **Shipped 2026-11-06:** after
   two owner-run accuracy-review rounds the owner closed the gate and the hybrid
   precache split landed (`virtual:dsa-statements` → lazy `assets/statements-*` add-on,
-  127,799 B raw / 37,513 B gz, cache-first after first problem visit; primers/sections/
-  quiz stay precached). Full 20-topic shell measured **470,895 B gz**; the owner
+  127,832 B raw / 37,537 B gz, cache-first after first problem visit; primers/sections/
+  quiz stay precached). Full 20-topic shell measured **470,980 B gz**; the owner
   re-baselined the cap to **475,000 B** (recorded in `docs/DECISIONS.md`). All batches
   are promoted into `data/content/` — the draft folders keep only their memos. Live
   totals: 20 primers · 116 statements · 240 quiz items · 42 theory MCQs.
@@ -280,7 +280,7 @@ exit gate. **The acceptance list is the contract** — do not add features outsi
   40 kB / 15 kB · toolchains 48 MB — all in **separate** buckets, never precached.
   Measured 392,136 B gz (864 B headroom) at the phase-09 gate. **2026-11-06 (v3): the
   owner re-baselined the shell cap to 475,000 B gz** for the full 20-topic catalogue
-  (measured 470,895 B; statements split into a lazy 200 kB/60 kB add-on bucket).
+  (measured 470,980 B; statements split into a lazy 200 kB/60 kB add-on bucket).
   Further growth remains a GATE.
 - **Tailwind/daisyUI**: decided **REMOVE** in v2-01, re-verified in v2-09; enforced by
   `tools/check-deadweight.mjs`. No third state.

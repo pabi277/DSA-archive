@@ -266,7 +266,10 @@ export default defineConfig({
         }
         if (id === RESOLVED_STATEMENTS) {
           const statements = await buildStatementsBundle()
-          return `export default ${JSON.stringify(statements)};`
+          // `chunkUrl` lets the loader persist this add-on chunk into the
+          // SW's cache-first runtime bucket after a successful import, so a
+          // problem statement read once online stays readable offline.
+          return `export default ${JSON.stringify(statements)};\nexport const chunkUrl = import.meta.url;`
         }
         return null
       },

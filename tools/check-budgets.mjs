@@ -30,7 +30,7 @@ export const BUDGETS = {
    * Shell cap — an owner GATE to change. Frozen at 393,000 B in phase v2-09;
    * re-baselined 393,000 → 475,000 B by the owner on 2026-11-06 for the v3
    * catalogue (hybrid precache split): all 20 topic primers + quizzes stay
-   * precached (measured 470,895 B gz), per-problem statements ride the lazy
+   * precached (measured 470,980 B gz), per-problem statements ride the lazy
    * `assets/statements-*` add-on instead. docs/DECISIONS.md has the record.
    */
   maxShellGzipBytes: 475_000,
@@ -45,7 +45,7 @@ export const BUDGETS = {
   /**
    * v3 hybrid precache split: per-problem statements/tests/hints ride a lazy
    * add-on chunk so the catalogue can grow without touching the frozen shell.
-   * Sized for the full 20-topic catalogue (measured 127,799 B raw / 37,513 B gz
+   * Sized for the full 20-topic catalogue (measured 127,832 B raw / 37,537 B gz
    * on 2026-11-06) plus ~55% authoring headroom.
    */
   maxStatementsChunkRawBytes: 200_000,

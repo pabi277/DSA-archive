@@ -76,8 +76,8 @@ staged. With live arrays, every one of the 20 Learn topics is authored.
 **Shipped 2026-11-06 via the hybrid precache split** (owner decisions recorded in
 `docs/DECISIONS.md`): primers/sections/quiz stay precached in the catalogue chunk;
 per-problem statements/tests/hints ride a lazy `assets/statements-*` add-on chunk
-(127,799 B raw / 37,513 B gz, never precached, cache-first after the first problem
-visit). The full 20-topic shell measures 470,895 B gz; the owner re-baselined the
+(127,832 B raw / 37,537 B gz, never precached, cache-first after the first problem
+visit). The full 20-topic shell measures 470,980 B gz; the owner re-baselined the
 cap 393,000 → 475,000 B for it. All five batches passed two owner-run accuracy
 review rounds and are promoted into `data/content/` — the draft folders keep only
 their decision memos. Details:
