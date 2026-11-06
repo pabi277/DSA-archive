@@ -4,7 +4,8 @@ import path from 'node:path'
 
 /**
  * The Service Worker buckets are a budget contract, not an implementation detail
- * (phase v2-10). `docs/DECISIONS.md` freezes the shell at 393,000 B gzip and says
+ * (phase v2-10). `docs/DECISIONS.md` caps the shell (475,000 B gzip since the
+ * 2026-11-06 v3 re-baseline) and says
  * any growth is an owner gate, so the buckets are read from the builder source
  * here rather than trusted to stay put. Reading the source (instead of importing
  * the `.mjs` builder) keeps this in the typed unit suite, which the build checks.
@@ -24,12 +25,13 @@ const NOT_SHELL = listConst('NOT_SHELL')
 const isRuntimeAsset = (rel: string) => ADDON_PREFIXES.some((prefix) => rel.startsWith(prefix))
 
 describe('Service Worker buckets (phase v2-07 … v2-10)', () => {
-  it('never precaches a runner, account or runtime asset', () => {
+  it('never precaches a runner, account, statements or runtime asset', () => {
     for (const rel of [
       'runtime/runner/worker-85ed99d1f1ec.js',
       'runtime/packs.json',
       'assets/runner-abc12345.js',
       'assets/account-abc12345.js',
+      'assets/statements-abc12345.js',
     ]) {
       expect(isRuntimeAsset(rel)).toBe(true)
     }

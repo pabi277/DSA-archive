@@ -5,11 +5,13 @@
 import type { Problem } from '../catalogue'
 import { Empty, Tag } from '../design/primitives'
 import { getStatement, getTests } from './load'
+import { useStatements } from './useStatements'
 import { HintDisclosure } from './hint'
 import { ResourceActions } from './resourceActions'
 import { RichText } from './richText'
 
 export function StatementCard({ problem }: { problem: Problem }) {
+  useStatements() // re-render when the lazy statements chunk lands
   const statement = getStatement(problem.id)
   const tests = getTests(problem.id)
 

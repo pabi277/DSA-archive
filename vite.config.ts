@@ -35,6 +35,8 @@ const VIRTUAL_CATALOGUE = 'virtual:dsa-catalogue'
 const RESOLVED_CATALOGUE = `\0${VIRTUAL_CATALOGUE}`
 const VIRTUAL_CONTENT = 'virtual:dsa-content'
 const RESOLVED_CONTENT = `\0${VIRTUAL_CONTENT}`
+const VIRTUAL_STATEMENTS = 'virtual:dsa-statements'
+const RESOLVED_STATEMENTS = `\0${VIRTUAL_STATEMENTS}`
 
 const URL_PREFIXES = [
   'https://takeuforward.org/plus/dsa/problems/',
@@ -153,9 +155,8 @@ async function readJsonDir(relDir: string): Promise<Record<string, unknown>> {
 }
 
 async function buildContentBundle() {
-  const [topics, problems, theory, practice, coverageText, media] = await Promise.all([
+  const [topics, theory, practice, coverageText, media] = await Promise.all([
     readJsonDir('data/content/topics'),
-    readJsonDir('data/content/problems'),
     readJsonDir('data/content/theory'),
     readJsonDir('data/practice-sets'),
     readFile(path.resolve('data/content/coverage.json'), 'utf8'),
@@ -230,7 +231,18 @@ async function buildContentBundle() {
     coverage.practice?.drills ?? 0,
     coverage.content?.quizItems ?? 0,
   ]
-  return [URL_PREFIXES, topics, problems, packedTheory, packedPractice, slimCoverage, packedMedia]
+  return [URL_PREFIXES, topics, packedTheory, packedPractice, slimCoverage, packedMedia]
+}
+
+/**
+ * Hybrid precache split (v3 catalogue, docs/DECISIONS.md): per-problem
+ * statements/tests/hints leave the precached shell and ship as a lazy add-on
+ * chunk (`assets/statements-*.js`), imported on the first problem visit and
+ * then held cache-first by the Service Worker — the runner/account pattern.
+ * Primers, sections and quiz stay in `virtual:dsa-content` above.
+ */
+async function buildStatementsBundle() {
+  return readJsonDir('data/content/problems')
 }
 
 export default defineConfig({
@@ -240,6 +252,7 @@ export default defineConfig({
       resolveId(id) {
         if (id === VIRTUAL_CATALOGUE) return RESOLVED_CATALOGUE
         if (id === VIRTUAL_CONTENT) return RESOLVED_CONTENT
+        if (id === VIRTUAL_STATEMENTS) return RESOLVED_STATEMENTS
         return null
       },
       async load(id) {
@@ -250,6 +263,10 @@ export default defineConfig({
         if (id === RESOLVED_CONTENT) {
           const content = await buildContentBundle()
           return `export default ${JSON.stringify(content)};`
+        }
+        if (id === RESOLVED_STATEMENTS) {
+          const statements = await buildStatementsBundle()
+          return `export default ${JSON.stringify(statements)};`
         }
         return null
       },
@@ -275,19 +292,24 @@ export default defineConfig({
         // Phase v2-07: the runner's lazy chunks all share one file-name prefix,
         // so `tools/build-sw.mjs` and `tools/check-budgets.mjs` can recognise
         // "installed add-on" by name and keep it out of the shell precache (the
-        // shell is frozen at 388 kB gzip; the runner is ~22 kB raw of UI that
-        // most visits never load). Everything else keeps Vite's naming.
+        // shell cap is an owner gate — 475,000 B gzip since the 2026-11-06 v3
+        // re-baseline). Everything else keeps Vite's naming.
         chunkFileNames: (chunk) =>
-          ACCOUNT_CHUNK_NAMES.has(chunk.name ?? '')
-            ? 'assets/account-[hash].js'
-            : RUNNER_CHUNK_NAMES.has(chunk.name ?? '')
-              ? 'assets/runner-[hash].js'
-              : 'assets/[name]-[hash].js',
+          chunk.name === 'statements'
+            ? 'assets/statements-[hash].js'
+            : ACCOUNT_CHUNK_NAMES.has(chunk.name ?? '')
+              ? 'assets/account-[hash].js'
+              : RUNNER_CHUNK_NAMES.has(chunk.name ?? '')
+                ? 'assets/runner-[hash].js'
+                : 'assets/[name]-[hash].js',
         codeSplitting: {
           groups: [
             { name: 'firebase-auth', test: /node_modules[\\/]@firebase[\\/](?:app|component|logger|util|webchannel-wrapper|auth)[\\/]/ },
             { name: 'firebase-firestore', test: /node_modules[\\/](?:@firebase[\\/]firestore|firebase[\\/])/ },
             { name: 'react-vendor', test: /node_modules[\\/](?:react|react-dom|scheduler)[\\/]/ },
+            // Hybrid precache split: per-problem statements are an add-on chunk
+            // (never precached — see tools/build-sw.mjs ADDON_PREFIXES).
+            { name: 'statements', test: /virtual:dsa-statements/ },
             { name: 'catalogue', test: /virtual:dsa-(?:catalogue|content)/ },
             // Phase v2-06: the theatre screens (problem page, stage, stamps,
             // player controller) ride in the lazy `content-ui` route chunk,

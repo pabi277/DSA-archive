@@ -1,33 +1,33 @@
 {
-  "problemId": "left-rotate-array-by-one",
-  "statement": "A row has n integers. Produce the row formed by moving its first value to the end while preserving the order of all other values. Print the resulting n values on one line separated by spaces.",
-  "constraints": [
-    "2 ≤ n ≤ 1000",
-    "-1000 ≤ each value ≤ 1000",
-    "Values may repeat."
-  ],
-  "example": {
-    "input": "5\n6 2 9 4 1\n",
-    "output": "2 9 4 1 6",
-    "why": "6 moves to the end and the remaining order stays 2, 9, 4, 1."
+ "problemId": "left-rotate-array-by-one",
+ "statement": "The first line holds n; the second holds the row of n integers. Produce the row formed by moving its first value to the end while preserving the order of all other values. Print the resulting n values on one line separated by spaces.",
+ "constraints": [
+  "2 ≤ n ≤ 1000",
+  "-1000 ≤ each value ≤ 1000",
+  "Values may repeat."
+ ],
+ "example": {
+  "input": "5\n6 2 9 4 1\n",
+  "output": "2 9 4 1 6",
+  "why": "6 moves to the end and the remaining order stays 2, 9, 4, 1."
+ },
+ "hint": "Remember the first value, shift the later values one position left, then write the saved value.",
+ "mistake": "Overwriting the first value before saving it; the last position then receives the wrong number.",
+ "tests": [
+  {
+   "input": "5\n6 2 9 4 1\n",
+   "expected": "2 9 4 1 6",
+   "note": "sample"
   },
-  "hint": "Remember the first value, shift the later values one position left, then write the saved value.",
-  "mistake": "Overwriting the first value before saving it; the last position then receives the wrong number.",
-  "tests": [
-    {
-      "input": "5\n6 2 9 4 1\n",
-      "expected": "2 9 4 1 6",
-      "note": "sample"
-    },
-    {
-      "input": "2\n-3 8\n",
-      "expected": "8 -3",
-      "note": "short row"
-    },
-    {
-      "input": "4\n5 5 5 5\n",
-      "expected": "5 5 5 5",
-      "note": "equal values"
-    }
-  ]
+  {
+   "input": "2\n-3 8\n",
+   "expected": "8 -3",
+   "note": "short row"
+  },
+  {
+   "input": "4\n5 5 5 5\n",
+   "expected": "5 5 5 5",
+   "note": "equal values"
+  }
+ ]
 }

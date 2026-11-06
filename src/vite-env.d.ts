@@ -24,3 +24,8 @@ declare module 'virtual:dsa-content' {
   const bundle: unknown[]
   export default bundle
 }
+
+declare module 'virtual:dsa-statements' {
+  const statements: Record<string, unknown>
+  export default statements
+}

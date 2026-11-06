@@ -38,8 +38,11 @@ import path from 'node:path'
  *   runtime/            Clang 22 (29 MB), Pyodide (13.5 MB), the worker bundle
  *   assets/runner-*     the lazy Run panel + Settings card
  *   assets/account-*    the lazy "Delete my data" card (phase v2-09)
+ *   assets/statements-* per-problem statements/tests/hints (v3 hybrid precache
+ *                       split): fetched on the first problem visit, then held
+ *                       cache-first so visited problems stay offline-readable
  */
-export const ADDON_PREFIXES = ['runtime/', 'assets/runner-', 'assets/account-']
+export const ADDON_PREFIXES = ['runtime/', 'assets/runner-', 'assets/account-', 'assets/statements-']
 
 /** Small JSON manifests must always be answered by the network. */
 export const RUNTIME_MANIFESTS = ['runtime/packs.json', 'runtime/runner/index.json']
@@ -117,7 +120,7 @@ const RUNTIME_SET = new Set(RUNTIME_URLS);
 const BYPASS_HOST_SUFFIXES = ['youtube.com', 'youtube-nocookie.com', 'googlevideo.com', 'ytimg.com', 'googleapis.com', 'gstatic.com', 'google.com', 'firebaseio.com', 'firebaseapp.com'];
 const BYPASS_PATH_PREFIXES = ['/__/', '/iframe_api'];
 const BYPASS_PATH_PARTS = ['iframe_api'];
-const ADDON_PATH_PREFIXES = ['runtime/', 'assets/runner-', 'assets/account-'];
+const ADDON_PATH_PREFIXES = ['runtime/', 'assets/runner-', 'assets/account-', 'assets/statements-'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

@@ -18,9 +18,13 @@
 > and two real defects fixed (a cloud profile snapshot could revert a theme the
 > learner had just changed — now pinned in `src/settings.test.ts`; and the statement
 > card showed build history). Shipped versions: **rules v9 / backup v8** (schemas 1–8
-> import). Budget measured **392,739 B gzip against the frozen 393,000 B cap** — no
-> re-baseline. Any **re**deploy walks `docs/RELEASE-RUNBOOK.md` again and stays an
-> owner gate; the remaining long pole is the content track.
+> import). The v2 budget measured **392,739 B gzip against the then-frozen 393,000 B
+> cap** — no re-baseline at release. **2026-11-06 update:** the content track shipped —
+> all 20 topics are authored and live in `data/content/` via the **hybrid precache
+> split** (statements in a lazy `assets/statements-*` add-on, 37,513 B gz; primers/quiz
+> precached), and the owner re-baselined the shell cap **393,000 → 475,000 B gz**
+> (measured 470,895 B). Any **re**deploy walks `docs/RELEASE-RUNBOOK.md` again and stays
+> an owner gate.
 > Authority order: `rule.md` → `docs/DECISIONS.md` (owner answers) → `docs/phases-v2/`
 > (phase contracts) → `docs/ROADMAP.md` (status) → `docs/DATA-MODEL.md`
 > (Firestore/backup shapes) → `docs/UI-REFERENCE.md` (design tokens) → this file (living
@@ -217,14 +221,14 @@ Do **not** start coding before step 5 is read end-to-end.
   stack-queues, sliding-window-2-pointer), batch 3 (binary-trees, binary-search-trees,
   heaps, greedy-algorithms), batch 4 (graphs, dynamic-programming, tries,
   strings-advanced-algo), batch 5 (beginner-problems, hashing, maths) —
-  together +19 primers, +110 statements, +228 quiz items, validator-green when staged. The
-  measured cost of batch 1 alone is **+23,471 B gz** (precached shell 416,210 B vs the
-  frozen 393,000 B cap, 261 B headroom today). **The owner decided on 2026-11-06
-  (recorded in `docs/DECISIONS.md`): hybrid precache split** — primers/sections/quiz stay
-  precached, per-problem statements load lazily with runtime caching. Implement that
-  split in `vite.config.ts`/SW buckets first, then stage the batches; each batch still
-  needs the owner's accuracy review before it ships. See
-  `docs/content/drafts/v3-batch-1/DECISION-MEMO.md` and `.../v3-batch-5/README.md`.
+  together +19 primers, +110 statements, +228 quiz items. **Shipped 2026-11-06:** after
+  two owner-run accuracy-review rounds the owner closed the gate and the hybrid
+  precache split landed (`virtual:dsa-statements` → lazy `assets/statements-*` add-on,
+  127,799 B raw / 37,513 B gz, cache-first after first problem visit; primers/sections/
+  quiz stay precached). Full 20-topic shell measured **470,895 B gz**; the owner
+  re-baselined the cap to **475,000 B** (recorded in `docs/DECISIONS.md`). All batches
+  are promoted into `data/content/` — the draft folders keep only their memos. Live
+  totals: 20 primers · 116 statements · 240 quiz items · 42 theory MCQs.
 
 - **Data facts to trust (audited 2026-11-03):** `data/problems.json` = 495 rows / 20
   topics (Basic 84 · Core 287 · Pro 109 · 15 null; 453 `problem` + 42 `theory`).
@@ -274,7 +278,10 @@ exit gate. **The acceptance list is the contract** — do not add features outsi
   520,000 B raw / 165,000 B gz · shell **393,000 B gz** (owner re-baselined 380 → 388 →
   393 kB in phases 06/08) · fonts 60,000 B · runner UI 120 kB / 40 kB · account add-on
   40 kB / 15 kB · toolchains 48 MB — all in **separate** buckets, never precached.
-  Measured 392,136 B gz (864 B headroom); further growth is a GATE.
+  Measured 392,136 B gz (864 B headroom) at the phase-09 gate. **2026-11-06 (v3): the
+  owner re-baselined the shell cap to 475,000 B gz** for the full 20-topic catalogue
+  (measured 470,895 B; statements split into a lazy 200 kB/60 kB add-on bucket).
+  Further growth remains a GATE.
 - **Tailwind/daisyUI**: decided **REMOVE** in v2-01, re-verified in v2-09; enforced by
   `tools/check-deadweight.mjs`. No third state.
 - **CSP**: adopted, `frame-src` for YouTube and `worker-src` for the runner; report-only
@@ -340,9 +347,10 @@ links · code judge/IDE beyond the local runner · changing a recorded answer wi
 > every content batch improves the live site on the next owner-gated redeploy).
 > Read, in order: `rule.md`, `docs/DECISIONS.md` (every 2026-11-03 v2 batch, the
 > 2026-11-04/05 cap decisions, and the phase 01–10 implementation choices, especially
-> the 2026-11-05 phase-08 cap decision — shell **393,000 B gzip** / CSS raw
-> **61,000 B**, measured 392,739 B gzip in phase 10, any further shell growth is a
-> GATE, not a re-baseline — the YouTube ToS §4.13 rule, video links single-source, the
+> the 2026-11-05 phase-08 cap decision — shell 393,000 B gzip / CSS raw
+> **61,000 B**, measured 392,739 B gzip in phase 10 — superseded by the 2026-11-06 v3
+> re-baseline to **475,000 B gzip** for the full 20-topic catalogue (hybrid precache
+> split; shell growth is still a GATE) — the YouTube ToS §4.13 rule, video links single-source, the
 > no-invented-verdicts rule, the runner's never-precached add-on buckets, and the
 > screenshot decision), `docs/phases-v2/README.md`,
 > `docs/phases-v2/00-overview/PLAN.md`, `docs/CHANGELOG.md`, then

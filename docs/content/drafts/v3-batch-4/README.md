@@ -61,3 +61,11 @@ cannot satisfy the 6-problem learnOrder convention and need an owner decision
 (shorter learnOrder, merged topic, or skip).
 
 Accuracy review by the owner is a separate gate per batch before promotion.
+
+
+## Promoted
+
+Promoted into `data/content/` on 2026-11-06 (v3 hybrid precache split turn),
+after two owner-run accuracy-review rounds (`../REVIEW-TRIAGE.md`). The JSON
+files were removed from this folder at promotion — `data/content/` is the
+single source of truth; this memo stays as the batch record.

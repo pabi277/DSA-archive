@@ -2,9 +2,11 @@
 import { useState } from 'react'
 import { Empty } from '../design/primitives'
 import { getHint } from './load'
+import { useStatements } from './useStatements'
 import { RichText } from './richText'
 
 export function HintDisclosure({ problemId }: { problemId: string }) {
+  useStatements() // re-render when the lazy statements chunk lands
   const hint = getHint(problemId)
   const [hintOpen, setHintOpen] = useState(false)
   const [mistakeOpen, setMistakeOpen] = useState(false)

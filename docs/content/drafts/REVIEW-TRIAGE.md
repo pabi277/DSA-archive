@@ -128,9 +128,29 @@ reviewer errors, so several claims were **rejected with evidence**.
    LC factorial-trailing-zeroes. Same coordinated fix as item 1 (screenshot
    stamp + link baseline).
 
-## Still open
+## Resolution — 2026-11-06 (hybrid precache split turn)
 
-- All five batches have now had a real accuracy pass; all confirmed defects
-  are fixed. The owner's remaining gate is promotion sign-off per batch
-  (plus the hybrid precache split before anything ships).
-- Optional: clean-pass re-reviews of any batch after these fixes.
+The owner closed the review gate ("no re-review needed") and ordered the
+hybrid precache split. In that turn:
+
+- **All 19 draft topics / 110 problems were promoted** into `data/content/`;
+  the JSON copies were removed from the per-batch draft folders (each batch
+  README records the promotion).
+- **All 5 deferred live-content items were fixed**:
+  1. `linear-search` rank-1 near drill → LC `richest-customer-wealth`
+     (a pure linear-scan maximum drill).
+  2. The six original arrays statements now open by naming the exact stdin
+     layout, matching the draft convention (free post-split: statements left
+     the precached shell).
+  3. `arrays.json`: q2/q3 stems gained the missing efficiency/order criterion
+     that made distractors arguably valid; the sorted-copy explain now states
+     the real failure (cost + lost scan order); the bogus
+     `cp-algorithms.com/#arrays-bounds` reference → the real MDN `Array` page.
+  4. Arrays quiz options deterministically permuted (sha-256 of item id);
+     answerIndex distribution now 2/2/2/6 across positions instead of all 0.
+  5. Junk rank-1 LC URLs replaced: `n-meetings-in-one-room` →
+     `non-overlapping-intervals`, `build-heap-from-a-given-array` →
+     `kth-largest-element-in-an-array`, `heapify-algorithm` →
+     `last-stone-weight`. Catalogue shards regenerated.
+
+Nothing from the two review rounds remains open.

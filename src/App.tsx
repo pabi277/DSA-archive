@@ -75,6 +75,7 @@ const DeleteDataCard = lazy(() => import('./app/deleteDataCard'))
 import { MiniPlayer } from './theatre/miniPlayer'
 import { PracticeScreen } from './app/practiceScreen'
 import { getTests, getTheoryMcq, getTopicContent } from './content/load'
+import { useStatements } from './content/useStatements'
 import { TheoryMcqCard } from './quiz/mcqCard'
 import { QuizHome } from './quiz/quizHome'
 import { QuizScreen } from './quiz/quizScreen'
@@ -126,6 +127,9 @@ export function App() {
 }
 
 function AppShell() {
+  // Hybrid precache split: re-render once the lazy statements chunk lands so
+  // the inline `getTests(problemId)` panel props below pick up the cases.
+  useStatements()
   const settings = useSettings()
   const feedback = useFeedback()
   const installPrompt = useInstallPrompt()

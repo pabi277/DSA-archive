@@ -1,465 +1,465 @@
 {
-  "topicId": "arrays",
-  "patterns": [
-    "two-pointers",
-    "prefix-sum",
-    "intervals"
+ "topicId": "arrays",
+ "patterns": [
+  "two-pointers",
+  "prefix-sum",
+  "intervals"
+ ],
+ "learnOrder": [
+  "linear-search",
+  "largest-element",
+  "second-largest-element",
+  "maximum-consecutive-ones",
+  "left-rotate-array-by-one",
+  "move-zeros-to-end"
+ ],
+ "primer": {
+  "intro": "An array is a row of numbered boxes. Each box holds one value, and an index tells you which box to read. The first index in this app is 0, so the fifth value has index 4. You use arrays because a program can move from one index to the next without naming every value. That small idea supports searching, counting, reordering and comparing neighbouring values. Before you write a loop, say what one index means, what one stored value means, and what must be returned. A clear sentence here prevents most array bugs. An array also has a length. A valid index is at least 0 and less than that length. Treat those two boundaries as part of the problem, not as details to remember later.",
+  "whenToUse": [
+   "The input gives values in a fixed order and asks about positions.",
+   "The answer depends on a value you have already scanned.",
+   "Two positions must be compared, swapped or kept together.",
+   "A question asks for a total, maximum, minimum or count over a range.",
+   "The output is another ordering of the same stored values."
   ],
-  "learnOrder": [
-    "linear-search",
-    "largest-element",
-    "second-largest-element",
-    "maximum-consecutive-ones",
-    "left-rotate-array-by-one",
-    "move-zeros-to-end"
+  "mentalModel": "Picture a row of cards on a table. Your finger is the index. Your notebook is the extra state you keep while moving. A plain scan moves the finger one card at a time. Two pointers place one finger at each end and move the finger that cannot help the current comparison. A prefix sum writes a running total in the notebook so a later range question needs subtraction instead of another full walk. The picture stays useful because it separates three things: the cards you never change, the finger you move, and the notes you update. When an answer is wrong, inspect those three things in that order.",
+  "mistakes": [
+   "Off-by-one: read index `length` when the last valid index is `length - 1`; stop the loop before that read.",
+   "Lost state: overwrite a best value or running total before you compare it; keep the old value first.",
+   "Double counting: compare the same pair in both directions; give each pair one fixed order."
   ],
-  "primer": {
-    "intro": "An array is a row of numbered boxes. Each box holds one value, and an index tells you which box to read. The first index in this app is 0, so the fifth value has index 4. You use arrays because a program can move from one index to the next without naming every value. That small idea supports searching, counting, reordering and comparing neighbouring values. Before you write a loop, say what one index means, what one stored value means, and what must be returned. A clear sentence here prevents most array bugs. An array also has a length. A valid index is at least 0 and less than that length. Treat those two boundaries as part of the problem, not as details to remember later.",
-    "whenToUse": [
-      "The input gives values in a fixed order and asks about positions.",
-      "The answer depends on a value you have already scanned.",
-      "Two positions must be compared, swapped or kept together.",
-      "A question asks for a total, maximum, minimum or count over a range.",
-      "The output is another ordering of the same stored values."
-    ],
-    "mentalModel": "Picture a row of cards on a table. Your finger is the index. Your notebook is the extra state you keep while moving. A plain scan moves the finger one card at a time. Two pointers place one finger at each end and move the finger that cannot help the current comparison. A prefix sum writes a running total in the notebook so a later range question needs subtraction instead of another full walk. The picture stays useful because it separates three things: the cards you never change, the finger you move, and the notes you update. When an answer is wrong, inspect those three things in that order.",
-    "mistakes": [
-      "Off-by-one: read index `length` when the last valid index is `length - 1`; stop the loop before that read.",
-      "Lost state: overwrite a best value or running total before you compare it; keep the old value first.",
-      "Double counting: compare the same pair in both directions; give each pair one fixed order."
-    ],
-    "example": {
-      "title": "One pass with a small notebook",
-      "code": "function firstPair(values, target) {\n  const seen = new Map()\n  for (let i = 0; i < values.length; i += 1) {\n    const need = target - values[i]\n    if (seen.has(need)) return [seen.get(need), i]\n    seen.set(values[i], i)\n  }\n  return [-1, -1]\n}",
-      "explain": "With `values = [4, 1, 7, 3, 2]` and `target = 9`, the loop reaches 7 at index 2 and writes that 7 is needed later. At index 4 the value is 2, so the earlier index 2 forms the pair `[2, 4]`. The map is the notebook. Each index is read once. The example shows a method, not a rule that every array problem needs a map."
-    },
-    "practice": "Ready? Open Practice and start with Linear Search."
+  "example": {
+   "title": "One pass with a small notebook",
+   "code": "function firstPair(values, target) {\n  const seen = new Map()\n  for (let i = 0; i < values.length; i += 1) {\n    const need = target - values[i]\n    if (seen.has(need)) return [seen.get(need), i]\n    seen.set(values[i], i)\n  }\n  return [-1, -1]\n}",
+   "explain": "With `values = [4, 1, 7, 3, 2]` and `target = 9`, the loop reaches 7 at index 2 and writes that 7 is needed later. At index 4 the value is 2, so the earlier index 2 forms the pair `[2, 4]`. The map is the notebook. Each index is read once. The example shows a method, not a rule that every array problem needs a map."
   },
-  "sections": [
-    {
-      "id": "read-the-shape",
-      "title": "Read the shape of the answer",
-      "text": "Start by naming the **return type**. Some tasks return one index. Others return a value, a count, a pair of indices or a rearranged array. Write a tiny input and the exact output beside it. Then name the first piece of state a scan needs. If the question asks for a largest value, you need a current largest. If it asks whether a value appeared earlier, you need a record of earlier values.\n\n- Keep one sentence for the input.\n- Keep one sentence for the output.\n- Keep one sentence for the state you update.\n\nThis takes less than a minute. It also gives you a place to check a failing test: either the state is wrong, the update is late, or the final answer is read from the wrong place.",
-      "check": {
-        "id": "arrays-check-shape",
-        "prompt": "A task asks for the index of the first target match, or -1 if absent. What state does a single scan need?",
-        "codeSnippet": null,
-        "options": [
-          {
-            "text": "A sorted copy of the array",
-            "explain": "Sorting changes the original indices that the return type requires."
-          },
-          {
-            "text": "Only the current index while scanning left to right",
-            "explain": "Correct — the first matching position can be returned immediately."
-          },
-          {
-            "text": "A running sum of every visited value",
-            "explain": "Adding values does not tell you where the target sits."
-          },
-          {
-            "text": "A count of total matches across the array",
-            "explain": "Counting every match is different from returning the first position."
-          }
-        ],
-        "answerIndex": 1,
-        "rereadSectionId": "read-the-shape",
-        "rereadSectionTitle": "Read the shape of the answer",
-        "reveal": {
-          "alwaysAvailable": true,
-          "solution": "Name the return type first: one 0-based index (or -1). Because the first match wins, a plain index scan needs no extra array or map — return `i` on the first hit, or `-1` after the loop.",
-          "reference": {
-            "source": "programiz",
-            "url": "https://www.programiz.com/dsa/linear-search",
-            "label": "Reference · Programiz",
-            "verified": "2026-11-03"
-          }
-        }
-      }
-    },
-    {
-      "id": "choose-one-scan",
-      "title": "Choose one scan before adding cleverness",
-      "text": "A single left-to-right loop solves many first array questions. You read `values[i]`, update one notebook value, and continue. Use a second pointer only when a sorted property or a symmetric comparison tells you which side to move. Use a prefix sum only when several questions ask about ranges of the same array. The chosen shape should follow from the sentence you wrote about state.\n\nIf you cannot explain why a pointer moves, do not move it yet. Write the plain scan first. After it works, ask whether two indices or a stored total removes repeated work. Beginner code is easier to trust when each loop has one job.",
-      "check": {
-        "id": "arrays-check-scan",
-        "prompt": "When does a prefix-sum array earn its extra memory over a plain left-to-right scan?",
-        "codeSnippet": null,
-        "options": [
-          {
-            "text": "Whenever an array has fewer than ten items",
-            "explain": "Tiny inputs are already fast with one direct loop."
-          },
-          {
-            "text": "When you only need the single largest element",
-            "explain": "One maximum variable in a single scan already answers that."
-          },
-          {
-            "text": "When many queries ask for sums over different index ranges",
-            "explain": "Correct — one preparation pass turns each range sum into subtraction."
-          },
-          {
-            "text": "When the array elements must be reversed in place",
-            "explain": "Reversing swaps symmetric ends; running totals do not help."
-          }
-        ],
-        "answerIndex": 2,
-        "rereadSectionId": "choose-one-scan",
-        "rereadSectionTitle": "Choose one scan before adding cleverness",
-        "reveal": {
-          "alwaysAvailable": true,
-          "solution": "A plain scan is enough for one pass. Prepare prefix sums when several range-sum questions share the same unchanged array, so each query subtracts two stored totals in O(1) instead of rescanning.",
-          "reference": {
-            "source": "usaco",
-            "url": "https://usaco.guide/silver/prefix-sums",
-            "label": "Reference · USACO Guide",
-            "verified": "2026-11-03"
-          }
-        }
-      }
-    },
-    {
-      "id": "check-the-boundaries",
-      "title": "Check boundaries and changing order",
-      "text": "Test an array with one value, an array with two values, and an array where the answer sits at the last index. Test a target that is absent. For negative numbers, test a case where a smaller value appears after a larger one. When a task reorders values, check that no value was lost before checking whether the order looks neat.\n\nA **constraint** is a promise about input size or value range. Read it as part of the algorithm choice. `n <= 20` and `n <= 100000` allow different amounts of repeated scanning. Time complexity describes how work grows with `n`; it is not a guess about one machine. Write `O(n)` for one scan, and `O(n^2)` for every pair in a nested loop. Then confirm the loop really has that shape.",
-      "check": {
-        "id": "arrays-check-bounds",
-        "prompt": "An array has length 5. Which loop condition visits every valid index without reading past the end?",
-        "codeSnippet": null,
-        "options": [
-          {
-            "text": "i >= 0 and i < 5",
-            "explain": "Correct — valid indices for length 5 are 0, 1, 2, 3 and 4."
-          },
-          {
-            "text": "i >= 0 and i <= 5",
-            "explain": "Index 5 is one step past the last element at index 4."
-          },
-          {
-            "text": "i >= 1 and i < 5",
-            "explain": "Starting at 1 skips the first element at index 0."
-          },
-          {
-            "text": "i >= 0 and i < 4",
-            "explain": "Stopping before 4 misses the last element at index 4."
-          }
-        ],
-        "answerIndex": 0,
-        "rereadSectionId": "check-the-boundaries",
-        "rereadSectionTitle": "Check boundaries and changing order",
-        "reveal": {
-          "alwaysAvailable": true,
-          "solution": "With 0-based indexing, a 5-element array uses indices 0 through 4 (`length - 1`). Stopping at `i < length` visits all five boxes and never reads the invalid slot at `length`.",
-          "reference": {
-            "source": "cp-algorithms",
-            "url": "https://cp-algorithms.com/#arrays-bounds",
-            "label": "Reference · CP-Algorithms",
-            "verified": "2026-11-03"
-          }
-        }
-      }
+  "practice": "Ready? Open Practice and start with Linear Search."
+ },
+ "sections": [
+  {
+   "id": "read-the-shape",
+   "title": "Read the shape of the answer",
+   "text": "Start by naming the **return type**. Some tasks return one index. Others return a value, a count, a pair of indices or a rearranged array. Write a tiny input and the exact output beside it. Then name the first piece of state a scan needs. If the question asks for a largest value, you need a current largest. If it asks whether a value appeared earlier, you need a record of earlier values.\n\n- Keep one sentence for the input.\n- Keep one sentence for the output.\n- Keep one sentence for the state you update.\n\nThis takes less than a minute. It also gives you a place to check a failing test: either the state is wrong, the update is late, or the final answer is read from the wrong place.",
+   "check": {
+    "id": "arrays-check-shape",
+    "prompt": "A task asks for the index of the first target match, or -1 if absent. What state does a single scan need?",
+    "codeSnippet": null,
+    "options": [
+     {
+      "text": "A sorted copy of the array",
+      "explain": "Sorting changes the original indices that the return type requires."
+     },
+     {
+      "text": "Only the current index while scanning left to right",
+      "explain": "Correct — the first matching position can be returned immediately."
+     },
+     {
+      "text": "A running sum of every visited value",
+      "explain": "Adding values does not tell you where the target sits."
+     },
+     {
+      "text": "A count of total matches across the array",
+      "explain": "Counting every match is different from returning the first position."
+     }
+    ],
+    "answerIndex": 1,
+    "rereadSectionId": "read-the-shape",
+    "rereadSectionTitle": "Read the shape of the answer",
+    "reveal": {
+     "alwaysAvailable": true,
+     "solution": "Name the return type first: one 0-based index (or -1). Because the first match wins, a plain index scan needs no extra array or map — return `i` on the first hit, or `-1` after the loop.",
+     "reference": {
+      "source": "programiz",
+      "url": "https://www.programiz.com/dsa/linear-search",
+      "label": "Reference · Programiz",
+      "verified": "2026-11-03"
+     }
     }
-  ],
-  "quiz": [
-    {
-      "id": "arrays-q1",
-      "kind": "pattern",
-      "prompt": "A sorted array asks for two values with a fixed sum. Which approach fits best?",
-      "codeSnippet": null,
-      "options": [
-        {
-          "text": "Two pointers, one at each end",
-          "explain": "The sorted order tells you which endpoint to move after each sum."
-        },
-        {
-          "text": "Nested loops over every pair",
-          "explain": "This works but ignores the sorted property and does extra work."
-        },
-        {
-          "text": "A queue of all values",
-          "explain": "A queue does not use the ordering needed to discard one endpoint."
-        },
-        {
-          "text": "Random swaps until a pair appears",
-          "explain": "Random changes give no reliable progress toward the target."
-        }
-      ],
-      "answerIndex": 0
-    },
-    {
-      "id": "arrays-q2",
-      "kind": "pattern",
-      "prompt": "Several requests ask for the sum of values between two indices. What should you prepare?",
-      "codeSnippet": null,
-      "options": [
-        {
-          "text": "A prefix-sum array",
-          "explain": "Each range sum becomes one subtraction after a single preparation scan."
-        },
-        {
-          "text": "A fresh nested loop per request",
-          "explain": "This repeats work that the prefix totals can share."
-        },
-        {
-          "text": "A reversed copy of the array",
-          "explain": "Reversal does not make range totals cheaper."
-        },
-        {
-          "text": "A stack of index pairs",
-          "explain": "The stack stores requests but not the totals needed to answer them."
-        }
-      ],
-      "answerIndex": 0
-    },
-    {
-      "id": "arrays-q3",
-      "kind": "pattern",
-      "prompt": "You need to know whether a value appeared earlier in one scan. Which state fits?",
-      "codeSnippet": null,
-      "options": [
-        {
-          "text": "A set of seen values",
-          "explain": "A set answers earlier membership while the scan moves forward."
-        },
-        {
-          "text": "Only the current index",
-          "explain": "The index alone cannot remember earlier values."
-        },
-        {
-          "text": "A sorted copy of the whole array",
-          "explain": "Sorting changes positions and still needs a membership check."
-        },
-        {
-          "text": "A count initialized to the array length",
-          "explain": "The length does not describe which values were visited."
-        }
-      ],
-      "answerIndex": 0
-    },
-    {
-      "id": "arrays-q4",
-      "kind": "pattern",
-      "prompt": "A task gives intervals and asks how many overlap at a point. Which view helps?",
-      "codeSnippet": null,
-      "options": [
-        {
-          "text": "Sorted start and end events",
-          "explain": "Events let one scan maintain the active interval count."
-        },
-        {
-          "text": "Independent binary searches for each interval",
-          "explain": "Binary search alone does not combine overlapping ranges."
-        },
-        {
-          "text": "A trie built from interval titles",
-          "explain": "A trie stores prefixes, not numeric start and end events."
-        },
-        {
-          "text": "A queue that never removes items",
-          "explain": "An unbounded queue cannot represent intervals that have ended."
-        }
-      ],
-      "answerIndex": 0
-    },
-    {
-      "id": "arrays-q5",
-      "kind": "dryrun",
-      "prompt": "What does this code print for the shown array?",
-      "codeSnippet": "const a = [4, 1, 7, 3]\nlet best = a[0]\nfor (const x of a) {\n  if (x > best) best = x\n}\nconsole.log(best)",
-      "options": [
-        {
-          "text": "7",
-          "explain": "The largest visited value is 7, so `best` ends at 7."
-        },
-        {
-          "text": "4",
-          "explain": "4 is only the starting value; the loop updates it."
-        },
-        {
-          "text": "3",
-          "explain": "3 is the last value, not the largest value."
-        },
-        {
-          "text": "15",
-          "explain": "The code compares values; it never adds them."
-        }
-      ],
-      "answerIndex": 0
-    },
-    {
-      "id": "arrays-q6",
-      "kind": "dryrun",
-      "prompt": "What is printed after this loop?",
-      "codeSnippet": "let count = 0\nfor (const x of [2, 0, 2, 0]) {\n  if (x === 2) count += 1\n}\nconsole.log(count)",
-      "options": [
-        {
-          "text": "2",
-          "explain": "Exactly two values equal 2, so the counter reaches 2."
-        },
-        {
-          "text": "0",
-          "explain": "The condition accepts 2, not 0."
-        },
-        {
-          "text": "4",
-          "explain": "Only matching values update `count`."
-        },
-        {
-          "text": "1",
-          "explain": "There are two matching values, not one."
-        }
-      ],
-      "answerIndex": 0
-    },
-    {
-      "id": "arrays-q7",
-      "kind": "dryrun",
-      "prompt": "What does this prefix loop print?",
-      "codeSnippet": "const a = [3, 5, 2]\nlet sum = 0\nfor (const x of a) sum += x\nconsole.log(sum)",
-      "options": [
-        {
-          "text": "10",
-          "explain": "The running total is 3 + 5 + 2 = 10."
-        },
-        {
-          "text": "8",
-          "explain": "That total omits one of the three stored values."
-        },
-        {
-          "text": "3",
-          "explain": "3 is the first value; the loop continues."
-        },
-        {
-          "text": "2",
-          "explain": "2 is the last value, not the accumulated sum."
-        }
-      ],
-      "answerIndex": 0
-    },
-    {
-      "id": "arrays-q8",
-      "kind": "complexity",
-      "prompt": "What is the time complexity of one loop over all n values with constant work per value?",
-      "codeSnippet": "for (let i = 0; i < n; i += 1) {\n  total += values[i]\n}",
-      "options": [
-        {
-          "text": "O(n)",
-          "explain": "Each of the n values causes one constant-time update."
-        },
-        {
-          "text": "O(1)",
-          "explain": "The work grows with n, so it is not constant."
-        },
-        {
-          "text": "O(n log n)",
-          "explain": "No repeated halving or sorting appears in the loop."
-        },
-        {
-          "text": "O(n²)",
-          "explain": "There is no nested loop over pairs."
-        }
-      ],
-      "answerIndex": 0
-    },
-    {
-      "id": "arrays-q9",
-      "kind": "complexity",
-      "prompt": "What is the time complexity of checking every ordered pair in an n-value array?",
-      "codeSnippet": "for (let i = 0; i < n; i += 1) {\n  for (let j = 0; j < n; j += 1) {\n    compare(values[i], values[j])\n  }\n}",
-      "options": [
-        {
-          "text": "O(n²)",
-          "explain": "The inner loop runs n times for each of n outer iterations."
-        },
-        {
-          "text": "O(n)",
-          "explain": "One scan would have a single loop, not two nested loops."
-        },
-        {
-          "text": "O(log n)",
-          "explain": "No step divides the remaining input in half."
-        },
-        {
-          "text": "O(1)",
-          "explain": "The number of comparisons grows with n."
-        }
-      ],
-      "answerIndex": 0
-    },
-    {
-      "id": "arrays-q10",
-      "kind": "bug",
-      "prompt": "What breaks this maximum search on a non-empty array?",
-      "codeSnippet": "let best = 0\nfor (const x of values) {\n  if (x > best) best = x\n}\nreturn best",
-      "options": [
-        {
-          "text": "The start value fails when all values are negative",
-          "explain": "A negative maximum never exceeds 0, so `best` stays wrong."
-        },
-        {
-          "text": "The loop skips the last index",
-          "explain": "A for-of loop visits every stored value."
-        },
-        {
-          "text": "The comparison should use ===",
-          "explain": "Equality does not identify a larger value."
-        },
-        {
-          "text": "The return statement must be inside the loop",
-          "explain": "Returning early would stop the scan after one value."
-        }
-      ],
-      "answerIndex": 0
-    },
-    {
-      "id": "arrays-q11",
-      "kind": "bug",
-      "prompt": "What breaks this index loop?",
-      "codeSnippet": "for (let i = 0; i <= values.length; i += 1) {\n  total += values[i]\n}",
-      "options": [
-        {
-          "text": "It reads one index past the last value",
-          "explain": "The last valid index is `length - 1`, not `length`."
-        },
-        {
-          "text": "It starts at 1 instead of 0",
-          "explain": "The shown loop correctly starts at index 0."
-        },
-        {
-          "text": "It never updates i",
-          "explain": "The third clause increments i each pass."
-        },
-        {
-          "text": "It adds values in reverse order",
-          "explain": "Addition is commutative; order is not the boundary bug."
-        }
-      ],
-      "answerIndex": 0
-    },
-    {
-      "id": "arrays-q12",
-      "kind": "edge",
-      "prompt": "Which input reveals a maximum finder that starts its answer at 0?",
-      "codeSnippet": "let best = 0\nfor (const x of values) {\n  if (x > best) best = x\n}",
-      "options": [
-        {
-          "text": "[-6, -2, -4]",
-          "explain": "All values are negative; the correct maximum is -2."
-        },
-        {
-          "text": "[1, 2, 3]",
-          "explain": "Positive values update the starting answer correctly."
-        },
-        {
-          "text": "[0, 4, 2]",
-          "explain": "4 is larger than 0, so the bug stays hidden."
-        },
-        {
-          "text": "[5]",
-          "explain": "The single positive value updates the starting answer."
-        }
-      ],
-      "answerIndex": 0
+   }
+  },
+  {
+   "id": "choose-one-scan",
+   "title": "Choose one scan before adding cleverness",
+   "text": "A single left-to-right loop solves many first array questions. You read `values[i]`, update one notebook value, and continue. Use a second pointer only when a sorted property or a symmetric comparison tells you which side to move. Use a prefix sum only when several questions ask about ranges of the same array. The chosen shape should follow from the sentence you wrote about state.\n\nIf you cannot explain why a pointer moves, do not move it yet. Write the plain scan first. After it works, ask whether two indices or a stored total removes repeated work. Beginner code is easier to trust when each loop has one job.",
+   "check": {
+    "id": "arrays-check-scan",
+    "prompt": "When does a prefix-sum array earn its extra memory over a plain left-to-right scan?",
+    "codeSnippet": null,
+    "options": [
+     {
+      "text": "Whenever an array has fewer than ten items",
+      "explain": "Tiny inputs are already fast with one direct loop."
+     },
+     {
+      "text": "When you only need the single largest element",
+      "explain": "One maximum variable in a single scan already answers that."
+     },
+     {
+      "text": "When many queries ask for sums over different index ranges",
+      "explain": "Correct — one preparation pass turns each range sum into subtraction."
+     },
+     {
+      "text": "When the array elements must be reversed in place",
+      "explain": "Reversing swaps symmetric ends; running totals do not help."
+     }
+    ],
+    "answerIndex": 2,
+    "rereadSectionId": "choose-one-scan",
+    "rereadSectionTitle": "Choose one scan before adding cleverness",
+    "reveal": {
+     "alwaysAvailable": true,
+     "solution": "A plain scan is enough for one pass. Prepare prefix sums when several range-sum questions share the same unchanged array, so each query subtracts two stored totals in O(1) instead of rescanning.",
+     "reference": {
+      "source": "usaco",
+      "url": "https://usaco.guide/silver/prefix-sums",
+      "label": "Reference · USACO Guide",
+      "verified": "2026-11-03"
+     }
     }
-  ]
+   }
+  },
+  {
+   "id": "check-the-boundaries",
+   "title": "Check boundaries and changing order",
+   "text": "Test an array with one value, an array with two values, and an array where the answer sits at the last index. Test a target that is absent. For negative numbers, test a case where a smaller value appears after a larger one. When a task reorders values, check that no value was lost before checking whether the order looks neat.\n\nA **constraint** is a promise about input size or value range. Read it as part of the algorithm choice. `n <= 20` and `n <= 100000` allow different amounts of repeated scanning. Time complexity describes how work grows with `n`; it is not a guess about one machine. Write `O(n)` for one scan, and `O(n^2)` for every pair in a nested loop. Then confirm the loop really has that shape.",
+   "check": {
+    "id": "arrays-check-bounds",
+    "prompt": "An array has length 5. Which loop condition visits every valid index without reading past the end?",
+    "codeSnippet": null,
+    "options": [
+     {
+      "text": "i >= 0 and i < 5",
+      "explain": "Correct — valid indices for length 5 are 0, 1, 2, 3 and 4."
+     },
+     {
+      "text": "i >= 0 and i <= 5",
+      "explain": "Index 5 is one step past the last element at index 4."
+     },
+     {
+      "text": "i >= 1 and i < 5",
+      "explain": "Starting at 1 skips the first element at index 0."
+     },
+     {
+      "text": "i >= 0 and i < 4",
+      "explain": "Stopping before 4 misses the last element at index 4."
+     }
+    ],
+    "answerIndex": 0,
+    "rereadSectionId": "check-the-boundaries",
+    "rereadSectionTitle": "Check boundaries and changing order",
+    "reveal": {
+     "alwaysAvailable": true,
+     "solution": "With 0-based indexing, a 5-element array uses indices 0 through 4 (`length - 1`). Stopping at `i < length` visits all five boxes and never reads the invalid slot at `length`.",
+     "reference": {
+      "source": "mdn",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array",
+      "label": "Reference · MDN",
+      "verified": "2026-11-03"
+     }
+    }
+   }
+  }
+ ],
+ "quiz": [
+  {
+   "id": "arrays-q1",
+   "kind": "pattern",
+   "prompt": "A sorted array asks for two values with a fixed sum. Which approach fits best?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "A queue of all values",
+     "explain": "A queue does not use the ordering needed to discard one endpoint."
+    },
+    {
+     "text": "Nested loops over every pair",
+     "explain": "This works but ignores the sorted property and does extra work."
+    },
+    {
+     "text": "Two pointers, one at each end",
+     "explain": "The sorted order tells you which endpoint to move after each sum."
+    },
+    {
+     "text": "Random swaps until a pair appears",
+     "explain": "Random changes give no reliable progress toward the target."
+    }
+   ],
+   "answerIndex": 2
+  },
+  {
+   "id": "arrays-q2",
+   "kind": "pattern",
+   "prompt": "Several requests each ask for the sum of values between two indices. What should you prepare so every request is answered in constant time?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "A reversed copy of the array",
+     "explain": "Reversal does not make range totals cheaper."
+    },
+    {
+     "text": "A fresh nested loop per request",
+     "explain": "This repeats work that the prefix totals can share."
+    },
+    {
+     "text": "A prefix-sum array",
+     "explain": "Each range sum becomes one subtraction after a single preparation scan."
+    },
+    {
+     "text": "A stack of index pairs",
+     "explain": "The stack stores requests but not the totals needed to answer them."
+    }
+   ],
+   "answerIndex": 2
+  },
+  {
+   "id": "arrays-q3",
+   "kind": "pattern",
+   "prompt": "While scanning left to right, you must report whether the current value already appeared earlier in the scan. Which state fits?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Only the current index",
+     "explain": "The index alone cannot remember earlier values."
+    },
+    {
+     "text": "A set of seen values",
+     "explain": "A set answers earlier membership while the scan moves forward."
+    },
+    {
+     "text": "A sorted copy of the whole array",
+     "explain": "Sorting costs extra time and destroys scan order, so it cannot say what came earlier."
+    },
+    {
+     "text": "A count initialized to the array length",
+     "explain": "The length does not describe which values were visited."
+    }
+   ],
+   "answerIndex": 1
+  },
+  {
+   "id": "arrays-q4",
+   "kind": "pattern",
+   "prompt": "A task gives intervals and asks how many overlap at a point. Which view helps?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "A trie built from interval titles",
+     "explain": "A trie stores prefixes, not numeric start and end events."
+    },
+    {
+     "text": "Independent binary searches for each interval",
+     "explain": "Binary search alone does not combine overlapping ranges."
+    },
+    {
+     "text": "Sorted start and end events",
+     "explain": "Events let one scan maintain the active interval count."
+    },
+    {
+     "text": "A queue that never removes items",
+     "explain": "An unbounded queue cannot represent intervals that have ended."
+    }
+   ],
+   "answerIndex": 2
+  },
+  {
+   "id": "arrays-q5",
+   "kind": "dryrun",
+   "prompt": "What does this code print for the shown array?",
+   "codeSnippet": "const a = [4, 1, 7, 3]\nlet best = a[0]\nfor (const x of a) {\n  if (x > best) best = x\n}\nconsole.log(best)",
+   "options": [
+    {
+     "text": "7",
+     "explain": "The largest visited value is 7, so `best` ends at 7."
+    },
+    {
+     "text": "4",
+     "explain": "4 is only the starting value; the loop updates it."
+    },
+    {
+     "text": "3",
+     "explain": "3 is the last value, not the largest value."
+    },
+    {
+     "text": "15",
+     "explain": "The code compares values; it never adds them."
+    }
+   ],
+   "answerIndex": 0
+  },
+  {
+   "id": "arrays-q6",
+   "kind": "dryrun",
+   "prompt": "What is printed after this loop?",
+   "codeSnippet": "let count = 0\nfor (const x of [2, 0, 2, 0]) {\n  if (x === 2) count += 1\n}\nconsole.log(count)",
+   "options": [
+    {
+     "text": "1",
+     "explain": "There are two matching values, not one."
+    },
+    {
+     "text": "0",
+     "explain": "The condition accepts 2, not 0."
+    },
+    {
+     "text": "4",
+     "explain": "Only matching values update `count`."
+    },
+    {
+     "text": "2",
+     "explain": "Exactly two values equal 2, so the counter reaches 2."
+    }
+   ],
+   "answerIndex": 3
+  },
+  {
+   "id": "arrays-q7",
+   "kind": "dryrun",
+   "prompt": "What does this prefix loop print?",
+   "codeSnippet": "const a = [3, 5, 2]\nlet sum = 0\nfor (const x of a) sum += x\nconsole.log(sum)",
+   "options": [
+    {
+     "text": "2",
+     "explain": "2 is the last value, not the accumulated sum."
+    },
+    {
+     "text": "8",
+     "explain": "That total omits one of the three stored values."
+    },
+    {
+     "text": "3",
+     "explain": "3 is the first value; the loop continues."
+    },
+    {
+     "text": "10",
+     "explain": "The running total is 3 + 5 + 2 = 10."
+    }
+   ],
+   "answerIndex": 3
+  },
+  {
+   "id": "arrays-q8",
+   "kind": "complexity",
+   "prompt": "What is the time complexity of one loop over all n values with constant work per value?",
+   "codeSnippet": "for (let i = 0; i < n; i += 1) {\n  total += values[i]\n}",
+   "options": [
+    {
+     "text": "O(n²)",
+     "explain": "There is no nested loop over pairs."
+    },
+    {
+     "text": "O(1)",
+     "explain": "The work grows with n, so it is not constant."
+    },
+    {
+     "text": "O(n log n)",
+     "explain": "No repeated halving or sorting appears in the loop."
+    },
+    {
+     "text": "O(n)",
+     "explain": "Each of the n values causes one constant-time update."
+    }
+   ],
+   "answerIndex": 3
+  },
+  {
+   "id": "arrays-q9",
+   "kind": "complexity",
+   "prompt": "What is the time complexity of checking every ordered pair in an n-value array?",
+   "codeSnippet": "for (let i = 0; i < n; i += 1) {\n  for (let j = 0; j < n; j += 1) {\n    compare(values[i], values[j])\n  }\n}",
+   "options": [
+    {
+     "text": "O(1)",
+     "explain": "The number of comparisons grows with n."
+    },
+    {
+     "text": "O(n)",
+     "explain": "One scan would have a single loop, not two nested loops."
+    },
+    {
+     "text": "O(log n)",
+     "explain": "No step divides the remaining input in half."
+    },
+    {
+     "text": "O(n²)",
+     "explain": "The inner loop runs n times for each of n outer iterations."
+    }
+   ],
+   "answerIndex": 3
+  },
+  {
+   "id": "arrays-q10",
+   "kind": "bug",
+   "prompt": "What breaks this maximum search on a non-empty array?",
+   "codeSnippet": "let best = 0\nfor (const x of values) {\n  if (x > best) best = x\n}\nreturn best",
+   "options": [
+    {
+     "text": "The loop skips the last index",
+     "explain": "A for-of loop visits every stored value."
+    },
+    {
+     "text": "The start value fails when all values are negative",
+     "explain": "A negative maximum never exceeds 0, so `best` stays wrong."
+    },
+    {
+     "text": "The comparison should use ===",
+     "explain": "Equality does not identify a larger value."
+    },
+    {
+     "text": "The return statement must be inside the loop",
+     "explain": "Returning early would stop the scan after one value."
+    }
+   ],
+   "answerIndex": 1
+  },
+  {
+   "id": "arrays-q11",
+   "kind": "bug",
+   "prompt": "What breaks this index loop?",
+   "codeSnippet": "for (let i = 0; i <= values.length; i += 1) {\n  total += values[i]\n}",
+   "options": [
+    {
+     "text": "It adds values in reverse order",
+     "explain": "Addition is commutative; order is not the boundary bug."
+    },
+    {
+     "text": "It starts at 1 instead of 0",
+     "explain": "The shown loop correctly starts at index 0."
+    },
+    {
+     "text": "It never updates i",
+     "explain": "The third clause increments i each pass."
+    },
+    {
+     "text": "It reads one index past the last value",
+     "explain": "The last valid index is `length - 1`, not `length`."
+    }
+   ],
+   "answerIndex": 3
+  },
+  {
+   "id": "arrays-q12",
+   "kind": "edge",
+   "prompt": "Which input reveals a maximum finder that starts its answer at 0?",
+   "codeSnippet": "let best = 0\nfor (const x of values) {\n  if (x > best) best = x\n}",
+   "options": [
+    {
+     "text": "[-6, -2, -4]",
+     "explain": "All values are negative; the correct maximum is -2."
+    },
+    {
+     "text": "[1, 2, 3]",
+     "explain": "Positive values update the starting answer correctly."
+    },
+    {
+     "text": "[0, 4, 2]",
+     "explain": "4 is larger than 0, so the bug stays hidden."
+    },
+    {
+     "text": "[5]",
+     "explain": "The single positive value updates the starting answer."
+    }
+   ],
+   "answerIndex": 0
+  }
+ ]
 }

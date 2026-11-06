@@ -66,3 +66,11 @@ Accuracy review: per standing process, owner verifies each topic in small batche
 batch is called approved. Inline-check references were pulled from each row's existing
 `resources[]` in `data/problems.json` (allow-listed sources, `verified` ≤ 2026-11-03), so
 `test:data` date checks pass without new link audits.
+
+
+## Promoted
+
+Promoted into `data/content/` on 2026-11-06 (v3 hybrid precache split turn),
+after two owner-run accuracy-review rounds (`../REVIEW-TRIAGE.md`). The JSON
+files were removed from this folder at promotion — `data/content/` is the
+single source of truth; this memo stays as the batch record.

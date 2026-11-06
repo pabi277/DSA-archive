@@ -68,3 +68,11 @@ Nothing remains to author. The two outstanding gates before promotion:
    precached, per-problem statements become a lazy runtime-cached chunk
    (`vite.config.ts` + SW buckets). Decision recorded in `docs/DECISIONS.md`.
 2. **Owner accuracy review**, batch by batch.
+
+
+## Promoted
+
+Promoted into `data/content/` on 2026-11-06 (v3 hybrid precache split turn),
+after two owner-run accuracy-review rounds (`../REVIEW-TRIAGE.md`). The JSON
+files were removed from this folder at promotion — `data/content/` is the
+single source of truth; this memo stays as the batch record.

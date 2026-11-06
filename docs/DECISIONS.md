@@ -1174,3 +1174,26 @@ re-baseline") is treated as **frozen** and was not re-opened.
   sliding-window-2-pointer) until the split lands; implementing it is the next
   engineering job on the content track, and accuracy review of each batch
   remains a separate owner gate.
+- **The hybrid precache split shipped; the shell cap was re-baselined 393,000 →
+  475,000 B gz by the owner (2026-11-06).** Implementation: per-problem
+  statements/tests/hints moved out of `virtual:dsa-content` into a new
+  `virtual:dsa-statements` module that builds into a lazy `assets/statements-*`
+  add-on chunk (never precached; served cache-first by SW v2 after the first
+  problem visit — the runner/account pattern). Loader getters stay synchronous;
+  screens subscribe via `useStatements()` (`useSyncExternalStore`) and re-render
+  once when the chunk lands, showing the designed empty states until then.
+  Measured with the full 20-topic catalogue: statements chunk **127,799 B raw /
+  37,513 B gz** (caps 200,000 / 60,000); precached shell **470,895 B gz** with
+  every primer, section and quiz included. That number cannot fit under the
+  frozen 393,000 B cap (the 2026-11-06 "no re-baseline" wording predated the
+  full-catalogue measurement), so the owner was asked with both options
+  measured and chose **A: re-baseline to 475,000 B** (headroom 4,105 B,
+  ~764 cold installs/day inside the 360 MB/day Spark transfer quota) over
+  keeping the cap and making topic content lazy too. Every primer and quiz is
+  therefore offline from install; statements go offline per problem after
+  first view. With the split landed and the owner's review gate closed
+  ("no re-review needed"), **all 19 draft topics / 110 problems were promoted
+  into `data/content/`** (20 topics · 116 statements · 240 quiz items live)
+  and the 5 deferred live-content review items were fixed in the same turn
+  (`docs/content/drafts/REVIEW-TRIAGE.md` has the list). Cap changes remain an
+  owner GATE; the next one is a new decision, not precedent.

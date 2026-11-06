@@ -1,11 +1,386 @@
 {
-  "topicId": "greedy-algorithms",
-  "patterns": [
-    "greedy",
-    "two-pointers",
-    "sliding-window"
+ "topicId": "greedy-algorithms",
+ "patterns": [
+  "greedy",
+  "two-pointers",
+  "sliding-window"
+ ],
+ "learnOrder": [
+  "assign-cookies",
+  "lemonade-change",
+  "jump-game-i",
+  "n-meetings-in-one-room",
+  "job-sequencing-problem",
+  "merge-intervals"
+ ],
+ "primer": {
+  "intro": "A greedy algorithm makes the locally best choice, commits to it, and moves on - no backtracking, no second thoughts. That only works when the problem has a special property: some locally best choice is always part of some globally best answer. The proof tool is the exchange argument: take any optimal solution that disagrees with the greedy's first choice, swap the greedy's choice in, and show nothing got worse; repeat, and the optimal solution morphs into the greedy one. In practice most greedy problems reduce to two decisions - what to sort by, and what one pass over the sorted data does. The sort key is the algorithm; everything else is bookkeeping.",
+  "whenToUse": [
+   "Picking the maximum number of non-conflicting things: sort by finish, take what fits.",
+   "Matching two sorted sequences cheapest-first: smallest cookie that satisfies the least demanding child.",
+   "Feasibility by simulation: walk once, maintaining a frontier or a till, and see if it survives.",
+   "Scheduling with deadlines and profits: best-paying first, each into the latest free slot."
   ],
-  "learnOrder": [],
-  "primer": null,
-  "quiz": []
+  "mentalModel": "Always ask: why is this choice safe? For meetings, the one that ends earliest leaves the most room for everything after it - any schedule using a later-ending first meeting can swap ours in without losing a slot. For cookies, the least demanding child is cheapest to satisfy, and spending the smallest adequate cookie on them wastes the least. For jump game, nothing matters except the furthest index reachable so far - a single integer carries the whole state. And stay suspicious: greedy fails silently when the safety argument breaks. Coins of 1, 3 and 4 making 6 is the classic counterexample - largest-first takes 4 plus 1 plus 1 while 3 plus 3 wins. Hunt for a counterexample before trusting any greedy.",
+  "mistakes": [
+   "Sorting by the plausible key instead of the provable one - meetings by start time feels right and is simply false.",
+   "Spending flexible resources first: breaking a 20 with three 5s while a 10 sits idle starves the till of change.",
+   "Ignoring the tie rule at boundaries - whether a meeting may start the minute another ends changes answers."
+  ],
+  "example": {
+   "title": "Most meetings in one room",
+   "code": "function maxMeetings(starts, ends) {\n  const order = starts.map((s, i) => i)\n  order.sort((x, y) => ends[x] - ends[y])\n  let count = 0\n  let lastEnd = -1\n  for (const i of order) {\n    if (starts[i] > lastEnd) {\n      count += 1\n      lastEnd = ends[i]\n    }\n  }\n  return count\n}",
+   "explain": "Sort by finish time, then sweep: take a meeting when it starts strictly after the last accepted one ends. The exchange argument makes the first pick safe - among all meetings, the earliest finisher constrains the future least, and any optimal schedule can be rewritten to start with it. After accepting, the subproblem is the same question on the meetings that remain, so induction carries the proof. The strict comparison is the tie rule: touching meetings conflict here."
+  },
+  "practice": "Open Practice with Assign Cookies - two sorted lists and one two-pointer sweep, the cleanest exchange argument in the topic."
+ },
+ "sections": [
+  {
+   "id": "the-exchange-argument",
+   "title": "The exchange argument",
+   "text": "A greedy proof has three beats. Name the choice rule: take the earliest-finishing meeting. Exchange: suppose some optimal solution starts with a different meeting; its first pick finishes no earlier than ours, so replacing it with ours keeps every later meeting feasible - the count is unchanged, and now optimal agrees with greedy on the first step. Induct: after the first pick, what remains is a smaller instance of the same problem, so the argument repeats. When you cannot complete the exchange beat honestly, the greedy is probably false - which is what tiny counterexamples are for: three coins, four meetings, five minutes of doodling before an hour of debugging.",
+   "check": {
+    "id": "greedy-check-key",
+    "prompt": "One room, many meetings, maximise how many run. Sorting by which key makes the one-pass greedy optimal?",
+    "codeSnippet": null,
+    "options": [
+     {
+      "text": "Fewest overlaps with others",
+      "explain": "Expensive to compute, and counterexamples still exist."
+     },
+     {
+      "text": "Earliest end time",
+      "explain": "The earliest finisher leaves maximal room; the exchange argument completes."
+     },
+     {
+      "text": "Earliest start time",
+      "explain": "One marathon that starts first can block a dozen short meetings."
+     },
+     {
+      "text": "Shortest duration",
+      "explain": "Plausible and famous - and beaten by a short meeting straddling two others."
+     }
+    ],
+    "answerIndex": 1,
+    "rereadSectionId": "the-exchange-argument",
+    "rereadSectionTitle": "The exchange argument",
+    "reveal": {
+     "alwaysAvailable": true,
+     "solution": "Sort by end time and sweep, accepting whatever starts after the last accepted end. Safety: any optimal schedule's first meeting finishes no earlier than the global earliest finisher, so swapping ours in keeps everything after feasible. The start-time and duration keys both fail on small counterexamples - a long early starter, or a short meeting bridging two disjoint ones.",
+     "reference": {
+      "source": "takeuforward",
+      "url": "https://takeuforward.org/practice/dsa/n-meetings-in-one-room",
+      "verified": "2026-11-03"
+     }
+    }
+   }
+  },
+  {
+   "id": "simulate-the-budget",
+   "title": "Simulate the budget",
+   "text": "The other half of the topic is greedy-as-simulation: one pass that maintains a tiny resource state. Jump game keeps a single frontier - the furthest index reachable; stand past it and the answer is no. Lemonade keeps a till of 5s and 10s, and the greedy twist is in how change is given: for a 20, hand over a 10 plus a 5 before three 5s, because 5s are the flexible currency every future customer may need. Job sequencing sorts by profit and drops each job into the latest free slot at or before its deadline - late placement keeps earlier slots open for tighter deadlines. In all three, the state you maintain is the proof: it is exactly what the future depends on."
+  }
+ ],
+ "quiz": [
+  {
+   "kind": "pattern",
+   "prompt": "Maximise the number of meetings one room hosts. What is the greedy?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Sort by duration, shortest first",
+     "explain": "A short bridge meeting can still knock out two compatible ones."
+    },
+    {
+     "text": "Try every subset of meetings",
+     "explain": "Correct and exponential - the greedy exists to avoid exactly this."
+    },
+    {
+     "text": "Sort by end time; accept whatever starts after the last accepted end",
+     "explain": "Earliest finisher leaves the most room - the exchange argument closes cleanly."
+    },
+    {
+     "text": "Sort by start time and pack from the morning",
+     "explain": "A long early meeting can eclipse several short ones."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "greedy-algorithms-q1"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Children with greed values, cookies with sizes - content as many children as possible. Plan?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Hand cookies out in input order",
+     "explain": "Order carries no meaning before sorting."
+    },
+    {
+     "text": "Give every child the largest remaining cookie",
+     "explain": "Maximum waste per match - the exact opposite of the matching rule."
+    },
+    {
+     "text": "Sort both; give each child the smallest cookie that satisfies them",
+     "explain": "Cheapest-first matching wastes the least and the exchange argument holds."
+    },
+    {
+     "text": "Give the biggest cookies to the greediest children first",
+     "explain": "Satisfying the hardest child can burn a cookie two modest children needed."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "greedy-algorithms-q2"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Array of jump lengths; can you reach the last index from the first? The one-pass state?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "The number of jumps taken",
+     "explain": "Feasibility asks whether, at no point how many."
+    },
+    {
+     "text": "The largest jump value seen",
+     "explain": "A big jump far behind the frontier helps nothing."
+    },
+    {
+     "text": "The furthest index reachable so far",
+     "explain": "Stand beyond it and the walk is over; reach the end and the answer is yes."
+    },
+    {
+     "text": "The full set of reachable indices",
+     "explain": "The set is always a prefix, so its right edge - one number - suffices."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "greedy-algorithms-q3"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Jobs with deadlines and profits, one job per day. How does the greedy place them?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Sort by deadline and take jobs in that order",
+     "explain": "Deadline order can fill early days with cheap jobs while rich ones expire."
+    },
+    {
+     "text": "Place each job on its deadline day, skipping clashes",
+     "explain": "Clashes need the fallback to earlier free days - that fallback is the algorithm."
+    },
+    {
+     "text": "Richest first, always into the earliest free day",
+     "explain": "Early placement squanders the exact days tight-deadline jobs will need."
+    },
+    {
+     "text": "Richest first, each into the latest free day at or before its deadline",
+     "explain": "Late placement preserves early days for jobs with tighter deadlines."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "greedy-algorithms-q4"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Meetings start 1 3 0 5 8 5 and end 2 4 6 7 9 9. How many fit in one room (strict rule)?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "4",
+     "explain": "End-sorted sweep takes (1,2), (3,4), (5,7), (8,9)."
+    },
+    {
+     "text": "3",
+     "explain": "After (5,7) the meeting (8,9) still fits - 8 is strictly past 7."
+    },
+    {
+     "text": "5",
+     "explain": "The second 9-ender starts at 5, inside the accepted (5,7)."
+    },
+    {
+     "text": "6",
+     "explain": "(0,6) alone overlaps four of the others; six is impossible."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "greedy-algorithms-q5"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Lemonade till, bills arrive: 5, 5, 10, 10, 20. Every customer pays exactly; does the day survive?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "It fails at the second 10",
+     "explain": "The till still holds one 5 at that moment - that change succeeds."
+    },
+    {
+     "text": "It fails at the first 10",
+     "explain": "Two 5s are in the till; one covers the change."
+    },
+    {
+     "text": "The day fails at the 20",
+     "explain": "The two 10s ate both 5s as change; 20 needs 15 and the till holds only 10s."
+    },
+    {
+     "text": "The day survives",
+     "explain": "Trace the till: after the second 10 no 5 remains, and 20 cannot be changed."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "greedy-algorithms-q6"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Greed values 1 2 3, cookie sizes 1 1. How many children end up content?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "3",
+     "explain": "Two cookies can content at most two children even in dreams."
+    },
+    {
+     "text": "1",
+     "explain": "A size-1 cookie satisfies the greed-1 child; nothing satisfies greed 2 or 3."
+    },
+    {
+     "text": "2",
+     "explain": "The second size-1 cookie is too small for the greed-2 child."
+    },
+    {
+     "text": "0",
+     "explain": "The least demanding child is satisfiable - smallest cookie, smallest greed."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "greedy-algorithms-q7"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "What dominates the cost of the meetings/cookies style of greedy?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Exponential subset search",
+     "explain": "That is the brute force the greedy replaces."
+    },
+    {
+     "text": "Constant overall",
+     "explain": "Sorting alone costs n log n."
+    },
+    {
+     "text": "The initial sort, n log n; the sweep after it is linear",
+     "explain": "One comparison sort, then a single pass with constant work per item."
+    },
+    {
+     "text": "The sweep, which is quadratic",
+     "explain": "The sweep touches each item once; no pair is ever revisited."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "greedy-algorithms-q8"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "Jump-game feasibility with the furthest-reachable frontier costs?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Linear time, linear space",
+     "explain": "The reachable set is a prefix; its right edge replaces the whole set."
+    },
+    {
+     "text": "Linear time, constant extra space",
+     "explain": "One pass, one integer of state - the frontier."
+    },
+    {
+     "text": "Quadratic time",
+     "explain": "Quadratic is trying every jump from every index; the frontier collapses that."
+    },
+    {
+     "text": "n log n",
+     "explain": "Nothing is sorted - arrival order is the walk itself."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "greedy-algorithms-q9"
+  },
+  {
+   "kind": "bug",
+   "prompt": "This meeting picker returns 1 where 2 fit. What is the bug?",
+   "codeSnippet": "order.sort((x, y) => starts[x] - starts[y])\nlet count = 0\nlet lastEnd = -1\nfor (const i of order) {\n  if (starts[i] > lastEnd) {\n    count += 1\n    lastEnd = ends[i]\n  }\n}",
+   "options": [
+    {
+     "text": "Sorted by start time - an early marathon gets accepted and blocks everything after",
+     "explain": "Sort by end time; the earliest finisher is the provably safe first pick."
+    },
+    {
+     "text": "The strict comparison should allow ties",
+     "explain": "The tie rule changes touching meetings only; this failure is the sort key."
+    },
+    {
+     "text": "lastEnd must start at 0",
+     "explain": "-1 accepts meetings starting at 0; the initial value is fine."
+    },
+    {
+     "text": "count is incremented too early",
+     "explain": "Counting at acceptance is correct; what gets accepted is the problem."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "greedy-algorithms-q10"
+  },
+  {
+   "kind": "bug",
+   "prompt": "This till fails on days a smarter cashier survives. What is the bug?",
+   "codeSnippet": "if (bill === 20) {\n  if (fives >= 3) {\n    fives -= 3\n  } else if (tens >= 1 && fives >= 1) {\n    tens -= 1\n    fives -= 1\n  } else {\n    return false\n  }\n}",
+   "options": [
+    {
+     "text": "It breaks 20s with three 5s first, starving the till of the flexible bill",
+     "explain": "Prefer 10 plus 5: tens serve only twenties, fives serve everyone."
+    },
+    {
+     "text": "The else branch gives up too early",
+     "explain": "With no composition of 15 left, failing is honest."
+    },
+    {
+     "text": "tens should be checked for 2",
+     "explain": "Two tens make 20, but change for a 20 is 15 - a 10 and a 5."
+    },
+    {
+     "text": "fives can go negative",
+     "explain": "Each branch checks before spending; the order of preference is the flaw."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "greedy-algorithms-q11"
+  },
+  {
+   "kind": "edge",
+   "prompt": "Under the strict rule - a meeting starts only after the previous ends - which case most needs a test?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Meetings in random order",
+     "explain": "The sort erases input order immediately."
+    },
+    {
+     "text": "Two meetings that touch: one ends at 5, the next starts at 5",
+     "explain": "Exactly the boundary the tie rule decides; both outcomes look plausible."
+    },
+    {
+     "text": "Two identical meetings",
+     "explain": "Identical rows exercise ordinary overlap, settled far from the boundary."
+    },
+    {
+     "text": "A meeting of length zero",
+     "explain": "Degenerate but usually excluded by constraints."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "greedy-algorithms-q12"
+  }
+ ]
 }

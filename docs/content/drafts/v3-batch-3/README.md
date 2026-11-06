@@ -36,3 +36,11 @@ npm run content:coverage && npm run test:data      # must be green
 
 Accuracy review happens in small owner-verified batches per the standing process —
 nothing here is approved until the owner says so.
+
+
+## Promoted
+
+Promoted into `data/content/` on 2026-11-06 (v3 hybrid precache split turn),
+after two owner-run accuracy-review rounds (`../REVIEW-TRIAGE.md`). The JSON
+files were removed from this folder at promotion — `data/content/` is the
+single source of truth; this memo stays as the batch record.

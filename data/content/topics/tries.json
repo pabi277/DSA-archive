@@ -1,11 +1,386 @@
 {
-  "topicId": "tries",
-  "patterns": [
-    "trie",
-    "two-pointers",
-    "sliding-window"
+ "topicId": "tries",
+ "patterns": [
+  "trie",
+  "two-pointers",
+  "sliding-window"
+ ],
+ "learnOrder": [
+  "trie-implementation-and-operations",
+  "trie-implementation-and-advanced-operations",
+  "longest-word-with-all-prefixes",
+  "number-of-distinct-substrings-in-a-string",
+  "maximum-xor-of-two-numbers-in-an-array",
+  "maximum-xor-with-an-element-from-an-array"
+ ],
+ "primer": {
+  "intro": "A trie is a tree that stores words by their letters: one edge per character, one node per distinct prefix. Walking from the root spells a prefix; a flag on a node says a whole word ends there. The payoff is that every operation - insert, search, prefix query - costs the length of the word involved, no matter whether the trie holds ten words or ten million. A hash set can answer is this exact word stored, but it is blind to prefixes; the trie answers does anything start with these letters just as fast, because all words sharing a prefix share the path that spells it. Add a counter or two on each node and the same walk answers how many words pass here - the key to the advanced operations.",
+  "whenToUse": [
+   "Many words, many prefix questions: autocomplete, dictionaries, spell-checking shapes.",
+   "Counting words equal to, or starting with, a given string - counters live on the nodes.",
+   "Maximum XOR questions: a trie over the bits of numbers, highest bit first.",
+   "Counting distinct substrings: insert every suffix and count the nodes the trie grows."
   ],
-  "learnOrder": [],
-  "primer": null,
-  "quiz": []
+  "mentalModel": "Think of the trie as a prefix-sharing machine. Inserting car then cat builds c, ca, car - and cat reuses c and ca, adding only the node for cat. Every node is one distinct prefix of the stored set, so the node count measures shared structure, which is why inserting all suffixes of a string counts its distinct substrings: each new node is a substring no earlier suffix spelled. Two counters per node run the advanced operations: countPrefix, incremented on every insert passing through, decremented on erase; and countEnd, maintained the same way on terminal nodes. The bitwise trie is the same machine over the alphabet 0, 1: insert each number as 32 bits from the top, and the greedy walk that prefers the opposite bit at every level builds the maximum XOR one bit at a time.",
+  "mistakes": [
+   "Answering search from the mere existence of the path - without the end-of-word flag, car reports cat's prefix as a word.",
+   "Erasing by deleting nodes; decrement the counters instead, since other words still use the path.",
+   "In the XOR trie, walking toward the same bit - the maximum wants the opposite bit whenever it exists."
+  ],
+  "example": {
+   "title": "Insert and search, the whole machine",
+   "code": "function insert(root, word) {\n  let node = root\n  for (const ch of word) {\n    if (!node.next[ch]) node.next[ch] = { next: {}, end: false }\n    node = node.next[ch]\n  }\n  node.end = true\n}\n\nfunction search(root, word) {\n  let node = root\n  for (const ch of word) {\n    node = node.next[ch]\n    if (!node) return false\n  }\n  return node.end\n}",
+   "explain": "Insert walks the word, creating only the nodes that are missing - shared prefixes are reused, which is the trie's whole economy. Search walks the same path and then consults the end flag: reaching a node proves the letters are a stored prefix, while the flag proves a word actually finishes there. The prefix query is this same walk minus the final flag check, and the counting variants replace the boolean with counters updated along the path."
+  },
+  "practice": "Open Practice with Trie Implementation and Operations - the insert-search-prefix trio there is the skeleton every other problem decorates."
+ },
+ "sections": [
+  {
+   "id": "one-node-per-prefix",
+   "title": "One node per prefix",
+   "text": "Draw what insertion builds and the structure stops being abstract. Insert car: nodes c, ca, car appear. Insert cat: c and ca already exist, so only cat is new - four nodes total for two words, because the shared prefix is stored once. This sharing is also the measuring tool. All words starting with ca sit in the subtree under that node, so one counter there answers the how-many-start-with question in the time it takes to walk two letters. And inserting every suffix of a string grows one node per distinct substring, turning a counting question into a construction question. When a trie problem puzzles you, draw five nodes - the answer is usually visible in the picture.",
+   "check": {
+    "id": "tries-check-nodes",
+    "prompt": "Starting from an empty trie, insert car and then cat. How many letter-nodes exist now (the root aside)?",
+    "codeSnippet": null,
+    "options": [
+     {
+      "text": "3",
+      "explain": "Three covers car alone; cat still needs its own last node."
+     },
+     {
+      "text": "2",
+      "explain": "Two words, yes - but nodes count prefixes, and there are four distinct ones."
+     },
+     {
+      "text": "4",
+      "explain": "c, ca, car from the first word; cat adds only its final node."
+     },
+     {
+      "text": "6",
+      "explain": "Six would mean no sharing - but c and ca are stored once, used twice."
+     }
+    ],
+    "answerIndex": 2,
+    "rereadSectionId": "one-node-per-prefix",
+    "rereadSectionTitle": "One node per prefix",
+    "reveal": {
+     "alwaysAvailable": true,
+     "solution": "List the distinct prefixes: c, ca, car, cat - four of them, so four nodes. The first insertion builds the chain c, ca, car. The second walks c and ca without creating anything and branches only at the third letter, adding cat. Sharing prefixes is the trie's entire storage economy, and counting nodes counts distinct prefixes of the stored set.",
+     "reference": {
+      "source": "takeuforward",
+      "url": "https://takeuforward.org/practice/dsa/trie-implementation-and-operations",
+      "verified": "2026-11-03"
+     }
+    }
+   }
+  },
+  {
+   "id": "the-bitwise-trie",
+   "title": "The bitwise trie",
+   "text": "Numbers are words over the alphabet 0, 1. Insert each value as its 32 bits, highest first, and the trie becomes a machine for XOR questions. To maximise x XOR something stored, walk down from the top bit preferring the child holding the opposite of x's bit - opposite bits XOR to 1, and a 1 in a higher position beats every lower position combined, so the greedy is safe at each level. When the opposite child is missing, follow the same bit and concede that position. Thirty-two steps per query, independent of how many numbers are stored. For bounded queries - best XOR against values at most m - sort the numbers and the queries, insert values lazily up to each query's bound, and answer offline."
+  }
+ ],
+ "quiz": [
+  {
+   "kind": "pattern",
+   "prompt": "A dictionary must answer both exact-word and starts-with queries fast. Which structure?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "A hash set of the words",
+     "explain": "Exact lookups shine, but starts-with needs scanning every stored word."
+    },
+    {
+     "text": "A sorted array with binary search",
+     "explain": "Workable via range scans, but each query costs log n plus output, with messy bounds."
+    },
+    {
+     "text": "A heap of the words",
+     "explain": "Heaps order by priority, nothing about shared letters."
+    },
+    {
+     "text": "A trie - both are the same walk, differing only in the final flag check",
+     "explain": "Paths are prefixes; the end flag separates stored words from mere prefixes."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "tries-q1"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Count how many stored words start with a given prefix, in time proportional to the prefix. How?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Walk the subtree under the prefix and count flags",
+     "explain": "Correct but proportional to the subtree, exactly what the counter avoids."
+    },
+    {
+     "text": "Store all prefixes of every word in a hash map",
+     "explain": "Works, at the cost of quadratic memory in word length across the set."
+    },
+    {
+     "text": "Binary search in a sorted list",
+     "explain": "Two binary searches can do it - the trie does it in prefix-length steps."
+    },
+    {
+     "text": "A pass-through counter on every node, incremented per insert, decremented per erase",
+     "explain": "The counter at the prefix's node is the answer - one walk, no subtree scan."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "tries-q2"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Maximum XOR of any two numbers in an array. The trie plan?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Try all pairs",
+     "explain": "Quadratic - correct but the trie does each number in 32 steps."
+    },
+    {
+     "text": "Sort and XOR neighbours",
+     "explain": "The best partner can sit far away in sorted order."
+    },
+    {
+     "text": "XOR everything together",
+     "explain": "That folds the whole array into one value - a different question entirely."
+    },
+    {
+     "text": "Insert bits top-down; for each number walk preferring the opposite bit",
+     "explain": "Opposite bits set a 1 high in the result; higher beats everything below."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "tries-q3"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Count the distinct substrings of a string using a trie. The construction?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Insert every prefix",
+     "explain": "Prefixes alone spell n substrings, missing everything interior."
+    },
+    {
+     "text": "Insert the string once and count flags",
+     "explain": "One word stores one path; the substrings need all suffixes."
+    },
+    {
+     "text": "Insert all rotations",
+     "explain": "Rotations wrap around the end - they spell strings that are no substrings."
+    },
+    {
+     "text": "Insert every suffix; the number of nodes created is the answer",
+     "explain": "Each node is a distinct prefix of some suffix - which is exactly a distinct substring."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "tries-q4"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Empty trie; insert car, then cat, then card. How many new nodes does card create?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "4",
+     "explain": "Four would rebuild the whole word; the trie reuses the car path."
+    },
+    {
+     "text": "2",
+     "explain": "The r is already there from car; only d is new."
+    },
+    {
+     "text": "0",
+     "explain": "card is longer than car, so at least its last letter is new."
+    },
+    {
+     "text": "1",
+     "explain": "c, ca, car already exist - card adds only the d node."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "tries-q5"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Words stored: n, ni, nin, ninj, ninja, ninga. Longest word whose every prefix is also stored?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "ninj",
+     "explain": "Fully backed, but ninja is longer and equally backed."
+    },
+    {
+     "text": "n",
+     "explain": "Trivially backed - and shortest, the opposite of the question."
+    },
+    {
+     "text": "ninja",
+     "explain": "n, ni, nin, ninj are all present; ninga breaks at ning."
+    },
+    {
+     "text": "ninga",
+     "explain": "Its prefix ning is nowhere in the set."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "tries-q6"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Array 3, 10, 5, 25, 2, 8. What is the maximum XOR of any pair?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "28",
+     "explain": "5 XOR 25: 00101 against 11001 disagrees in three high positions."
+    },
+    {
+     "text": "35",
+     "explain": "The pair values add to 35 - XOR drops the shared bits instead."
+    },
+    {
+     "text": "25",
+     "explain": "25 XOR 0 would need a 0 in the array."
+    },
+    {
+     "text": "7",
+     "explain": "7 is 5 XOR 2 - a low-bit pair, beaten by partners differing up high."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "tries-q7"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "Insert and search in a trie holding N words - what do they cost for a word of length L?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Constant",
+     "explain": "Every letter of the word must be walked - L steps, no fewer."
+    },
+    {
+     "text": "Proportional to L, independent of N",
+     "explain": "One step per letter; the stored volume changes memory, nothing about the walk."
+    },
+    {
+     "text": "L log N",
+     "explain": "No comparisons against other words happen - the path is addressed directly."
+    },
+    {
+     "text": "Proportional to N",
+     "explain": "Scanning all words is the hash-blind plan the trie replaces."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "tries-q8"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "Building the suffix trie of a string of length n costs, in nodes, up to about?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "n log n",
+     "explain": "That is a sorting bill; node growth follows substring counts."
+    },
+    {
+     "text": "n squared over 2 - one node per distinct substring",
+     "explain": "n suffixes of average length n/2; distinct substrings bound the node count."
+    },
+    {
+     "text": "n",
+     "explain": "Linear holds for one word, but all n suffixes are inserted here."
+    },
+    {
+     "text": "2 to the n",
+     "explain": "Substrings are contiguous - quadratically many, nothing exponential."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "tries-q9"
+  },
+  {
+   "kind": "bug",
+   "prompt": "search(car) returns true right after only carpet was inserted. What is the bug?",
+   "codeSnippet": "function search(root, word) {\n  let node = root\n  for (const ch of word) {\n    node = node.next[ch]\n    if (!node) return false\n  }\n  return true\n}",
+   "options": [
+    {
+     "text": "The null check comes too late",
+     "explain": "Checking after stepping is safe - undefined simply returns false."
+    },
+    {
+     "text": "carpet corrupted the trie",
+     "explain": "Insertion is innocent; the query lies about what reaching a node means."
+    },
+    {
+     "text": "It returns path-existence - the final line must check the end-of-word flag",
+     "explain": "car is a prefix of carpet, so the path exists; only the flag separates words."
+    },
+    {
+     "text": "The loop starts at the root's child",
+     "explain": "Starting at the root is correct; the walk is fine."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "tries-q10"
+  },
+  {
+   "kind": "bug",
+   "prompt": "This XOR-trie walk returns tiny values for a maximum-XOR query. What is the bug?",
+   "codeSnippet": "for (let b = 31; b >= 0; b--) {\n  const bit = (x >> b) & 1\n  if (node.next[bit]) {\n    node = node.next[bit]\n  } else if (node.next[1 - bit]) {\n    node = node.next[1 - bit]\n  }\n}",
+   "options": [
+    {
+     "text": "31 bits are too few",
+     "explain": "Bit width matters for huge values, but the direction of preference is the bug."
+    },
+    {
+     "text": "It prefers the same bit - the maximum wants the opposite bit at every level",
+     "explain": "Same bits XOR to 0; the walk is computing something close to the minimum."
+    },
+    {
+     "text": "The loop should run from bit 0 upward",
+     "explain": "Top-down is right - high bits dominate and must be decided first."
+    },
+    {
+     "text": "The mask arithmetic is off by one",
+     "explain": "The preference order is the flaw, before any masking details."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "tries-q11"
+  },
+  {
+   "kind": "edge",
+   "prompt": "Which sequence most deserves a dedicated test for a counting trie?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Insert the same word twice, erase once, then count it",
+     "explain": "Counters must read 2, then 1 - flag-only tries collapse duplicates and fail here."
+    },
+    {
+     "text": "Insert one very long word",
+     "explain": "Length stresses memory, but duplicates stress the counting contract."
+    },
+    {
+     "text": "Search in an empty trie",
+     "explain": "Worth one assertion; the duplicate dance breaks more implementations."
+    },
+    {
+     "text": "Insert words in alphabetical order",
+     "explain": "Insertion order is invisible to the final structure."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "tries-q12"
+  }
+ ]
 }

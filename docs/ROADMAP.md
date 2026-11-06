@@ -73,12 +73,14 @@ strings-advanced-algo) and batch 5 (beginner-problems, hashing, maths — the la
 with complete 5- and 3-problem learnOrders covering every non-theory row they have),
 together +19 primers, +110 statements, +228 quiz items, all validator-green when
 staged. With live arrays, every one of the 20 Learn topics is authored.
-Measured cost of batch 1 alone: +23,471 B gz, taking the precached shell to 416,210 B
-against the frozen 393,000 B cap. **Owner decision (2026-11-06, recorded in
-`docs/DECISIONS.md`): ship via a hybrid precache split** — primers/sections/quiz stay
-precached, per-problem statements become a lazy runtime-cached chunk. The split is the
-next engineering job; the batches stay parked until it lands and each batch passes the
-owner's accuracy review. Details:
+**Shipped 2026-11-06 via the hybrid precache split** (owner decisions recorded in
+`docs/DECISIONS.md`): primers/sections/quiz stay precached in the catalogue chunk;
+per-problem statements/tests/hints ride a lazy `assets/statements-*` add-on chunk
+(127,799 B raw / 37,513 B gz, never precached, cache-first after the first problem
+visit). The full 20-topic shell measures 470,895 B gz; the owner re-baselined the
+cap 393,000 → 475,000 B for it. All five batches passed two owner-run accuracy
+review rounds and are promoted into `data/content/` — the draft folders keep only
+their decision memos. Details:
 [`v3-batch-1/DECISION-MEMO.md`](content/drafts/v3-batch-1/DECISION-MEMO.md),
 [`v3-batch-5/README.md`](content/drafts/v3-batch-5/README.md).
 

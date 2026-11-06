@@ -460,10 +460,11 @@ describe('phase v2-05 quiz engine and theory MCQs', () => {
     expect(q('[data-testid="progress-pill"]').textContent).toBe('0/495 done')
   })
 
-  it('distinguishes ready vs pending topic quiz tabs and persists a guest Arrays quiz pass across routes', () => {
+  it('keeps every topic quiz tab ready and persists a guest Arrays quiz pass across routes', () => {
+    // Since the 2026-11-06 promotion every topic carries a 12-item bank, so
+    // the pending tab state no longer occurs live — sorting is ready too.
     goto('#/topic/sorting?tab=quiz')
-    expect(q('[data-testid="topic-quiz-pending"]')).toBeTruthy()
-    expect((q('[data-testid="topic-quiz-start"]') as HTMLButtonElement).disabled).toBe(true)
+    expect((q('[data-testid="topic-quiz-start"]') as HTMLButtonElement).disabled).toBe(false)
 
     goto('#/topic/arrays?tab=quiz')
     expect((q('[data-testid="topic-quiz-start"]') as HTMLButtonElement).disabled).toBe(false)
@@ -478,9 +479,12 @@ describe('phase v2-05 quiz engine and theory MCQs', () => {
     click(quizOption)
     expect(window.location.hash).toBe('#/quiz')
     goto(window.location.hash)
+    // With all 20 banks live, "Start a 4-minute check" suggests the first
+    // untaken topic in catalogue order (beginner-problems); the Arrays run
+    // below still enters through its own route.
     click(q('[data-testid="quiz-start-primary"]'))
-    expect(window.location.hash).toBe('#/quiz/arrays')
-    goto(window.location.hash)
+    expect(window.location.hash).toBe('#/quiz/beginner-problems')
+    goto('#/quiz/arrays')
 
     // Answer all 12 questions in guest mode (even a 0/12 attempt records to dsa-archive.quiz.v1).
     for (let i = 0; i < 12; i += 1) {

@@ -373,14 +373,12 @@ const CONTENT_LEVELS = [null, 'basic', 'core', 'pro'] as const
 const [
   rawPrefixes,
   rawTopics,
-  rawProblems,
   rawTheory,
   rawPractice,
   rawCoverage,
   rawMedia,
 ] = contentBundle as [
   string[],
-  Record<string, unknown>,
   Record<string, unknown>,
   [string, string, string, string, string | 0, [string, string][], number, string, number, string, string, string | 0, string | 0][],
   [string, string, string, string, string[], string | 0, [number, string, string, number, number, number, string, number][]][],
@@ -446,8 +444,52 @@ const unpackedPractice: Record<string, unknown> = Object.fromEntries(
 )
 
 const topics = collect(rawTopics, sanitizeTopicContent)
-const statements = collect(rawProblems, sanitizeStatement)
 const theoryMcqs = collect(unpackedTheory, sanitizeTheoryMcq)
+
+/* --- hybrid precache split: statements ride a lazy add-on chunk ----------- */
+// Per-problem statements/tests/hints are intentionally NOT part of the
+// precached `virtual:dsa-content` bundle (owner decision, docs/DECISIONS.md
+// "hybrid precache split"): they arrive from `assets/statements-*.js` on the
+// first problem visit, and the Service Worker then keeps that chunk
+// cache-first like the runner and account add-ons. Until it lands, every
+// getter returns the designed empty state; subscribers re-render the open
+// screen the moment the content arrives.
+let statements = new Map<string, Statement>()
+let statementsTick = 0
+let statementsImport: Promise<void> | null = null
+const statementListeners = new Set<() => void>()
+
+/**
+ * Kick off (or join) the lazy statements import. Safe to call from render:
+ * it is idempotent while in flight, and a failed import (offline before the
+ * chunk was ever cached) resets so a later visit can retry.
+ */
+export function statementsReady(): Promise<void> {
+  statementsImport ??= import('virtual:dsa-statements')
+    .then((mod) => {
+      statements = collect((mod.default ?? {}) as Record<string, unknown>, sanitizeStatement)
+      statementsTick += 1
+      for (const listener of [...statementListeners]) listener()
+    })
+    .catch(() => {
+      statementsImport = null
+    })
+  return statementsImport
+}
+
+/** `useSyncExternalStore` subscribe — also starts the import. */
+export function subscribeStatements(listener: () => void): () => void {
+  void statementsReady()
+  statementListeners.add(listener)
+  return () => {
+    statementListeners.delete(listener)
+  }
+}
+
+/** `useSyncExternalStore` snapshot — bumps once when the statements land. */
+export function statementsVersion(): number {
+  return statementsTick
+}
 const practiceSets = collect(unpackedPractice, sanitizePracticeSet)
 const coverage = sanitizeCoverage(rawCoverage)
 
@@ -498,6 +540,7 @@ export function getTopicContent(topicId: string): TopicContent | null {
 }
 
 export function getStatement(problemId: string): Statement | null {
+  void statementsReady()
   return statements.get(problemId) ?? null
 }
 

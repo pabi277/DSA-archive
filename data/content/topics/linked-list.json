@@ -1,11 +1,386 @@
 {
-  "topicId": "linked-list",
-  "patterns": [
-    "linked-list-reversal",
-    "fast-slow-pointers",
-    "two-pointers"
+ "topicId": "linked-list",
+ "patterns": [
+  "linked-list-reversal",
+  "fast-slow-pointers",
+  "two-pointers"
+ ],
+ "learnOrder": [
+  "traversal-in-linked-list",
+  "find-the-length-of-the-linked-list",
+  "search-in-linked-list",
+  "find-middle-of-linked-list",
+  "reverse-a-ll",
+  "merge-two-sorted-lists"
+ ],
+ "primer": {
+  "intro": "A linked list stores values in separate nodes, and each node carries a pointer to the next one. Unlike an array, the nodes do each live anywhere in memory; the order exists only in the pointers. That changes the price list of everyday operations. Reaching the kth value means walking k pointers, so random access is slow. But inserting or deleting at a known spot is one or two pointer rewrites, with no shifting of neighbours at all. Lists are the first data structure where the picture in your head matters more than the code: every operation is a short story about which arrow is redirected first, and the bugs are stories told in the wrong order. In this app the input gives the values as a row, your program builds the chain, works on it, and prints the values the chain holds at the end.",
+  "whenToUse": [
+   "Insertions and deletions happen in the middle and positions shift constantly, where arrays pay a shifting cost every time.",
+   "You only ever walk forward through the data, so the missing random access costs nothing.",
+   "A problem talks about a chain explicitly: next pointers, cycles, joining two chains, or reversing a section.",
+   "You need to splice two sequences together without copying either one."
   ],
-  "learnOrder": [],
-  "primer": null,
-  "quiz": []
+  "mentalModel": "Draw boxes and arrows, always. Each node is a box with a value and one outgoing arrow. The list is whatever the head arrow can reach. Deleting a node means making the arrow that pointed at it point past it; the box itself simply becomes unreachable. Inserting means drawing the new arrow first, then redirecting the old one - in that order, or the tail of the chain floats away. For anything positional, run a walker pointer from the head and count hops. For middles and cycles, run two walkers at different speeds: when the fast one does two hops per turn, the slow one stands at the middle when the fast one reaches the end, and inside a cycle the two must eventually meet.",
+  "mistakes": [
+   "Rewiring the previous pointer before saving the next one; the rest of the chain becomes unreachable mid-operation.",
+   "Forgetting the empty and one-node cases - head may need to change, and code that always dereferences head.next crashes on them.",
+   "Walking with the fast pointer without checking both it and its next for the end; one missing check is a crash on even-length lists."
+  ],
+  "example": {
+   "title": "Reverse a chain by turning arrows one at a time",
+   "code": "function reverseList(head) {\n  let previous = null\n  let current = head\n  while (current !== null) {\n    const next = current.next\n    current.next = previous\n    previous = current\n    current = next\n  }\n  return previous\n}",
+   "explain": "Three names carry the whole operation: previous is the part already reversed, current is the node being turned, next is the saved rest of the chain. The order inside the loop is the entire lesson - save next first, then turn the arrow, then advance both walkers. When current runs off the end, previous stands on the old tail, which is the new head. Swap any two lines of the loop body and the chain is lost; that fragility is why the save-first habit matters."
+  },
+  "practice": "Ready? Open Practice and start with Traversal in Linked List - every later operation is a walk plus one rewiring."
+ },
+ "sections": [
+  {
+   "id": "two-speeds",
+   "title": "Two walkers at two speeds",
+   "text": "A surprising number of list tasks fall to the same trick: run one slow pointer and one fast pointer from the head, where the fast one takes two hops for every single hop of the slow one. When the fast walker reaches the end of the chain, the slow walker stands at the middle - no length count needed, one pass total. If the chain secretly loops, the fast walker cannot escape it, and because it gains one hop on the slow walker every turn, the two must collide inside the loop; a collision is a proof of a cycle. The same gap idea with equal speeds finds the kth node from the back: send the first walker k hops ahead, then move both until the lead walker falls off.",
+   "check": {
+    "id": "linked-list-check-speeds",
+    "prompt": "A chain holds 1 2 3 4 5 6. Slow moves one hop per turn, fast moves two. Where does slow stand when fast can no longer complete a double hop?",
+    "codeSnippet": null,
+    "options": [
+     {
+      "text": "On 4",
+      "explain": "Turns advance slow to 2, 3, 4 while fast visits 3, 5 and then finds no double hop; slow is on 4."
+     },
+     {
+      "text": "On 3",
+      "explain": "On odd-length chains slow lands on 3 here; six nodes push it one further."
+     },
+     {
+      "text": "On 6",
+      "explain": "Slow covers half the distance of fast, so it reaches the end only when fast laps twice."
+     },
+     {
+      "text": "On 1",
+      "explain": "Slow moves every turn; it only remains on 1 when the chain has at most two nodes."
+     }
+    ],
+    "answerIndex": 0,
+    "rereadSectionId": "two-speeds",
+    "rereadSectionTitle": "Two walkers at two speeds",
+    "reveal": {
+     "alwaysAvailable": true,
+     "solution": "Walk it: both start on 1. Turn one: slow 2, fast 3. Turn two: slow 3, fast 5. Turn three still runs, because 5 has a next: slow moves to 4 while fast runs off the end to null, and the loop stops. Slow rests on 4 - the second middle of an even chain, the convention this app uses.",
+     "reference": {
+      "source": "takeuforward",
+      "url": "https://takeuforward.org/practice/dsa/reverse-a-ll",
+      "verified": "2026-11-03"
+     }
+    }
+   }
+  },
+  {
+   "id": "dummy-head",
+   "title": "The dummy head removes special cases",
+   "text": "Operations that may change the first node - inserting at the front, deleting the head, merging two chains - breed special-case code, because the head has no previous node to rewire. The standard cure is a dummy node: create one extra box before the real head, do all the splicing as if every node had a predecessor, and return dummy.next at the end. Merging two sorted chains becomes a single loop with a tail pointer growing out of the dummy, picking the smaller head each turn and splicing the leftovers at the end. The dummy costs one allocation and deletes a whole class of bugs; it is the cheapest insurance in this topic."
+  }
+ ],
+ "quiz": [
+  {
+   "kind": "pattern",
+   "prompt": "You must find the middle of a chain in one pass without knowing its length. Which tool from this topic does it?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Slow and fast walkers, speeds one and two",
+     "explain": "When fast exhausts the chain, slow stands at the middle."
+    },
+    {
+     "text": "Count the nodes, then walk half",
+     "explain": "Correct, but that is two passes; the task said one."
+    },
+    {
+     "text": "A dummy head before the real head",
+     "explain": "Dummies cure head rewiring, they say nothing about middles."
+    },
+    {
+     "text": "Reverse the chain first",
+     "explain": "Reversal changes order and still leaves you hunting for the middle."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "linked-list-q1"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "An operation may delete the current head or splice before it. What is the standard way to avoid a special case for the first node?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Use a fast walker",
+     "explain": "Speeds help with positions, which has nothing to do with head rewiring."
+    },
+    {
+     "text": "Add a dummy node in front and work from it",
+     "explain": "Every real node then has a predecessor; return dummy.next at the end."
+    },
+    {
+     "text": "Handle the head in a separate if branch",
+     "explain": "Works, but duplicates the splicing logic - the thing the dummy removes."
+    },
+    {
+     "text": "Store the values in an array first",
+     "explain": "Copying out defeats the point of pointer surgery."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "linked-list-q2"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "Two sorted chains must become one sorted chain in a single pass, without allocating new value nodes. Which plan fits?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Concatenate, then run bubble sort on the chain",
+     "explain": "Sorting a list by swaps costs n squared and ignores that both inputs are sorted."
+    },
+    {
+     "text": "Copy both into an array and sort it",
+     "explain": "Produces the values but allocates a full copy - the plan the task ruled out."
+    },
+    {
+     "text": "Reverse both chains first",
+     "explain": "Reversal gives descending order and solves no part of the merge."
+    },
+    {
+     "text": "Merge by splicing: grow a tail from a dummy, taking the smaller head each turn",
+     "explain": "Pointers are rewired, nodes are reused, order is preserved."
+    }
+   ],
+   "answerIndex": 3,
+   "id": "linked-list-q3"
+  },
+  {
+   "kind": "pattern",
+   "prompt": "A task asks for the kth node from the back in one pass. Which walker arrangement delivers it?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Two walkers at equal speed, the first sent k hops ahead",
+     "explain": "When the lead walker falls off the end, the trailing one stands k from the back."
+    },
+    {
+     "text": "Slow and fast at speeds one and two",
+     "explain": "That ratio finds middles; the back-distance trick needs a fixed gap, equal speeds."
+    },
+    {
+     "text": "One walker counting to k from the head",
+     "explain": "That is the kth from the front - the mirror of what was asked."
+    },
+    {
+     "text": "A walker that moves backwards",
+     "explain": "Singly linked nodes have no backward arrow to follow."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "linked-list-q4"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Chain: 1 -> 2 -> 3. The reversal loop runs once (one node turned). What do the pointers look like?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "1 points to null; previous is 1; current is 2",
+     "explain": "The first turn flips 1's arrow back, then both walkers advance."
+    },
+    {
+     "text": "3 points to 2 already",
+     "explain": "The loop turns arrows front to back; 3 is touched on the last turn."
+    },
+    {
+     "text": "2 points to 1 already",
+     "explain": "That happens on turn two, when current is 2."
+    },
+    {
+     "text": "Nothing changed yet",
+     "explain": "One full loop body has run: a save, a turn and two advances."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "linked-list-q5"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "Merging 1 -> 4 and 2 -> 3 with the dummy-and-tail loop: in what order are nodes spliced onto the tail?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "1, 2, 3, then 4 as the leftover",
+     "explain": "Heads compare 1 against 2, then 4 against 2, then 4 against 3; the 4 survives as the tail splice."
+    },
+    {
+     "text": "1, 2, 4, 3",
+     "explain": "After 2, the compare is 4 against 3, and 3 is smaller."
+    },
+    {
+     "text": "2, 1, 3, 4",
+     "explain": "The first compare takes the smaller head, which is 1."
+    },
+    {
+     "text": "1, 4, 2, 3",
+     "explain": "Taking both nodes of one chain first only happens when its values are all smaller."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "linked-list-q6"
+  },
+  {
+   "kind": "dryrun",
+   "prompt": "A walker searches 7 -> 3 -> 7 -> 9 for the value 7, reporting the hop count of the first hit. Head counts as hop 0. What is reported?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "1",
+     "explain": "Hop 1 lands on the 3."
+    },
+    {
+     "text": "3",
+     "explain": "Hop 3 is the 9, past both hits."
+    },
+    {
+     "text": "0",
+     "explain": "The head already holds 7; the walk stops before its first hop."
+    },
+    {
+     "text": "2",
+     "explain": "That is the second 7 - the walk must stop at the first."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "linked-list-q7"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "Reaching the value at position k in a singly linked chain costs how much?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "About k squared",
+     "explain": "Each hop is constant work; the walk is linear in k."
+    },
+    {
+     "text": "About k pointer hops",
+     "explain": "There is no index arithmetic; the chain must be walked."
+    },
+    {
+     "text": "Constant time, like an array read",
+     "explain": "Arrays buy that with contiguous memory, which lists gave up."
+    },
+    {
+     "text": "About log k",
+     "explain": "Halving needs random access to the middle, which a chain lacks."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "linked-list-q8"
+  },
+  {
+   "kind": "complexity",
+   "prompt": "You hold a pointer to the node just before position k. What does inserting a new node at position k cost?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "Constant - two pointer writes",
+     "explain": "New node aims at the successor, predecessor aims at the new node; nothing shifts."
+    },
+    {
+     "text": "Linear in the list length",
+     "explain": "The walk was already paid; the splice itself touches two arrows."
+    },
+    {
+     "text": "Linear in k",
+     "explain": "That is the cost of finding the spot, explicitly already in hand here."
+    },
+    {
+     "text": "It depends on the values stored",
+     "explain": "Splicing reads no values at all."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "linked-list-q9"
+  },
+  {
+   "kind": "bug",
+   "prompt": "This delete-after crashes on some perfectly ordinary calls. What is the bug?",
+   "codeSnippet": "function deleteAfter(node) {\n  node.next = node.next.next\n}",
+   "options": [
+    {
+     "text": "It crashes when node is the tail: node.next is null before .next",
+     "explain": "The missing guard is the bug; a tail call dereferences null."
+    },
+    {
+     "text": "It must also set node.next.next to null",
+     "explain": "The skipped node becoming unreachable is exactly how list deletion works."
+    },
+    {
+     "text": "The assignment direction is reversed",
+     "explain": "Pointing the predecessor past the victim is the correct direction."
+    },
+    {
+     "text": "It should walk to the end first",
+     "explain": "Delete-after is a local operation; no walk belongs in it."
+    }
+   ],
+   "answerIndex": 0,
+   "id": "linked-list-q10"
+  },
+  {
+   "kind": "bug",
+   "prompt": "This middle finder crashes on chains of even length. Why?",
+   "codeSnippet": "let slow = head\nlet fast = head\nwhile (fast.next !== null) {\n  slow = slow.next\n  fast = fast.next.next\n}",
+   "options": [
+    {
+     "text": "The loop needs a counter variable",
+     "explain": "The two-walker point is to avoid counting; the guard is what is missing."
+    },
+    {
+     "text": "After fast.next.next, fast can be null, and the loop test reads null.next",
+     "explain": "The test must check fast and fast.next; even lengths park fast on null."
+    },
+    {
+     "text": "slow advances too early",
+     "explain": "Advancing slow once per turn is the definition of half speed."
+    },
+    {
+     "text": "fast must move three hops",
+     "explain": "Speed two is what makes slow land on the middle."
+    }
+   ],
+   "answerIndex": 1,
+   "id": "linked-list-q11"
+  },
+  {
+   "kind": "edge",
+   "prompt": "Which input most deserves its own test when you write any list operation?",
+   "codeSnippet": null,
+   "options": [
+    {
+     "text": "A chain with negative values",
+     "explain": "Pointer surgery nowhere reads the sign of a value."
+    },
+    {
+     "text": "A chain built in reverse order",
+     "explain": "Build order leaves no trace in the final pointers."
+    },
+    {
+     "text": "The empty chain and the one-node chain",
+     "explain": "Head changes and null dereferences hide exactly there."
+    },
+    {
+     "text": "A chain of length one thousand",
+     "explain": "Long chains stress speed, but the logic bugs live at the tiny ends."
+    }
+   ],
+   "answerIndex": 2,
+   "id": "linked-list-q12"
+  }
+ ]
 }

@@ -18,6 +18,7 @@ import { locateProblem } from '../library'
 import { isDrillId } from '../content/practice'
 import { getTests, getTheoryMcq, getTopicContent } from '../content/load'
 import { mediaFor } from '../content/load'
+import { useStatements } from '../content/useStatements'
 import { StatementCard } from '../content/statement'
 import { Button, Empty, Tag } from '../design/primitives'
 import { IconArrowLeft, IconCode, IconExternal } from '../design/icons'
@@ -103,8 +104,10 @@ export function ProblemScreen({
 
   const moments = useMemo(() => momentsOf(snippet), [snippet])
   // Phase v2-07: the authored `{input, expected}` pairs (phase 03) drive the
-  // Run panel's "Run tests" button on this same page.
-  const cases = useMemo(() => getTests(problemId), [problemId])
+  // Run panel's "Run tests" button on this same page. The statements ride a
+  // lazy add-on chunk, so the memo re-reads when that chunk lands.
+  const statementsTick = useStatements()
+  const cases = useMemo(() => getTests(problemId), [problemId, statementsTick])
 
   const addStamp = useCallback(
     (at: number, text: string) => {

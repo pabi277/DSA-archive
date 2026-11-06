@@ -1,33 +1,33 @@
 {
-  "problemId": "linear-search",
-  "statement": "You receive a row of integers and one target integer. Return the first position where the target appears. Positions start at 0. If the target is absent, return -1. Return only the position, not the value at that position.",
-  "constraints": [
-    "2 ≤ n ≤ 1000",
-    "-1000 ≤ each value, target ≤ 1000",
-    "Values may repeat."
-  ],
-  "example": {
-    "input": "5\n4 1 7 3 7\n7\n",
-    "output": "2",
-    "why": "The first 7 is at index 2; the later 7 does not change the answer."
+ "problemId": "linear-search",
+ "statement": "The first line holds n; the second holds n integers; the third holds one target integer. Return the first position where the target appears. Positions start at 0. If the target is absent, return -1. Return only the position, not the value at that position.",
+ "constraints": [
+  "2 ≤ n ≤ 1000",
+  "-1000 ≤ each value, target ≤ 1000",
+  "Values may repeat."
+ ],
+ "example": {
+  "input": "5\n4 1 7 3 7\n7\n",
+  "output": "2",
+  "why": "The first 7 is at index 2; the later 7 does not change the answer."
+ },
+ "hint": "Stop as soon as the first position matches; later matches cannot improve it.",
+ "mistake": "Returning the last matching index — keep the first position and leave the loop.",
+ "tests": [
+  {
+   "input": "5\n4 1 7 3 7\n7\n",
+   "expected": "2",
+   "note": "repeated target"
   },
-  "hint": "Stop as soon as the first position matches; later matches cannot improve it.",
-  "mistake": "Returning the last matching index — keep the first position and leave the loop.",
-  "tests": [
-    {
-      "input": "5\n4 1 7 3 7\n7\n",
-      "expected": "2",
-      "note": "repeated target"
-    },
-    {
-      "input": "4\n-6 0 5 2\n8\n",
-      "expected": "-1",
-      "note": "absent target"
-    },
-    {
-      "input": "3\n9 1 9\n9\n",
-      "expected": "0",
-      "note": "target at first index"
-    }
-  ]
+  {
+   "input": "4\n-6 0 5 2\n8\n",
+   "expected": "-1",
+   "note": "absent target"
+  },
+  {
+   "input": "3\n9 1 9\n9\n",
+   "expected": "0",
+   "note": "target at first index"
+  }
+ ]
 }
