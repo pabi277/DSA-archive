@@ -6,7 +6,7 @@
 Authored 2026-11-06 under the recorded hybrid decision (`docs/DECISIONS.md`,
 option 3 of `../v3-batch-1/DECISION-MEMO.md`). Same parking protocol as batches 1–2.
 
-| Topic | Primer | Sections / inline checks | Quiz | Statements (3 runner tests each) |
+| Topic | Prose (primer + sections) | Sections / inline checks | Quiz | Statements (3 runner tests each) |
 |---|---|---|---|---|
 | binary-trees | 712 words | 2 / 1 | 12 | 6 |
 | binary-search-trees | 673 words | 2 / 1 | 12 | 6 |

@@ -309,7 +309,7 @@
   },
   {
    "kind": "bug",
-   "prompt": "This lps builder returns 0 1 0 1 2 1 2 for aabaaab (truth: 0 1 0 1 2 2 3). What is the bug?",
+   "prompt": "This lps builder returns 0 1 0 1 2 0 0 for aabaaab (truth: 0 1 0 1 2 2 3). What is the bug?",
    "codeSnippet": "for (let i = 1; i + 1 <= s.length; i++) {\n  if (s[i] === s[len]) {\n    len += 1\n  } else {\n    len = 0\n  }\n  lps[i] = len\n}",
    "options": [
     {
@@ -368,7 +368,7 @@
     },
     {
      "text": "A pattern with mixed case",
-     "explain": "Alphabet questions are policy, the length inversion is arithmetic."
+     "explain": "Case handling is a spec decision; the m-bigger-than-n guard is where code actually breaks."
     },
     {
      "text": "A pattern longer than the text",

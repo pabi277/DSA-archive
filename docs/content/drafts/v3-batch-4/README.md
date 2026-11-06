@@ -7,7 +7,7 @@ at 393,000 B until the catalogue/content split ships, so drafts wait in docs/.
 
 ## What's in this batch
 
-| Topic | Primer words | Sections (checks) | Quiz | Problems (learnOrder) |
+| Topic | Prose words (primer + sections) | Sections (checks) | Quiz | Problems (learnOrder) |
 | --- | --- | --- | --- | --- |
 | `graphs` | 704 | The visited array (`graphs-check-visited`) · Waves and colours | 12 | number-of-provinces, number-of-islands, flood-fill-algorithm, rotten-oranges, detect-a-cycle-in-an-undirected-graph, bipartite-graph |
 | `dynamic-programming` | 717 | Name the state (`dynamic-programming-check-state`) · Pick or skip | 12 | climbing-stairs, frog-jump, maximum-sum-of-non-adjacent-elements, house-robber, grid-unique-paths, best-time-to-buy-and-sell-stock |

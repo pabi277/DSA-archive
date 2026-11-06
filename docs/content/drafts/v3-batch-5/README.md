@@ -10,7 +10,7 @@ topics has a primer, sections, quiz and problem statements.
 
 ## What's in this batch
 
-| Topic | Primer words | Sections (checks) | Quiz | learnOrder |
+| Topic | Prose words (primer + sections) | Sections (checks) | Quiz | learnOrder |
 | --- | --- | --- | --- | --- |
 | `beginner-problems` | 746 | The digit loop (`beginner-check-digit-loop`) · Pairs, halves and remainders | 12 | count-all-digits-of-a-number, reverse-a-number, palindrome-number, check-for-prime-number, gcd-of-two-numbers, sum-of-array-elements |
 | `hashing` | 739 | Prefix sums meet maps (`hashing-check-prefix`) · Sets that spot starts | 12 | longest-consecutive-sequence-in-an-array, longest-subarray-with-sum-k, largest-subarray-with-sum-0, count-subarrays-with-given-sum, count-subarrays-with-given-xor-k |

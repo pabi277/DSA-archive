@@ -69,7 +69,7 @@
      "solution": "Run the formulas. Parent of j: floor of (j-1)/2 = floor of 6/2 = 3. Children of i: 2i+1 and 2i+2 = 15 and 16. The inverse pair of formulas is the entire pointer structure of a heap - no node objects, no links, just multiplication and division by two, which is also why heaps are so cache-friendly in practice.",
      "reference": {
       "source": "takeuforward",
-      "url": "https://takeuforward.org/practice/dsa/build-heap-from-a-given-array",
+      "url": "https://takeuforward.org/practice/dsa/check-if-an-array-represents-a-min-heap-",
       "verified": "2026-11-03"
      }
     }
@@ -318,7 +318,7 @@
     },
     {
      "text": "The bound misses the last leaf",
-     "explain": "Leaves need no sifting - they have no children to违反. The direction is the fault."
+     "explain": "Leaves need no sifting - they have no children to violate. The direction is the fault."
     },
     {
      "text": "siftDown should be siftUp",

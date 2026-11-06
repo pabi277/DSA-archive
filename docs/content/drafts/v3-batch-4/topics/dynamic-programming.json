@@ -288,7 +288,7 @@
    "codeSnippet": null,
    "options": [
     {
-     "text": "The call tree goes exponential - near 2 to the 50 nodes - and hangs",
+     "text": "The call tree goes exponential - tens of billions of calls - and it hangs",
      "explain": "Each call spawns two; identical subproblems are recomputed endlessly."
     },
     {

@@ -74,8 +74,63 @@ them in the hybrid-split engineering turn (owner-gated):
 4. Option order for arrays quiz (answerIndex all 0) — either permute data or
    add option-shuffling to the quiz engine during the split turn.
 
+## Round 2 — 2026-11-06 (batches 3 and 4, with the updated prompt)
+
+Both reviewers successfully fetched the drafts from this branch this time.
+Every claim was independently re-verified here before acting; this round had
+reviewer errors, so several claims were **rejected with evidence**.
+
+| Batch | Reported | Confirmed + fixed | Rejected |
+| --- | --- | --- | --- |
+| 3 | 0 blockers, 1 minor + 2 out-of-scope | 2 (check reference repointed; `违反` mojibake — the round-0 fix never reached the packaged copy) | 0 |
+| 4 | 5 blockers, 8 minors | 4 real (1 blocker-class: grid 64-bit constraint; lps bug stem; 2^50 overclaim; 2 polish items) + README relabel | 5 |
+
+### Fixes applied
+
+- **batch 3 / heaps**: `quiz` option explain `"to违反."` → `"to violate."`
+  (CJK scan now clean); section check reference repointed from the
+  build-heap row to `check-if-an-array-represents-a-min-heap` — the row
+  actually about array-index structure.
+- **batch 4 / grid-unique-paths**: constraints said `m, n ≤ 100` AND "fits in
+  64 bits" — false together (C(198,99) is 194 bits). Capped at `m, n ≤ 34`
+  (C(66,33) ≈ 7.22e18 < 2^63, verified).
+- **batch 4 / strings-advanced-algo**: lps bug stem now quotes the output the
+  snippet actually produces (`0 1 0 1 2 0 0`, verified by execution); vague
+  edge-case distractor explain rewritten.
+- **batch 4 / dynamic-programming**: "near 2 to the 50 nodes" → "tens of
+  billions of calls" (true count ≈ 4×10^10 ≈ 2^35).
+- **batch 4 / graphs**: primer example explain now notes the grid is numeric
+  rows (the runner problems feed character strings).
+- **READMEs (batches 3/4/5)**: word-count column relabelled "prose
+  (primer + sections)" — the numbers always included section text.
+
+### Rejected claims (batch 4) — do not re-fix
+
+1. *Stock dryrun explains inconsistent*: false — prices `7 1 5 3 6 4` map to
+   days 1–6; "day 5's price 6" and "selling at 7 happens before the 1" are
+   both correct readings. Reviewer misparsed prices vs day numbers.
+2. *Trie search snippet throws TypeError*: false — `if (!node) return false`
+   runs in the same iteration as the assignment, before any further
+   dereference. Executed `search('xyz')`/`search('cxyz')`: returns false, no
+   throw.
+3. *reverse-every-word has no internal-spaces test*: false — the messy test
+   is `"  hello   world  "`, which contains an internal triple space.
+4. *count-and-say needs big integers*: false — terms are built and printed
+   as strings; no arithmetic on them anywhere.
+5. *graphs "V squared always" partly right*: the stem pins the adjacency-list
+   representation, under which V+E is the only correct bill.
+
+### Added to deferred live-content list
+
+5. `data/problems.json` junk rank-1 practice URLs confirmed beyond
+   linear-search: `n-meetings-in-one-room` → LC sum-of-two-integers,
+   `build-heap-from-a-given-array` → LC add-digits, `heapify-algorithm` →
+   LC factorial-trailing-zeroes. Same coordinated fix as item 1 (screenshot
+   stamp + link baseline).
+
 ## Still open
 
-- Batches 3 and 4: re-run reviewer chats with the updated REVIEW-PROMPT.md
-  (it now tells the reviewer how to fetch the drafts from this branch).
-- Owner may optionally re-run batches 1/2/5 after the fixes for a clean pass.
+- All five batches have now had a real accuracy pass; all confirmed defects
+  are fixed. The owner's remaining gate is promotion sign-off per batch
+  (plus the hybrid precache split before anything ships).
+- Optional: clean-pass re-reviews of any batch after these fixes.

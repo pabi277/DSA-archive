@@ -2,7 +2,7 @@
  "problemId": "grid-unique-paths",
  "statement": "One line holds m and n. You stand on the top-left cell of an m by n grid and may move only right or down; print the number of distinct paths to the bottom-right cell. State: f(i, j) is the number of paths into cell (i, j). Transition: a path arrives from above or from the left, so f(i, j) = f(i-1, j) + f(i, j-1), with the first row and column all 1. One row of the table suffices as rolling storage.",
  "constraints": [
-  "1 ≤ m, n ≤ 100",
+  "1 ≤ m, n ≤ 34",
   "The answer fits in a 64-bit integer."
  ],
  "example": {
